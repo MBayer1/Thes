@@ -17,11 +17,11 @@ public class RoundaboutSink extends AbstractSink {
 
     private IStreetConnector previousStreetConnector;
 
-    private double meanRoundaboutPassTimeSum;
-    private double meanTimeSpentInSystemSum;
-    private double meanWaitingTimePerStopSum;
-    private double stopCountSum;
-    private double meanIntersectionPassTimeSum;
+    private double meanRoundaboutPassTime;
+    private double meanTimeSpentInSystem;
+    private double meanWaitingTimePerStop;
+    private double meanStopCount;
+    private double meanIntersectionPassTime;
 
     public RoundaboutSink(Model owner, String name, boolean showInTrace) {
         this(UUID.randomUUID().toString(), owner, name, showInTrace);
@@ -30,11 +30,11 @@ public class RoundaboutSink extends AbstractSink {
     public RoundaboutSink(String id, Model owner, String name, boolean showInTrace) {
         super(id, owner, name, showInTrace);
 
-        this.meanRoundaboutPassTimeSum = 0;
-        this.meanTimeSpentInSystemSum = 0;
-        this.meanWaitingTimePerStopSum = 0;
-        this.stopCountSum = 0;
-        this.meanIntersectionPassTimeSum = 0;
+        this.meanRoundaboutPassTime = 0;
+        this.meanTimeSpentInSystem = 0;
+        this.meanWaitingTimePerStop = 0;
+        this.meanStopCount = 0;
+        this.meanIntersectionPassTime = 0;
     }
 
     /**
@@ -67,11 +67,11 @@ public class RoundaboutSink extends AbstractSink {
     public void updateStats(ICar car) {
         // to avoid double overflow, as the sum of all the values over a long simulation time might cause this, the current average is stored directly
         double dPreviousPercentage = ((double)getNrOfEnteredCars()-1)/ (double) getNrOfEnteredCars();
-        meanRoundaboutPassTimeSum = meanRoundaboutPassTimeSum * dPreviousPercentage + car.getMeanRoundaboutPassTime()/ getNrOfEnteredCars();
-        meanTimeSpentInSystemSum = meanTimeSpentInSystemSum * dPreviousPercentage + car.getTimeSpentInSystem()/ getNrOfEnteredCars();
-        meanWaitingTimePerStopSum = meanWaitingTimePerStopSum * dPreviousPercentage + car.getMeanWaitingTime()/ getNrOfEnteredCars();
-        stopCountSum = stopCountSum * dPreviousPercentage + car.getStopCount()/ getNrOfEnteredCars();
-        meanIntersectionPassTimeSum = meanIntersectionPassTimeSum * dPreviousPercentage + car.getMeanIntersectionPassTime()/ getNrOfEnteredCars();
+        meanRoundaboutPassTime = meanRoundaboutPassTime * dPreviousPercentage + car.getMeanRoundaboutPassTime()/ getNrOfEnteredCars();
+        meanTimeSpentInSystem = meanTimeSpentInSystem * dPreviousPercentage + car.getTimeSpentInSystem()/ getNrOfEnteredCars();
+        meanWaitingTimePerStop = meanWaitingTimePerStop * dPreviousPercentage + car.getMeanWaitingTime()/ getNrOfEnteredCars();
+        meanStopCount = meanStopCount * dPreviousPercentage + car.getStopCount()/ getNrOfEnteredCars();
+        meanIntersectionPassTime = meanIntersectionPassTime * dPreviousPercentage + car.getMeanIntersectionPassTime()/ getNrOfEnteredCars();
     }
 
     /**
@@ -240,7 +240,7 @@ public class RoundaboutSink extends AbstractSink {
      */
     @Override
     public double getMeanRoundaboutPassTimeForEnteredCars() {
-        return meanRoundaboutPassTimeSum ;
+        return meanRoundaboutPassTime;
     }
 
     /**
@@ -248,7 +248,7 @@ public class RoundaboutSink extends AbstractSink {
      */
     @Override
     public double getMeanTimeSpentInSystemForEnteredCars() {
-        return meanTimeSpentInSystemSum;
+        return meanTimeSpentInSystem;
     }
 
     /**
@@ -256,7 +256,7 @@ public class RoundaboutSink extends AbstractSink {
      */
     @Override
     public double getMeanWaitingTimePerStopForEnteredCars() {
-        return meanWaitingTimePerStopSum;
+        return meanWaitingTimePerStop;
     }
 
     /**
@@ -264,14 +264,13 @@ public class RoundaboutSink extends AbstractSink {
      */
     @Override
     public double getMeanStopCountForEnteredCars() {
-        return stopCountSum;
+        return meanStopCount;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public double getMeanIntersectionPassTimeForEnteredCars() {
-        return meanIntersectionPassTimeSum;
+    public double getMeanIntersectionPassTimeForEnteredCars() { return meanIntersectionPassTime;
     }
 }
