@@ -65,11 +65,13 @@ public class RoundaboutSink extends AbstractSink {
     }
 
     public void updateStats(ICar car) {
-        meanRoundaboutPassTimeSum += car.getMeanRoundaboutPassTime();
-        meanTimeSpentInSystemSum += car.getTimeSpentInSystem();
-        meanWaitingTimePerStopSum += car.getMeanWaitingTime();
-        stopCountSum += car.getStopCount();
-        meanIntersectionPassTimeSum += car.getMeanIntersectionPassTime();
+        // to avoid double overflow, as the sum of all the values over a long simulation time might cause this, the current average is stored directly
+        double dPreviousPercentage = ((double)getNrOfEnteredCars()-1)/ (double) getNrOfEnteredCars();
+        meanRoundaboutPassTimeSum = meanRoundaboutPassTimeSum * dPreviousPercentage + car.getMeanRoundaboutPassTime()/ getNrOfEnteredCars();
+        meanTimeSpentInSystemSum = meanTimeSpentInSystemSum * dPreviousPercentage + car.getTimeSpentInSystem()/ getNrOfEnteredCars();
+        meanWaitingTimePerStopSum = meanWaitingTimePerStopSum * dPreviousPercentage + car.getMeanWaitingTime()/ getNrOfEnteredCars();
+        stopCountSum = stopCountSum * dPreviousPercentage + car.getStopCount()/ getNrOfEnteredCars();
+        meanIntersectionPassTimeSum = meanIntersectionPassTimeSum * dPreviousPercentage + car.getMeanIntersectionPassTime()/ getNrOfEnteredCars();
     }
 
     /**
@@ -238,7 +240,7 @@ public class RoundaboutSink extends AbstractSink {
      */
     @Override
     public double getMeanRoundaboutPassTimeForEnteredCars() {
-        return meanRoundaboutPassTimeSum / getNrOfEnteredCars();
+        return meanRoundaboutPassTimeSum ;
     }
 
     /**
@@ -246,7 +248,7 @@ public class RoundaboutSink extends AbstractSink {
      */
     @Override
     public double getMeanTimeSpentInSystemForEnteredCars() {
-        return meanTimeSpentInSystemSum / getNrOfEnteredCars();
+        return meanTimeSpentInSystemSum;
     }
 
     /**
@@ -254,7 +256,7 @@ public class RoundaboutSink extends AbstractSink {
      */
     @Override
     public double getMeanWaitingTimePerStopForEnteredCars() {
-        return meanWaitingTimePerStopSum / getNrOfEnteredCars();
+        return meanWaitingTimePerStopSum;
     }
 
     /**
@@ -262,7 +264,7 @@ public class RoundaboutSink extends AbstractSink {
      */
     @Override
     public double getMeanStopCountForEnteredCars() {
-        return stopCountSum / getNrOfEnteredCars();
+        return stopCountSum;
     }
 
     /**
@@ -270,6 +272,6 @@ public class RoundaboutSink extends AbstractSink {
      */
     @Override
     public double getMeanIntersectionPassTimeForEnteredCars() {
-        return meanIntersectionPassTimeSum / getNrOfEnteredCars();
+        return meanIntersectionPassTimeSum;
     }
 }
