@@ -23,7 +23,7 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 /**
- * This is Utility class which starts the whole application.
+ * This is Utility class which starts the whole application. 
  */
 public class MainApp extends Application {
 
