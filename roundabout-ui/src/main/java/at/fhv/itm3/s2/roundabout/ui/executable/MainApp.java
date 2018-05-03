@@ -24,6 +24,7 @@ import java.util.function.Supplier;
 
 /**
  * This is Utility class which starts the whole application.
+ * This is the original Version of ITM-16
  */
 public class MainApp extends Application {
 
