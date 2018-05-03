@@ -66,12 +66,12 @@ public class RoundaboutSink extends AbstractSink {
 
     public void updateStats(ICar car) {
         // to avoid double overflow, as the sum of all the values over a long simulation time might cause this, the current average is stored directly
-        double dPreviousPercentage = ((double)getNrOfEnteredCars()-1)/ (double) getNrOfEnteredCars();
-        meanRoundaboutPassTime = meanRoundaboutPassTime * dPreviousPercentage + car.getMeanRoundaboutPassTime()/ getNrOfEnteredCars();
-        meanTimeSpentInSystem = meanTimeSpentInSystem * dPreviousPercentage + car.getTimeSpentInSystem()/ getNrOfEnteredCars();
-        meanWaitingTimePerStop = meanWaitingTimePerStop * dPreviousPercentage + car.getMeanWaitingTime()/ getNrOfEnteredCars();
-        meanStopCount = meanStopCount * dPreviousPercentage + car.getStopCount()/ getNrOfEnteredCars();
-        meanIntersectionPassTime = meanIntersectionPassTime * dPreviousPercentage + car.getMeanIntersectionPassTime()/ getNrOfEnteredCars();
+        double dPreviousRate = ((double)getNrOfEnteredCars()-1)/ (double) getNrOfEnteredCars();
+        meanRoundaboutPassTime = meanRoundaboutPassTime * dPreviousRate + car.getMeanRoundaboutPassTime()/ getNrOfEnteredCars();
+        meanTimeSpentInSystem = meanTimeSpentInSystem * dPreviousRate + car.getTimeSpentInSystem()/ getNrOfEnteredCars();
+        meanWaitingTimePerStop = meanWaitingTimePerStop * dPreviousRate + car.getMeanWaitingTime()/ getNrOfEnteredCars();
+        meanStopCount = meanStopCount * dPreviousRate + car.getStopCount()/ getNrOfEnteredCars();
+        meanIntersectionPassTime = meanIntersectionPassTime * dPreviousRate + car.getMeanIntersectionPassTime()/ getNrOfEnteredCars();
     }
 
     /**
