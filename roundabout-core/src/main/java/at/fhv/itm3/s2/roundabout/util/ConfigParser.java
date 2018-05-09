@@ -38,7 +38,6 @@ public class ConfigParser {
     private static final String MIN_DISTANCE_FACTOR_BETWEEN_CARS = "MIN_DISTANCE_FACTOR_BETWEEN_CARS";
     private static final String MAX_DISTANCE_FACTOR_BETWEEN_CARS = "MAX_DISTANCE_FACTOR_BETWEEN_CARS";
     private static final String MAIN_ARRIVAL_RATE_FOR_ONE_WAY_STREETS = "MAIN_ARRIVAL_RATE_FOR_ONE_WAY_STREETS";
-    private static final String STANDARD_CAR_ACCELERATION_TIME = "STANDARD_CAR_ACCELERATION_TIME";
     private static final String MIN_CAR_LENGTH = "MIN_CAR_LENGTH";
     private static final String MAX_CAR_LENGTH = "MAX_CAR_LENGTH";
     private static final String EXPECTED_CAR_LENGTH = "EXPECTED_CAR_LENGTH";
@@ -47,6 +46,24 @@ public class ConfigParser {
     private static final String EXPECTED_TRUCK_LENGTH = "EXPECTED_TRUCK_LENGTH";
     private static final String CAR_RATIO_PER_TOTAL_VEHICLE = "CAR_RATIO_PER_TOTAL_VEHICLE";
     private static final String JAM_INDICATOR_IN_SECONDS = "JAM_INDICATOR_IN_SECONDS";
+
+    private static final String MIN_SPEED ="MIN_SPEED";
+    private static final String MAX_SPEED = "MAX_SPEED";
+    private static final String EXPECTED_SPEED = "EXPECTED_SPEED";
+    private static final String MIN_ACCELERATION_TIME_0_TO_100 = "MIN_ACCELERATION_TIME_0_TO_100";
+    private static final String MAX_ACCELERATION_TIME_0_TO_100  = "MAX_ACCELERATION_TIME_0_TO_100";
+    private static final String EXPECTED_ACCELERATION_TIME_0_TO_100 = "EXPECTED_ACCELERATION_TIME_0_TO_100";
+
+    private static final String MIN_DISTANCE_TO_NEXT_CAR_MIN = "MIN_DISTANCE_TO_NEXT_CAR_MIN";
+    private static final String MAX_DISTANCE_TO_NEXT_CAR_MIN = "MAX_DISTANCE_TO_NEXT_CAR_MIN";
+    private static final String EXPECTED_DISTANCE_TO_NEXT_CAR_MIN = "EXPECTED_DISTANCE_TO_NEXT_CAR_MIN";
+    private static final String MIN_DISTANCE_TO_NEXT_CAR_MAX = "MIN_DISTANCE_TO_NEXT_CAR_MAX";
+    private static final String MAX_DISTANCE_TO_NEXT_CAR_MAX = "MAX_DISTANCE_TO_NEXT_CAR_MAX";
+    private static final String EXPECTED_DISTANCE_TO_NEXT_CAR_MAX = "EXPECTED_DISTANCE_TO_NEXT_CAR_MAX";
+
+    private static final String MIN_MERGE_FACTOR = "MIN_MERGE_FACTOR";
+    private static final String MAX_MERGE_FACTOR = "MAX_MERGE_FACTOR";
+    private static final String EXPECTED_MERGE_FACTOR = "EXPECTED_MERGE_FACTOR";
 
     private static final String INTERSECTION_SIZE = "INTERSECTION_SIZE";
     private static final String INTERSECTION_SERVICE_DELAY = "INTERSECTION_SERVICE_DELAY";
@@ -105,7 +122,6 @@ public class ConfigParser {
             extractParameter(parameters::get, Double::valueOf, MIN_DISTANCE_FACTOR_BETWEEN_CARS),
             extractParameter(parameters::get, Double::valueOf, MAX_DISTANCE_FACTOR_BETWEEN_CARS),
             extractParameter(parameters::get, Double::valueOf, MAIN_ARRIVAL_RATE_FOR_ONE_WAY_STREETS),
-            extractParameter(parameters::get, Double::valueOf, STANDARD_CAR_ACCELERATION_TIME),
             extractParameter(parameters::get, Double::valueOf, MIN_CAR_LENGTH),
             extractParameter(parameters::get, Double::valueOf, MAX_CAR_LENGTH),
             extractParameter(parameters::get, Double::valueOf, EXPECTED_CAR_LENGTH),
@@ -113,7 +129,25 @@ public class ConfigParser {
             extractParameter(parameters::get, Double::valueOf, MAX_TRUCK_LENGTH),
             extractParameter(parameters::get, Double::valueOf, EXPECTED_TRUCK_LENGTH),
             extractParameter(parameters::get, Double::valueOf, CAR_RATIO_PER_TOTAL_VEHICLE),
-            extractParameter(parameters::get, Double::valueOf, JAM_INDICATOR_IN_SECONDS)
+            extractParameter(parameters::get, Double::valueOf, JAM_INDICATOR_IN_SECONDS),
+
+            extractParameter(parameters::get, Double::valueOf, MIN_SPEED ),
+            extractParameter(parameters::get, Double::valueOf, MAX_SPEED ),
+            extractParameter(parameters::get, Double::valueOf, EXPECTED_SPEED ),
+            extractParameter(parameters::get, Double::valueOf, MIN_ACCELERATION_TIME_0_TO_100 ),
+            extractParameter(parameters::get, Double::valueOf, MAX_ACCELERATION_TIME_0_TO_100 ),
+            extractParameter(parameters::get, Double::valueOf, EXPECTED_ACCELERATION_TIME_0_TO_100 ),
+
+            extractParameter(parameters::get, Double::valueOf, MIN_DISTANCE_TO_NEXT_CAR_MIN ),
+            extractParameter(parameters::get, Double::valueOf, MAX_DISTANCE_TO_NEXT_CAR_MIN ),
+            extractParameter(parameters::get, Double::valueOf, EXPECTED_DISTANCE_TO_NEXT_CAR_MIN ),
+            extractParameter(parameters::get, Double::valueOf, MIN_DISTANCE_TO_NEXT_CAR_MAX ),
+            extractParameter(parameters::get, Double::valueOf, MAX_DISTANCE_TO_NEXT_CAR_MAX ),
+            extractParameter(parameters::get, Double::valueOf, EXPECTED_DISTANCE_TO_NEXT_CAR_MAX ),
+
+            extractParameter(parameters::get, Double::valueOf, MIN_MERGE_FACTOR ),
+            extractParameter(parameters::get, Double::valueOf, MAX_MERGE_FACTOR ),
+            extractParameter(parameters::get, Double::valueOf, EXPECTED_MERGE_FACTOR )
         );
         model.connectToExperiment(experiment);  // ! - Should be done before anything else.
 

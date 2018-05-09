@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 import static at.fhv.itm3.s2.roundabout.mocks.RouteType.*;
-import static org.mockito.Matchers.anyDouble;
+import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.when;
 
 public class RouteGeneratorMock {
@@ -319,7 +319,7 @@ public class RouteGeneratorMock {
         Street street3 = Mockito.mock(StreetSection.class);
         RoundaboutSink roundaboutSink = new RoundaboutSink(model, "", false);
 
-        when(street3.isEnoughSpace(anyDouble())).thenReturn(false);
+        when(street3.isEnoughSpaceForCarInPercentage(anyObject())).thenReturn(false);
 
         // initialize connectors
         List<IConsumer> prevStreetsForConnector1 = new LinkedList<>();
@@ -402,7 +402,7 @@ public class RouteGeneratorMock {
         AbstractProSumer street2 = new StreetSection(10.0, model, "", false);
         AbstractProSumer street3 = Mockito.mock(StreetSection.class);
 
-        when(((StreetSection)street3).isEnoughSpace(anyDouble())).thenReturn(false);
+        when(((StreetSection)street3).isEnoughSpaceForCarInPercentage(anyObject())).thenReturn(false);
 
         // initialize roundaboutSink
         RoundaboutSink roundaboutSink = new RoundaboutSink(model, "", false);

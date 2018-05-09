@@ -73,7 +73,14 @@ public class CarGenerateEvent extends Event<AbstractSource> {
         final double carLength = roundaboutSimulationModel.getRandomVehicleLength();
 
         final Car car = new Car(roundaboutSimulationModel, "", false);
-        final DriverBehaviour driverBehaviour = new DriverBehaviour(6.0, 0.5, 1, 1, 1);
+
+
+        final DriverBehaviour driverBehaviour = new DriverBehaviour(    roundaboutSimulationModel.getRandomVehicleSpeed(),
+                                                                        roundaboutSimulationModel.getRandomMinDistanceToNextVehicle(),
+                                                                        roundaboutSimulationModel.getRandomMaxDistanceToNextVehicle(),
+                                                                        roundaboutSimulationModel.getRandomVehicleMergeFactor(),
+                                                                        roundaboutSimulationModel.getRandomVehicleAccelerationTime());
+
         final ICar roundaboutCar = new RoundaboutCar(getModel(), carLength, car, driverBehaviour, route);
         roundaboutCar.enterSystem();
 

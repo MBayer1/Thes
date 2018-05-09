@@ -4,10 +4,7 @@ import at.fhv.itm14.trafsim.model.entities.Car;
 import at.fhv.itm14.trafsim.model.entities.IConsumer;
 import at.fhv.itm14.trafsim.model.events.CarDepartureEvent;
 import at.fhv.itm14.trafsim.persistence.model.DTO;
-import at.fhv.itm3.s2.roundabout.api.entity.AbstractSink;
-import at.fhv.itm3.s2.roundabout.api.entity.ICar;
-import at.fhv.itm3.s2.roundabout.api.entity.IStreetConnector;
-import at.fhv.itm3.s2.roundabout.api.entity.Street;
+import at.fhv.itm3.s2.roundabout.api.entity.*;
 import at.fhv.itm3.s2.roundabout.controller.CarController;
 import desmoj.core.simulator.Model;
 
@@ -49,7 +46,7 @@ public class RoundaboutSink extends AbstractSink {
      * {@inheritDoc}
      */
     @Override
-    public void addCar(ICar iCar) {
+    public void addCar(ICar iCar, double percentageOfCar) {
         iCar.leaveSystem();
         incrementEnteredCarCounter();
         updateStats(iCar);
@@ -151,7 +148,7 @@ public class RoundaboutSink extends AbstractSink {
      * {@inheritDoc}
      */
     @Override
-    public Map<ICar, Double> getCarPositions() {
+    public Map<ICar, VehicleOnStreetSection> getCarPositions() {
         return null;
     }
 
@@ -175,24 +172,23 @@ public class RoundaboutSink extends AbstractSink {
      * {@inheritDoc}
      */
     @Override
-    public boolean firstCarCouldEnterNextSection() {
-        return false;
+    public double firstCarCouldEnterNextSection() {
+        return 0.0;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public boolean isEnoughSpace(double length) {
-        return true;
+    public NeededSpaceForVehicle isEnoughSpaceForCarInPercentage(ICar car) {
+        NeededSpaceForVehicle spaceData = new NeededSpaceForVehicle(0.0, 0.0);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void moveFirstCarToNextSection() throws IllegalStateException {
-
+    public void moveFirstCarToNextSection( double percentageOfVehicleThatCanLeaveSection ) throws IllegalStateException {
     }
 
     /**

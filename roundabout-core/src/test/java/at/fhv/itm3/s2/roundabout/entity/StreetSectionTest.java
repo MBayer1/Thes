@@ -67,7 +67,7 @@ public class StreetSectionTest {
         Street nextStreetSection = mock(StreetSection.class);
         when(firstCar.getNextSection()).thenReturn(nextStreetSection);
         when(firstCar.getLength()).thenReturn(5.0);
-        when(nextStreetSection.isEnoughSpace(firstCar.getLength())).thenReturn(false);
+        when(nextStreetSection.isEnoughSpaceForCarInPercentage(firstCar)).thenReturn(false);
 
         assertFalse(streetSectionMock.firstCarCouldEnterNextSection());
     }
@@ -84,7 +84,7 @@ public class StreetSectionTest {
         Street nextStreetSection = mock(StreetSection.class);
         when(firstCar.getNextSection()).thenReturn(nextStreetSection);
         when(firstCar.getLength()).thenReturn(5.0);
-        when(nextStreetSection.isEnoughSpace(firstCar.getLength())).thenReturn(true);
+        when(nextStreetSection.isEnoughSpaceForCarInPercentage(firstCar)).thenReturn(true);
 
         IStreetConnector nextStreetConnector = mock(StreetConnector.class);
         when(streetSectionMock.getNextStreetConnector()).thenReturn(nextStreetConnector);
@@ -106,7 +106,7 @@ public class StreetSectionTest {
         Street nextStreetSection = mock(StreetSection.class);
         when(firstCar.getNextSection()).thenReturn(nextStreetSection);
         when(firstCar.getLength()).thenReturn(5.0);
-        when(nextStreetSection.isEnoughSpace(firstCar.getLength())).thenReturn(true);
+        when(nextStreetSection.isEnoughSpaceForCarInPercentage(firstCar)).thenReturn(true);
 
         IStreetConnector nextStreetConnector = mock(StreetConnector.class);
         when(streetSectionMock.getNextStreetConnector()).thenReturn(nextStreetConnector);
@@ -128,7 +128,7 @@ public class StreetSectionTest {
         Street nextStreetSection = mock(StreetSection.class);
         when(firstCar.getNextSection()).thenReturn(nextStreetSection);
         when(firstCar.getLength()).thenReturn(5.0);
-        when(nextStreetSection.isEnoughSpace(firstCar.getLength())).thenReturn(true);
+        when(nextStreetSection.isEnoughSpaceForCarInPercentage(firstCar)).thenReturn(true);
 
         IStreetConnector nextStreetConnector = mock(StreetConnector.class);
         when(streetSectionMock.getNextStreetConnector()).thenReturn(nextStreetConnector);
@@ -150,7 +150,7 @@ public class StreetSectionTest {
         Street nextStreetSection = mock(StreetSection.class);
         when(firstCar.getNextSection()).thenReturn(nextStreetSection);
         when(firstCar.getLength()).thenReturn(5.0);
-        when(nextStreetSection.isEnoughSpace(firstCar.getLength())).thenReturn(true);
+        when(nextStreetSection.isEnoughSpaceForCarInPercentage(firstCar)).thenReturn(true);
 
         IStreetConnector nextStreetConnector = mock(StreetConnector.class);
         when(streetSectionMock.getNextStreetConnector()).thenReturn(nextStreetConnector);
@@ -183,7 +183,7 @@ public class StreetSectionTest {
         Street nextStreetSection = mock(StreetSection.class);
         when(firstCar.getNextSection()).thenReturn(nextStreetSection);
         when(firstCar.getLength()).thenReturn(5.0);
-        when(nextStreetSection.isEnoughSpace(firstCar.getLength())).thenReturn(true);
+        when(nextStreetSection.isEnoughSpaceForCarInPercentage(firstCar)).thenReturn(true);
 
         IStreetConnector nextStreetConnector = mock(StreetConnector.class);
         when(streetSectionMock.getNextStreetConnector()).thenReturn(nextStreetConnector);
@@ -216,7 +216,7 @@ public class StreetSectionTest {
         Street nextStreetSection = mock(StreetSection.class);
         when(firstCar.getNextSection()).thenReturn(nextStreetSection);
         when(firstCar.getLength()).thenReturn(5.0);
-        when(nextStreetSection.isEnoughSpace(firstCar.getLength())).thenReturn(true);
+        when(nextStreetSection.isEnoughSpaceForCarInPercentage(firstCar)).thenReturn(true);
 
         IStreetConnector nextStreetConnector = mock(StreetConnector.class);
         when(streetSectionMock.getNextStreetConnector()).thenReturn(nextStreetConnector);
@@ -248,7 +248,7 @@ public class StreetSectionTest {
         Street nextStreetSection = mock(StreetSection.class);
         when(firstCar.getNextSection()).thenReturn(nextStreetSection);
         when(firstCar.getLength()).thenReturn(5.0);
-        when(nextStreetSection.isEnoughSpace(firstCar.getLength())).thenReturn(true);
+        when(nextStreetSection.isEnoughSpaceForCarInPercentage(firstCar)).thenReturn(true);
 
         IStreetConnector nextStreetConnector = mock(StreetConnector.class);
         when(streetSectionMock.getNextStreetConnector()).thenReturn(nextStreetConnector);
@@ -281,7 +281,7 @@ public class StreetSectionTest {
         Street nextStreetSection = mock(StreetSection.class);
         when(firstCar.getNextSection()).thenReturn(nextStreetSection);
         when(firstCar.getLength()).thenReturn(5.0);
-        when(nextStreetSection.isEnoughSpace(firstCar.getLength())).thenReturn(true);
+        when(nextStreetSection.isEnoughSpaceForCarInPercentage(firstCar)).thenReturn(true);
 
         IStreetConnector nextStreetConnector = mock(StreetConnector.class);
         when(streetSectionMock.getNextStreetConnector()).thenReturn(nextStreetConnector);
@@ -313,7 +313,7 @@ public class StreetSectionTest {
         Street nextStreetSection = mock(StreetSection.class);
         when(firstCar.getNextSection()).thenReturn(nextStreetSection);
         when(firstCar.getLength()).thenReturn(5.0);
-        when(nextStreetSection.isEnoughSpace(firstCar.getLength())).thenReturn(true);
+        when(nextStreetSection.isEnoughSpaceForCarInPercentage(firstCar)).thenReturn(true);
 
         IStreetConnector nextStreetConnector = mock(StreetConnector.class);
         when(streetSectionMock.getNextStreetConnector()).thenReturn(nextStreetConnector);
@@ -341,7 +341,7 @@ public class StreetSectionTest {
         Street nextStreetSection = mock(StreetSection.class);
         when(firstCar.getNextSection()).thenReturn(nextStreetSection);
         when(firstCar.getLength()).thenReturn(5.0);
-        when(nextStreetSection.isEnoughSpace(firstCar.getLength())).thenReturn(true);
+        when(nextStreetSection.isEnoughSpaceForCarInPercentage(firstCar)).thenReturn(true);
 
         IStreetConnector nextStreetConnector = mock(StreetConnector.class);
         when(streetSectionMock.getNextStreetConnector()).thenReturn(nextStreetConnector);
@@ -369,7 +369,7 @@ public class StreetSectionTest {
         Street nextStreetSection = mock(StreetSection.class);
         when(firstCar.getNextSection()).thenReturn(nextStreetSection);
         when(firstCar.getLength()).thenReturn(5.0);
-        when(nextStreetSection.isEnoughSpace(firstCar.getLength())).thenReturn(true);
+        when(nextStreetSection.isEnoughSpaceForCarInPercentage(firstCar)).thenReturn(true);
 
         IStreetConnector nextStreetConnector = mock(StreetConnector.class);
         when(streetSectionMock.getNextStreetConnector()).thenReturn(nextStreetConnector);
@@ -397,7 +397,7 @@ public class StreetSectionTest {
         Street nextStreetSection = mock(StreetSection.class);
         when(firstCar.getNextSection()).thenReturn(nextStreetSection);
         when(firstCar.getLength()).thenReturn(5.0);
-        when(nextStreetSection.isEnoughSpace(firstCar.getLength())).thenReturn(true);
+        when(nextStreetSection.isEnoughSpaceForCarInPercentage(firstCar)).thenReturn(true);
 
         IStreetConnector nextStreetConnector = mock(StreetConnector.class);
         when(streetSectionMock.getNextStreetConnector()).thenReturn(nextStreetConnector);
@@ -425,7 +425,7 @@ public class StreetSectionTest {
         Street nextStreetSection = mock(StreetSection.class);
         when(firstCar.getNextSection()).thenReturn(nextStreetSection);
         when(firstCar.getLength()).thenReturn(5.0);
-        when(nextStreetSection.isEnoughSpace(firstCar.getLength())).thenReturn(true);
+        when(nextStreetSection.isEnoughSpaceForCarInPercentage(firstCar)).thenReturn(true);
 
         IStreetConnector nextStreetConnector = mock(StreetConnector.class);
         when(streetSectionMock.getNextStreetConnector()).thenReturn(nextStreetConnector);
@@ -464,7 +464,7 @@ public class StreetSectionTest {
         Street nextStreetSection = mock(StreetSection.class);
         when(firstCar.getNextSection()).thenReturn(nextStreetSection);
         when(firstCar.getLength()).thenReturn(5.0);
-        when(nextStreetSection.isEnoughSpace(firstCar.getLength())).thenReturn(true);
+        when(nextStreetSection.isEnoughSpaceForCarInPercentage(firstCar)).thenReturn(true);
 
         IStreetConnector nextStreetConnector = mock(StreetConnector.class);
         when(streetSectionMock.getNextStreetConnector()).thenReturn(nextStreetConnector);
@@ -503,7 +503,7 @@ public class StreetSectionTest {
         Street nextStreetSection = mock(StreetSection.class);
         when(firstCar.getNextSection()).thenReturn(nextStreetSection);
         when(firstCar.getLength()).thenReturn(5.0);
-        when(nextStreetSection.isEnoughSpace(firstCar.getLength())).thenReturn(true);
+        when(nextStreetSection.isEnoughSpaceForCarInPercentage(firstCar)).thenReturn(true);
 
         IStreetConnector nextStreetConnector = mock(StreetConnector.class);
         when(streetSectionMock.getNextStreetConnector()).thenReturn(nextStreetConnector);
@@ -542,7 +542,7 @@ public class StreetSectionTest {
         Street nextStreetSection = mock(StreetSection.class);
         when(firstCar.getNextSection()).thenReturn(nextStreetSection);
         when(firstCar.getLength()).thenReturn(5.0);
-        when(nextStreetSection.isEnoughSpace(firstCar.getLength())).thenReturn(true);
+        when(nextStreetSection.isEnoughSpaceForCarInPercentage(firstCar)).thenReturn(true);
 
         IStreetConnector nextStreetConnector = mock(StreetConnector.class);
         when(streetSectionMock.getNextStreetConnector()).thenReturn(nextStreetConnector);
@@ -581,7 +581,7 @@ public class StreetSectionTest {
         Street nextStreetSection = mock(StreetSection.class);
         when(firstCar.getNextSection()).thenReturn(nextStreetSection);
         when(firstCar.getLength()).thenReturn(5.0);
-        when(nextStreetSection.isEnoughSpace(firstCar.getLength())).thenReturn(true);
+        when(nextStreetSection.isEnoughSpaceForCarInPercentage(firstCar)).thenReturn(true);
 
         IStreetConnector nextStreetConnector = mock(StreetConnector.class);
         when(streetSectionMock.getNextStreetConnector()).thenReturn(nextStreetConnector);
@@ -620,7 +620,7 @@ public class StreetSectionTest {
         Street nextStreetSection = mock(StreetSection.class);
         when(firstCar.getNextSection()).thenReturn(nextStreetSection);
         when(firstCar.getLength()).thenReturn(5.0);
-        when(nextStreetSection.isEnoughSpace(firstCar.getLength())).thenReturn(true);
+        when(nextStreetSection.isEnoughSpaceForCarInPercentage(firstCar)).thenReturn(true);
 
         IStreetConnector nextStreetConnector = mock(StreetConnector.class);
         when(streetSectionMock.getNextStreetConnector()).thenReturn(nextStreetConnector);
@@ -659,7 +659,7 @@ public class StreetSectionTest {
         Street nextStreetSection = mock(StreetSection.class);
         when(firstCar.getNextSection()).thenReturn(nextStreetSection);
         when(firstCar.getLength()).thenReturn(5.0);
-        when(nextStreetSection.isEnoughSpace(firstCar.getLength())).thenReturn(true);
+        when(nextStreetSection.isEnoughSpaceForCarInPercentage(firstCar)).thenReturn(true);
 
         IStreetConnector nextStreetConnector = mock(StreetConnector.class);
         when(streetSectionMock.getNextStreetConnector()).thenReturn(nextStreetConnector);
@@ -698,7 +698,7 @@ public class StreetSectionTest {
         Street nextStreetSection = mock(StreetSection.class);
         when(firstCar.getNextSection()).thenReturn(nextStreetSection);
         when(firstCar.getLength()).thenReturn(5.0);
-        when(nextStreetSection.isEnoughSpace(firstCar.getLength())).thenReturn(true);
+        when(nextStreetSection.isEnoughSpaceForCarInPercentage(firstCar)).thenReturn(true);
 
         IStreetConnector nextStreetConnector = mock(StreetConnector.class);
         when(streetSectionMock.getNextStreetConnector()).thenReturn(nextStreetConnector);
@@ -728,7 +728,7 @@ public class StreetSectionTest {
         Street nextStreetSection = mock(StreetSection.class);
         when(firstCar.getNextSection()).thenReturn(nextStreetSection);
         when(firstCar.getLength()).thenReturn(5.0);
-        when(nextStreetSection.isEnoughSpace(firstCar.getLength())).thenReturn(true);
+        when(nextStreetSection.isEnoughSpaceForCarInPercentage(firstCar)).thenReturn(true);
 
         IStreetConnector nextStreetConnector = mock(StreetConnector.class);
         when(streetSectionMock.getNextStreetConnector()).thenReturn(nextStreetConnector);
@@ -758,7 +758,7 @@ public class StreetSectionTest {
         Street nextStreetSection = mock(StreetSection.class);
         when(firstCar.getNextSection()).thenReturn(nextStreetSection);
         when(firstCar.getLength()).thenReturn(5.0);
-        when(nextStreetSection.isEnoughSpace(firstCar.getLength())).thenReturn(true);
+        when(nextStreetSection.isEnoughSpaceForCarInPercentage(firstCar)).thenReturn(true);
 
         IStreetConnector nextStreetConnector = mock(StreetConnector.class);
         when(streetSectionMock.getNextStreetConnector()).thenReturn(nextStreetConnector);
@@ -788,7 +788,7 @@ public class StreetSectionTest {
         Street nextStreetSection = mock(StreetSection.class);
         when(firstCar.getNextSection()).thenReturn(nextStreetSection);
         when(firstCar.getLength()).thenReturn(5.0);
-        when(nextStreetSection.isEnoughSpace(firstCar.getLength())).thenReturn(true);
+        when(nextStreetSection.isEnoughSpaceForCarInPercentage(firstCar)).thenReturn(true);
 
         IStreetConnector nextStreetConnector = mock(StreetConnector.class);
         when(streetSectionMock.getNextStreetConnector()).thenReturn(nextStreetConnector);
@@ -823,12 +823,12 @@ public class StreetSectionTest {
 
         when(streetSectionMock.getCarPositions()).thenReturn(carPositions);
         when(streetSectionMock.getLastCar()).thenReturn(car);
-        when(streetSectionMock.isEnoughSpace(car.getLength())).thenCallRealMethod();
+        when(streetSectionMock.isEnoughSpaceForCarInPercentage(car)).thenCallRealMethod();
 
         double streetSectionLengthBigger = 15.0;
         when(streetSectionMock.getLength()).thenReturn(streetSectionLengthBigger);
 
-        assertTrue(streetSectionMock.isEnoughSpace(car.getLength()));
+        assertTrue(streetSectionMock.isEnoughSpaceForCarInPercentage(car));
     }
 
     @Test
@@ -843,12 +843,12 @@ public class StreetSectionTest {
 
         when(streetSectionMock.getCarPositions()).thenReturn(carPositions);
         when(streetSectionMock.getLastCar()).thenReturn(car);
-        when(streetSectionMock.isEnoughSpace(car.getLength())).thenCallRealMethod();
+        when(streetSectionMock.isEnoughSpaceForCarInPercentage(car)).thenCallRealMethod();
 
         double streetSectionLengthEquals = 15.0;
         when(streetSectionMock.getLength()).thenReturn(streetSectionLengthEquals);
 
-        assertFalse(streetSectionMock.isEnoughSpace(car.getLength()));
+        assertFalse(streetSectionMock.isEnoughSpaceForCarInPercentage(car));
     }
 
     @Test
@@ -863,12 +863,12 @@ public class StreetSectionTest {
 
         when(streetSectionMock.getCarPositions()).thenReturn(carPositions);
         when(streetSectionMock.getLastCar()).thenReturn(car);
-        when(streetSectionMock.isEnoughSpace(car.getLength())).thenCallRealMethod();
+        when(streetSectionMock.isEnoughSpaceForCarInPercentage(car)).thenCallRealMethod();
 
         double streetSectionLengthSmaller = 15.0;
         when(streetSectionMock.getLength()).thenReturn(streetSectionLengthSmaller);
 
-        assertFalse(streetSectionMock.isEnoughSpace(car.getLength()));
+        assertFalse(streetSectionMock.isEnoughSpaceForCarInPercentage(car));
     }
 
     @Test

@@ -7,7 +7,6 @@
         <parameter name="MAX_DISTANCE_FACTOR_BETWEEN_CARS" value="1.0"/>
         <parameter name="MIN_TIME_BETWEEN_CAR_ARRIVALS" value="3.0"/>
         <parameter name="MAIN_ARRIVAL_RATE_FOR_ONE_WAY_STREETS" value="1.0"/>
-        <parameter name="STANDARD_CAR_ACCELERATION_TIME" value="2"/>
         <parameter name="MIN_CAR_LENGTH" value="3.0"/>
         <parameter name="MAX_CAR_LENGTH" value="6.0"/>
         <parameter name="EXPECTED_CAR_LENGTH" value="4.5"/>
@@ -16,6 +15,24 @@
         <parameter name="EXPECTED_TRUCK_LENGTH" value="16.5"/>
         <parameter name="CAR_RATIO_PER_TOTAL_VEHICLE" value="0.9"/>
         <parameter name="JAM_INDICATOR_IN_SECONDS" value="10"/>
+
+        <parameter name="MIN_SPEED" value="4.0"/>
+        <parameter name="MAX_SPEED" value="9.0"/>
+        <parameter name="EXPECTED_SPEED" value="6.0"/>
+        <parameter name="MIN_ACCELERATION_TIME_0_TO_100" value="28.8"/>
+        <parameter name="MAX_ACCELERATION_TIME_0_TO_100" value="64.8"/>
+        <parameter name="EXPECTED_ACCELERATION_TIME_0_TO_100" value="40.0"/>
+
+        <parameter name="MIN_DISTANCE_TO_NEXT_CAR_MIN" value="0.5"/>
+        <parameter name="MAX_DISTANCE_TO_NEXT_CAR_MIN" value="1.5"/>
+        <parameter name="EXPECTED_DISTANCE_TO_NEXT_CAR_MIN" value="1.0"/>
+        <parameter name="MIN_DISTANCE_TO_NEXT_CAR_MAX" value="0.5"/>
+        <parameter name="MAX_DISTANCE_TO_NEXT_CAR_MAX" value="1.5"/>
+        <parameter name="EXPECTED_DISTANCE_TO_NEXT_CAR_MAX" value="1.0"/>
+        <parameter name="MIN_MERGE_FACTOR" value="0.2"/>
+        <parameter name="MAX_MERGE_FACTOR" value="1.0"/>
+        <parameter name="EXPECTED_MERGE_FACTOR" value="1.1"/>
+
     </parameters>
     <components>
         <component id="ro1" type="ROUNDABOUT" name="Kreisverkehr Dornbirn Süd">

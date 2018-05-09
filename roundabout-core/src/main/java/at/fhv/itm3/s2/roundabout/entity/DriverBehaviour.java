@@ -8,15 +8,15 @@ public class DriverBehaviour implements IDriverBehaviour {
     private double minDistanceToNextCar;
     private double maxDistanceToNextCar;
     private double mergeFactor;
-    private double accelerationFactor;
+    private double accelerationTime;
 
-    public DriverBehaviour(double speed, double minDistanceToNextCar, double maxDistanceToNextCar, double mergeFactor, double accelerationFactor)
+    public DriverBehaviour(double speed, double minDistanceToNextCar, double maxDistanceToNextCar, double mergeFactor, double accelerationTime)
     throws IllegalArgumentException {
         setSpeed(speed);
-        this.minDistanceToNextCar = minDistanceToNextCar;
-        this.maxDistanceToNextCar = maxDistanceToNextCar;
-        this.mergeFactor = mergeFactor;
-        this.accelerationFactor = accelerationFactor;
+        setMinDistanceToNextCar(minDistanceToNextCar);
+        setMaxDistanceToNextCar(maxDistanceToNextCar);
+        setMergeFactor(mergeFactor);
+        setAccelerationTime(accelerationTime);
     }
 
     /**
@@ -94,24 +94,33 @@ public class DriverBehaviour implements IDriverBehaviour {
      * {@inheritDoc}
      */
     @Override
-    public void setMergeFactor(double mergeFactor) {
-        this.mergeFactor = mergeFactor;
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public double getAccelerationFactor() {
-        return accelerationFactor;
+    public void setMergeFactor(double mergeFactor)
+    throws IllegalArgumentException {
+        if (mergeFactor >= 1) {
+            this.mergeFactor = mergeFactor;
+        } else {
+            throw new IllegalArgumentException("Merge factor must be >= 1");
+        }
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void setAccelerationFactor(double accelerationFactor) {
-        this.accelerationFactor = accelerationFactor;
+    public double getAccelerationTime() {
+        return accelerationTime;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setAccelerationTime(double accelerationTime)
+    throws IllegalArgumentException {
+        if (accelerationTime > 0) {
+            this.accelerationTime = accelerationTime;
+        } else {
+            throw new IllegalArgumentException("Cars can solely drive forward, acceleration factor has to be positive.");
+        }
     }
 }

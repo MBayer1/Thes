@@ -3,6 +3,8 @@ package at.fhv.itm3.s2.roundabout.api.entity;
 import at.fhv.itm14.trafsim.model.entities.AbstractProSumer;
 import at.fhv.itm3.s2.roundabout.api.util.observable.ObserverType;
 import at.fhv.itm3.s2.roundabout.api.util.observable.RoundaboutObservable;
+import at.fhv.itm3.s2.roundabout.api.entity.VehicleOnStreetSection;
+
 import desmoj.core.simulator.Model;
 
 import java.util.List;
@@ -182,7 +184,7 @@ public abstract class Street extends AbstractProSumer implements ICarCountable {
      *
      * @param car The car to add.
      */
-    public abstract void addCar(ICar car);
+    public abstract void addCar(ICar car, double percentageOfCar);
 
     /**
      * Gets first car in Section.
@@ -254,7 +256,7 @@ public abstract class Street extends AbstractProSumer implements ICarCountable {
      *
      * @return unmodifiable map of car positions.
      */
-    public abstract Map<ICar, Double> getCarPositions();
+    public abstract Map<ICar, VehicleOnStreetSection> getCarPositions();
 
     /**
      * Recalculates all car positions in the street section,
@@ -270,19 +272,21 @@ public abstract class Street extends AbstractProSumer implements ICarCountable {
     public abstract boolean isFirstCarOnExitPoint();
 
     /**
-     * Checks if first car in street section is able to enter the next section, depending on its predefined route.
+     * Checks if first car in street section is able to enter partly or fully the next section, depending on its predefined route.
      *
-     * @return true = car can enter next section, false = car can not enter next section
+     * @return percentage of Car that can leave this section -> if no movement is possible 0%
      */
-    public abstract boolean firstCarCouldEnterNextSection();
+    public abstract double firstCarCouldEnterNextSection();
 
     /**
-     * Checks if there is enough space in the section, depending on the car's length.
+     * Checks if there is enough space in the section, depending on the car's length + a comfort distance.
+     * if solely the comfort distance does have space return 0% as the car is not able to move to next section,
+     * otherwise calculate how much percent of the car can move
      *
-     * @param length length of the car
-     * @return true = enough space, false = not enough space
+     * @param car {@Link ICar} the current vehicle
+     * @return the percentage of space for the car in the section : x%> 0 enough space, 0% = not enough space
      */
-    public abstract boolean isEnoughSpace(double length);
+    public abstract NeededSpaceForVehicle isEnoughSpaceForCarInPercentage(ICar car);
 
     /**
      * Moves the first car from the current section to the next section.
@@ -291,7 +295,7 @@ public abstract class Street extends AbstractProSumer implements ICarCountable {
      *
      * @throws IllegalStateException if car cannot move further e.g. next section is null.
      */
-    public abstract void moveFirstCarToNextSection()
+    public abstract void moveFirstCarToNextSection( double percentageOfVehicleThatCanLeaveSection )
     throws IllegalStateException;
 
     /**

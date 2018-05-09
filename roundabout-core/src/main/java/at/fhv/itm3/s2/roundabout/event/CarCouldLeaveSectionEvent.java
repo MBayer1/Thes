@@ -64,8 +64,8 @@ public class CarCouldLeaveSectionEvent extends Event<Street> {
     @Override
     public void eventRoutine(Street donorStreet) throws SuspendExecution {
         donorStreet.handleJamTrafficLight();
-        if ( donorStreet.firstCarCouldEnterNextSection()) {
-
+        double percentageOfVehicleThatCanLeaveSection = donorStreet.firstCarCouldEnterNextSection();
+        if ( percentageOfVehicleThatCanLeaveSection > 0) {
             // schedule a CarCouldLeaveSectionEvent for the next section, so it is thrown when the car should be able to
             // leave the next section under optimal conditions
             IConsumer nextSection = donorStreet.getFirstCar().getNextSection();
@@ -74,9 +74,9 @@ public class CarCouldLeaveSectionEvent extends Event<Street> {
                     (StreetSection) nextSection,
                     new TimeSpan((donorStreet.getFirstCar().getTimeToTraverseSection(nextSection)), roundaboutSimulationModel.getModelTimeUnit())
                 );
-                donorStreet.moveFirstCarToNextSection();
+                donorStreet.moveFirstCarToNextSection(percentageOfVehicleThatCanLeaveSection);
             }  else if (nextSection != null && (nextSection instanceof RoundaboutSink || nextSection instanceof Intersection)) {
-                donorStreet.moveFirstCarToNextSection();
+                donorStreet.moveFirstCarToNextSection(percentageOfVehicleThatCanLeaveSection);
             }
 
             // if the current section is not empty, schedule a new CarCouldLeaveSectionEvent after the time the first

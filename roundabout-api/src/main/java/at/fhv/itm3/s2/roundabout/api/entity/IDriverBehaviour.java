@@ -65,16 +65,16 @@ public interface IDriverBehaviour {
     void setMergeFactor(double mergeFactor);
 
     /**
-     * AccelerationFactor is used to simulate the acceleration time of a car in case of jam.
+     * AccelerationTime is used to simulate the acceleration time of a car in case of jam.
      *
      * @return accelerationFactor
      */
-    double getAccelerationFactor();
+    double getAccelerationTime();
 
     /**
-     * Sets the accelerationFactor which is used to simulate the acceleration time of a car in case of jam.
+     * Sets the accelerationTime which is used to simulate the acceleration time of a car in case of jam.
      *
-     * @param accelerationFactor value to be set.
+     * @param accelerationTime value to be set.
      */
-    void setAccelerationFactor(double accelerationFactor);
+    void setAccelerationTime(double accelerationTime);
 }

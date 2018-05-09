@@ -8,6 +8,7 @@ import at.fhv.itm3.s2.roundabout.model.RoundaboutSimulationModel;
 import at.fhv.itm3.s2.roundabout.api.entity.ICar;
 import at.fhv.itm3.s2.roundabout.api.entity.IDriverBehaviour;
 import at.fhv.itm3.s2.roundabout.api.entity.IRoute;
+import at.fhv.itm3.s2.roundabout.api.entity.Street;
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeSpan;
 import desmoj.core.statistic.Count;
@@ -118,7 +119,7 @@ public class RoundaboutCar implements ICar {
             StreetSection streetSection = (StreetSection)section;
 
             if (streetSection.getCarPositions().containsKey(this)) {
-                carPosition = streetSection.getCarPositions().get(this);
+                carPosition = streetSection.getCarPositions().get(this).getVehiclePositionOnStreetSection();
             }
 
             double remainingLength = streetSection.getLength() - carPosition;
@@ -144,11 +145,8 @@ public class RoundaboutCar implements ICar {
         final double carLastUpdateTime = getLastUpdateTime();
 
         if ((currentTime - carLastUpdateTime) > minPossibleTransitionTime) {
-            final double standardCarAccelerationTime = getRoundaboutModel().getStandardCarAccelerationTime();
-            final double carAccelerationFactor = getDriverBehaviour().getAccelerationFactor();
-            final double carAccelerationTime = standardCarAccelerationTime * carAccelerationFactor;
-
-            return minPossibleTransitionTime + carAccelerationTime;
+            double possibleTransitionTime = getDriverBehaviour().getSpeed() /(minPossibleTransitionTime - getDriverBehaviour().getAccelerationTime()) + getDriverBehaviour().getAccelerationTime();
+            return possibleTransitionTime;
         }
 
         return minPossibleTransitionTime;
@@ -158,8 +156,14 @@ public class RoundaboutCar implements ICar {
      * {@inheritDoc}
      */
     @Override
-    public double getLength() {
-        return length;
+    public double getLength() throws IllegalStateException{
+        double percenttageOfVehicle;
+        if(getCurrentSection() instanceof Street){
+            percenttageOfVehicle = ((Street)getCurrentSection()).getCarPositions().get(this).getPercentageOfVehicleLength();
+        } else {
+            throw new IllegalStateException("Car ist not on a section!");
+        }
+        return length * percenttageOfVehicle / 100;
     }
 
     /**
