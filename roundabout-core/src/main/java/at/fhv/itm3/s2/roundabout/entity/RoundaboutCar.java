@@ -30,7 +30,7 @@ public class RoundaboutCar implements ICar {
 
     private double lastUpdateTime;
 
-    private IConsumer lastSection;
+    private IConsumer previousSection;
     private IConsumer currentSection;
     private IConsumer nextSection;
     private IConsumer sectionAfterNextSection;
@@ -56,7 +56,7 @@ public class RoundaboutCar implements ICar {
             this.route = route;
             this.routeIterator = route.getRoute().iterator();
             // The below order is important!
-            this.lastSection = null;
+            this.previousSection = null;
             this.currentSection = retrieveNextRouteSection();
             this.nextSection = retrieveNextRouteSection();
             this.sectionAfterNextSection = retrieveNextRouteSection();
@@ -126,7 +126,7 @@ public class RoundaboutCar implements ICar {
             return remainingLength / this.getDriverBehaviour().getSpeed();
         } else if (section instanceof RoundaboutIntersection && section == this.currentSection) {
             RoundaboutIntersection intersection = (RoundaboutIntersection)section;
-            int inDirection = IntersectionController.getInstance().getInDirectionOfIConsumer(intersection, this.lastSection);
+            int inDirection = IntersectionController.getInstance().getInDirectionOfIConsumer(intersection, this.previousSection);
             int outDirection = IntersectionController.getInstance().getOutDirectionOfIConsumer(intersection, this.nextSection);
             return intersection.getTimeToTraverseIntersection(inDirection, outDirection);
         }
@@ -186,8 +186,8 @@ public class RoundaboutCar implements ICar {
      * {@inheritDoc}
      */
     @Override
-    public IConsumer getLastSection() {
-        return lastSection;
+    public IConsumer getPreviousSection() {
+        return previousSection;
     }
 
     /**
@@ -219,7 +219,7 @@ public class RoundaboutCar implements ICar {
      */
     @Override
     public void traverseToNextSection() {
-        this.lastSection = this.currentSection;
+        this.previousSection = this.currentSection;
         this.currentSection = this.nextSection;
         this.nextSection = this.sectionAfterNextSection;
         this.sectionAfterNextSection = retrieveNextRouteSection();

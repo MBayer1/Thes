@@ -51,7 +51,7 @@ public class RoundaboutSink extends AbstractSink {
         incrementEnteredCarCounter();
         updateStats(iCar);
 
-        IConsumer consumer = iCar.getLastSection();
+        IConsumer consumer = iCar.getPreviousSection();
         if (consumer instanceof Street) {
             Car car = CarController.getCar(iCar);
             ((Street)consumer).carDelivered(null, car, true);
@@ -181,7 +181,7 @@ public class RoundaboutSink extends AbstractSink {
      */
     @Override
     public NeededSpaceForVehicle isEnoughSpaceForCarInPercentage(ICar car) {
-        NeededSpaceForVehicle spaceData = new NeededSpaceForVehicle(0.0, 0.0);
+        return new NeededSpaceForVehicle(0.0, 0.0);
     }
 
     /**
@@ -203,7 +203,7 @@ public class RoundaboutSink extends AbstractSink {
      * {@inheritDoc}
      */
     @Override
-    public void carEnter(Car car) {
+    public void carEnter(Car car, double percentage) {
         addCar(CarController.getICar(car));
     }
 

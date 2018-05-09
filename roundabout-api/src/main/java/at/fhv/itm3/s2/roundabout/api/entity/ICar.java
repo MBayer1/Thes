@@ -71,7 +71,7 @@ public interface ICar {
      *
      * @return reference to {@link IProducer} where car was last located
      */
-    IConsumer getLastSection();
+    IConsumer getPreviousSection();
 
     /**
      * Return a reference to a current {@link Street} present in car route,

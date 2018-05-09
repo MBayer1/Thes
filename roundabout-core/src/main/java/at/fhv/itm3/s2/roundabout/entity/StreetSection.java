@@ -148,9 +148,11 @@ public class StreetSection extends Street {
         // can be removed (saves memory)
         // caution! that requires to call traverseToNextSection before calling this method
         Car car = CarController.getCar(iCar);
-        IConsumer consumer = iCar.getLastSection();
+        IConsumer consumer = iCar.getPreviousSection();
         if (consumer instanceof Street) {
-            ((Street)consumer).carDelivered(null, car, true);
+            if (((Street) consumer).getCarPositions().get(car).getPercentageOfVehicleLength() == fullyLeavingSection) {
+                ((Street) consumer).carDelivered(null, car, true);
+            }
         }
 
         carObserver.notifyObservers(iCar);
@@ -288,13 +290,13 @@ public class StreetSection extends Street {
      * {@inheritDoc}
      */
     @Override
-    public void updateAllCarsPositions() {
+    public void updateAllCarsPositions() throws IllegalStateException {
         final double currentTime = getRoundaboutModel().getCurrentTime();
         final List<ICar> carQueue = getCarQueue();
 
         // If first vehicle is standing partial on this section it blocks leaving
-        boolean noPartailVehicleBlocksLeaving = true;
-        if(this.carPositions.get(this.getFirstCar()).getPercentageOfVehicleLength() < fullyLeavingSection) noPartailVehicleBlocksLeaving = false;
+        boolean noPartialVehicleBlocksLeaving = true;
+        if(this.carPositions.get(this.getFirstCar()).getPercentageOfVehicleLength() < fullyLeavingSection) noPartialVehicleBlocksLeaving = false;
 
         // Updating positions for all cars.
         ICar previousCar = null;
@@ -329,7 +331,7 @@ public class StreetSection extends Street {
                     maxActuallyPossiblePositionValue
                 );
 
-                if (newCarPosition < carPosition || noPartailVehicleBlocksLeaving) { // TODO add do not move back as dis to next car is dynamic!!???
+                if (newCarPosition < carPosition || noPartialVehicleBlocksLeaving) { // TODO add do not move back as dis to next car is dynamic!!???
                     newCarPosition = carPosition;
                     currentTimeLastMovement =  getModel().getExperiment().getSimClock().getTime().getTimeAsDouble();
                     currentWaitingTime = 0; //reset
@@ -354,10 +356,22 @@ public class StreetSection extends Street {
                     this.carPositions.get(this.getLastCar()).getPercentageOfVehicleLength() < fullyLeavingSection) {
                     // part of the last vehicle is dived over two sections.
                     // A movement will move the car part in the previous section:
-                    double percentageOfVehicle =  ;
-                }
+                    double newSpaceForVehicle = getLength() - newCarPosition;
+                    percentageOfVehicle = (newSpaceForVehicle/ currentCar.getLength()) *100;
 
-                carPositions.put(currentCar, new VehicleOnStreetSection(newCarPosition, percentageOfVehicle );
+                    // change percentage of previous section. update all car Positions will be processed in next event
+                    if( currentCar.getPreviousSection() instanceof Street) {
+                        if(percentageOfVehicle < fullyLeavingSection) {
+                            ((Street) currentCar.getPreviousSection()).getCarPositions().put(currentCar,
+                                    new VehicleOnStreetSection(0.0, fullyLeavingSection - percentageOfVehicle));
+                         } else {
+                            ((Street) currentCar.getPreviousSection()).removeFirstCar();
+                        }
+                    } else {
+                        throw new IllegalStateException("Previous IConsumer should be of type Street");
+                    }
+                }
+                carPositions.put(currentCar, new VehicleOnStreetSection(newCarPosition, percentageOfVehicle) );
             }
 
             previousCar = currentCar;
