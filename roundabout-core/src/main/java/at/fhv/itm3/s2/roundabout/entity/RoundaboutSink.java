@@ -203,8 +203,8 @@ public class RoundaboutSink extends AbstractSink {
      * {@inheritDoc}
      */
     @Override
-    public void carEnter(Car car, double percentage) {
-        addCar(CarController.getICar(car));
+    public void carEnter(Car car) {
+        addCar(CarController.getICar(car), 100.0); // vehicle can always enter sinks to 100%
     }
 
     /**

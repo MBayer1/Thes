@@ -34,6 +34,8 @@ public class StreetSection extends Street {
 
     private IntersectionController intersectionController;
 
+    private double percentageOfVehicleThatCanLeave; // as trafsim should not be modified, to pass to carEnter the percentage of the Car this variable is used as a workaround.
+
     public StreetSection(
         double length,
         Model model,
@@ -98,6 +100,7 @@ public class StreetSection extends Street {
         this.carQueue = new LinkedList<>();
         this.carPositions = new HashMap<>();
         this.intersectionController = IntersectionController.getInstance();
+        this.percentageOfVehicleThatCanLeave = this.noLeavingSection;
 
         if(this.isTrafficLightActive() && !this.isTrafficLightTriggeredByJam()) {
             RoundaboutEventFactory.getInstance().createToggleTrafficLightStateEvent(getRoundaboutModel()).schedule(
@@ -399,7 +402,6 @@ public class StreetSection extends Street {
     @Override
     public double firstCarCouldEnterNextSection() {
         //update previous section in case a car is solely partly in the next one. it can be changed to be 10%
-
         updateAllCarsPositions();
 
         if (isTrafficLightActive() && !isTrafficLightFreeToGo()) {
@@ -616,7 +618,9 @@ public class StreetSection extends Street {
         double availableSpaceForCar = freeSpace - distanceToNextVehicle;
         if (availableSpaceForCar > 0) {
             if(car.getLength() > availableSpaceForCar) {
-                neededSpaceData.setPercentageOfVehicleThatCanLeave(car.getLength() * availableSpaceForCar / 100);
+                double percentageOfVehicle = car.getLength() * availableSpaceForCar / 100;
+                percentageOfVehicle = Math.round( percentageOfVehicle * 100) / 100; // round to two decimal places
+                neededSpaceData.setPercentageOfVehicleThatCanLeave( percentageOfVehicle );
                 return neededSpaceData;
             } else {
                 neededSpaceData.setPercentageOfVehicleThatCanLeave(fullyLeavingSection);
@@ -724,7 +728,7 @@ public class StreetSection extends Street {
      * {@inheritDoc}
      */
     @Override
-    public void carEnter(Car car, NeededSpaceForVehicle spaceDataOfVehicle ) {
+    public void carEnter(Car car){
         ICar iCar = CarController.getICar(car);
         // this method is only used by an Intersection object
         // and this has to call this method always even if there is not
@@ -732,9 +736,9 @@ public class StreetSection extends Street {
         // is thrown). So the check if there is enough space for this car
         // is made here and if there isn't enough space than a car is lost
         // and the counter is incremented
-        if (spaceDataOfVehicle.getPercentageOfVehicleThatCanLeave() > 0) {
+        if (percentageOfVehicleThatCanLeave > 0) {
             iCar.traverseToNextSection();
-            addCar(iCar, spaceDataOfVehicle.getPercentageOfVehicleThatCanLeave());
+            addCar(iCar, percentageOfVehicleThatCanLeave);
             double traverseTime = iCar.getTimeToTraverseCurrentSection();
             CarCouldLeaveSectionEvent carCouldLeaveSectionEvent = RoundaboutEventFactory.getInstance().createCarCouldLeaveSectionEvent(
                 getRoundaboutModel()
@@ -745,6 +749,11 @@ public class StreetSection extends Street {
             car.leaveSystem();
             CarController.addLostCar(this, iCar);
         }
+    }
+
+    public void carEnter(Car car, double percentageOfVehicleThatCanLeave){
+        this.percentageOfVehicleThatCanLeave = percentageOfVehicleThatCanLeave;
+        carEnter(car);
     }
 
     /**

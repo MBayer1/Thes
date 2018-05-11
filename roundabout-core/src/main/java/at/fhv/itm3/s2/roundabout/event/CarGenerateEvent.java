@@ -88,7 +88,7 @@ public class CarGenerateEvent extends Event<AbstractSource> {
         final IConsumer nextSection = source.getConnectedStreet();
 
         if (nextSection instanceof StreetSection) {
-            ((Street)nextSection).addCar(roundaboutCar);
+            ((Street)nextSection).addCar(roundaboutCar, 100.0); // a vehicle is always fully passed to the source section
             final double traverseTime = roundaboutCar.getTimeToTraverseCurrentSection();
             final CarCouldLeaveSectionEvent carCouldLeaveSectionEvent = roundaboutEventFactory.createCarCouldLeaveSectionEvent(roundaboutSimulationModel);
             carCouldLeaveSectionEvent.schedule((Street)nextSection, new TimeSpan(traverseTime, roundaboutSimulationModel.getModelTimeUnit()));
