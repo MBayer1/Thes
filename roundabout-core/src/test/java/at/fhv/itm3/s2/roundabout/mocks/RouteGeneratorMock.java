@@ -5,11 +5,8 @@ import at.fhv.itm14.trafsim.model.entities.AbstractConsumer;
 import at.fhv.itm14.trafsim.model.entities.AbstractProSumer;
 import at.fhv.itm14.trafsim.model.entities.IConsumer;
 import at.fhv.itm14.trafsim.model.entities.intersection.FixedCirculationController;
+import at.fhv.itm3.s2.roundabout.api.entity.*;
 import at.fhv.itm3.s2.roundabout.model.RoundaboutSimulationModel;
-import at.fhv.itm3.s2.roundabout.api.entity.AbstractSource;
-import at.fhv.itm3.s2.roundabout.api.entity.ConsumerType;
-import at.fhv.itm3.s2.roundabout.api.entity.IRoute;
-import at.fhv.itm3.s2.roundabout.api.entity.Street;
 import at.fhv.itm3.s2.roundabout.controller.IntersectionController;
 import at.fhv.itm3.s2.roundabout.entity.*;
 import org.mockito.Mockito;
@@ -319,7 +316,8 @@ public class RouteGeneratorMock {
         Street street3 = Mockito.mock(StreetSection.class);
         RoundaboutSink roundaboutSink = new RoundaboutSink(model, "", false);
 
-        when(street3.isEnoughSpaceForCarInPercentage(anyObject())).thenReturn(false);
+        NeededSpaceForVehicle neededSpaceForVehicle = new NeededSpaceForVehicle(0.0, 0.0,0.0);//todo verify
+        when(street3.isEnoughSpaceForCarInPercentage(anyObject())).thenReturn(neededSpaceForVehicle); // todo verify
 
         // initialize connectors
         List<IConsumer> prevStreetsForConnector1 = new LinkedList<>();
@@ -402,7 +400,8 @@ public class RouteGeneratorMock {
         AbstractProSumer street2 = new StreetSection(10.0, model, "", false);
         AbstractProSumer street3 = Mockito.mock(StreetSection.class);
 
-        when(((StreetSection)street3).isEnoughSpaceForCarInPercentage(anyObject())).thenReturn(false);
+        NeededSpaceForVehicle neededSpaceForVehicle = new NeededSpaceForVehicle(0.0, 0.0,0.0);//todo verify
+        when(((StreetSection)street3).isEnoughSpaceForCarInPercentage(anyObject())).thenReturn(neededSpaceForVehicle); // todo verify
 
         // initialize roundaboutSink
         RoundaboutSink roundaboutSink = new RoundaboutSink(model, "", false);

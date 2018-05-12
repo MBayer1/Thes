@@ -19,9 +19,9 @@ public class RoundaboutSinkMock extends RoundaboutSink {
      * {@inheritDoc}
      */
     @Override
-    public void addCar(ICar iCar) {
+    public void addCar(ICar iCar, double percentageOfVehicle) {
         enteredCars.addLast(iCar);
-        super.addCar(iCar);
+        super.addCar(iCar, percentageOfVehicle); // todo verify
     }
 
     public LinkedList<ICar> getEnteredCars() {

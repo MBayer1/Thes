@@ -20,18 +20,18 @@ public class SectionMock {
     private RoundaboutCar firstCar;
     private StreetConnector previousStreetConnector;
 
-    private boolean firstCarCouldEnterNextSection;
+    private double firstCarCouldEnterNextSectionPercentage;
     private boolean returnValidNextSection;
     private boolean isSectionEmpty;
     private int nrOfPreviousSections;
 
     public SectionMock(
-        boolean firstCarCouldEnterNextSection,
+        double firstCarCouldEnterNextSectionPercenttage,
         boolean returnValidNextSection,
         boolean isSectionEmpty,
         int nrOfPreviousSections
     ) {
-        this.firstCarCouldEnterNextSection = firstCarCouldEnterNextSection;
+        this.firstCarCouldEnterNextSectionPercentage = firstCarCouldEnterNextSectionPercenttage;
         this.returnValidNextSection = returnValidNextSection;
         this.isSectionEmpty = isSectionEmpty;
         this.nrOfPreviousSections = nrOfPreviousSections;
@@ -49,13 +49,13 @@ public class SectionMock {
         this.firstCar = Mockito.mock(RoundaboutCar.class);
         this.previousStreetConnector = Mockito.mock(StreetConnector.class);
 
-        when(this.section.firstCarCouldEnterNextSection()).thenReturn(this.firstCarCouldEnterNextSection);
+        when(this.section.firstCarCouldEnterNextSection()).thenReturn(this.firstCarCouldEnterNextSectionPercentage); // todo verify
 
         when(this.section.getFirstCar()).thenReturn(this.firstCar);
 
         when(this.firstCar.getNextSection()).thenReturn(returnValidNextSection ? this.nextSection : null);
 
-        doNothing().when(this.section).moveFirstCarToNextSection();
+        doNothing().when(this.section).moveFirstCarToNextSection(100.0); // todo verify
 
         when(this.section.isEmpty()).thenReturn(this.isSectionEmpty);
 

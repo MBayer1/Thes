@@ -631,7 +631,7 @@ public class RoundaboutSimulationModel extends Model {
     }
 
     /**
-     * Provides for time between car arrivals random number stream.
+     * Provides for time between car arrivals random number stream. - needed for Test
      *
      * @return instance of {@link ContDist}.
      */

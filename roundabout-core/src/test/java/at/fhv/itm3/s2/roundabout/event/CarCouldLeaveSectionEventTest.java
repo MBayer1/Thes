@@ -23,7 +23,7 @@ public class CarCouldLeaveSectionEventTest {
     @Test
     public void eventRoutineTest_firstCarCouldNotEnterNextSection() throws Exception {
         CarCouldLeaveSectionEventMock eventMock = new CarCouldLeaveSectionEventMock(model, null, false);
-        StreetSection section = new SectionMock(false, false, true, 0).getSection();
+        StreetSection section = new SectionMock(100.0, false, true, 0).getSection(); // todo verify
 
         eventMock.eventRoutine(section);
 
@@ -33,7 +33,7 @@ public class CarCouldLeaveSectionEventTest {
     @Test
     public void eventRoutineTest_firstCarCouldEnterNextSection_nextSectionIsInvalid_sectionIsEmpty_noPreviousSections() throws Exception {
         CarCouldLeaveSectionEventMock eventMock = new CarCouldLeaveSectionEventMock(model, null, false);
-        StreetSection section = new SectionMock(true, false, true, 0).getSection();
+        StreetSection section = new SectionMock(100.0, false, true, 0).getSection(); // todo verify
 
         eventMock.eventRoutine(section);
 
@@ -43,7 +43,7 @@ public class CarCouldLeaveSectionEventTest {
     @Test
     public void eventRoutineTest_firstCarCouldEnterNextSection_nextSectionIsValid_sectionIsEmpty_noPreviousSections() throws Exception {
         CarCouldLeaveSectionEventMock eventMock = new CarCouldLeaveSectionEventMock(model, null, false);
-        StreetSection section = new SectionMock(true, true, true, 0).getSection();
+        StreetSection section = new SectionMock(100.0, true, true, 0).getSection(); // todo verify
 
         eventMock.eventRoutine(section);
 
@@ -53,7 +53,7 @@ public class CarCouldLeaveSectionEventTest {
     @Test
     public void eventRoutineTest_firstCarCouldEnterNextSection_nextSectionIsInvalid_sectionIsNotEmpty_noPreviousSections() throws Exception {
         CarCouldLeaveSectionEventMock eventMock = new CarCouldLeaveSectionEventMock(model, null, false);
-        StreetSection section = new SectionMock(true, false, false, 0).getSection();
+        StreetSection section = new SectionMock(100.0, false, false, 0).getSection(); // todo verify
 
         eventMock.eventRoutine(section);
 
@@ -63,7 +63,7 @@ public class CarCouldLeaveSectionEventTest {
     @Test
     public void eventRoutineTest_firstCarCouldEnterNextSection_nextSectionIsInvalid_sectionIsEmpty_twoPreviousSections() throws Exception {
         CarCouldLeaveSectionEventMock eventMock = new CarCouldLeaveSectionEventMock(model, null, false);
-        StreetSection section = new SectionMock(true, false, true, 2).getSection();
+        StreetSection section = new SectionMock(100.0, false, true, 2).getSection(); // todo verify
 
         eventMock.eventRoutine(section);
 
@@ -73,7 +73,7 @@ public class CarCouldLeaveSectionEventTest {
     @Test
     public void eventRoutineTest_firstCarCouldEnterNextSection_nextSectionIsValid_sectionIsNotEmpty_twoPreviousSections() throws Exception {
         CarCouldLeaveSectionEventMock eventMock = new CarCouldLeaveSectionEventMock(model, null, false);
-        StreetSection section = new SectionMock(true, true, false, 2).getSection();
+        StreetSection section = new SectionMock(100.0, true, false, 2).getSection(); // todo verify
 
         eventMock.eventRoutine(section);
 

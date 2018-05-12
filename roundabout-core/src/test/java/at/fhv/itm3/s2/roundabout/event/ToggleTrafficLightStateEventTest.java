@@ -31,7 +31,7 @@ public class ToggleTrafficLightStateEventTest {
     @Test
     public void carCouldLeaveEventIsNotCalled() throws SuspendExecution {
         ToggleTrafficLightStateEventMock eventMock = new ToggleTrafficLightStateEventMock(model, null, false);
-        StreetSection section = new SectionMock(false, false, true, 0).getSection();
+        StreetSection section = new SectionMock(100.0, false, true, 0).getSection(); // todo verify
 
         when(section.isTrafficLightActive()).thenReturn(true);
         when(section.isTrafficLightFreeToGo()).thenReturn(false);
@@ -44,7 +44,7 @@ public class ToggleTrafficLightStateEventTest {
     @Test
     public void carCouldLeaveEventIsCalled() throws SuspendExecution {
         ToggleTrafficLightStateEventMock eventMock = new ToggleTrafficLightStateEventMock(model, null, false);
-        StreetSection section = new SectionMock(false, false, true, 0).getSection();
+        StreetSection section = new SectionMock(100.0, false, true, 0).getSection(); // todo verify
 
         when(section.isTrafficLightActive()).thenReturn(true);
         when(section.isTrafficLightFreeToGo()).thenReturn(true);

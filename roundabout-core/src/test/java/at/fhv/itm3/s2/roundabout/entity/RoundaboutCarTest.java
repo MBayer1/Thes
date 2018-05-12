@@ -193,7 +193,7 @@ public class RoundaboutCarTest {
     public void getTransitionTime_withJam() {
         RoundaboutSimulationModel modelMock = mock(RoundaboutSimulationModel.class);
         when(modelMock.getCurrentTime()).thenReturn(5.0);
-        when(modelMock.getStandardCarAccelerationTime()).thenReturn(2.0);
+        when(modelMock.getRandomVehicleAccelerationTime()).thenReturn(2.0); // todo verify
 
         Car oldCarMock = mock(Car.class);
         when(oldCarMock.getModel()).thenReturn(modelMock);
@@ -204,7 +204,7 @@ public class RoundaboutCarTest {
 
         DriverBehaviour driverBehaviourMock = mock(DriverBehaviour.class);
         when(carMock.getDriverBehaviour()).thenReturn(driverBehaviourMock);
-        when(driverBehaviourMock.getAccelerationFactor()).thenReturn(2.0);
+        when(driverBehaviourMock.getAccelerationTime()).thenReturn(2.0); // todo verify
 
 
         when(carMock.getTimeToTraverseCurrentSection()).thenReturn(3.0);

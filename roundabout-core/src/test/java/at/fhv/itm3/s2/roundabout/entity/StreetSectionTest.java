@@ -42,7 +42,7 @@ public class StreetSectionTest {
 
         when(streetSectionMock.isFirstCarOnExitPoint()).thenReturn(false);
 
-        assertFalse(streetSectionMock.firstCarCouldEnterNextSection());
+        assertFalse(streetSectionMock.firstCarCouldEnterNextSection() > 0.0 ); // todo verify
     }
 
     @Test
@@ -52,7 +52,7 @@ public class StreetSectionTest {
         when(streetSectionMock.isFirstCarOnExitPoint()).thenReturn(true);
         when(streetSectionMock.getFirstCar()).thenReturn(null);
 
-        assertFalse(streetSectionMock.firstCarCouldEnterNextSection());
+        assertFalse(streetSectionMock.firstCarCouldEnterNextSection() > 0.0 ); // todo verify
     }
 
     @Test
@@ -67,9 +67,11 @@ public class StreetSectionTest {
         Street nextStreetSection = mock(StreetSection.class);
         when(firstCar.getNextSection()).thenReturn(nextStreetSection);
         when(firstCar.getLength()).thenReturn(5.0);
-        when(nextStreetSection.isEnoughSpaceForCarInPercentage(firstCar)).thenReturn(false);
 
-        assertFalse(streetSectionMock.firstCarCouldEnterNextSection());
+        NeededSpaceForVehicle neededSpaceForVehicle = new NeededSpaceForVehicle(0.0, firstCar.getLength(), firstCar.getLength()); // todo verify
+        when(nextStreetSection.isEnoughSpaceForCarInPercentage(firstCar)).thenReturn(neededSpaceForVehicle); // todo verify
+
+        assertFalse(streetSectionMock.firstCarCouldEnterNextSection() > 0.0 ); // todo verify
     }
 
     @Test
@@ -84,14 +86,16 @@ public class StreetSectionTest {
         Street nextStreetSection = mock(StreetSection.class);
         when(firstCar.getNextSection()).thenReturn(nextStreetSection);
         when(firstCar.getLength()).thenReturn(5.0);
-        when(nextStreetSection.isEnoughSpaceForCarInPercentage(firstCar)).thenReturn(true);
+
+        NeededSpaceForVehicle neededSpaceForVehicle = new NeededSpaceForVehicle(100.0, firstCar.getLength(), firstCar.getLength()); // todo verify
+        when(nextStreetSection.isEnoughSpaceForCarInPercentage(firstCar)).thenReturn(neededSpaceForVehicle); // todo verify
 
         IStreetConnector nextStreetConnector = mock(StreetConnector.class);
         when(streetSectionMock.getNextStreetConnector()).thenReturn(nextStreetConnector);
         when(nextStreetConnector.isNextConsumerOnSameTrackAsCurrent(streetSectionMock, nextStreetSection)).thenReturn(true);
         when(nextStreetConnector.getTypeOfConsumer(streetSectionMock)).thenReturn(ConsumerType.ROUNDABOUT_SECTION);
 
-        assertTrue(streetSectionMock.firstCarCouldEnterNextSection());
+        assertTrue(streetSectionMock.firstCarCouldEnterNextSection() > 0.0 ); // todo verify
     }
 
     @Test
@@ -106,14 +110,16 @@ public class StreetSectionTest {
         Street nextStreetSection = mock(StreetSection.class);
         when(firstCar.getNextSection()).thenReturn(nextStreetSection);
         when(firstCar.getLength()).thenReturn(5.0);
-        when(nextStreetSection.isEnoughSpaceForCarInPercentage(firstCar)).thenReturn(true);
+
+        NeededSpaceForVehicle neededSpaceForVehicle = new NeededSpaceForVehicle(100.0, firstCar.getLength(), firstCar.getLength()); // todo verify
+        when(nextStreetSection.isEnoughSpaceForCarInPercentage(firstCar)).thenReturn(neededSpaceForVehicle); // todo verify
 
         IStreetConnector nextStreetConnector = mock(StreetConnector.class);
         when(streetSectionMock.getNextStreetConnector()).thenReturn(nextStreetConnector);
         when(nextStreetConnector.isNextConsumerOnSameTrackAsCurrent(streetSectionMock, nextStreetSection)).thenReturn(true);
         when(nextStreetConnector.getTypeOfConsumer(streetSectionMock)).thenReturn(ConsumerType.STREET_SECTION);
 
-        assertTrue(streetSectionMock.firstCarCouldEnterNextSection());
+        assertTrue(streetSectionMock.firstCarCouldEnterNextSection() > 0.0 ); // todo verify
     }
 
     @Test
@@ -128,14 +134,16 @@ public class StreetSectionTest {
         Street nextStreetSection = mock(StreetSection.class);
         when(firstCar.getNextSection()).thenReturn(nextStreetSection);
         when(firstCar.getLength()).thenReturn(5.0);
-        when(nextStreetSection.isEnoughSpaceForCarInPercentage(firstCar)).thenReturn(true);
+
+        NeededSpaceForVehicle neededSpaceForVehicle = new NeededSpaceForVehicle(100.0, firstCar.getLength(), firstCar.getLength()); // todo verify
+        when(nextStreetSection.isEnoughSpaceForCarInPercentage(firstCar)).thenReturn(neededSpaceForVehicle); // todo verify
 
         IStreetConnector nextStreetConnector = mock(StreetConnector.class);
         when(streetSectionMock.getNextStreetConnector()).thenReturn(nextStreetConnector);
         when(nextStreetConnector.isNextConsumerOnSameTrackAsCurrent(streetSectionMock, nextStreetSection)).thenReturn(true);
         when(nextStreetConnector.getTypeOfConsumer(streetSectionMock)).thenReturn(ConsumerType.ROUNDABOUT_EXIT);
 
-        assertTrue(streetSectionMock.firstCarCouldEnterNextSection());
+        assertTrue(streetSectionMock.firstCarCouldEnterNextSection() > 0.0 ); // todo verify
     }
 
     @Test
@@ -150,7 +158,9 @@ public class StreetSectionTest {
         Street nextStreetSection = mock(StreetSection.class);
         when(firstCar.getNextSection()).thenReturn(nextStreetSection);
         when(firstCar.getLength()).thenReturn(5.0);
-        when(nextStreetSection.isEnoughSpaceForCarInPercentage(firstCar)).thenReturn(true);
+
+        NeededSpaceForVehicle neededSpaceForVehicle = new NeededSpaceForVehicle(100.0, firstCar.getLength(), firstCar.getLength()); // todo verify
+        when(nextStreetSection.isEnoughSpaceForCarInPercentage(firstCar)).thenReturn(neededSpaceForVehicle); // todo verify
 
         IStreetConnector nextStreetConnector = mock(StreetConnector.class);
         when(streetSectionMock.getNextStreetConnector()).thenReturn(nextStreetConnector);
@@ -168,7 +178,7 @@ public class StreetSectionTest {
         when(previousStreetSection1.isFirstCarOnExitPoint()).thenReturn(false);
         when(previousStreetSection2.isFirstCarOnExitPoint()).thenReturn(true);
 
-        assertTrue(streetSectionMock.firstCarCouldEnterNextSection());
+        assertTrue(streetSectionMock.firstCarCouldEnterNextSection() > 0.0 );  // todo verify
     }
 
     @Test
@@ -183,7 +193,9 @@ public class StreetSectionTest {
         Street nextStreetSection = mock(StreetSection.class);
         when(firstCar.getNextSection()).thenReturn(nextStreetSection);
         when(firstCar.getLength()).thenReturn(5.0);
-        when(nextStreetSection.isEnoughSpaceForCarInPercentage(firstCar)).thenReturn(true);
+
+        NeededSpaceForVehicle neededSpaceForVehicle = new NeededSpaceForVehicle(100.0, firstCar.getLength(), firstCar.getLength()); // todo verify
+        when(nextStreetSection.isEnoughSpaceForCarInPercentage(firstCar)).thenReturn(neededSpaceForVehicle);  // todo verify
 
         IStreetConnector nextStreetConnector = mock(StreetConnector.class);
         when(streetSectionMock.getNextStreetConnector()).thenReturn(nextStreetConnector);
@@ -201,7 +213,7 @@ public class StreetSectionTest {
         when(previousStreetSection1.isFirstCarOnExitPoint()).thenReturn(true);
         when(previousStreetSection2.isFirstCarOnExitPoint()).thenReturn(true);
 
-        assertFalse(streetSectionMock.firstCarCouldEnterNextSection());
+        assertFalse(streetSectionMock.firstCarCouldEnterNextSection() > 0.0 );  // todo verify
     }
 
     @Test
@@ -216,7 +228,9 @@ public class StreetSectionTest {
         Street nextStreetSection = mock(StreetSection.class);
         when(firstCar.getNextSection()).thenReturn(nextStreetSection);
         when(firstCar.getLength()).thenReturn(5.0);
-        when(nextStreetSection.isEnoughSpaceForCarInPercentage(firstCar)).thenReturn(true);
+
+        NeededSpaceForVehicle neededSpaceForVehicle = new NeededSpaceForVehicle(100.0, firstCar.getLength(), firstCar.getLength()); // todo verify
+        when(nextStreetSection.isEnoughSpaceForCarInPercentage(firstCar)).thenReturn(neededSpaceForVehicle); // todo verify
 
         IStreetConnector nextStreetConnector = mock(StreetConnector.class);
         when(streetSectionMock.getNextStreetConnector()).thenReturn(nextStreetConnector);
@@ -234,7 +248,7 @@ public class StreetSectionTest {
         when(previousStreetSection1.isFirstCarOnExitPoint()).thenReturn(false);
         when(previousStreetSection2.isFirstCarOnExitPoint()).thenReturn(false);
 
-        assertTrue(streetSectionMock.firstCarCouldEnterNextSection());
+        assertTrue(streetSectionMock.firstCarCouldEnterNextSection() > 0.0 ); // todo verify
     }
 
     @Test
@@ -248,7 +262,9 @@ public class StreetSectionTest {
         Street nextStreetSection = mock(StreetSection.class);
         when(firstCar.getNextSection()).thenReturn(nextStreetSection);
         when(firstCar.getLength()).thenReturn(5.0);
-        when(nextStreetSection.isEnoughSpaceForCarInPercentage(firstCar)).thenReturn(true);
+
+        NeededSpaceForVehicle neededSpaceForVehicle = new NeededSpaceForVehicle(100.0, firstCar.getLength(), firstCar.getLength()); // todo verify
+        when(nextStreetSection.isEnoughSpaceForCarInPercentage(firstCar)).thenReturn(neededSpaceForVehicle); // todo verify
 
         IStreetConnector nextStreetConnector = mock(StreetConnector.class);
         when(streetSectionMock.getNextStreetConnector()).thenReturn(nextStreetConnector);
@@ -266,7 +282,7 @@ public class StreetSectionTest {
         when(previousStreetSection1.isFirstCarOnExitPoint()).thenReturn(true);
         when(previousStreetSection2.isFirstCarOnExitPoint()).thenReturn(false);
 
-        assertFalse(streetSectionMock.firstCarCouldEnterNextSection());
+        assertFalse(streetSectionMock.firstCarCouldEnterNextSection() > 0.0 ); // todo verify
     }
 
     @Test
@@ -281,7 +297,9 @@ public class StreetSectionTest {
         Street nextStreetSection = mock(StreetSection.class);
         when(firstCar.getNextSection()).thenReturn(nextStreetSection);
         when(firstCar.getLength()).thenReturn(5.0);
-        when(nextStreetSection.isEnoughSpaceForCarInPercentage(firstCar)).thenReturn(true);
+
+        NeededSpaceForVehicle neededSpaceForVehicle = new NeededSpaceForVehicle(100.0, firstCar.getLength(), firstCar.getLength()); // todo verify
+        when(nextStreetSection.isEnoughSpaceForCarInPercentage(firstCar)).thenReturn(neededSpaceForVehicle); // todo verify
 
         IStreetConnector nextStreetConnector = mock(StreetConnector.class);
         when(streetSectionMock.getNextStreetConnector()).thenReturn(nextStreetConnector);
@@ -299,7 +317,7 @@ public class StreetSectionTest {
         when(previousStreetSection1.isFirstCarOnExitPoint()).thenReturn(false);
         when(previousStreetSection2.isFirstCarOnExitPoint()).thenReturn(true);
 
-        assertFalse(streetSectionMock.firstCarCouldEnterNextSection());
+        assertFalse(streetSectionMock.firstCarCouldEnterNextSection() > 0.0 ); // todo verify
     }
 
     @Test
@@ -313,7 +331,9 @@ public class StreetSectionTest {
         Street nextStreetSection = mock(StreetSection.class);
         when(firstCar.getNextSection()).thenReturn(nextStreetSection);
         when(firstCar.getLength()).thenReturn(5.0);
-        when(nextStreetSection.isEnoughSpaceForCarInPercentage(firstCar)).thenReturn(true);
+
+        NeededSpaceForVehicle neededSpaceForVehicle = new NeededSpaceForVehicle(100.0, firstCar.getLength(), firstCar.getLength()); // todo verify
+        when(nextStreetSection.isEnoughSpaceForCarInPercentage(firstCar)).thenReturn(neededSpaceForVehicle); // todo verify
 
         IStreetConnector nextStreetConnector = mock(StreetConnector.class);
         when(streetSectionMock.getNextStreetConnector()).thenReturn(nextStreetConnector);
@@ -326,7 +346,7 @@ public class StreetSectionTest {
         when(nextStreetConnector.getPreviousTrackConsumers(nextStreetSection, ConsumerType.ROUNDABOUT_EXIT)).thenReturn(previousTrackSections);
         when(previousTrackSection.isFirstCarOnExitPoint()).thenReturn(false);
 
-        assertTrue(streetSectionMock.firstCarCouldEnterNextSection());
+        assertTrue(streetSectionMock.firstCarCouldEnterNextSection() > 0.0 ); // todo verify
     }
 
     @Test
@@ -341,7 +361,9 @@ public class StreetSectionTest {
         Street nextStreetSection = mock(StreetSection.class);
         when(firstCar.getNextSection()).thenReturn(nextStreetSection);
         when(firstCar.getLength()).thenReturn(5.0);
-        when(nextStreetSection.isEnoughSpaceForCarInPercentage(firstCar)).thenReturn(true);
+
+        NeededSpaceForVehicle neededSpaceForVehicle = new NeededSpaceForVehicle(100.0, firstCar.getLength(), firstCar.getLength()); // todo verify
+        when(nextStreetSection.isEnoughSpaceForCarInPercentage(firstCar)).thenReturn(neededSpaceForVehicle); // todo verify
 
         IStreetConnector nextStreetConnector = mock(StreetConnector.class);
         when(streetSectionMock.getNextStreetConnector()).thenReturn(nextStreetConnector);
@@ -354,7 +376,7 @@ public class StreetSectionTest {
         when(nextStreetConnector.getPreviousTrackConsumers(nextStreetSection, ConsumerType.ROUNDABOUT_EXIT)).thenReturn(previousTrackSections);
         when(previousTrackSection.isFirstCarOnExitPoint()).thenReturn(true);
 
-        assertFalse(streetSectionMock.firstCarCouldEnterNextSection());
+        assertFalse(streetSectionMock.firstCarCouldEnterNextSection() > 0.0 ); // todo verify
     }
 
     @Test
@@ -369,7 +391,9 @@ public class StreetSectionTest {
         Street nextStreetSection = mock(StreetSection.class);
         when(firstCar.getNextSection()).thenReturn(nextStreetSection);
         when(firstCar.getLength()).thenReturn(5.0);
-        when(nextStreetSection.isEnoughSpaceForCarInPercentage(firstCar)).thenReturn(true);
+
+        NeededSpaceForVehicle neededSpaceForVehicle = new NeededSpaceForVehicle(100.0, firstCar.getLength(), firstCar.getLength()); // todo verify
+        when(nextStreetSection.isEnoughSpaceForCarInPercentage(firstCar)).thenReturn(neededSpaceForVehicle); // todo verify
 
         IStreetConnector nextStreetConnector = mock(StreetConnector.class);
         when(streetSectionMock.getNextStreetConnector()).thenReturn(nextStreetConnector);
@@ -382,7 +406,7 @@ public class StreetSectionTest {
         when(nextStreetConnector.getPreviousTrackConsumers(nextStreetSection, ConsumerType.STREET_SECTION)).thenReturn(previousTrackSections);
         when(previousTrackSection.isFirstCarOnExitPoint()).thenReturn(false);
 
-        assertTrue(streetSectionMock.firstCarCouldEnterNextSection());
+        assertTrue(streetSectionMock.firstCarCouldEnterNextSection() > 0.0 ); // todo verify
     }
 
     @Test
@@ -397,7 +421,9 @@ public class StreetSectionTest {
         Street nextStreetSection = mock(StreetSection.class);
         when(firstCar.getNextSection()).thenReturn(nextStreetSection);
         when(firstCar.getLength()).thenReturn(5.0);
-        when(nextStreetSection.isEnoughSpaceForCarInPercentage(firstCar)).thenReturn(true);
+
+        NeededSpaceForVehicle neededSpaceForVehicle = new NeededSpaceForVehicle(100.0, firstCar.getLength(), firstCar.getLength()); // todo verify
+        when(nextStreetSection.isEnoughSpaceForCarInPercentage(firstCar)).thenReturn(neededSpaceForVehicle); // todo verify
 
         IStreetConnector nextStreetConnector = mock(StreetConnector.class);
         when(streetSectionMock.getNextStreetConnector()).thenReturn(nextStreetConnector);
@@ -410,7 +436,7 @@ public class StreetSectionTest {
         when(nextStreetConnector.getPreviousTrackConsumers(nextStreetSection, ConsumerType.STREET_SECTION)).thenReturn(previousTrackSections);
         when(previousTrackSection.isFirstCarOnExitPoint()).thenReturn(true);
 
-        assertFalse(streetSectionMock.firstCarCouldEnterNextSection());
+        assertFalse(streetSectionMock.firstCarCouldEnterNextSection() > 0.0 ); // todo verify
     }
 
     @Test
@@ -425,7 +451,9 @@ public class StreetSectionTest {
         Street nextStreetSection = mock(StreetSection.class);
         when(firstCar.getNextSection()).thenReturn(nextStreetSection);
         when(firstCar.getLength()).thenReturn(5.0);
-        when(nextStreetSection.isEnoughSpaceForCarInPercentage(firstCar)).thenReturn(true);
+
+        NeededSpaceForVehicle neededSpaceForVehicle = new NeededSpaceForVehicle(100.0, firstCar.getLength(), firstCar.getLength()); // todo verify
+        when(nextStreetSection.isEnoughSpaceForCarInPercentage(firstCar)).thenReturn(neededSpaceForVehicle); // todo verify
 
         IStreetConnector nextStreetConnector = mock(StreetConnector.class);
         when(streetSectionMock.getNextStreetConnector()).thenReturn(nextStreetConnector);
@@ -449,7 +477,7 @@ public class StreetSectionTest {
         when(nextStreetConnector.getPreviousTrackConsumers(nextStreetSection, ConsumerType.ROUNDABOUT_INLET)).thenReturn(previousInlets);
         when(previousInlet.isFirstCarOnExitPoint()).thenReturn(false);
 
-        assertTrue(streetSectionMock.firstCarCouldEnterNextSection());
+        assertTrue(streetSectionMock.firstCarCouldEnterNextSection() > 0.0 ); // todo verify
     }
 
     @Test
@@ -464,7 +492,9 @@ public class StreetSectionTest {
         Street nextStreetSection = mock(StreetSection.class);
         when(firstCar.getNextSection()).thenReturn(nextStreetSection);
         when(firstCar.getLength()).thenReturn(5.0);
-        when(nextStreetSection.isEnoughSpaceForCarInPercentage(firstCar)).thenReturn(true);
+
+        NeededSpaceForVehicle neededSpaceForVehicle = new NeededSpaceForVehicle(100.0, firstCar.getLength(), firstCar.getLength()); // todo verify
+        when(nextStreetSection.isEnoughSpaceForCarInPercentage(firstCar)).thenReturn(neededSpaceForVehicle); // todo verify
 
         IStreetConnector nextStreetConnector = mock(StreetConnector.class);
         when(streetSectionMock.getNextStreetConnector()).thenReturn(nextStreetConnector);
@@ -488,7 +518,7 @@ public class StreetSectionTest {
         when(nextStreetConnector.getPreviousTrackConsumers(nextStreetSection, ConsumerType.ROUNDABOUT_INLET)).thenReturn(previousInlets);
         when(previousInlet.isFirstCarOnExitPoint()).thenReturn(false);
 
-        assertFalse(streetSectionMock.firstCarCouldEnterNextSection());
+        assertFalse(streetSectionMock.firstCarCouldEnterNextSection() > 0.0 ); // todo verify
     }
 
     @Test
@@ -503,7 +533,9 @@ public class StreetSectionTest {
         Street nextStreetSection = mock(StreetSection.class);
         when(firstCar.getNextSection()).thenReturn(nextStreetSection);
         when(firstCar.getLength()).thenReturn(5.0);
-        when(nextStreetSection.isEnoughSpaceForCarInPercentage(firstCar)).thenReturn(true);
+
+        NeededSpaceForVehicle neededSpaceForVehicle = new NeededSpaceForVehicle(100.0, firstCar.getLength(), firstCar.getLength()); // todo verify
+        when(nextStreetSection.isEnoughSpaceForCarInPercentage(firstCar)).thenReturn(neededSpaceForVehicle); // todo verify
 
         IStreetConnector nextStreetConnector = mock(StreetConnector.class);
         when(streetSectionMock.getNextStreetConnector()).thenReturn(nextStreetConnector);
@@ -527,7 +559,7 @@ public class StreetSectionTest {
         when(nextStreetConnector.getPreviousTrackConsumers(nextStreetSection, ConsumerType.ROUNDABOUT_INLET)).thenReturn(previousInlets);
         when(previousInlet.isFirstCarOnExitPoint()).thenReturn(false);
 
-        assertFalse(streetSectionMock.firstCarCouldEnterNextSection());
+        assertFalse(streetSectionMock.firstCarCouldEnterNextSection() > 0.0 ); // todo verify
     }
 
     @Test
@@ -542,7 +574,9 @@ public class StreetSectionTest {
         Street nextStreetSection = mock(StreetSection.class);
         when(firstCar.getNextSection()).thenReturn(nextStreetSection);
         when(firstCar.getLength()).thenReturn(5.0);
-        when(nextStreetSection.isEnoughSpaceForCarInPercentage(firstCar)).thenReturn(true);
+
+        NeededSpaceForVehicle neededSpaceForVehicle = new NeededSpaceForVehicle(100.0, firstCar.getLength(), firstCar.getLength()); // todo verify
+        when(nextStreetSection.isEnoughSpaceForCarInPercentage(firstCar)).thenReturn(neededSpaceForVehicle); // todo verify
 
         IStreetConnector nextStreetConnector = mock(StreetConnector.class);
         when(streetSectionMock.getNextStreetConnector()).thenReturn(nextStreetConnector);
@@ -566,7 +600,7 @@ public class StreetSectionTest {
         when(nextStreetConnector.getPreviousTrackConsumers(nextStreetSection, ConsumerType.ROUNDABOUT_INLET)).thenReturn(previousInlets);
         when(previousInlet.isFirstCarOnExitPoint()).thenReturn(true);
 
-        assertFalse(streetSectionMock.firstCarCouldEnterNextSection());
+        assertFalse(streetSectionMock.firstCarCouldEnterNextSection() > 0.0 ); // todo verify
     }
 
     @Test
@@ -581,7 +615,9 @@ public class StreetSectionTest {
         Street nextStreetSection = mock(StreetSection.class);
         when(firstCar.getNextSection()).thenReturn(nextStreetSection);
         when(firstCar.getLength()).thenReturn(5.0);
-        when(nextStreetSection.isEnoughSpaceForCarInPercentage(firstCar)).thenReturn(true);
+
+        NeededSpaceForVehicle neededSpaceForVehicle = new NeededSpaceForVehicle(100.0, firstCar.getLength(), firstCar.getLength()); // todo verify
+        when(nextStreetSection.isEnoughSpaceForCarInPercentage(firstCar)).thenReturn(neededSpaceForVehicle); // todo verify
 
         IStreetConnector nextStreetConnector = mock(StreetConnector.class);
         when(streetSectionMock.getNextStreetConnector()).thenReturn(nextStreetConnector);
@@ -605,7 +641,7 @@ public class StreetSectionTest {
         when(nextStreetConnector.getPreviousTrackConsumers(nextStreetSection, ConsumerType.ROUNDABOUT_INLET)).thenReturn(previousInlets);
         when(previousInlet.isFirstCarOnExitPoint()).thenReturn(false);
 
-        assertTrue(streetSectionMock.firstCarCouldEnterNextSection());
+        assertTrue(streetSectionMock.firstCarCouldEnterNextSection() > 0.0 ); // todo verify
     }
 
     @Test
@@ -620,7 +656,9 @@ public class StreetSectionTest {
         Street nextStreetSection = mock(StreetSection.class);
         when(firstCar.getNextSection()).thenReturn(nextStreetSection);
         when(firstCar.getLength()).thenReturn(5.0);
-        when(nextStreetSection.isEnoughSpaceForCarInPercentage(firstCar)).thenReturn(true);
+
+        NeededSpaceForVehicle neededSpaceForVehicle = new NeededSpaceForVehicle(100.0, firstCar.getLength(), firstCar.getLength()); // todo verify
+        when(nextStreetSection.isEnoughSpaceForCarInPercentage(firstCar)).thenReturn(neededSpaceForVehicle); // todo verify
 
         IStreetConnector nextStreetConnector = mock(StreetConnector.class);
         when(streetSectionMock.getNextStreetConnector()).thenReturn(nextStreetConnector);
@@ -644,7 +682,7 @@ public class StreetSectionTest {
         when(nextStreetConnector.getPreviousTrackConsumers(nextStreetSection, ConsumerType.ROUNDABOUT_INLET)).thenReturn(previousInlets);
         when(previousInlet.isFirstCarOnExitPoint()).thenReturn(false);
 
-        assertFalse(streetSectionMock.firstCarCouldEnterNextSection());
+        assertFalse(streetSectionMock.firstCarCouldEnterNextSection() > 0.0 ); // todo verify
     }
 
     @Test
@@ -659,7 +697,9 @@ public class StreetSectionTest {
         Street nextStreetSection = mock(StreetSection.class);
         when(firstCar.getNextSection()).thenReturn(nextStreetSection);
         when(firstCar.getLength()).thenReturn(5.0);
-        when(nextStreetSection.isEnoughSpaceForCarInPercentage(firstCar)).thenReturn(true);
+
+        NeededSpaceForVehicle neededSpaceForVehicle = new NeededSpaceForVehicle(100.0, firstCar.getLength(), firstCar.getLength()); // todo verify
+        when(nextStreetSection.isEnoughSpaceForCarInPercentage(firstCar)).thenReturn(neededSpaceForVehicle);  // todo verify
 
         IStreetConnector nextStreetConnector = mock(StreetConnector.class);
         when(streetSectionMock.getNextStreetConnector()).thenReturn(nextStreetConnector);
@@ -683,7 +723,7 @@ public class StreetSectionTest {
         when(nextStreetConnector.getPreviousTrackConsumers(nextStreetSection, ConsumerType.ROUNDABOUT_INLET)).thenReturn(previousInlets);
         when(previousInlet.isFirstCarOnExitPoint()).thenReturn(true);
 
-        assertFalse(streetSectionMock.firstCarCouldEnterNextSection());
+        assertFalse(streetSectionMock.firstCarCouldEnterNextSection() > 0.0 );  // todo verify
     }
 
     @Test
@@ -698,7 +738,9 @@ public class StreetSectionTest {
         Street nextStreetSection = mock(StreetSection.class);
         when(firstCar.getNextSection()).thenReturn(nextStreetSection);
         when(firstCar.getLength()).thenReturn(5.0);
-        when(nextStreetSection.isEnoughSpaceForCarInPercentage(firstCar)).thenReturn(true);
+
+        NeededSpaceForVehicle neededSpaceForVehicle = new NeededSpaceForVehicle(100.0, firstCar.getLength(), firstCar.getLength()); // todo verify
+        when(nextStreetSection.isEnoughSpaceForCarInPercentage(firstCar)).thenReturn(neededSpaceForVehicle);  // todo verify
 
         IStreetConnector nextStreetConnector = mock(StreetConnector.class);
         when(streetSectionMock.getNextStreetConnector()).thenReturn(nextStreetConnector);
@@ -713,7 +755,7 @@ public class StreetSectionTest {
         when(previousTrackSection.isFirstCarOnExitPoint()).thenReturn(false);
         when(nextStreetConnector.isNextConsumerOnSameTrackAsCurrent(previousTrackSection, nextStreetSection)).thenReturn(true);
 
-        assertTrue(streetSectionMock.firstCarCouldEnterNextSection());
+        assertTrue(streetSectionMock.firstCarCouldEnterNextSection() > 0.0 );  // todo verify
     }
 
     @Test
@@ -728,7 +770,9 @@ public class StreetSectionTest {
         Street nextStreetSection = mock(StreetSection.class);
         when(firstCar.getNextSection()).thenReturn(nextStreetSection);
         when(firstCar.getLength()).thenReturn(5.0);
-        when(nextStreetSection.isEnoughSpaceForCarInPercentage(firstCar)).thenReturn(true);
+
+        NeededSpaceForVehicle neededSpaceForVehicle = new NeededSpaceForVehicle(100.0, firstCar.getLength(), firstCar.getLength()); // todo verify
+        when(nextStreetSection.isEnoughSpaceForCarInPercentage(firstCar)).thenReturn(neededSpaceForVehicle);  // todo verify
 
         IStreetConnector nextStreetConnector = mock(StreetConnector.class);
         when(streetSectionMock.getNextStreetConnector()).thenReturn(nextStreetConnector);
@@ -743,7 +787,7 @@ public class StreetSectionTest {
         when(previousTrackSection.isFirstCarOnExitPoint()).thenReturn(true);
         when(nextStreetConnector.isNextConsumerOnSameTrackAsCurrent(previousTrackSection, nextStreetSection)).thenReturn(true);
 
-        assertFalse(streetSectionMock.firstCarCouldEnterNextSection());
+        assertFalse(streetSectionMock.firstCarCouldEnterNextSection() > 0.0 );  // todo verify
     }
 
     @Test
@@ -758,7 +802,9 @@ public class StreetSectionTest {
         Street nextStreetSection = mock(StreetSection.class);
         when(firstCar.getNextSection()).thenReturn(nextStreetSection);
         when(firstCar.getLength()).thenReturn(5.0);
-        when(nextStreetSection.isEnoughSpaceForCarInPercentage(firstCar)).thenReturn(true);
+
+        NeededSpaceForVehicle neededSpaceForVehicle = new NeededSpaceForVehicle(100.0, firstCar.getLength(), firstCar.getLength()); // todo verify
+        when(nextStreetSection.isEnoughSpaceForCarInPercentage(firstCar)).thenReturn(neededSpaceForVehicle); // todo verify
 
         IStreetConnector nextStreetConnector = mock(StreetConnector.class);
         when(streetSectionMock.getNextStreetConnector()).thenReturn(nextStreetConnector);
@@ -773,7 +819,7 @@ public class StreetSectionTest {
         when(nextStreetConnector.getPreviousConsumers(ConsumerType.ROUNDABOUT_SECTION)).thenReturn(previousSections);
         when(previousSection.isFirstCarOnExitPoint()).thenReturn(false);
 
-        assertTrue(streetSectionMock.firstCarCouldEnterNextSection());
+        assertTrue(streetSectionMock.firstCarCouldEnterNextSection() > 0.0 ); // todo verify
     }
 
     @Test
@@ -788,7 +834,9 @@ public class StreetSectionTest {
         Street nextStreetSection = mock(StreetSection.class);
         when(firstCar.getNextSection()).thenReturn(nextStreetSection);
         when(firstCar.getLength()).thenReturn(5.0);
-        when(nextStreetSection.isEnoughSpaceForCarInPercentage(firstCar)).thenReturn(true);
+
+        NeededSpaceForVehicle neededSpaceForVehicle = new NeededSpaceForVehicle(100.0, firstCar.getLength(), firstCar.getLength()); // todo verify
+        when(nextStreetSection.isEnoughSpaceForCarInPercentage(firstCar)).thenReturn(neededSpaceForVehicle); // todo verify
 
         IStreetConnector nextStreetConnector = mock(StreetConnector.class);
         when(streetSectionMock.getNextStreetConnector()).thenReturn(nextStreetConnector);
@@ -803,7 +851,7 @@ public class StreetSectionTest {
         when(nextStreetConnector.getPreviousConsumers(ConsumerType.ROUNDABOUT_SECTION)).thenReturn(previousSections);
         when(previousSection.isFirstCarOnExitPoint()).thenReturn(true);
 
-        assertFalse(streetSectionMock.firstCarCouldEnterNextSection());
+        assertFalse(streetSectionMock.firstCarCouldEnterNextSection() > 0.0 ); // todo verify
     }
 
 
@@ -818,17 +866,18 @@ public class StreetSectionTest {
         ICar car = mock(RoundaboutCar.class);
         when(car.getLength()).thenReturn(4.5);
 
-        HashMap<ICar, Double> carPositions = new HashMap<>();
-        carPositions.put(car, 13.5);
+        HashMap<ICar, VehicleOnStreetSection> carPositions = new HashMap<>();
+        VehicleOnStreetSection vehicleOnStreetSection = new VehicleOnStreetSection(13.5, 100.0);
+        carPositions.put(car, vehicleOnStreetSection);//13.5); // todo verify
 
-        when(streetSectionMock.getCarPositions()).thenReturn(carPositions);
+        when(streetSectionMock.getCarPositions()).thenReturn(carPositions); // todo verify
         when(streetSectionMock.getLastCar()).thenReturn(car);
         when(streetSectionMock.isEnoughSpaceForCarInPercentage(car)).thenCallRealMethod();
 
         double streetSectionLengthBigger = 15.0;
         when(streetSectionMock.getLength()).thenReturn(streetSectionLengthBigger);
 
-        assertTrue(streetSectionMock.isEnoughSpaceForCarInPercentage(car));
+        assertTrue(streetSectionMock.isEnoughSpaceForCarInPercentage(car).getPercentageOfVehicleThatCanLeave() > 0.0); // todo verify
     }
 
     @Test
@@ -838,17 +887,18 @@ public class StreetSectionTest {
         ICar car = mock(RoundaboutCar.class);
         when(car.getLength()).thenReturn(4.5);
 
-        HashMap<ICar, Double> carPositions = new HashMap<>();
-        carPositions.put(car, 9.0);
+        HashMap<ICar, VehicleOnStreetSection> carPositions = new HashMap<>();
+        VehicleOnStreetSection vehicleOnStreetSection = new VehicleOnStreetSection(9.0, 100.0);
+        carPositions.put(car, vehicleOnStreetSection);//13.5); // todo verify
 
-        when(streetSectionMock.getCarPositions()).thenReturn(carPositions);
+        when(streetSectionMock.getCarPositions()).thenReturn(carPositions); // todo verify
         when(streetSectionMock.getLastCar()).thenReturn(car);
         when(streetSectionMock.isEnoughSpaceForCarInPercentage(car)).thenCallRealMethod();
 
         double streetSectionLengthEquals = 15.0;
         when(streetSectionMock.getLength()).thenReturn(streetSectionLengthEquals);
 
-        assertFalse(streetSectionMock.isEnoughSpaceForCarInPercentage(car));
+        assertFalse(streetSectionMock.isEnoughSpaceForCarInPercentage(car).getPercentageOfVehicleThatCanLeave() > 0.0); // todo verify
     }
 
     @Test
@@ -858,17 +908,18 @@ public class StreetSectionTest {
         ICar car = mock(RoundaboutCar.class);
         when(car.getLength()).thenReturn(4.5);
 
-        HashMap<ICar, Double> carPositions = new HashMap<>();
-        carPositions.put(car, 4.5);
+        HashMap<ICar, VehicleOnStreetSection> carPositions = new HashMap<>();
+        VehicleOnStreetSection vehicleOnStreetSection = new VehicleOnStreetSection(4.5, 100.0);
+        carPositions.put(car, vehicleOnStreetSection);//13.5); // todo verify
 
-        when(streetSectionMock.getCarPositions()).thenReturn(carPositions);
+        when(streetSectionMock.getCarPositions()).thenReturn(carPositions); // todo verify
         when(streetSectionMock.getLastCar()).thenReturn(car);
         when(streetSectionMock.isEnoughSpaceForCarInPercentage(car)).thenCallRealMethod();
 
         double streetSectionLengthSmaller = 15.0;
         when(streetSectionMock.getLength()).thenReturn(streetSectionLengthSmaller);
 
-        assertFalse(streetSectionMock.isEnoughSpaceForCarInPercentage(car));
+        assertFalse(streetSectionMock.isEnoughSpaceForCarInPercentage(car).getPercentageOfVehicleThatCanLeave() > 0.0); // todo verify
     }
 
     @Test
@@ -877,7 +928,7 @@ public class StreetSectionTest {
 
         // no car in queue
         when(streetSectionMock.getFirstCar()).thenReturn(null);
-        assertFalse(streetSectionMock.firstCarCouldEnterNextSection());
+        assertFalse(streetSectionMock.firstCarCouldEnterNextSection() > 0.0 ); // todo verify
     }
 
     @Test
@@ -889,7 +940,7 @@ public class StreetSectionTest {
 
         // no car driver behavior specified
         when(streetSectionMock.getFirstCar()).thenReturn(carMock);
-        assertFalse(streetSectionMock.firstCarCouldEnterNextSection());
+        assertFalse(streetSectionMock.firstCarCouldEnterNextSection() > 0.0 ); // todo verify
     }
 
 
@@ -906,10 +957,11 @@ public class StreetSectionTest {
         Street streetSectionMock = prepareStreetSectionIsFirstCarOnExitPointMock();
         when(streetSectionMock.getFirstCar()).thenReturn(carMock);
 
-        Map<ICar, Double> carPositions = new HashMap<>();
-        carPositions.put(carMock, streetSectionMock.getLength());
+        HashMap<ICar, VehicleOnStreetSection> carPositions = new HashMap<>();
+        VehicleOnStreetSection vehicleOnStreetSection = new VehicleOnStreetSection(streetSectionMock.getLength(), 100.0);
+        carPositions.put(carMock, vehicleOnStreetSection);//13.5); // todo verify
 
-        when(streetSectionMock.getCarPositions()).thenReturn(carPositions);
+        when(streetSectionMock.getCarPositions()).thenReturn(carPositions); // todo verify
         assertTrue(streetSectionMock.isFirstCarOnExitPoint());
     }
 
@@ -926,10 +978,13 @@ public class StreetSectionTest {
         Street streetSectionMock = prepareStreetSectionIsFirstCarOnExitPointMock();
         when(streetSectionMock.getFirstCar()).thenReturn(carMock);
 
-        Map<ICar, Double> carPositions = new HashMap<>();
-        carPositions.put(carMock, streetSectionMock.getLength() - maxDistance * 2); // * 2 in order to get bigger distance
+        Map<ICar, VehicleOnStreetSection> carPositions = new HashMap<>(); // todo verify
+        VehicleOnStreetSection vehicleOnStreetSection =
+                new VehicleOnStreetSection(streetSectionMock.getLength() - maxDistance * 2,
+                                            100.0); // * 2 in order to get bigger distance
+        carPositions.put(carMock, vehicleOnStreetSection); // todo verify
 
-        when(streetSectionMock.getCarPositions()).thenReturn(carPositions);
+        when(streetSectionMock.getCarPositions()).thenReturn(carPositions); // todo verify
         assertFalse(streetSectionMock.isFirstCarOnExitPoint());
     }
 
@@ -941,9 +996,9 @@ public class StreetSectionTest {
         ICar firstCarMock = mock(RoundaboutCar.class);
 
         when(streetSectionMock.removeFirstCar()).thenReturn(null);
-        doCallRealMethod().when(streetSectionMock).moveFirstCarToNextSection();
+        doCallRealMethod().when(streetSectionMock).moveFirstCarToNextSection(100.0); // todo verify
 
-        streetSectionMock.moveFirstCarToNextSection();
+        streetSectionMock.moveFirstCarToNextSection(100.0); // todo verify
         verify(firstCarMock, times(0)).getNextSection();
     }
 
@@ -957,9 +1012,9 @@ public class StreetSectionTest {
         when(currentSectionMock.removeFirstCar()).thenReturn(firstCarMock);
         when(firstCarMock.getCurrentSection()).thenReturn(currentSectionMock);
         when(firstCarMock.getDestination()).thenReturn(currentSectionMock);
-        doCallRealMethod().when(currentSectionMock).moveFirstCarToNextSection();
+        doCallRealMethod().when(currentSectionMock).moveFirstCarToNextSection(100.0); // todo verify
 
-        currentSectionMock.moveFirstCarToNextSection();
+        currentSectionMock.moveFirstCarToNextSection(100.0); // todo verify
         verify(firstCarMock, times(0)).getNextSection();
         verify(firstCarMock, times(0)).traverseToNextSection();
     }
@@ -979,9 +1034,9 @@ public class StreetSectionTest {
         Street destinationMock = mock(StreetSection.class);
         when(firstCarMock.getDestination()).thenReturn(destinationMock);
 
-        doCallRealMethod().when(currentSectionMock).moveFirstCarToNextSection();
+        doCallRealMethod().when(currentSectionMock).moveFirstCarToNextSection(100.0);
 
-        currentSectionMock.moveFirstCarToNextSection();
+        currentSectionMock.moveFirstCarToNextSection(100.0); // todo verify
         verify(firstCarMock, times(1)).getNextSection();
     }
 
@@ -991,13 +1046,13 @@ public class StreetSectionTest {
         when(currentSectionMock.isTrafficLightActive()).thenReturn(true);
         when(currentSectionMock.isTrafficLightFreeToGo()).thenReturn(false);
 
-        assertFalse(currentSectionMock.firstCarCouldEnterNextSection());
+        assertFalse(currentSectionMock.firstCarCouldEnterNextSection() > 0.0 ); // todo verify
     }
 
     @Test
     public void updateAllCarsPositions_noCars() {
         Street streetSectionMock = mock(StreetSection.class);
-        Map<ICar, Double> carPositions = streetSectionMock.getCarPositions();
+        Map<ICar, VehicleOnStreetSection> carPositions = streetSectionMock.getCarPositions(); // todo verify
 
         streetSectionMock.updateAllCarsPositions();
 
@@ -1012,13 +1067,13 @@ public class StreetSectionTest {
         when(modelMock.getRandomDistanceFactorBetweenCars()).thenReturn(0.5);
 
         LinkedList<ICar> carQueue = new LinkedList<>();
-        Map<ICar, Double> carPositions = new HashMap<>();
+        Map<ICar, VehicleOnStreetSection> carPositions = new HashMap<>();
 
         Street streetSectionMock = mock(StreetSection.class);
         when(streetSectionMock.getModel()).thenReturn(modelMock);
         when(streetSectionMock.getLength()).thenReturn(100.0);
         when(streetSectionMock.getCarQueue()).thenReturn(carQueue);
-        when(streetSectionMock.getCarPositions()).thenReturn(carPositions);
+        when(streetSectionMock.getCarPositions()).thenReturn(carPositions); // todo verify
         doCallRealMethod().when(streetSectionMock).updateAllCarsPositions();
 
         IDriverBehaviour driverBehaviour = new DriverBehaviour(
@@ -1033,7 +1088,8 @@ public class StreetSectionTest {
         when(carMock.getLastUpdateTime()).thenReturn(0.0);
 
         carQueue.addLast(carMock);
-        carPositions.put(carMock, 0.0);
+        VehicleOnStreetSection vehicleOnStreetSection = new VehicleOnStreetSection(0.0, 100.0);
+        carPositions.put(carMock, vehicleOnStreetSection); // todo verify
 
         streetSectionMock.updateAllCarsPositions();
 

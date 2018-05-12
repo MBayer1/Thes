@@ -54,7 +54,8 @@ public class CarReachedDestinationIntegration {
         exp.start();
         exp.finish();
 
-        verify(roundaboutSinkSpyMock, times(1)).addCar(varArgs.capture());
+        verify(roundaboutSinkSpyMock, times(1)).addCar(varArgs.capture(),
+               100.0);  // todo verify
 
         if(!sink.isEmpty()){
             Assert.assertEquals("Car never reached destination.",destination, varArgs.getValue().getDestination());
