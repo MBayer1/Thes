@@ -3,18 +3,16 @@ package at.fhv.itm3.s2.roundabout.entity;
 import at.fhv.itm14.trafsim.model.entities.Car;
 import at.fhv.itm14.trafsim.model.entities.IConsumer;
 import at.fhv.itm14.trafsim.statistics.StopWatch;
+import at.fhv.itm3.s2.roundabout.api.entity.*;
 import at.fhv.itm3.s2.roundabout.controller.IntersectionController;
 import at.fhv.itm3.s2.roundabout.model.RoundaboutSimulationModel;
-import at.fhv.itm3.s2.roundabout.api.entity.ICar;
-import at.fhv.itm3.s2.roundabout.api.entity.IDriverBehaviour;
-import at.fhv.itm3.s2.roundabout.api.entity.IRoute;
-import at.fhv.itm3.s2.roundabout.api.entity.Street;
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeSpan;
 import desmoj.core.statistic.Count;
 import desmoj.core.statistic.Tally;
 
 import java.util.Iterator;
+import java.util.Map;
 
 public class RoundaboutCar implements ICar {
 
@@ -157,13 +155,20 @@ public class RoundaboutCar implements ICar {
      */
     @Override
     public double getLength() throws IllegalStateException{
-        double percenttageOfVehicle;
+        double percentageOfVehicle;
         if(getCurrentSection() instanceof Street){
-            percenttageOfVehicle = ((Street)getCurrentSection()).getCarPositions().get(this).getPercentageOfVehicleLength();
+            // in source there is no car, in this case a car can always leave fully
+            Street ads = (Street)getCurrentSection(); // TODO DEL
+            if(!((Street)getCurrentSection()).getCarPositions().isEmpty()) {
+                Map<ICar, VehicleOnStreetSection> das = ((Street) getCurrentSection()).getCarPositions(); // todo del
+                percentageOfVehicle = ((Street) getCurrentSection()).getCarPositions().get(this).getPercentageOfVehicleLength();
+            } else {
+                percentageOfVehicle = 100;
+            }
         } else {
             throw new IllegalStateException("Car ist not on a section!");
         }
-        return length * percenttageOfVehicle / 100;
+        return length * percentageOfVehicle / 100;
     }
 
     /**
