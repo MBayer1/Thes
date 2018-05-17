@@ -299,7 +299,7 @@ public class StreetSection extends Street {
 
         // If first vehicle is standing partial on this section it blocks leaving
         boolean noPartialVehicleBlocksLeaving = true;
-        if(this.carPositions.get(this.getFirstCar()).getPercentageOfVehicleLength() < fullyLeavingSection) noPartialVehicleBlocksLeaving = false;
+        if(this.getFirstCar() != null && this.carPositions.get(this.getFirstCar()).getPercentageOfVehicleLength() < fullyLeavingSection) noPartialVehicleBlocksLeaving = false;
 
         // Updating positions for all cars.
         ICar previousCar = null;
@@ -320,7 +320,7 @@ public class StreetSection extends Street {
 
                 // Calculate possible car positions.
                 final double maxTheoreticallyPossiblePositionValue = calculateMaxPossibleCarPosition(
-                    getLength(),
+                    getLength(), // TODO check min distance is not fulfilled pref section?
                     distanceToNextCar,
                     getCarPosition(previousCar),
                     previousCar
@@ -334,47 +334,49 @@ public class StreetSection extends Street {
                     maxActuallyPossiblePositionValue
                 );
 
-                if (newCarPosition < carPosition || noPartialVehicleBlocksLeaving) { // TODO add do not move back as dis to next car is dynamic!!???
-                    newCarPosition = carPosition;
-                    currentTimeLastMovement =  getModel().getExperiment().getSimClock().getTime().getTimeAsDouble();
-                    currentWaitingTime = 0; //reset
-                } else {
-                    currentWaitingTime = getModel().getExperiment().getSimClock().getTime().getTimeAsDouble() - currentTimeLastMovement;
-                }
-
-                if (carPosition == newCarPosition && !currentCar.isWaiting()) {
-                    currentCar.startWaiting();
-                } else if (
-                    (carPosition != newCarPosition || carPosition == currentCar.getLength())
-                    && currentCar.isWaiting()
-                    && newCarPosition - carPosition > currentCar.getLength()
-                ) {
-                    currentCar.stopWaiting();
-                }
-
-                currentCar.setLastUpdateTime(currentTime);
-
-                double percentageOfVehicle = this.carPositions.get(currentCar).getPercentageOfVehicleLength();
-                if( this.getLastCar().equals(currentCar) &&
-                    this.carPositions.get(this.getLastCar()).getPercentageOfVehicleLength() < fullyLeavingSection) {
-                    // part of the last vehicle is dived over two sections.
-                    // A movement will move the car part in the previous section:
-                    double newSpaceForVehicle = getLength() - newCarPosition;
-                    percentageOfVehicle = (newSpaceForVehicle/ currentCar.getLength()) *100;
-
-                    // change percentage of previous section. update all car Positions will be processed in next event
-                    if( currentCar.getPreviousSection() instanceof Street) {
-                        if(percentageOfVehicle < fullyLeavingSection) {
-                            ((Street) currentCar.getPreviousSection()).getCarPositions().put(currentCar,
-                                    new VehicleOnStreetSection(0.0, fullyLeavingSection - percentageOfVehicle));
-                         } else {
-                            ((Street) currentCar.getPreviousSection()).removeFirstCar();
-                        }
+                if (noPartialVehicleBlocksLeaving) { // a vehicle, standing partial on the exit point of section block a leaving
+                    if (newCarPosition < carPosition) { // TODO add do not move back as dis to next car is dynamic!!???
+                        newCarPosition = carPosition;
+                        currentTimeLastMovement = getModel().getExperiment().getSimClock().getTime().getTimeAsDouble();
+                        currentWaitingTime = 0; //reset
                     } else {
-                        throw new IllegalStateException("Previous IConsumer should be of type Street");
+                        currentWaitingTime = getModel().getExperiment().getSimClock().getTime().getTimeAsDouble() - currentTimeLastMovement;
                     }
+
+                    if (carPosition == newCarPosition && !currentCar.isWaiting()) {
+                        currentCar.startWaiting();
+                    } else if (
+                            (carPosition != newCarPosition || carPosition == currentCar.getLength())
+                                    && currentCar.isWaiting()
+                                    && newCarPosition - carPosition > currentCar.getLength()
+                            ) {
+                        currentCar.stopWaiting();
+                    }
+
+                    currentCar.setLastUpdateTime(currentTime);
+
+                    double percentageOfVehicle = this.carPositions.get(currentCar).getPercentageOfVehicleLength();
+                    if (this.getLastCar().equals(currentCar) &&
+                            this.carPositions.get(this.getLastCar()).getPercentageOfVehicleLength() < fullyLeavingSection) {
+                        // part of the last vehicle is dived over two sections.
+                        // A movement will move the car part in the previous section:
+                        double newSpaceForVehicle = getLength() - newCarPosition;
+                        percentageOfVehicle = (newSpaceForVehicle / currentCar.getLength()) * 100;
+
+                        // change percentage of previous section. update all car Positions will be processed in next event
+                        if (currentCar.getPreviousSection() instanceof Street) {
+                            if (percentageOfVehicle < fullyLeavingSection) {
+                                ((Street) currentCar.getPreviousSection()).getCarPositions().put(currentCar,
+                                        new VehicleOnStreetSection(0.0, fullyLeavingSection - percentageOfVehicle));
+                            } else {
+                                ((Street) currentCar.getPreviousSection()).removeFirstCar();
+                            }
+                        } else {
+                            throw new IllegalStateException("Previous IConsumer should be of type Street");
+                        }
+                    }
+                    carPositions.put(currentCar, new VehicleOnStreetSection(newCarPosition, percentageOfVehicle));
                 }
-                carPositions.put(currentCar, new VehicleOnStreetSection(newCarPosition, percentageOfVehicle) );
             }
 
             previousCar = currentCar;
@@ -447,9 +449,22 @@ public class StreetSection extends Street {
                                             throw new IllegalStateException("All previous IConsumer should be of type Street");
                                         }
 
-                                        IStreetConnector previousConnector = getPreviousStreetConnector();
-                                        ConsumerType previousConsumerTye = previousConnector.getTypeOfConsumer(this);
-                                        switch (previousConsumerTye) {
+
+                                        IStreetConnector previousConnectorOfNextSection = nextStreet.getPreviousStreetConnector();
+                                        if(previousConnectorOfNextSection == null){
+                                            throw new IllegalStateException("Next StreetSection must be part of roundabout.");
+                                        }
+                                        ;
+                                        previousConnectorOfNextSection.getPreviousConsumers().foreEach -> s() {
+                                            if(s instanceof Street){
+                                                // prevous connector has to be inlet as otherwise it is not part of the roundabout
+                                                (Street) s.get
+
+                                            }
+                                        };
+
+                                        ConsumerType previousConsumerTyeOfNextSection = previousConnectorOfNextSection.getTypeOfConsumer(this);
+                                        switch (previousConsumerTyeOfNextSection) {
                                             case ROUNDABOUT_SECTION:
                                                 // to enter the roundabout (in to the flowing traffic)
                                                 // additional space is needed in previous roundabout sections
@@ -689,9 +704,10 @@ public class StreetSection extends Street {
         updateAllCarsPositions();
         ICar lastCar = getLastCar();
 
-        if(getCarPositions().get(lastCar).getPercentageOfVehicleLength() != fullyLeavingSection )
-
         if (lastCar != null) {
+            if( getCarPositions().get(lastCar).getPercentageOfVehicleLength() != fullyLeavingSection ){
+                return 0; // if last car is solely partial on the section, there is no space for a new one
+            }
             final double lastCarPosition = getCarPosition(lastCar);
             ((Street)lastCar.getCurrentSection()).getCarPositions();
 
