@@ -161,6 +161,11 @@ public class RoundaboutCar implements ICar {
             Street ads = (Street)getCurrentSection(); // TODO DEL
             if(!((Street)getCurrentSection()).getCarPositions().isEmpty()) {
                 Map<ICar, VehicleOnStreetSection> das = ((Street) getCurrentSection()).getCarPositions(); // todo del
+                VehicleOnStreetSection d = das.get(this);
+                if(d == null){
+                    int dasasg = 5;
+                    return 0;
+                }
                 percentageOfVehicle = ((Street) getCurrentSection()).getCarPositions().get(this).getPercentageOfVehicleLength();
             } else {
                 percentageOfVehicle = 100;

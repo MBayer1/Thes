@@ -37,7 +37,7 @@
     <components>
         <component id="ro1" type="ROUNDABOUT" name="Kreisverkehr Dornbirn Süd">
             <sources>
-                <source id="so_s5_t1" sectionId="s5_t1" generatorExpectation="56.18"/>
+                <source id="so_s5_t1" sectionId="s5_t1" generatorExpectation="1000"/>
             </sources>
             <sinks>
                 <sink id="sk_s4_t1"/>

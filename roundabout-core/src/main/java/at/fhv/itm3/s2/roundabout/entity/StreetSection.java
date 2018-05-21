@@ -127,6 +127,8 @@ public class StreetSection extends Street {
             throw new IllegalStateException("carQueue in section cannot be null");
         }
 
+        Street tmp = (Street) iCar.getPreviousSection(); // tmp todo del
+
         carQueue.addLast(iCar);
         carPositions.put(iCar, new VehicleOnStreetSection(iCar.getLength(), percentageOfCar));
         incrementEnteredCarCounter();
@@ -150,11 +152,10 @@ public class StreetSection extends Street {
         // of the current car (that has just left the last section successfully
         // can be removed (saves memory)
         // caution! that requires to call traverseToNextSection before calling this method
-        Car car = CarController.getCar(iCar);
         IConsumer consumer = iCar.getPreviousSection();
         if (consumer instanceof Street) {
-            if (((Street) consumer).getCarPositions().get(car).getPercentageOfVehicleLength() == fullyLeavingSection) {
-                ((Street) consumer).carDelivered(null, car, true);
+            if (((Street) consumer).getCarPositions().get(iCar).getPercentageOfVehicleLength() == fullyLeavingSection) {
+                ((Street) consumer).carDelivered(null, CarController.getCar(iCar), true);
             }
         }
 
@@ -443,52 +444,52 @@ public class StreetSection extends Street {
                                 // (it has to give precedence to all cars in the roundabout that are on tracks
                                 // the car has to cross)
                                 case ROUNDABOUT_INLET:
+
                                     Collection<IConsumer> previousStreets = nextConnector.getPreviousConsumers();
+
                                     for (IConsumer previousStreet: previousStreets) {
                                         if (!(previousStreet instanceof Street)) {
                                             throw new IllegalStateException("All previous IConsumer should be of type Street");
                                         }
 
-
                                         IStreetConnector previousConnectorOfNextSection = nextStreet.getPreviousStreetConnector();
                                         if(previousConnectorOfNextSection == null){
                                             throw new IllegalStateException("Next StreetSection must be part of roundabout.");
                                         }
-                                        ;
-                                        previousConnectorOfNextSection.getPreviousConsumers().foreEach -> s() {
-                                            if(s instanceof Street){
-                                                // prevous connector has to be inlet as otherwise it is not part of the roundabout
-                                                (Street) s.get
-
-                                            }
-                                        };
-
-                                        ConsumerType previousConsumerTyeOfNextSection = previousConnectorOfNextSection.getTypeOfConsumer(this);
-                                        switch (previousConsumerTyeOfNextSection) {
-                                            case ROUNDABOUT_SECTION:
-                                                // to enter the roundabout (in to the flowing traffic)
-                                                // additional space is needed in previous roundabout sections
-                                                // in case the driver shows a light signal that this one will enter the current street section
-                                                // a roundabout can solely fully or not at all be entered
-                                                ICar firstVehicleOfPrevSection = ((Street) previousStreet).getFirstCar();
-                                                if (this == firstVehicleOfPrevSection.getNextSection()) {
-                                                    Map<ICar, VehicleOnStreetSection> carPositions = ((Street) previousStreet).getCarPositions();
-                                                    double spaceToExitPoint = ((Street) previousStreet).getLength() -
-                                                            carPositions.get(firstVehicleOfPrevSection).getVehiclePositionOnStreetSection();
-
-                                                    if (spaceToExitPoint < spaceDataOfVehicleThatCanEnter.getLengthOfMergeFactor() &&
-                                                            spaceDataOfVehicleThatCanEnter.getPercentageOfVehicleThatCanLeave() != fullyLeavingSection) {
-                                                        return noLeavingSection;
-                                                    }
-                                                }
-                                        }
 
                                         // part to give precedence to all cars in the roundabout
                                         ((Street)previousStreet).updateAllCarsPositions();
+
                                         if (((Street)previousStreet).isFirstCarOnExitPoint()) {
                                             firstCarInQueue.startWaiting();
                                             return noLeavingSection;
                                         }
+
+                                        for(IConsumer s : previousConnectorOfNextSection.getPreviousConsumers()){
+                                            if(s instanceof Street){
+                                                // previous connector has to be inlet as otherwise it is not part of the roundabout
+                                                if (previousConnectorOfNextSection.getTypeOfConsumer(s).equals(ConsumerType.ROUNDABOUT_SECTION)){
+                                                    // to enter the roundabout (in to the flowing traffic)
+                                                    // additional space is needed in previous roundabout sections
+                                                    // in case the driver shows a light signal that this one will enter the current street section
+                                                    // a roundabout can solely fully or not at all be entered
+                                                    ICar firstVehicleOfPrevSection = ((Street) s).getFirstCar();
+                                                    if (firstVehicleOfPrevSection != null && this == firstVehicleOfPrevSection.getNextSection()) {
+                                                        Map<ICar, VehicleOnStreetSection> carPositions = ((Street) s).getCarPositions();
+                                                        double spaceToExitPoint = ((Street) s).getLength() -
+                                                                carPositions.get(firstVehicleOfPrevSection).getVehiclePositionOnStreetSection();
+
+                                                        if (spaceToExitPoint < spaceDataOfVehicleThatCanEnter.getLengthOfMergeFactor() ||
+                                                                spaceDataOfVehicleThatCanEnter.getPercentageOfVehicleThatCanLeave() != fullyLeavingSection) {
+                                                            return fullyLeavingSection;
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+
+
+
                                         if (nextConnector.isNextConsumerOnSameTrackAsCurrent(previousStreet, nextStreet)) {
                                             break;
                                         }
@@ -813,4 +814,5 @@ public class StreetSection extends Street {
     public DTO toDTO() {
         return null;
     }
+
 }
