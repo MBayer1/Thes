@@ -302,7 +302,7 @@ public abstract class Street extends AbstractProSumer implements ICarCountable {
      * @param car {@Link ICar} the current vehicle
      * @return true if the part of the vehicle in the current section is the beginning of the vehicle
      */
-    public abstract boolean checkCarSegmentIsBeginningOfVehicle(ICar car);
+    public abstract boolean beginningOfVehicleIsOnThisSection(ICar car);
 
     /**
      * Moves the first car from the current section to the next section.

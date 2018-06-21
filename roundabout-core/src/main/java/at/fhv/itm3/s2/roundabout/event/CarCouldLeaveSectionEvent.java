@@ -71,10 +71,6 @@ public class CarCouldLeaveSectionEvent extends Event<Street> {
             // leave the next section under optimal conditions
             IConsumer nextSection = donorStreet.getFirstCar().getNextSection();
 
-            if(percentageOfVehicleThatCanLeaveSection < 100) {// todo del
-                ((Street) nextSection).getLength(); //todo del
-            }
-
             if (nextSection != null && nextSection instanceof StreetSection) {
                 roundaboutEventFactory.createCarCouldLeaveSectionEvent(roundaboutSimulationModel).schedule(
                     (StreetSection) nextSection,

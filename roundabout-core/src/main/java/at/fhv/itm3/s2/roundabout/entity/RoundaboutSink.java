@@ -188,7 +188,7 @@ public class RoundaboutSink extends AbstractSink {
      * {@inheritDoc}
      */
     @Override
-    public boolean checkCarSegmentIsBeginningOfVehicle(ICar car) {return false;}
+    public boolean beginningOfVehicleIsOnThisSection(ICar car) {return false;}
 
     /**
      * {@inheritDoc}

@@ -36,7 +36,7 @@ public class RoundaboutCar implements ICar {
 
     public RoundaboutCar(Model model, ICar car)
             throws IllegalArgumentException {
-        this(model, car.getLength(), CarController.getCar(car), car.getDriverBehaviour(), car.getRoute());
+        this(model, car.getVehicleLength(), CarController.getCar(car), car.getDriverBehaviour(), car.getRoute());
     }
 
     public RoundaboutCar(Model model, double length, Car car, IDriverBehaviour driverBehaviour, IRoute route)
@@ -159,17 +159,20 @@ public class RoundaboutCar implements ICar {
      * {@inheritDoc}
      */
     @Override
-    public double getLength() throws IllegalStateException {
+    public double getVehicleLength() throws IllegalStateException {
+        return length;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public double getVehiclePercentualLength() throws IllegalStateException {
         double percentageOfVehicle;
         if (getCurrentSection() instanceof Street) {
-            // in source there is no car, in this case a car can always leave fully
-            Street ads = (Street) getCurrentSection(); // TODO DEL
             if (!((Street) getCurrentSection()).getCarPositions().isEmpty()) {
-                Map<ICar, VehicleOnStreetSection> das = ((Street) getCurrentSection()).getCarPositions(); // todo del
-                VehicleOnStreetSection d = das.get(this);
-                if (d == null) {
-                    int dasasg = 5; // todo
-                    return 0;
+                if (((Street) getCurrentSection()).getCarPositions().get(this) == null) {
+                    throw new IllegalStateException("Car ist not on a section!");
                 }
                 percentageOfVehicle = ((Street) getCurrentSection()).getCarPositions().get(this).getPercentageOfVehicleLength();
             } else {

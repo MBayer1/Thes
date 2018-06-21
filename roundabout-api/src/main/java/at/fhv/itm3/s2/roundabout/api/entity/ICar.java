@@ -45,11 +45,18 @@ public interface ICar {
     double getTransitionTime();
 
     /**
-     * Returns actual length of {@code this} car.
+     * Returns full length of {@code this} car.
      *
      * @return the length of the car.
      */
-    double getLength();
+    double getVehicleLength();
+
+    /**
+     * Returns actual length of {@code this} car on the current street section {@link IConsumer}.
+     *
+     * @return the perceptual length of the car.
+     */
+    double getVehiclePercentualLength();
 
     /**
      * Returns (reference) car driver behavior {@link IDriverBehaviour}.

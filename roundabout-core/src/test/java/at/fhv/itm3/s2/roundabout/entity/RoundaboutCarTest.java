@@ -10,8 +10,6 @@ import desmoj.core.simulator.Experiment;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.ArrayList;
-
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -46,7 +44,7 @@ public class RoundaboutCarTest {
         //test attributes
         assertEquals(driverBehaviour, iCar.getDriverBehaviour());
         assertEquals(route, iCar.getRoute());
-        assertEquals(length, iCar.getLength(), 0.0);
+        assertEquals(length, iCar.getVehicleLength(), 0.0);
     }
 
     @Test(expected = IllegalArgumentException.class)
