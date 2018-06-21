@@ -129,6 +129,9 @@ public class StreetSection extends Street {
 
         Street tmp = (Street) iCar.getPreviousSection(); // tmp todo del
 
+        if(tmp != null){
+            int test=5;//todo
+        }
         carQueue.addLast(iCar);
         carPositions.put(iCar, new VehicleOnStreetSection(iCar.getLength(), percentageOfCar));
         incrementEnteredCarCounter();
@@ -298,10 +301,6 @@ public class StreetSection extends Street {
         final double currentTime = getRoundaboutModel().getCurrentTime();
         final List<ICar> carQueue = getCarQueue();
 
-        // If first vehicle is standing partial on this section it blocks leaving
-        boolean noPartialVehicleBlocksLeaving = true;
-        if(this.getFirstCar() != null && this.carPositions.get(this.getFirstCar()).getPercentageOfVehicleLength() < fullyLeavingSection) noPartialVehicleBlocksLeaving = false;
-
         // Updating positions for all cars.
         ICar previousCar = null;
         for (ICar currentCar : carQueue) {
@@ -335,55 +334,94 @@ public class StreetSection extends Street {
                     maxActuallyPossiblePositionValue
                 );
 
-                if (noPartialVehicleBlocksLeaving) { // a vehicle, standing partial on the exit point of section block a leaving
-                    if (newCarPosition < carPosition) { // TODO add do not move back as dis to next car is dynamic!!???
-                        newCarPosition = carPosition;
-                        currentTimeLastMovement = getModel().getExperiment().getSimClock().getTime().getTimeAsDouble();
-                        currentWaitingTime = 0; //reset
-                    } else {
-                        currentWaitingTime = getModel().getExperiment().getSimClock().getTime().getTimeAsDouble() - currentTimeLastMovement;
-                    }
+                if (newCarPosition < carPosition) { // TODO add do not move back as dis to next car is dynamic!!???
+                    newCarPosition = carPosition;
+                    currentTimeLastMovement = getModel().getExperiment().getSimClock().getTime().getTimeAsDouble();
+                    currentWaitingTime = 0; //reset
+                } else {
+                    currentWaitingTime = getModel().getExperiment().getSimClock().getTime().getTimeAsDouble() - currentTimeLastMovement;
+                }
 
-                    if (carPosition == newCarPosition && !currentCar.isWaiting()) {
-                        currentCar.startWaiting();
-                    } else if (
-                            (carPosition != newCarPosition || carPosition == currentCar.getLength())
-                                    && currentCar.isWaiting()
-                                    && newCarPosition - carPosition > currentCar.getLength()
-                            ) {
-                        currentCar.stopWaiting();
-                    }
+                if (carPosition == newCarPosition && !currentCar.isWaiting()) {
+                    currentCar.startWaiting();
+                } else if (
+                        (carPosition != newCarPosition || carPosition == currentCar.getLength())
+                                && currentCar.isWaiting()
+                                && newCarPosition - carPosition > currentCar.getLength()
+                        ) {
+                    currentCar.stopWaiting();
+                }
+                currentCar.setLastUpdateTime(currentTime);
 
-                    currentCar.setLastUpdateTime(currentTime);
-
-                    double percentageOfVehicle = this.carPositions.get(currentCar).getPercentageOfVehicleLength();
-                    if (this.getLastCar().equals(currentCar) &&
-                            this.carPositions.get(this.getLastCar()).getPercentageOfVehicleLength() < fullyLeavingSection) {
-                        // part of the last vehicle is dived over two sections.
-                        // A movement will move the car part in the previous section:
-                        double newSpaceForVehicle = getLength() - newCarPosition;
-                        percentageOfVehicle = (newSpaceForVehicle / currentCar.getLength()) * 100;
-
-                        // change percentage of previous section. update all car Positions will be processed in next event
-                        if (currentCar.getPreviousSection() instanceof Street) {
-                            if (percentageOfVehicle < fullyLeavingSection) {
-                                ((Street) currentCar.getPreviousSection()).getCarPositions().put(currentCar,
-                                        new VehicleOnStreetSection(0.0, fullyLeavingSection - percentageOfVehicle));
-                            } else {
-                                ((Street) currentCar.getPreviousSection()).removeFirstCar();
-                            }
-                        } else {
-                            throw new IllegalStateException("Previous IConsumer should be of type Street");
-                        }
-                    }
-                    carPositions.put(currentCar, new VehicleOnStreetSection(newCarPosition, percentageOfVehicle));
+                if (this.getLastCar().equals(currentCar) &&
+                    this.carPositions.get(this.getLastCar()).getPercentageOfVehicleLength() < fullyLeavingSection) {
+                    shiftVehicleThroughSections(currentCar, newCarPosition);
+                } else {
+                    carPositions.get(currentCar).setVehiclePositionOnStreetSection(newCarPosition);
                 }
             }
-
             previousCar = currentCar;
         }
-
         carPositionObserver.notifyObservers();
+    }
+
+    void shiftVehicleThroughSections(ICar currentCar, double newCarPosition){
+        // part of the last vehicle is dived over two sections.
+        // A movement will move the car part in the previous section: //todo verify
+        double currentCarPercentage = this.getCarPositions().get(currentCar).getPercentageOfVehicleLength()/100;
+        double newSpaceForVehicle = getLength() - (newCarPosition + currentCar.getLength()* currentCarPercentage);
+
+        //update current car percentage
+        double newSpaceForVehicleInPercentage = (newSpaceForVehicle/ currentCar.getLength())*100;// todo also roud to 2 Dezimal
+        carPositions.get(currentCar).setVehiclePositionOnStreetSection(newSpaceForVehicleInPercentage + carPositions.get(currentCar).getPercentageOfVehicleLength());
+
+        // remove this percentage form ending of current car
+        ICar lastVehiclePart = null;
+        IConsumer lastStreetSectionOfCurrentVehicle = null;
+        while(newSpaceForVehicle > 0){
+            lastStreetSectionOfCurrentVehicle = getLastStreetSectionOfCurrentCar(currentCar);
+            if(lastStreetSectionOfCurrentVehicle.equals(this)) newSpaceForVehicle = 0;
+            if(!(lastStreetSectionOfCurrentVehicle instanceof Street)){
+                throw new IllegalStateException("IConsumer should be of type Street");
+            }
+            lastVehiclePart = ((Street) lastStreetSectionOfCurrentVehicle).getFirstCar();
+            double lastVehiclePartPercentage = ((Street) lastStreetSectionOfCurrentVehicle).getCarPositions().get(lastVehiclePart).getPercentageOfVehicleLength();
+            double lastVehiclePartLength = lastVehiclePart.getLength()* (lastVehiclePartPercentage /100);
+
+            // rest of the cars in this last section will be updates in an upcoming event
+            if(newSpaceForVehicle < lastVehiclePartLength){
+                carPositions.get(currentCar).setVehiclePositionOnStreetSection(carPositions.get(currentCar).getPercentageOfVehicleLength() - newSpaceForVehicleInPercentage);
+            } else {
+                ((Street) lastStreetSectionOfCurrentVehicle).removeFirstCar();
+            }
+            newSpaceForVehicle -= lastVehiclePartLength;
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public IConsumer getLastStreetSectionOfCurrentCar (ICar Vehicle){
+        ICar previousCarPart = Vehicle;
+        IConsumer previousStreet = this;
+        IConsumer lastSuccessfulPreviousStreet = null;
+        if(!(Vehicle instanceof RoundaboutCar)){
+            throw new IllegalStateException("current ICar should be of type RoundaboutCar");
+        }
+
+        while(((RoundaboutCar)previousCarPart).getOldImplementationCar() == ((RoundaboutCar)Vehicle).getOldImplementationCar()){
+            lastSuccessfulPreviousStreet = previousStreet;
+            previousStreet = previousCarPart.getPreviousSection();
+            if(!(previousStreet instanceof Street)){
+                throw new IllegalStateException("Previous IConsumer should be of type Street");
+            }
+            previousCarPart = ((Street)previousStreet).getFirstCar();
+            if (!(previousCarPart instanceof RoundaboutCar)) {
+                throw new IllegalStateException("Previous ICar should be of type RoundaboutCar");
+            }
+        }
+        return  lastSuccessfulPreviousStreet;
     }
 
     /**
@@ -425,7 +463,6 @@ public class StreetSection extends Street {
                     Street nextStreet = (Street) nextConsumer;
                     NeededSpaceForVehicle spaceDataOfVehicleThatCanEnter = nextStreet.isEnoughSpaceForCarInPercentage(firstCarInQueue);
                     if (spaceDataOfVehicleThatCanEnter.getPercentageOfVehicleThatCanLeave() > 0) {
-
                         // PRECEDENCE CHECK
                         IStreetConnector nextConnector = getNextStreetConnector();
                         ConsumerType currentConsumerType = nextConnector.getTypeOfConsumer(this);
@@ -444,14 +481,11 @@ public class StreetSection extends Street {
                                 // (it has to give precedence to all cars in the roundabout that are on tracks
                                 // the car has to cross)
                                 case ROUNDABOUT_INLET:
-
                                     Collection<IConsumer> previousStreets = nextConnector.getPreviousConsumers();
-
                                     for (IConsumer previousStreet: previousStreets) {
                                         if (!(previousStreet instanceof Street)) {
                                             throw new IllegalStateException("All previous IConsumer should be of type Street");
                                         }
-
                                         IStreetConnector previousConnectorOfNextSection = nextStreet.getPreviousStreetConnector();
                                         if(previousConnectorOfNextSection == null){
                                             throw new IllegalStateException("Next StreetSection must be part of roundabout.");
@@ -459,7 +493,6 @@ public class StreetSection extends Street {
 
                                         // part to give precedence to all cars in the roundabout
                                         ((Street)previousStreet).updateAllCarsPositions();
-
                                         if (((Street)previousStreet).isFirstCarOnExitPoint()) {
                                             firstCarInQueue.startWaiting();
                                             return noLeavingSection;
@@ -478,7 +511,6 @@ public class StreetSection extends Street {
                                                         Map<ICar, VehicleOnStreetSection> carPositions = ((Street) s).getCarPositions();
                                                         double spaceToExitPoint = ((Street) s).getLength() -
                                                                 carPositions.get(firstVehicleOfPrevSection).getVehiclePositionOnStreetSection();
-
                                                         if (spaceToExitPoint < spaceDataOfVehicleThatCanEnter.getLengthOfMergeFactor() ||
                                                                 spaceDataOfVehicleThatCanEnter.getPercentageOfVehicleThatCanLeave() != fullyLeavingSection) {
                                                             return fullyLeavingSection;
@@ -487,8 +519,6 @@ public class StreetSection extends Street {
                                                 }
                                             }
                                         }
-
-
 
                                         if (nextConnector.isNextConsumerOnSameTrackAsCurrent(previousStreet, nextStreet)) {
                                             break;
@@ -618,30 +648,27 @@ public class StreetSection extends Street {
      */
     @Override
     public NeededSpaceForVehicle isEnoughSpaceForCarInPercentage(ICar car) {
-        car.getDriverBehaviour().getMergeFactor();
-        ////////////////////////
         double distanceToNextVehicle = calculateDistanceToNextCar(
                 car.getDriverBehaviour().getMinDistanceToNextCar(),
                 car.getDriverBehaviour().getMaxDistanceToNextCar(),
                 getRoundaboutModel().getRandomValue());
 
-        final double freeSpace = calculateFreeSpace();
-        final double fullyNeededSpaceForVehicle = distanceToNextVehicle + car.getLength();
         NeededSpaceForVehicle neededSpaceData = new NeededSpaceForVehicle(
-                fullyNeededSpaceForVehicle * car.getDriverBehaviour().getMergeFactor(),
-                fullyNeededSpaceForVehicle);
+                car.getDriverBehaviour().getMergeFactor(), // todo check mergefactor default 1
+                noLeavingSection);
+        if(!checkCarSegmentIsBeginningOfVehicle(car)){
+            distanceToNextVehicle = 0;
+        }
 
-        double availableSpaceForCar = freeSpace - distanceToNextVehicle;
-        if (availableSpaceForCar > 0) {
-            if(car.getLength() > availableSpaceForCar) {
-                double percentageOfVehicle = car.getLength() * availableSpaceForCar / 100;
-                percentageOfVehicle = Math.round( percentageOfVehicle * 100) / 100; // round to two decimal places
-                neededSpaceData.setPercentageOfVehicleThatCanLeave( percentageOfVehicle );
-                return neededSpaceData;
-            } else {
-                neededSpaceData.setPercentageOfVehicleThatCanLeave(fullyLeavingSection);
-                return neededSpaceData;
-            }
+        final double freeSpace = calculateFreeSpace();
+        double fullyNeededSpaceForVehicle = car.getLength() + distanceToNextVehicle;
+
+        if(fullyNeededSpaceForVehicle < freeSpace) {
+            neededSpaceData.setPercentageOfVehicleThatCanLeave(fullyLeavingSection);
+        } else {
+            double percentageOfVehicle = ((freeSpace-distanceToNextVehicle) / (fullyNeededSpaceForVehicle-distanceToNextVehicle)) *100;
+            percentageOfVehicle = Math.floor( percentageOfVehicle * 100) / 100; // round to two decimal places
+            neededSpaceData.setPercentageOfVehicleThatCanLeave( percentageOfVehicle );
         }
         return neededSpaceData;
     }
@@ -650,14 +677,36 @@ public class StreetSection extends Street {
      * {@inheritDoc}
      */
     @Override
+    public boolean checkCarSegmentIsBeginningOfVehicle(ICar car){
+        IConsumer nextSection = car.getNextSection();
+        if (nextSection != null && nextSection instanceof Street) {
+            if(((Street) nextSection).getCarPositions().get(car) != null){
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void moveFirstCarToNextSection(double percentageOfVehicleThatCanLeaveSection)
     throws IllegalStateException {
-
         ICar firstCar;
         if(percentageOfVehicleThatCanLeaveSection == fullyLeavingSection) {
             firstCar = removeFirstCar();
         } else {
-            firstCar = getFirstCar();
+            ICar firstCarTmp = getFirstCar();
+            firstCar = new RoundaboutCar(getRoundaboutModel(), firstCarTmp);
+            shiftVehicleThroughSections()
+
+            double restPercentageOfCar = this.carPositions.get(firstCarTmp).getPercentageOfVehicleLength() - percentageOfVehicleThatCanLeaveSection;
+            if( 0 >= restPercentageOfCar) {
+                throw new IllegalStateException("It is not possible to remove more parts of a vehicle than the existing rest.");
+            }
+            if(restPercentageOfCar == 0) incrementLeftCarCounter(); // todo check for reall 0
+            this.carPositions.get(firstCarTmp).setPercentageOfVehicleLength(restPercentageOfCar);
         }
 
         if (firstCar != null) {
@@ -668,7 +717,7 @@ public class StreetSection extends Street {
                     // Move logically first car to next section.
                     firstCar.traverseToNextSection();
                     // Move physically first car to next section.
-                    ((Street)nextSection).addCar(firstCar, percentageOfVehicleThatCanLeaveSection);
+                    ((Street) nextSection).addCar(firstCar, percentageOfVehicleThatCanLeaveSection);
                 } else if (nextSection != null && nextSection instanceof RoundaboutIntersection) {
                     RoundaboutIntersection intersection = (RoundaboutIntersection) nextSection;
                     Car car = CarController.getCar(firstCar);
@@ -704,7 +753,6 @@ public class StreetSection extends Street {
     private double calculateFreeSpace() {
         updateAllCarsPositions();
         ICar lastCar = getLastCar();
-
         if (lastCar != null) {
             if( getCarPositions().get(lastCar).getPercentageOfVehicleLength() != fullyLeavingSection ){
                 return 0; // if last car is solely partial on the section, there is no space for a new one

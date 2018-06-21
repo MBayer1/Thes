@@ -2,6 +2,7 @@ package at.fhv.itm3.s2.roundabout.event;
 
 import at.fhv.itm14.trafsim.model.entities.IConsumer;
 import at.fhv.itm14.trafsim.model.entities.intersection.Intersection;
+import at.fhv.itm3.s2.roundabout.api.entity.VehicleOnStreetSection;
 import at.fhv.itm3.s2.roundabout.model.RoundaboutSimulationModel;
 import at.fhv.itm3.s2.roundabout.api.entity.IStreetConnector;
 import at.fhv.itm3.s2.roundabout.api.entity.Street;
@@ -69,6 +70,11 @@ public class CarCouldLeaveSectionEvent extends Event<Street> {
             // schedule a CarCouldLeaveSectionEvent for the next section, so it is thrown when the car should be able to
             // leave the next section under optimal conditions
             IConsumer nextSection = donorStreet.getFirstCar().getNextSection();
+
+            if(percentageOfVehicleThatCanLeaveSection < 100) {// todo del
+                ((Street) nextSection).getLength(); //todo del
+            }
+
             if (nextSection != null && nextSection instanceof StreetSection) {
                 roundaboutEventFactory.createCarCouldLeaveSectionEvent(roundaboutSimulationModel).schedule(
                     (StreetSection) nextSection,

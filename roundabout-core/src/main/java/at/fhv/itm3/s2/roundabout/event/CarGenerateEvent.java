@@ -82,8 +82,8 @@ public class CarGenerateEvent extends Event<AbstractSource> {
                                                                         roundaboutSimulationModel.getRandomVehicleAccelerationTime());
 
         final ICar roundaboutCar = new RoundaboutCar(getModel(), carLength, car, driverBehaviour, route);
-        roundaboutCar.enterSystem();
 
+        roundaboutCar.enterSystem();
         CarController.addCarMapping(car, roundaboutCar);
         final IConsumer nextSection = source.getConnectedStreet();
 

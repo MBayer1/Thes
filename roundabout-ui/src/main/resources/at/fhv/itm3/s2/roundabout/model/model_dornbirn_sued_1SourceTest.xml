@@ -37,7 +37,7 @@
     <components>
         <component id="ro1" type="ROUNDABOUT" name="Kreisverkehr Dornbirn Süd">
             <sources>
-                <source id="so_s5_t1" sectionId="s5_t1" generatorExpectation="1000"/>
+                <source id="so_s5_t1" sectionId="s5_t1" generatorExpectation="2"/>
             </sources>
             <sinks>
                 <sink id="sk_s4_t1"/>
@@ -120,7 +120,6 @@
                 </connector>
                 <connector id="co_2">
                     <track order="1" fromSectionId="s3_t1" fromSectionType="ROUNDABOUT_SECTION" toSectionId="s4_t1" toSectionType="ROUNDABOUT_EXIT"/>
-
                     <track order="2" fromSectionId="s3_t1" fromSectionType="ROUNDABOUT_SECTION" toSectionId="s7_t1" toSectionType="ROUNDABOUT_SECTION"/>
                     <track order="3" fromSectionId="s3_t2" fromSectionType="ROUNDABOUT_SECTION" toSectionId="s7_t2" toSectionType="ROUNDABOUT_SECTION"/>
 

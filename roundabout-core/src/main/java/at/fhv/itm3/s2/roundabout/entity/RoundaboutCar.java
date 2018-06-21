@@ -4,6 +4,7 @@ import at.fhv.itm14.trafsim.model.entities.Car;
 import at.fhv.itm14.trafsim.model.entities.IConsumer;
 import at.fhv.itm14.trafsim.statistics.StopWatch;
 import at.fhv.itm3.s2.roundabout.api.entity.*;
+import at.fhv.itm3.s2.roundabout.controller.CarController;
 import at.fhv.itm3.s2.roundabout.controller.IntersectionController;
 import at.fhv.itm3.s2.roundabout.model.RoundaboutSimulationModel;
 import desmoj.core.simulator.Model;
@@ -33,8 +34,13 @@ public class RoundaboutCar implements ICar {
     private IConsumer nextSection;
     private IConsumer sectionAfterNextSection;
 
+    public RoundaboutCar(Model model, ICar car)
+            throws IllegalArgumentException {
+        this(model, car.getLength(), CarController.getCar(car), car.getDriverBehaviour(), car.getRoute());
+    }
+
     public RoundaboutCar(Model model, double length, Car car, IDriverBehaviour driverBehaviour, IRoute route)
-    throws IllegalArgumentException {
+            throws IllegalArgumentException {
 
         if (car != null) {
             this.car = car;
@@ -66,7 +72,7 @@ public class RoundaboutCar implements ICar {
 
         this.roundaboutStopWatch = new StopWatch(model);
         this.stopsStopWatch = new StopWatch(model);
-        this.roundaboutCounter = new Count(model,  "Roundabout counter", false, false);
+        this.roundaboutCounter = new Count(model, "Roundabout counter", false, false);
         this.roundaboutCounter.reset();
         this.roundaboutTime = new Tally(model, "Roundabout time", false, false);
         this.roundaboutTime.reset();
@@ -114,7 +120,7 @@ public class RoundaboutCar implements ICar {
 
         if (section instanceof StreetSection) {
             double carPosition = 0;
-            StreetSection streetSection = (StreetSection)section;
+            StreetSection streetSection = (StreetSection) section;
 
             if (streetSection.getCarPositions().containsKey(this)) {
                 carPosition = streetSection.getCarPositions().get(this).getVehiclePositionOnStreetSection();
@@ -123,12 +129,11 @@ public class RoundaboutCar implements ICar {
             double remainingLength = streetSection.getLength() - carPosition;
             return remainingLength / this.getDriverBehaviour().getSpeed();
         } else if (section instanceof RoundaboutIntersection && section == this.currentSection) {
-            RoundaboutIntersection intersection = (RoundaboutIntersection)section;
+            RoundaboutIntersection intersection = (RoundaboutIntersection) section;
             int inDirection = IntersectionController.getInstance().getInDirectionOfIConsumer(intersection, this.previousSection);
             int outDirection = IntersectionController.getInstance().getOutDirectionOfIConsumer(intersection, this.nextSection);
             return intersection.getTimeToTraverseIntersection(inDirection, outDirection);
-        }
-        else {
+        } else {
             throw new IllegalStateException("Sections needs to be instance of StreetSection.");
         }
     }
@@ -143,7 +148,7 @@ public class RoundaboutCar implements ICar {
         final double carLastUpdateTime = getLastUpdateTime();
 
         if ((currentTime - carLastUpdateTime) > minPossibleTransitionTime) {
-            double possibleTransitionTime = getDriverBehaviour().getSpeed() /(minPossibleTransitionTime - getDriverBehaviour().getAccelerationTime()) + getDriverBehaviour().getAccelerationTime();
+            double possibleTransitionTime = getDriverBehaviour().getSpeed() / (minPossibleTransitionTime - getDriverBehaviour().getAccelerationTime()) + getDriverBehaviour().getAccelerationTime();
             return possibleTransitionTime;
         }
 
@@ -154,16 +159,16 @@ public class RoundaboutCar implements ICar {
      * {@inheritDoc}
      */
     @Override
-    public double getLength() throws IllegalStateException{
+    public double getLength() throws IllegalStateException {
         double percentageOfVehicle;
-        if(getCurrentSection() instanceof Street){
+        if (getCurrentSection() instanceof Street) {
             // in source there is no car, in this case a car can always leave fully
-            Street ads = (Street)getCurrentSection(); // TODO DEL
-            if(!((Street)getCurrentSection()).getCarPositions().isEmpty()) {
+            Street ads = (Street) getCurrentSection(); // TODO DEL
+            if (!((Street) getCurrentSection()).getCarPositions().isEmpty()) {
                 Map<ICar, VehicleOnStreetSection> das = ((Street) getCurrentSection()).getCarPositions(); // todo del
                 VehicleOnStreetSection d = das.get(this);
-                if(d == null){
-                    int dasasg = 5;
+                if (d == null) {
+                    int dasasg = 5; // todo
                     return 0;
                 }
                 percentageOfVehicle = ((Street) getCurrentSection()).getCarPositions().get(this).getPercentageOfVehicleLength();

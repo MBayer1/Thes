@@ -1,6 +1,7 @@
 package at.fhv.itm3.s2.roundabout.api.entity;
 
 import at.fhv.itm14.trafsim.model.entities.AbstractProSumer;
+import at.fhv.itm14.trafsim.model.entities.IConsumer;
 import at.fhv.itm3.s2.roundabout.api.util.observable.ObserverType;
 import at.fhv.itm3.s2.roundabout.api.util.observable.RoundaboutObservable;
 import at.fhv.itm3.s2.roundabout.api.entity.VehicleOnStreetSection;
@@ -265,6 +266,12 @@ public abstract class Street extends AbstractProSumer implements ICarCountable {
     public abstract void updateAllCarsPositions();
 
     /**
+    *  Get the Street Section with the last part (ending) of the current vehicle
+    * */
+    public abstract IConsumer getLastStreetSectionOfCurrentCar (ICar Vehicle);
+
+
+    /**
      * Checks if the first car in the street section is on the exit point.
      *
      * @return true if car is on exit point, otherwise false.
@@ -287,6 +294,15 @@ public abstract class Street extends AbstractProSumer implements ICarCountable {
      * @return the percentage of space for the car in the section : x%> 0 enough space, 0% = not enough space
      */
     public abstract NeededSpaceForVehicle isEnoughSpaceForCarInPercentage(ICar car);
+
+    /**
+     * Checks if the part of a vehicle in the current section is the beginning of the vehicle.
+     * This is needed as if it is the beginning additional space (space to next vehicle) is needed.
+     *
+     * @param car {@Link ICar} the current vehicle
+     * @return true if the part of the vehicle in the current section is the beginning of the vehicle
+     */
+    public abstract boolean checkCarSegmentIsBeginningOfVehicle(ICar car);
 
     /**
      * Moves the first car from the current section to the next section.

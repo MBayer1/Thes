@@ -140,9 +140,7 @@ public class RoundaboutSink extends AbstractSink {
      * {@inheritDoc}
      */
     @Override
-    public void setNextStreetConnector(IStreetConnector nextStreetConnector) {
-
-    }
+    public void setNextStreetConnector(IStreetConnector nextStreetConnector) {  }
 
     /**
      * {@inheritDoc}
@@ -156,10 +154,13 @@ public class RoundaboutSink extends AbstractSink {
      * {@inheritDoc}
      */
     @Override
-    public void updateAllCarsPositions() {
+    public void updateAllCarsPositions() { }
 
-    }
-
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public IConsumer getLastStreetSectionOfCurrentCar (ICar Vehicle) {return null;}
     /**
      * {@inheritDoc}
      */
@@ -183,6 +184,11 @@ public class RoundaboutSink extends AbstractSink {
     public NeededSpaceForVehicle isEnoughSpaceForCarInPercentage(ICar car) {
         return new NeededSpaceForVehicle(0.0, 0.0);
     }
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean checkCarSegmentIsBeginningOfVehicle(ICar car) {return false;}
 
     /**
      * {@inheritDoc}
@@ -219,9 +225,7 @@ public class RoundaboutSink extends AbstractSink {
      * {@inheritDoc}
      */
     @Override
-    public void carDelivered(CarDepartureEvent carDepartureEvent, Car car, boolean successful) {
-
-    }
+    public void carDelivered(CarDepartureEvent carDepartureEvent, Car car, boolean successful) { }
 
     /**
      * {@inheritDoc}
