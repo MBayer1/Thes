@@ -127,11 +127,6 @@ public class StreetSection extends Street {
             throw new IllegalStateException("carQueue in section cannot be null");
         }
 
-        Street tmp = (Street) iCar.getPreviousSection(); // tmp todo del
-
-        if(tmp == null){
-            int test=5;//todo
-        }
         carQueue.addLast(iCar);
         carPositions.put(iCar, new VehicleOnStreetSection(iCar.getVehicleLength(), percentageOfCar));
         incrementEnteredCarCounter();
