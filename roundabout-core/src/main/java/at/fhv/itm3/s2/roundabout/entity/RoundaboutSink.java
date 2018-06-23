@@ -108,6 +108,12 @@ public class RoundaboutSink extends AbstractSink {
      * {@inheritDoc}
      */
     @Override
+    public ICar getVehicleOnThisSectionByOldImplementedCar(ICar car){ return null;}
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public boolean isEmpty() {
         return false;
     }

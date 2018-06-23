@@ -39,7 +39,7 @@ public final class CarController {
         iCars.remove(iCar);
     }
 
-    public static ICar getICar(Car car) {
+    public static ICar getICar(Car car) { // returns always beginning of the vehicle
         if (!carToICarMap.containsKey(car)) {
             throw new IllegalArgumentException("carToICarMap does not contain car");
         }

@@ -315,6 +315,15 @@ public abstract class Street extends AbstractProSumer implements ICarCountable {
     throws IllegalStateException;
 
     /**
+     * This is needed to identify a car over multiple Sections{@link Street} .
+     * In case a car is on multiple sections at a time
+     * the only identifiyer is the old implemented car
+     * @throws IllegalStateException if car cannot move further e.g. next section is null.
+     */
+    public abstract ICar getVehicleOnThisSectionByOldImplementedCar(ICar car)
+            throws IllegalStateException;
+
+    /**
      * Calculates either a car could enter next section or not
      *
      * @return true if car could enter next section otherwise false
