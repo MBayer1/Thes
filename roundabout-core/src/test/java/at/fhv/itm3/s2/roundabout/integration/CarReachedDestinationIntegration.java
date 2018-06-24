@@ -63,4 +63,9 @@ public class CarReachedDestinationIntegration {
             Assert.fail("Car does not reach destination.");
         }
     }
+
+    @Test
+    public void destinationReached_VehicleOnMultipleStreetSections(){
+
+    }
 }
