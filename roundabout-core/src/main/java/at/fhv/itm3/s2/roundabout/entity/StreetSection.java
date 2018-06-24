@@ -146,25 +146,6 @@ public class StreetSection extends Street {
             }
         }
         eraseMovedPartOfVehicleFromItsEnding(iCar,0);
-
-          /*
-        // call carDelivered events for last section, so the car position
-        // of the current car (that has just left the previous section successfully
-        // can be removed (saves memory)
-        // caution! that requires to call traverseToNextSection before calling this method
-        IConsumer consumer = iCar.getPreviousSection();
-        if (consumer instanceof Street) {
-            if(((Street) consumer).getCarPositions().get(iCar) == null) {
-                iCar = ((Street) consumer).getVehicleOnThisSectionByOldImplementedCar(iCar);
-                if(iCar == null){
-                    throw new IllegalStateException("Vehicle is not on section.");
-                }
-            }
-            if (percentageOfCar == fullyLeavingSection) {
-                ((Street) consumer).carDelivered(null, CarController.getCar(iCar), true);
-            }
-        } todo del*/
-
         carObserver.notifyObservers(iCar);
     }
 
@@ -375,29 +356,20 @@ public class StreetSection extends Street {
     void eraseMovedPartOfVehicleFromItsEnding(ICar beginningOfCurrentCar, double previousPositionOnSection){
         // part of the last vehicle is dived over two sections.
         // A movement will move the car part in the previous section:
-
-        if(!(this instanceof Street)) throw new IllegalStateException("Street section must be instance of Street.");
-        double currentCarPercentage = this.getCarPositions().get(beginningOfCurrentCar).getPercentageOfVehicleLength();
-
-        double newSpaceForVehicle = ((Street)this).getCarPositions().get(beginningOfCurrentCar).getVehiclePositionOnStreetSection() - previousPositionOnSection; // shifted distance
+        double newSpaceForVehicle = this.getCarPositions().get(beginningOfCurrentCar).getVehiclePositionOnStreetSection() - previousPositionOnSection; // shifted distance
         if(newSpaceForVehicle <= 0) return;
 
         // remove length from ending of current car to receive 100% of car length in sum again (currently it is more)
-        ICar lastVehiclePart = null;
-        IConsumer lastStreetSectionOfCurrentVehicle = null;
+        ICar lastVehiclePart;
+        IConsumer lastStreetSectionOfCurrentVehicle;
         while(newSpaceForVehicle > 0){
             lastStreetSectionOfCurrentVehicle = getLastStreetSectionOfCurrentCar(beginningOfCurrentCar);
 
-            if(getCarPositions().get(beginningOfCurrentCar) == null) {
-                int fu= 1; //todo del
-            }
-
-            if(lastStreetSectionOfCurrentVehicle.equals(this) && getCarPositions().get(beginningOfCurrentCar).getPercentageOfVehicleLength() == fullyLeavingSection) return;
             if(!(lastStreetSectionOfCurrentVehicle instanceof Street)){
                 throw new IllegalStateException("IConsumer should be of type Street");
             }
             lastVehiclePart = ((Street) lastStreetSectionOfCurrentVehicle).getFirstCar();
-            double lastVehiclePartPercentage = ((Street) lastStreetSectionOfCurrentVehicle).getCarPositions().get(lastVehiclePart).getPercentageOfVehicleLength();
+            if(lastStreetSectionOfCurrentVehicle.equals(this) && getCarPositions().get(lastVehiclePart).getPercentageOfVehicleLength() == fullyLeavingSection) return;
             double lastVehiclePartLength = lastVehiclePart.getVehiclePercentualLength();
 
             // rest of the cars in this last section will be updates in an upcoming event
@@ -414,8 +386,7 @@ public class StreetSection extends Street {
                 // can be removed (saves memory)
                 // caution! that requires to call traverseToNextSection before calling this method
                 ICar VehicleTmp = ((Street) lastStreetSectionOfCurrentVehicle).removeFirstCar();
-                ((Street) lastStreetSectionOfCurrentVehicle).carDelivered(null, CarController.getCar(VehicleTmp), true);
-
+                carPositions.remove(VehicleTmp); // do not use carDelivered as is reference to the first part of the vehicle
             }
             newSpaceForVehicle -= lastVehiclePartLength;
         }
@@ -709,13 +680,12 @@ public class StreetSection extends Street {
     public boolean beginningOfVehicleIsOnThisSection(ICar car){
         IConsumer nextSection = car.getNextSection();
         if (nextSection != null && nextSection instanceof Street) {
-            if(((Street) nextSection).getCarPositions().get(car) != null){
-                return false;
-            }
+            if ( ((Street) nextSection).getCarPositions() != null &&  // check for null as sinks reruns it
+                    !(((Street) nextSection).getCarPositions().isEmpty()) &&
+                    ((Street) nextSection).getCarPositions().get(car) != null ) return false;
         } else {
             throw new IllegalStateException("Next Section must be instance of Street.");
         }
-
         return true;
     }
 
@@ -728,6 +698,7 @@ public class StreetSection extends Street {
         ICar firstCar = null;
         if(percentageOfVehicleThatCanLeaveSection == fullyLeavingSection) {
             firstCar = removeFirstCar();
+            carPositions.remove(firstCar);
         } else if(percentageOfVehicleThatCanLeaveSection  != noLeavingSection){
             firstCar = new RoundaboutCar(getRoundaboutModel(), getFirstCar());
             ICar firstCarTmp = getFirstCar();// todo del
@@ -796,6 +767,7 @@ public class StreetSection extends Street {
         updateAllCarsPositions();
         ICar lastCar = getLastCar();
         if (lastCar != null) {
+            VehicleOnStreetSection tmo = getCarPositions().get(lastCar); //todo del
             if( getCarPositions().get(lastCar).getPercentageOfVehicleLength() != fullyLeavingSection ){
                 return 0; // if last car is solely partial on the section, there is no space for a new one
             }
