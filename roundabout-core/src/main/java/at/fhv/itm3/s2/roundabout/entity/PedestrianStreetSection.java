@@ -9,8 +9,11 @@ import at.fhv.itm3.s2.roundabout.event.RoundaboutEventFactory;
 import at.fhv.itm3.s2.roundabout.model.RoundaboutSimulationModel;
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeSpan;
+import javafx.scene.shape.Circle;
 
+import java.awt.*;
 import java.util.*;
+import java.util.List;
 
 public class PedestrianStreetSection extends PedestrianStreet {
 
@@ -22,7 +25,9 @@ public class PedestrianStreetSection extends PedestrianStreet {
     private double currentTimeLastMovement;
 
     private final LinkedList<IPedestrian> pedestrianQueue;
-    private final Map<IPedestrian, Double> pedestrianPositions;
+    private final Map<IPedestrian, Point> pedestrianPositions;
+    private final List<Rectangle> obsticalRectangel;
+    private final List<Circle> obsticalCircle;
 
     private IStreetConnector nextStreetConnector;
     private IStreetConnector previousStreetConnector;
@@ -98,6 +103,9 @@ public class PedestrianStreetSection extends PedestrianStreet {
         this.pedestrianQueue = new LinkedList<>();
         this.pedestrianPositions = new HashMap<>();
         this.intersectionController = IntersectionController.getInstance();
+
+        this.obsticalCircle = new ArrayList<>();
+        this.obsticalRectangel = new ArrayList<>();
     }
 
     /**
@@ -136,7 +144,24 @@ public class PedestrianStreetSection extends PedestrianStreet {
      * {@inheritDoc}
      */
     @Override
-    public Map<IPedestrian, Double> getPedestrianPositions(IPedestrian iPedestrian) {
+    public void addObsticalCircle(double radius, Point midPoint) {
+
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void addObsticalPolygone( List<Point> cornerPoints) {
+
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Map<IPedestrian, Point> getPedestrianPositions(IPedestrian iPedestrian) {
 //TODO
         return this.pedestrianPositions;
     }
@@ -219,17 +244,17 @@ public class PedestrianStreetSection extends PedestrianStreet {
 
     /**
      * {@inheritDoc}
-     * Needed to integrate in the very first basis framework
+     * Needed to integrate for the very first basis framework
      */
     @Override
-    public void carDelivered(CarDepartureEvent carDepartureEvent, Car car, boolean successful) { }
+    public void carDelivered(CarDepartureEvent carDepartureEvent, Car car, boolean successful) {return;}
 
     /**
      * {@inheritDoc}
      * Needed to integrate in the very first basis framework
      */
     @Override
-    public void carEnter(Car car) {}
+    public void carEnter(Car car) {return;}
 
     /**
      * {@inheritDoc}

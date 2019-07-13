@@ -5,7 +5,9 @@ import at.fhv.itm3.s2.roundabout.api.util.observable.ObserverType;
 import at.fhv.itm3.s2.roundabout.api.util.observable.RoundaboutObservable;
 import desmoj.core.simulator.Model;
 
+import java.awt.*;
 import java.util.*;
+import java.util.List;
 
 public abstract class PedestrianStreet extends AbstractProSumer implements IPedestrianCountable {
 
@@ -188,6 +190,23 @@ public abstract class PedestrianStreet extends AbstractProSumer implements IPede
     public abstract void addPedestrian(IPedestrian pedestrian);
 
     /**
+     * Adds a new circularly obstical on current {@link PedestrianStreet}
+     *
+     * @param radius radius of the circularly optical The pedestrian to add.
+     * @param midPoint coordinates of the circle center
+     */
+    public abstract void addObsticalCircle(double radius, Point midPoint);
+
+
+    /**
+     * Adds a new polygonal obstical on current {@link PedestrianStreet}
+     *
+     * @param cornerPoints list of corner coordinates of the obstical in the according Order to another.
+     */
+    public abstract void addObsticalPolygone( List<Point> cornerPoints);
+
+
+    /**
      * Returns pedestrian queue of this {@link PedestrianStreet}.
      *
      * @return unmodifiable pedestrian queue.
@@ -243,7 +262,7 @@ public abstract class PedestrianStreet extends AbstractProSumer implements IPede
      *
      * @return unmodifiable map of pedestrian positions.
      */
-    public abstract Map<IPedestrian, Double> getPedestrianPositions(IPedestrian iPedestrian); //  TODO
+    public abstract Map<IPedestrian, Point> getPedestrianPositions(IPedestrian iPedestrian); //  TODO
 
     /**
      * Returns if traffic light at end of the street is active or not.
