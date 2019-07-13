@@ -223,9 +223,19 @@ public class Pedestrian implements IPedestrian {
      * {@inheritDoc}
      */
     @Override
+    public double GetSocialForceVector(){
+        return 0;
+
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void enterRoundabout() {
         this.roundaboutCounter.update();
         this.roundaboutStopWatch.start();
+        return;
     }
 
     /**
@@ -237,6 +247,7 @@ public class Pedestrian implements IPedestrian {
             double res = this.roundaboutStopWatch.stop();
             this.roundaboutTime.update(new TimeSpan(res));
         }
+        return;
     }
 
     /**
