@@ -4,7 +4,7 @@ import at.fhv.itm14.trafsim.model.entities.Car;
 import at.fhv.itm14.trafsim.model.entities.IConsumer;
 import at.fhv.itm14.trafsim.statistics.StopWatch;
 import at.fhv.itm3.s2.roundabout.api.entity.IPedestrian;
-import at.fhv.itm3.s2.roundabout.api.entity.IDriverBehaviour;
+import at.fhv.itm3.s2.roundabout.api.entity.IPedestrianBehaviour;
 import at.fhv.itm3.s2.roundabout.api.entity.IRoute;
 import at.fhv.itm3.s2.roundabout.model.RoundaboutSimulationModel;
 import desmoj.core.simulator.Model;
@@ -12,18 +12,19 @@ import desmoj.core.simulator.TimeSpan;
 import desmoj.core.statistic.Count;
 import desmoj.core.statistic.Tally;
 
+import java.awt.*;
 import java.util.Iterator;
 
 public class Pedestrian implements IPedestrian {
 
     private final Car car; // this is needed to use the framework base. Otherwise the connection to the very original would not be possible
-    private final double length;
+    private final Point currentPosition;
     private final IRoute route;
-    private final IDriverBehaviour driverBehaviour;
+    private final IPedestrianBehaviour pedestrianBehaviour;
     private final Iterator<IConsumer> routeIterator;
-    private final StopWatch roundaboutStopWatch;
-    private final Count roundaboutCounter;
-    private final Tally roundaboutTime;
+    private final StopWatch pedestrianStopWatch;
+    private final Count pedestrianCounter;
+    private final Tally pedestrianTime;
     private final StopWatch stopsStopWatch;
 
     private double lastUpdateTime;
@@ -33,7 +34,7 @@ public class Pedestrian implements IPedestrian {
     private IConsumer nextSection;
     private IConsumer sectionAfterNextSection;
 
-    public Pedestrian(Model model, double length, Car car, IDriverBehaviour driverBehaviour, IRoute route)
+    public Pedestrian(Model model, Point currentPosition, Car car, IPedestrianBehaviour pedestrianBehaviour, IRoute route)
             throws IllegalArgumentException {
 
         if (car != null) {
@@ -42,10 +43,10 @@ public class Pedestrian implements IPedestrian {
             throw new IllegalArgumentException("Pedestrian should not be null.");
         }
 
-        this.length = length;
+        this.currentPosition = currentPosition;
 
-        if (driverBehaviour != null) {
-            this.driverBehaviour = driverBehaviour;
+        if (pedestrianBehaviour != null) {
+            this.pedestrianBehaviour = pedestrianBehaviour;
         } else {
             throw new IllegalArgumentException("Driver behaviour should not be null.");
         }
@@ -64,12 +65,12 @@ public class Pedestrian implements IPedestrian {
 
         this.setLastUpdateTime(getRoundaboutModel().getCurrentTime());
 
-        this.roundaboutStopWatch = new StopWatch(model);
+        this.pedestrianStopWatch = new StopWatch(model);
         this.stopsStopWatch = new StopWatch(model);
-        this.roundaboutCounter = new Count(model, "Roundabout counter", false, false);
-        this.roundaboutCounter.reset();
-        this.roundaboutTime = new Tally(model, "Roundabout time", false, false);
-        this.roundaboutTime.reset();
+        this.pedestrianCounter = new Count(model, "Roundabout counter", false, false);
+        this.pedestrianCounter.reset();
+        this.pedestrianTime = new Tally(model, "Roundabout time", false, false);
+        this.pedestrianTime.reset();
     }
 
     public Car getOldImplementationCar() {
@@ -132,16 +133,16 @@ public class Pedestrian implements IPedestrian {
      * {@inheritDoc}
      */
     @Override
-    public double getLength() {
-        return length;
+    public Point getCurrentPosition() {
+        return currentPosition;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public IDriverBehaviour getDriverBehaviour() {
-        return driverBehaviour;
+    public IPedestrianBehaviour getPedestrianBehaviour() {
+        return pedestrianBehaviour;
     }
 
     /**
@@ -233,8 +234,8 @@ public class Pedestrian implements IPedestrian {
      */
     @Override
     public void enterRoundabout() {
-        this.roundaboutCounter.update();
-        this.roundaboutStopWatch.start();
+        this.pedestrianCounter.update();
+        this.pedestrianStopWatch.start();
         return;
     }
 
@@ -243,9 +244,9 @@ public class Pedestrian implements IPedestrian {
      */
     @Override
     public void leaveRoundabout() {
-        if (this.roundaboutStopWatch.isRunning()) {
-            double res = this.roundaboutStopWatch.stop();
-            this.roundaboutTime.update(new TimeSpan(res));
+        if (this.pedestrianStopWatch.isRunning()) {
+            double res = this.pedestrianStopWatch.stop();
+            this.pedestrianTime.update(new TimeSpan(res));
         }
         return;
     }
@@ -255,11 +256,11 @@ public class Pedestrian implements IPedestrian {
      */
     @Override
     public double getMeanRoundaboutPassTime() {
-        return this.roundaboutTime.getObservations() <= 0L ? 0.0D : this.roundaboutTime.getMean();
+        return this.pedestrianTime.getObservations() <= 0L ? 0.0D : this.pedestrianTime.getMean();
     }
 
     public long getRoundaboutPassedCount() {
-        return this.roundaboutCounter.getValue();
+        return this.pedestrianCounter.getValue();
     }
 
     public void enterSystem() {
@@ -320,6 +321,6 @@ public class Pedestrian implements IPedestrian {
     }
 
     public double getCoveredDistanceInTime(double time) {
-        return time * driverBehaviour.getSpeed();
+        return time * pedestrianBehaviour.getSpeed();
     }
 }

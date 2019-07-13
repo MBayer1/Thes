@@ -3,6 +3,8 @@ package at.fhv.itm3.s2.roundabout.api.entity;
 import at.fhv.itm14.trafsim.model.entities.IConsumer;
 import at.fhv.itm14.trafsim.model.entities.IProducer;
 
+import java.awt.*;
+
 public interface IPedestrian {
 
     /**
@@ -45,18 +47,17 @@ public interface IPedestrian {
     double getTransitionTime();
 
     /**
-     * Returns actual length of {@code this} pedestrian.
+     * Returns actual current Position of {@code this} pedestrian in current {@Link PedestrianStreet}.
      *
-     * @return the length of the pedestrian.
+     * @return the coordinates of the center of the pedestrian.
      */
-    double getLength();
-
+    public Point getCurrentPosition();
     /**
      * Returns (reference) pedestrian driver behavior {@link IDriverBehaviour}.
      *
      * @return instance of {@link IDriverBehaviour}.
      */
-    IDriverBehaviour getDriverBehaviour();
+    IPedestrianBehaviour getPedestrianBehaviour();
 
     /**
      * Returns predefined pedestrian route.
