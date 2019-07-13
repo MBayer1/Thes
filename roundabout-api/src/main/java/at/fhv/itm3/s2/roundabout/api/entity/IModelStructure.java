@@ -19,7 +19,7 @@ public interface IModelStructure {
     void addStreetConnectors(Collection<? extends IStreetConnector> streetConnector);
 
     /**
-     * Add a collection of routes to the structure.
+     * Add a collection of routes to the structure.3
      * Structure setup needs to be done before.
      *
      * @param routes routes to be added

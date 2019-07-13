@@ -5,38 +5,34 @@ import at.fhv.itm3.s2.roundabout.api.util.observable.ObserverType;
 import at.fhv.itm3.s2.roundabout.api.util.observable.RoundaboutObservable;
 import desmoj.core.simulator.Model;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Observable;
-import java.util.Observer;
-import java.util.UUID;
+import java.util.*;
 
-public abstract class Street extends AbstractProSumer implements ICarCountable {
+public abstract class PedestrianStreet extends AbstractProSumer implements IPedestrianCountable {
 
     private final String id;
-    private long enteredCarsCounter;
-    private long leftCarsCounter;
-    private long lostCarsCounter;
+    private long enteredPedestriansCounter;
+    private long leftPedestriansCounter;
+    private long lostPedestriansCounter;
     private TrafficLight trafficLight;
 
     private double greenPhaseStart;
 
-    protected Observable carObserver;
-    protected Observable enteredCarObserver;
-    protected Observable leftCarObserver;
-    protected Observable lostCarObserver;
-    protected Observable carPositionObserver;
+    protected Observable pedestrianObserver;
+    protected Observable enteredPedestrianObserver;
+    protected Observable leftPedestrianObserver;
+    protected Observable lostPedestrianObserver;
+    protected Observable pedestrianPositionObserver;
     protected Observable trafficLightObserver;
 
-    public Street(Model owner, String name, boolean showInTrace) {
+    public PedestrianStreet(Model owner, String name, boolean showInTrace) {
         this(UUID.randomUUID().toString(), owner, name, showInTrace);
     }
 
-    public Street(String id, Model owner, String name, boolean showInTrace) {
+    public PedestrianStreet(String id, Model owner, String name, boolean showInTrace) {
         this(id, owner, name, showInTrace, false, null, null, null);
     }
 
-    public Street(
+    public PedestrianStreet(
         Model owner,
         String name,
         boolean showInTrace,
@@ -55,7 +51,7 @@ public abstract class Street extends AbstractProSumer implements ICarCountable {
         redPhaseDuration);
     }
 
-    public Street(
+    public PedestrianStreet(
         Model owner,
         String name,
         boolean showInTrace,
@@ -75,7 +71,7 @@ public abstract class Street extends AbstractProSumer implements ICarCountable {
         );
     }
 
-    public Street(
+    public PedestrianStreet(
         String id,
         Model owner,
         String name,
@@ -88,23 +84,23 @@ public abstract class Street extends AbstractProSumer implements ICarCountable {
         super(owner, name, showInTrace);
 
         this.id = id;
-        this.enteredCarsCounter = 0;
-        this.leftCarsCounter = 0;
-        this.lostCarsCounter = 0;
+        this.enteredPedestriansCounter = 0;
+        this.leftPedestriansCounter = 0;
+        this.lostPedestriansCounter = 0;
 
         this.trafficLight = new TrafficLight(trafficLightActive, minGreenPhaseDuration, greenPhaseDuration, redPhaseDuration);
         this.greenPhaseStart = 0.0;
 
-        this.carObserver = new RoundaboutObservable();
-        this.enteredCarObserver = new RoundaboutObservable();
-        this.leftCarObserver = new RoundaboutObservable();
-        this.lostCarObserver = new RoundaboutObservable();
-        this.carPositionObserver = new RoundaboutObservable();
+        this.pedestrianObserver = new RoundaboutObservable();
+        this.enteredPedestrianObserver = new RoundaboutObservable();
+        this.leftPedestrianObserver = new RoundaboutObservable();
+        this.lostPedestrianObserver = new RoundaboutObservable();
+        this.pedestrianPositionObserver = new RoundaboutObservable();
         this.trafficLightObserver = new RoundaboutObservable();
 
         addObserver(
             ObserverType.CAR_LOST,
-            (o, arg) ->  System.out.println(String.format("Street \"%s\" cars lost: %s", id, arg))
+            (o, arg) ->  System.out.println(String.format("Street \"%s\" pedestrians lost: %s", id, arg))
         );
     }
 
@@ -113,61 +109,61 @@ public abstract class Street extends AbstractProSumer implements ICarCountable {
     }
 
     /**
-     * Handles active traffic light to red if there is a jam in the next street section {@link Street}
+     * Handles active traffic light to red if there is a jam in the next street section {@link PedestrianStreet}
      */
     public void handleJamTrafficLight() {
     }
 
     /**
-     * Gets total car counter passed into {@code this} {@link Street}.
+     * Gets total pedestrian counter passed into {@code this} {@link PedestrianStreet}.
      *
-     * @return total car counter.
+     * @return total pedestrian counter.
      */
     @Override
-    public long getNrOfEnteredCars() {
-        return enteredCarsCounter;
+    public long getNrOfEnteredPedestrians() {
+        return enteredPedestriansCounter;
     }
 
     /**
-     * Gets total car counter passed from {@code this} {@link Street}.
+     * Gets total pedestrian counter passed from {@code this} {@link PedestrianStreet}.
      *
-     * @return total car counter.
+     * @return total pedestrian counter.
      */
     @Override
-    public long getNrOfLeftCars() { return leftCarsCounter; }
+    public long getNrOfLeftPedestrians() { return leftPedestriansCounter; }
 
     /**
-     * Gets total car counter lost in {@code this} {@link Street}.
+     * Gets total pedestrian counter lost in {@code this} {@link PedestrianStreet}.
      *
-     * @return total car counter.
+     * @return total pedestrian counter.
      */
     @Override
-    public long getNrOfLostCars() {
-        return lostCarsCounter;
+    public long getNrOfLostPedestrians() {
+        return lostPedestriansCounter;
     }
 
     /**
      * Internal method for counter incrementation.
      */
-    protected void incrementEnteredCarCounter() {
-        this.enteredCarsCounter++;
-        this.enteredCarObserver.notifyObservers(this.enteredCarsCounter);
+    protected void incrementEnteredPedestrianCounter() {
+        this.enteredPedestriansCounter++;
+        this.enteredPedestrianObserver.notifyObservers(this.enteredPedestriansCounter);
     }
 
     /**
      * Internal method for counter incrementation.
      */
-    protected void incrementLeftCarCounter() {
-        this.leftCarsCounter++;
-        this.leftCarObserver.notifyObservers(this.leftCarsCounter);
+    protected void incrementLeftPedestrianCounter() {
+        this.leftPedestriansCounter++;
+        this.leftPedestrianObserver.notifyObservers(this.leftPedestriansCounter);
     }
 
     /**
      * Internal method for counter incrementation.
      */
-    protected void incrementLostCarCounter() {
-        this.lostCarsCounter++;
-        this.lostCarObserver.notifyObservers(this.lostCarObserver);
+    protected void incrementLostPedestrianCounter() {
+        this.lostPedestriansCounter++;
+        this.lostPedestrianObserver.notifyObservers(this.lostPedestrianObserver);
     }
 
     /**
@@ -178,41 +174,34 @@ public abstract class Street extends AbstractProSumer implements ICarCountable {
     public abstract double getLength();
 
     /**
-     * Adds a new car to the street section.
+     * Gets physical width of the street section.
      *
-     * @param car The car to add.
+     * @return The width in meters.
      */
-    public abstract void addCar(ICar car);
+    public abstract double getWidth();
 
     /**
-     * Gets first car in Section.
+     * Adds a new pedestrian to the street section.
      *
-     * @return first car in section.
+     * @param pedestrian The pedestrian to add.
      */
-    public abstract ICar getFirstCar();
+    public abstract void addPedestrian(IPedestrian pedestrian);
 
     /**
-     * Gets last car in Section.
+     * Returns pedestrian queue of this {@link PedestrianStreet}.
      *
-     * @return last car in section.
-     */
-    public abstract ICar getLastCar();
-
-    /**
-     * Returns car queue of this {@link Street}.
-     *
-     * @return unmodifiable car queue.
+     * @return unmodifiable pedestrian queue.
      * @throws IllegalStateException in case if queue equals null.
      */
-    public abstract List<ICar> getCarQueue()
+    public abstract List<IPedestrian> getPedestrianQueue()
     throws IllegalStateException;
 
     /**
-     * Removes the first car of the queue and returns the first car.
+     * Removes the first pedestrian of the queue and returns the first pedestrian.
      *
-     * @return ved car.
+     * @return removed pedestrian.
      */
-    public abstract ICar removeFirstCar();
+    public abstract void removePedestrian(IPedestrian iPedestrian); //TODO
 
     /**
      * Checks if the street section is empty.
@@ -250,56 +239,11 @@ public abstract class Street extends AbstractProSumer implements ICarCountable {
     public abstract void setNextStreetConnector(IStreetConnector nextStreetConnector);
 
     /**
-     * Gets all car positions of the street section.
+     * Gets all pedestrian positions of the street section.
      *
-     * @return unmodifiable map of car positions.
+     * @return unmodifiable map of pedestrian positions.
      */
-    public abstract Map<ICar, Double> getCarPositions();
-
-    /**
-     * Recalculates all car positions in the street section,
-     * starting from the very first car to very last car in section.
-     */
-    public abstract void updateAllCarsPositions();
-
-    /**
-     * Checks if the first car in the street section is on the exit point.
-     *
-     * @return true if car is on exit point, otherwise false.
-     */
-    public abstract boolean isFirstCarOnExitPoint();
-
-    /**
-     * Checks if first car in street section is able to enter the next section, depending on its predefined route.
-     *
-     * @return true = car can enter next section, false = car can not enter next section
-     */
-    public abstract boolean firstCarCouldEnterNextSection();
-
-    /**
-     * Checks if there is enough space in the section, depending on the car's length.
-     *
-     * @param length length of the car
-     * @return true = enough space, false = not enough space
-     */
-    public abstract boolean isEnoughSpace(double length);
-
-    /**
-     * Moves the first car from the current section to the next section.
-     * In background removes the first car (if there is one) from the queue and puts it into the
-     * queue of the next {@link Street} present in car route.
-     *
-     * @throws IllegalStateException if car cannot move further e.g. next section is null.
-     */
-    public abstract void moveFirstCarToNextSection()
-    throws IllegalStateException;
-
-    /**
-     * Calculates either a car could enter next section or not
-     *
-     * @return true if car could enter next section otherwise false
-     */
-    public abstract boolean carCouldEnterNextSection();
+    public abstract Map<IPedestrian, Double> getPedestrianPositions(IPedestrian iPedestrian); //  TODO
 
     /**
      * Returns if traffic light at end of the street is active or not.
@@ -332,7 +276,7 @@ public abstract class Street extends AbstractProSumer implements ICarCountable {
     /**
      * Sets the traffic light state (free to go = true, stop = false).
      *
-     * @param isFreeToGo set true if cars are free to go
+     * @param isFreeToGo set true if pedestrians are free to go
      * @throws IllegalStateException if traffic light is inactive
      */
     public void setTrafficLightFreeToGo(boolean isFreeToGo) throws IllegalStateException {
@@ -391,10 +335,10 @@ public abstract class Street extends AbstractProSumer implements ICarCountable {
      */
     public synchronized void addObserver(ObserverType observerType, Observer o) {
         switch (observerType) {
-            case CAR_ENTERED: enteredCarObserver.addObserver(o); break;
-            case CAR_ENTITY: carObserver.addObserver(o); break;
-            case CAR_LEFT: leftCarObserver.addObserver(o); break;
-            case CAR_POSITION: carPositionObserver.addObserver(o); break;
+            case CAR_ENTERED: enteredPedestrianObserver.addObserver(o); break;
+            case CAR_ENTITY: pedestrianObserver.addObserver(o); break;
+            case CAR_LEFT: leftPedestrianObserver.addObserver(o); break;
+            case CAR_POSITION: pedestrianPositionObserver.addObserver(o); break;
             case TRAFFIC_LIGHT: trafficLightObserver.addObserver(o); break;
         }
     }
