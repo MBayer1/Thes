@@ -4,25 +4,26 @@ import at.fhv.itm14.trafsim.model.entities.Car;
 import at.fhv.itm14.trafsim.model.events.CarDepartureEvent;
 import at.fhv.itm14.trafsim.persistence.model.DTO;
 import at.fhv.itm3.s2.roundabout.api.entity.PedestrianAbstractSource;
+import at.fhv.itm3.s2.roundabout.api.entity.PedestrianStreet;
 import at.fhv.itm3.s2.roundabout.api.entity.Street;
 import at.fhv.itm3.s2.roundabout.event.RoundaboutEventFactory;
 import at.fhv.itm3.s2.roundabout.model.RoundaboutSimulationModel;
 import desmoj.core.simulator.Model;
-
 import java.util.UUID;
 
 public class PedestrianSource extends PedestrianAbstractSource {
 
-    private Street connectedStreet;
+    private PedestrianStreet connectedStreet;
     private RoundaboutSimulationModel model;
     protected RoundaboutEventFactory roundaboutEventFactory;
     private double generateRatio;
 
-    public PedestrianSource(Model model, String description, boolean showInTrace, Street connectedStreet) {
+    public PedestrianSource(Model model, String description, boolean showInTrace, PedestrianStreet connectedStreet) {
         this(UUID.randomUUID().toString(), null, model, description, showInTrace, connectedStreet);
     }
 
-    public PedestrianSource(String id, Double generatorExpectation, Model model, String description, boolean showInTrace, Street connectedStreet) {
+    public PedestrianSource(String id, Double generatorExpectation, Model model, String description,
+                            boolean showInTrace, PedestrianStreet connectedStreet) {
         super(id, generatorExpectation, model, description, showInTrace);
         this.connectedStreet = connectedStreet;
         this.roundaboutEventFactory = RoundaboutEventFactory.getInstance();
@@ -36,10 +37,10 @@ public class PedestrianSource extends PedestrianAbstractSource {
 
     public void startGeneratingPedestrians(double afterModelTimeUnits) {
         //PedestrianGenerateEvent event = this.roundaboutEventFactory.createPedestrianGenerateEvent(model);
-        //event.schedule(this, new TimeSpan(afterModelTimeUnits));
+        //event.schedule(this, new TimeSpan(afterModelTimeUnits)); //TODO
     }
 
-    public Street getConnectedStreet() {
+    public PedestrianStreet getConnectedStreet() {
         return connectedStreet;
     }
 

@@ -31,6 +31,8 @@ public class StreetSection extends Street {
 
     private IntersectionController intersectionController;
 
+    private String pedestrianCrossingIDReference;
+
     public StreetSection(
         double length,
         Model model,
@@ -49,7 +51,7 @@ public class StreetSection extends Street {
     ) {
         this(
             id, length, model, modelDescription, showInTrace,
-            false, null, null, null
+            false, null, null, null, null
         );
     }
 
@@ -64,7 +66,7 @@ public class StreetSection extends Street {
     ) {
         this(
             UUID.randomUUID().toString(), length, model, modelDescription, showInTrace,
-            trafficLightActive, null, greenPhaseDuration, redPhaseDuration
+            trafficLightActive, null, greenPhaseDuration, redPhaseDuration, null
         );
     }
 
@@ -77,7 +79,8 @@ public class StreetSection extends Street {
         boolean trafficLightActive,
         Long minGreenPhaseDuration,
         Long greenPhaseDuration,
-        Long redPhaseDuration
+        Long redPhaseDuration,
+        String pedestrianCrossingIDReference
     ) {
         super(
             id,
@@ -95,6 +98,7 @@ public class StreetSection extends Street {
         this.carQueue = new LinkedList<>();
         this.carPositions = new HashMap<>();
         this.intersectionController = IntersectionController.getInstance();
+        this.pedestrianCrossingIDReference = pedestrianCrossingIDReference;
 
         if(this.isTrafficLightActive() && !this.isTrafficLightTriggeredByJam()) {
             RoundaboutEventFactory.getInstance().createToggleTrafficLightStateEvent(getRoundaboutModel()).schedule(

@@ -1,6 +1,5 @@
 package at.fhv.itm3.s2.roundabout.util;
 
-import at.fhv.itm14.trafsim.model.ModelFactory;
 import at.fhv.itm14.trafsim.model.entities.AbstractConsumer;
 import at.fhv.itm14.trafsim.model.entities.AbstractProducer;
 import at.fhv.itm14.trafsim.model.entities.IConsumer;
@@ -8,10 +7,7 @@ import at.fhv.itm14.trafsim.model.entities.intersection.FixedCirculationControll
 import at.fhv.itm14.trafsim.model.entities.intersection.Intersection;
 import at.fhv.itm14.trafsim.model.entities.intersection.IntersectionConnection;
 import at.fhv.itm14.trafsim.model.entities.intersection.IntersectionPhase;
-import at.fhv.itm3.s2.roundabout.api.entity.AbstractSource;
-import at.fhv.itm3.s2.roundabout.api.entity.ConsumerType;
-import at.fhv.itm3.s2.roundabout.api.entity.IModelStructure;
-import at.fhv.itm3.s2.roundabout.api.entity.Street;
+import at.fhv.itm3.s2.roundabout.api.entity.*;
 import at.fhv.itm3.s2.roundabout.controller.IntersectionController;
 import at.fhv.itm3.s2.roundabout.controller.RouteController;
 import at.fhv.itm3.s2.roundabout.entity.*;
@@ -48,6 +44,13 @@ public class ConfigParser {
     private static final String CAR_RATIO_PER_TOTAL_VEHICLE = "CAR_RATIO_PER_TOTAL_VEHICLE";
     private static final String JAM_INDICATOR_IN_SECONDS = "JAM_INDICATOR_IN_SECONDS";
 
+    private static final String PEDESTRIAN_MIN_ARRIVAL_RATE = "PEDESTRIAN_MIN_ARRIVAL_RATE";
+    private static final String PEDESTRIAN_MAX_ARRIVAL_RATE = "PEDESTRIAN_MAX_ARRIVAL_RATE";
+    private static final String PEDESTRIAN_MIN_GROUPE_SIZE = "PEDESTRIAN_MIN_GROUPE_SIZE";
+    private static final String PEDESTRIAN_MAX_GROUPE_SIZE = "PEDESTRIAN_MAX_GROUPE_SIZE";
+    private static final String PEDESTRIAN_MIN_STREET_LENGTH = "PEDESTRIAN_MIN_STREET_LENGTH";
+    private static final String PEDESTRIAN_MIN_STREET_WIDTH = "PEDESTRIAN_MIN_STREET_WIDTH";
+
     private static final String INTERSECTION_SIZE = "INTERSECTION_SIZE";
     private static final String INTERSECTION_SERVICE_DELAY = "INTERSECTION_SERVICE_DELAY";
     private static final String CONTROLLER_GREEN_DURATION = "CONTROLLER_GREEN_DURATION";
@@ -58,6 +61,9 @@ public class ConfigParser {
     private static final Map<String, Map<String, RoundaboutSource>> SOURCE_REGISTRY = new HashMap<>(); // componentId, sectionId, section
     private static final Map<String, Map<String, RoundaboutSink>> SINK_REGISTRY = new HashMap<>();
     private static final Map<String, Map<String, StreetSection>> SECTION_REGISTRY = new HashMap<>();
+    private static final Map<String, Map<String, PedestrianStreetSection>> PEDESTRIAN_SECTION_REGISTRY = new HashMap<>();
+    private static final Map<String, Map<String, PedestrianSource>> PEDESTRIAN_SOURCE_REGISTRY = new HashMap<>(); // componentId, sectionId, section
+    private static final Map<String, Map<String, PedestrianSink>> PEDESTRIAN_SINK_REGISTRY = new HashMap<>();
     private static final Map<AbstractSource, Map<RoundaboutSink, Route>> ROUTE_REGISTRY = new HashMap<>(); // source, sink, route
     private static final Map<String, Intersection> INTERSECTION_REGISTRY = new HashMap<>(); // componentId, intersection
 
@@ -113,7 +119,14 @@ public class ConfigParser {
             extractParameter(parameters::get, Double::valueOf, MAX_TRUCK_LENGTH),
             extractParameter(parameters::get, Double::valueOf, EXPECTED_TRUCK_LENGTH),
             extractParameter(parameters::get, Double::valueOf, CAR_RATIO_PER_TOTAL_VEHICLE),
-            extractParameter(parameters::get, Double::valueOf, JAM_INDICATOR_IN_SECONDS)
+            extractParameter(parameters::get, Double::valueOf, JAM_INDICATOR_IN_SECONDS),
+
+            extractParameter(parameters::get, Double::valueOf, PEDESTRIAN_MIN_ARRIVAL_RATE),
+            extractParameter(parameters::get, Double::valueOf, PEDESTRIAN_MAX_ARRIVAL_RATE),
+            extractParameter(parameters::get, Long::valueOf, PEDESTRIAN_MIN_GROUPE_SIZE),
+            extractParameter(parameters::get, Long::valueOf, PEDESTRIAN_MAX_GROUPE_SIZE),
+            extractParameter(parameters::get, Double::valueOf, PEDESTRIAN_MIN_STREET_LENGTH),
+            extractParameter(parameters::get, Double::valueOf, PEDESTRIAN_MIN_STREET_WIDTH)
         );
         model.connectToExperiment(experiment);  // ! - Should be done before anything else.
 
@@ -176,9 +189,48 @@ public class ConfigParser {
                     break;
                 }
 
+                case PEDESTRIANWALKINGAREA: {
+                    handlePedestrianWalkingArea(modelStructure, component);
+                    break;
+                }
+
                 default: throw new IllegalArgumentException("Unknown component type detected.");
             }
         }
+    }
+
+    private void handlePedestrianWalkingArea(IModelStructure modelStructure, Component roundaboutComponent){
+        final Model model = modelStructure.getModel();
+
+        // Handle configuration.
+        final Map<String, PedestrianStreetSection> sections = handlePedestrianSections(
+                roundaboutComponent.getId(),
+                roundaboutComponent.getSections(),
+                model
+        );
+
+        final Map<String, PedestrianSink> sinks = handlePedestrianSinks(
+                roundaboutComponent.getId(),
+                roundaboutComponent.getSinks(),
+                model
+        );
+
+        final Map<String, PedestrianSource> sources = handlePedestrianSources(
+                roundaboutComponent.getId(),
+                roundaboutComponent.getSources(),
+                model
+        );
+
+        final Map<String, StreetConnector> connectors = handleConnectors(
+                roundaboutComponent.getId(),
+                roundaboutComponent.getConnectors()
+        );
+
+        modelStructure.addPedestrianStreets(sections.values());
+        modelStructure.addPedestrianStreetConnectors(connectors.values());
+        modelStructure.addPedestrianSources(sources.values());
+        modelStructure.addPedestrianSinks(sinks.values());
+
     }
 
     private void handleRoundabout(IModelStructure modelStructure, Component roundaboutComponent) {
@@ -272,19 +324,51 @@ public class ConfigParser {
         INTERSECTION_REGISTRY.put(intersectionComponent.getId(), intersection);
     }
 
-    private Map<String, RoundaboutSource> handleSources(String scopeComponentId, Sources sources, Model model) {
+    private Map<String, PedestrianSource> handlePedestrianSources(String scopeComponentId, Sources sources, Model model) {
         return sources.getSource().stream().collect(toMap(
             Source::getId,
             so -> {
-                final Street street = resolveSection(scopeComponentId, so.getSectionId());
-                final RoundaboutSource source = new RoundaboutSource(so.getId(), so.getGeneratorExpectation(), model, so.getId(), false, street);
-                if (!SOURCE_REGISTRY.containsKey(scopeComponentId)) {
-                    SOURCE_REGISTRY.put(scopeComponentId, new HashMap<>());
+                final PedestrianStreet street = resolvePedestrianSection(scopeComponentId, so.getSectionId());
+                final PedestrianSource source = new PedestrianSource(so.getId(), so.getGeneratorExpectation(),
+                        model, so.getId(), false, street);
+                if (!PEDESTRIAN_SOURCE_REGISTRY.containsKey(scopeComponentId)) {
+                    PEDESTRIAN_SOURCE_REGISTRY.put(scopeComponentId, new HashMap<>());
                 }
 
-                SOURCE_REGISTRY.get(scopeComponentId).put(so.getId(), source);
+                PEDESTRIAN_SOURCE_REGISTRY.get(scopeComponentId).put(so.getId(), source);
                 return source;
             }
+        ));
+    }
+
+    private Map<String, RoundaboutSource> handleSources(String scopeComponentId, Sources sources, Model model) {
+        return sources.getSource().stream().collect(toMap(
+                Source::getId,
+                so -> {
+                    final Street street = resolveSection(scopeComponentId, so.getSectionId());
+                    final RoundaboutSource source = new RoundaboutSource(so.getId(), so.getGeneratorExpectation(), model, so.getId(), false, street);
+                    if (!SOURCE_REGISTRY.containsKey(scopeComponentId)) {
+                        SOURCE_REGISTRY.put(scopeComponentId, new HashMap<>());
+                    }
+
+                    SOURCE_REGISTRY.get(scopeComponentId).put(so.getId(), source);
+                    return source;
+                }
+        ));
+    }
+
+    private Map<String, PedestrianSink> handlePedestrianSinks(String scopeComponentId, Sinks sinks, Model model) {
+        return sinks.getSink().stream().collect(toMap(
+                Sink::getId,
+                sk -> {
+                    final PedestrianSink sink = new PedestrianSink(sk.getId(), model, sk.getId(), false);
+                    if (!PEDESTRIAN_SINK_REGISTRY.containsKey(scopeComponentId)) {
+                        PEDESTRIAN_SINK_REGISTRY.put(scopeComponentId, new HashMap<>());
+                    }
+
+                    PEDESTRIAN_SINK_REGISTRY.get(scopeComponentId).put(sk.getId(), sink);
+                    return sink;
+                }
         ));
     }
 
@@ -318,6 +402,7 @@ public class ConfigParser {
                 }
 
                 final boolean isTrafficLightActive = s.getIsTrafficLightActive() != null ? s.getIsTrafficLightActive() : false;
+
                 final StreetSection streetSection = new StreetSection(
                     s.getId(),
                     s.getLength(),
@@ -327,8 +412,10 @@ public class ConfigParser {
                     isTrafficLightActive,
                     s.getMinGreenPhaseDuration(),
                     s.getGreenPhaseDuration(),
-                    s.getRedPhaseDuration()
+                    s.getRedPhaseDuration(),
+                    s.getPedestrianCrossingIDReference()
                 );
+
 
                 if (!SECTION_REGISTRY.containsKey(scopeComponentId)) {
                     SECTION_REGISTRY.put(scopeComponentId, new HashMap<>());
@@ -337,6 +424,44 @@ public class ConfigParser {
                 SECTION_REGISTRY.get(scopeComponentId).put(s.getId(), streetSection);
                 return streetSection;
             }
+        ));
+    }
+
+    private Map<String, PedestrianStreetSection> handlePedestrianSections(String scopeComponentId, Sections sections, Model model) {
+        final double minStreetLength = 2; //TODO
+
+        return sections.getSection().stream().collect(toMap(
+                Section::getId,
+                s -> {
+                    if(s.getLength() < minStreetLength) {
+                        throw new IllegalArgumentException(
+                                "Street must not be smaller than a pedestrian."
+                        );
+                    }
+
+                    final boolean isTrafficLightActive = s.getIsTrafficLightActive() != null ? s.getIsTrafficLightActive() : false;
+
+                    final PedestrianStreetSection pedestrianStreetSection = new PedestrianStreetSection(
+                            s.getId(),
+                            s.getLength(),
+                            s.getWidth(),
+                            model,
+                            s.getId(),
+                            false,
+                            isTrafficLightActive,
+                            s.getMinGreenPhaseDuration(),
+                            s.getGreenPhaseDuration(),
+                            s.getRedPhaseDuration()
+                    );
+
+
+                    if (!PEDESTRIAN_SECTION_REGISTRY.containsKey(scopeComponentId)) {
+                        PEDESTRIAN_SECTION_REGISTRY.put(scopeComponentId, new HashMap<>());
+                    }
+
+                    PEDESTRIAN_SECTION_REGISTRY.get(scopeComponentId).put(s.getId(), pedestrianStreetSection);
+                    return pedestrianStreetSection;
+                }
         ));
     }
 
@@ -478,12 +603,25 @@ public class ConfigParser {
         return resolvedSection != null ? resolvedSection : resolveSink(componentId, streetId);
     }
 
+    private PedestrianStreet resolvePedestrianStreet(String componentId, String streetId) {
+        final PedestrianStreet resolvedSection = resolvePedestrianSection(componentId, streetId);
+        return resolvedSection != null ? resolvedSection : resolvePedestrianSink(componentId, streetId);
+    }
+
     private StreetSection resolveSection(String componentId, String sectionId) {
         return SECTION_REGISTRY.containsKey(componentId) ? SECTION_REGISTRY.get(componentId).get(sectionId) : null;
     }
 
+    private PedestrianStreetSection resolvePedestrianSection(String componentId, String sectionId) {
+        return PEDESTRIAN_SECTION_REGISTRY.containsKey(componentId) ? PEDESTRIAN_SECTION_REGISTRY.get(componentId).get(sectionId) : null;
+    }
+
     private RoundaboutSink resolveSink(String componentId, String sinkId) {
         return SINK_REGISTRY.containsKey(componentId) ? SINK_REGISTRY.get(componentId).get(sinkId) : null;
+    }
+
+    private PedestrianSink resolvePedestrianSink(String componentId, String sinkId) {
+        return PEDESTRIAN_SINK_REGISTRY.containsKey(componentId) ? PEDESTRIAN_SINK_REGISTRY.get(componentId).get(sinkId) : null;
     }
 
     private <K, V, R> R extractParameter(Function<K, V> supplier, Function<V, R> converter, K key)

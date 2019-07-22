@@ -35,7 +35,7 @@ public class MainApp extends Application {
     private static final int DEFAULT_HEIGHT = 750;
 
     private static final String PATH_TO_DEFAULT_CSS_FILE = "/at/fhv/itm3/s2/roundabout/ui/css/main.css";
-    private static final String PATH_TO_MODEL_FILE = "/at/fhv/itm3/s2/roundabout/model/model_dornbirn_sued_with_intersection.xml";
+    private static final String PATH_TO_MODEL_FILE = "/at/fhv/itm3/s2/roundabout/model/model_dornbirn_sued_with_intersection_and_pedestrian.xml";
 
     private static final double EXPERIMENT_STOP_TIME = 60 * 60 * 24 * 1; // equates to number of days in seconds, minutes * seconds * hours * days
     private static final TimeUnit EXPERIMENT_TIME_UNIT = TimeUnit.SECONDS;
@@ -71,7 +71,7 @@ public class MainApp extends Application {
             final ConfigParser configParser = new ConfigParser(PATH_TO_MODEL_FILE);
             final ModelConfig modelConfig = configParser.loadConfig();
 
-            final Experiment experiment = new Experiment("Trafsim experiment");
+            final Experiment experiment = new Experiment("Pedestrian experiment");
             experiment.setShowProgressBar(false);
             configParser.initRoundaboutStructure(modelConfig, experiment);
 
@@ -93,6 +93,7 @@ public class MainApp extends Application {
                 }
                 experiment.finish();
                 CarController.clear();
+
             });
             mainViewController.setPauseRunnable(experiment::stop);
             mainViewController.setDoStepRunnable(() -> {

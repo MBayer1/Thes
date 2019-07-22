@@ -15,6 +15,8 @@ public class RoundaboutSimulationModel extends Model {
 
     private static final long DEFAULT_SIMULATION_SEED = 1L;
 
+
+    // Vehicle
     private static final Double DEFAULT_MIN_TIME_BETWEEN_CAR_ARRIVALS = 3.5;
     private static final Double DEFAULT_MAX_TIME_BETWEEN_CAR_ARRIVALS = 10.0;
     private static final Double DEFAULT_MIN_DISTANCE_FACTOR_BETWEEN_CARS = 0.0;
@@ -31,6 +33,13 @@ public class RoundaboutSimulationModel extends Model {
     private static final Double DEFAULT_JAM_INDICATOR_IN_SECONDS = 5.0;
 
     private static final Double VEHICLE_LENGTH_STEP_SIZE = 0.1;
+
+    private static final Double DEFAULT_PEDESTRIAN_MIN_ARRIVAL_RATE = 0.1;
+    private static final Double DEFAULT_PEDESTRIAN_MAX_ARRIVAL_RATE = 1.0;
+    private static final Long DEFAULT_PEDESTRIAN_MIN_GROUPE_SIZE = 2L;
+    private static final Long DEFAULT_PEDESTRIAN_MAX_GROUPE_SIZE = 30L;
+    private static final Double DEFAULT_PEDESTRIAN_MIN_STREET_LENGTH = 1.0;
+    private static final Double DEFAULT_PEDESTRIAN_MIN_STREET_WIDTH = 1.0;
 
     private final Long simulationSeed;
     private final Double minDistanceFactorBetweenCars;
@@ -49,6 +58,14 @@ public class RoundaboutSimulationModel extends Model {
     private final Double carRatioPerTotalVehicle;
     private final Double jamIndicatorInSeconds;
 
+    private final Double pedestrianMinArrivalRate;
+    private final Double pedestrianMaxArrivalRate;
+    private final Long pedestrianMinGroupeSize;
+    private final Long pedestrianMaxGroupeSize;
+    private final Double pedestrianMinStreetLength;
+    private final Double pedestrianMaxStreetWidth;
+
+    //Simulation
     private IModelStructure modelStructure;
 
     /**
@@ -138,8 +155,12 @@ public class RoundaboutSimulationModel extends Model {
             DEFAULT_MIN_CAR_LENGTH, DEFAULT_MAX_CAR_LENGTH, DEFAULT_EXPECTED_CAR_LENGTH,
             DEFAULT_MIN_TRUCK_LENGTH, DEFAULT_MAX_TRUCK_LENGTH, DEFAULT_EXPECTED_TRUCK_LENGTH,
             DEFAULT_CAR_RATIO_PER_TOTAL_VEHICLE,
-            DEFAULT_JAM_INDICATOR_IN_SECONDS
-        );
+            DEFAULT_JAM_INDICATOR_IN_SECONDS,
+
+            DEFAULT_PEDESTRIAN_MIN_ARRIVAL_RATE, DEFAULT_PEDESTRIAN_MAX_ARRIVAL_RATE,
+            DEFAULT_PEDESTRIAN_MIN_GROUPE_SIZE, DEFAULT_PEDESTRIAN_MAX_GROUPE_SIZE,
+            DEFAULT_PEDESTRIAN_MIN_STREET_LENGTH, DEFAULT_PEDESTRIAN_MIN_STREET_WIDTH
+            );
     }
 
     /**
@@ -170,8 +191,14 @@ public class RoundaboutSimulationModel extends Model {
         Double maxTruckLength,
         Double expectedTruckLength,
         Double carRatioPerTotalVehicle,
-        Double jamIndicatorInSeconds
-    ) {
+        Double jamIndicatorInSeconds,
+        Double pedestrianMinArrivalRate,
+        Double pedestrianMaxArrivalRate,
+        Long pedestrianMinGroupeSize,
+        Long pedestrianMaxGroupeSize,
+        Double pedestrianMinStreetLength,
+        Double pedestrianMaxStreetWidth
+        ) {
         super(model, name, showInReport, showInTrace);
 
         this.simulationSeed = simulationSeed;
@@ -190,6 +217,13 @@ public class RoundaboutSimulationModel extends Model {
         this.expectedTruckLength = expectedTruckLength;
         this.carRatioPerTotalVehicle = carRatioPerTotalVehicle;
         this.jamIndicatorInSeconds = jamIndicatorInSeconds;
+
+        this.pedestrianMinArrivalRate = pedestrianMinArrivalRate;
+        this.pedestrianMaxArrivalRate = pedestrianMaxArrivalRate;
+        this.pedestrianMinGroupeSize = pedestrianMinGroupeSize;
+        this.pedestrianMaxGroupeSize = pedestrianMaxGroupeSize;
+        this.pedestrianMinStreetLength = pedestrianMinStreetLength;
+        this.pedestrianMaxStreetWidth = pedestrianMaxStreetWidth;
     }
 
     /**

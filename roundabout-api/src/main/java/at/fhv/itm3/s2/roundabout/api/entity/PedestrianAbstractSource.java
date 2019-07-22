@@ -46,5 +46,5 @@ public abstract class PedestrianAbstractSource extends AbstractProducer {
      *
      * @return the connected street as {@link Street}.
      */
-    public abstract Street getConnectedStreet();
+    public abstract PedestrianStreet getConnectedStreet();
 }

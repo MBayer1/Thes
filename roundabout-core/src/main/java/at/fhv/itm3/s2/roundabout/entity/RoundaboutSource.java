@@ -24,7 +24,8 @@ public class RoundaboutSource extends AbstractSource {
         this(UUID.randomUUID().toString(), null, model, description, showInTrace, connectedStreet);
     }
 
-    public RoundaboutSource(String id, Double generatorExpectation, Model model, String description, boolean showInTrace, Street connectedStreet) {
+    public RoundaboutSource(String id, Double generatorExpectation, Model model,
+                            String description, boolean showInTrace, Street connectedStreet) {
         super(id, generatorExpectation, model, description, showInTrace);
         this.connectedStreet = connectedStreet;
         this.roundaboutEventFactory = RoundaboutEventFactory.getInstance();

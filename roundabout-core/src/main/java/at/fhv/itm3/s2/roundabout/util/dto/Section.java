@@ -7,11 +7,16 @@ import javax.xml.bind.annotation.XmlAttribute;
 public class Section implements IDTO {
     private String id;
     private Double length;
+    private Double width;
     private Integer order;
     private Boolean isTrafficLightActive;
     private Long minGreenPhaseDuration;
     private Long greenPhaseDuration;
     private Long redPhaseDuration;
+
+    //pedestrian
+    private String pedestrianCrossingIDReference;
+    private Boolean isPedestrianCrossing;
 
     @XmlAttribute
     public String getId() {
@@ -29,6 +34,15 @@ public class Section implements IDTO {
 
     public void setLength(Double length) {
         this.length = length;
+    }
+
+    @XmlAttribute
+    public Double getWidth() {
+        return width;
+    }
+
+    public void setWidth(Double width) {
+        this.width = width;
     }
 
     @XmlAttribute
@@ -64,5 +78,23 @@ public class Section implements IDTO {
 
     public void setMinGreenPhaseDuration(Long minGreenPhaseDuration) {
         this.minGreenPhaseDuration = minGreenPhaseDuration;
+    }
+
+    @XmlAttribute
+    public String getPedestrianCrossingIDReference() {
+        return pedestrianCrossingIDReference;
+    }
+
+    public void setPedestrianCrossingIDReference(String pedestrianCrossingIDReference) {
+        this.pedestrianCrossingIDReference = pedestrianCrossingIDReference;
+    }
+
+    @XmlAttribute
+    public Boolean getIsPedestrianCrossing() {
+        return isPedestrianCrossing;
+    }
+
+    public void setIsPedestrianCrossing(Boolean isPedestrianCrossing) {
+        this.isPedestrianCrossing = isPedestrianCrossing;
     }
 }

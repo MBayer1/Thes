@@ -16,7 +16,6 @@ import java.util.*;
 import java.util.List;
 
 public class PedestrianStreetSection extends PedestrianStreet {
-
     private final double length;
     private final double width;
 

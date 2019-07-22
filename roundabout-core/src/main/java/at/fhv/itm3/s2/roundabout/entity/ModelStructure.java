@@ -9,12 +9,17 @@ import java.util.*;
 public class ModelStructure implements IModelStructure {
     private final Model model;
     private Set<IStreetConnector> connectors;
+    private Set<IStreetConnector> pedestrianConnectors;
     private Map<AbstractSource, List<IRoute>> routes;
+    private Map<AbstractSource, List<IRoute>> pedestiranRoutes;
     private Set<Intersection> intersections;
     private Set<Street> streets;
+    private Set<PedestrianStreet> pedestrianStreets;
     private Map<String, String> parameters;
     private Set<AbstractSource> sources;
+    private Set<PedestrianAbstractSource> pedestrianSources;
     private Set<AbstractSink> sinks;
+    private Set<PedestrianAbstractSink> pedestrianSinks;
     private Set<Street> roundaboutInlets;
 
     public ModelStructure(Model model) {
@@ -45,6 +50,14 @@ public class ModelStructure implements IModelStructure {
      * {@inheritDoc}
      */
     @Override
+    public void addPedestrianStreetConnectors(Collection<? extends IStreetConnector> streetConnectors) {
+        this.pedestrianConnectors.addAll(streetConnectors);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void addRoutes(Collection<? extends IRoute> routes) {
         routes.forEach(route -> {
             List<IRoute> routeList = this.routes.get(route.getSource());
@@ -55,6 +68,23 @@ public class ModelStructure implements IModelStructure {
             routeList.add(route);
 
             this.routes.put(route.getSource(), routeList);
+        });
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void addPedestrianRoutes(Collection<? extends IRoute> routes) {
+        routes.forEach(route -> {
+            List<IRoute> pedestrianRouteList = this.routes.get(route.getSource());
+            if (pedestrianRouteList == null) {
+                pedestrianRouteList = new ArrayList<>();
+            }
+
+            pedestrianRouteList.add(route);
+
+            this.pedestiranRoutes.put(route.getSource(), pedestrianRouteList);
         });
     }
 
@@ -94,8 +124,24 @@ public class ModelStructure implements IModelStructure {
      * {@inheritDoc}
      */
     @Override
+    public void addPedestrianStreets(Collection<? extends PedestrianStreet> streets) {
+        this.pedestrianStreets.addAll(streets);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void addSinks(Collection<? extends AbstractSink> sinks) {
         this.sinks.addAll(sinks);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void addPedestrianSinks(Collection<? extends PedestrianAbstractSink> sinks) {
+        this.pedestrianSinks.addAll(sinks);
     }
 
     /**
@@ -110,8 +156,32 @@ public class ModelStructure implements IModelStructure {
      * {@inheritDoc}
      */
     @Override
+    public void addPedestrianSources(Collection<? extends PedestrianAbstractSource> sources) {
+        this.pedestrianSources.addAll(sources);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public Set<IStreetConnector> getStreetConnectors() {
         return Collections.unmodifiableSet(connectors);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Set<IStreetConnector> getPedestrianStreetConnectors() {
+        return Collections.unmodifiableSet(pedestrianConnectors);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Map<AbstractSource, List<IRoute>> getPedestrianRoutes() {
+        return Collections.unmodifiableMap(pedestiranRoutes);
     }
 
     /**
@@ -142,6 +212,14 @@ public class ModelStructure implements IModelStructure {
      * {@inheritDoc}
      */
     @Override
+    public Set<PedestrianStreet> getPedestrianStreets() {
+        return Collections.unmodifiableSet(pedestrianStreets);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public Set<AbstractSink> getSinks() {
         return sinks;
     }
@@ -150,8 +228,24 @@ public class ModelStructure implements IModelStructure {
      * {@inheritDoc}
      */
     @Override
+    public Set<PedestrianAbstractSink> getPedestrianSinks() {
+        return pedestrianSinks;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public Set<AbstractSource> getSources() {
         return sources;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Set<PedestrianAbstractSource> getPedestrianSources() {
+        return pedestrianSources;
     }
 
     /**

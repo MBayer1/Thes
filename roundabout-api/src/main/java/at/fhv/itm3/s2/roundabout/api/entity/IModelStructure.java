@@ -11,7 +11,7 @@ import java.util.Set;
 public interface IModelStructure {
 
     /**
-     * Add a collection of street connectors to the structure.
+     * Add a collection of street connectors for vehicle-streets to the structure.
      * Structure setup needs to be done before.
      *
      * @param streetConnector street connectors to be added
@@ -19,12 +19,28 @@ public interface IModelStructure {
     void addStreetConnectors(Collection<? extends IStreetConnector> streetConnector);
 
     /**
-     * Add a collection of routes to the structure.3
+     * Add a collection of street connectors for pedestrians-street for the structure.
+     * Structure setup needs to be done before.
+     *
+     * @param streetConnector street connectors to be added
+     */
+    void addPedestrianStreetConnectors(Collection<? extends IStreetConnector> streetConnector);
+
+    /**
+     * Add a collection of routes for vehicle to the structure.
      * Structure setup needs to be done before.
      *
      * @param routes routes to be added
      */
     void addRoutes(Collection<? extends IRoute> routes);
+
+    /**
+     * Add a collection of routes for pedestrians to the structure.
+     * Structure setup needs to be done before.
+     *
+     * @param routes routes to be added
+     */
+    void addPedestrianRoutes(Collection<? extends IRoute> routes);
 
     /**
      * Add a collection of intersections to the structure.
@@ -35,7 +51,7 @@ public interface IModelStructure {
     void addIntersections(Collection<? extends Intersection> intersections);
 
     /**
-     * Add a collection of streets to the structure.
+     * Add a collection of streets for vehicle to the structure.
      * Structure setup needs to be done before.
      *
      * @param streets streets to be added
@@ -43,18 +59,41 @@ public interface IModelStructure {
     void addStreets(Collection<? extends Street> streets);
 
     /**
-     * Adds a collection of sinks to the structure.
+     * Add a collection of streets for pedestrian to the structure.
+     * Structure setup needs to be done before.
+     *
+     * @param streets streets to be added
+     */
+    void addPedestrianStreets(Collection<? extends PedestrianStreet> streets);
+
+    /**
+     * Adds a collection of sinks for vehicles to the structure.
      *
      * @param sinks The sinks to be added.
      */
     void addSinks(Collection<? extends AbstractSink> sinks);
 
     /**
-     * Adds a collection of sources to the structure.
+     * Adds a collection of sinks for pedestrians to the structure.
+     *
+     * @param sinks The sinks to be added.
+     */
+    void addPedestrianSinks(Collection<? extends PedestrianAbstractSink> sinks);
+
+    /**
+     * Adds a collection of sources for vehicles to the structure.
      *
      * @param sources The source to be added.
      */
     void addSources(Collection<? extends AbstractSource> sources);
+
+    /**
+     * Adds a collection of sources for pedestrian to the structure.
+     *
+     * @param sources The source to be added.
+     */
+    void addPedestrianSources(Collection<? extends PedestrianAbstractSource> sources);
+
 
     /**
      * Add a configuration parameter to the structure.
@@ -66,42 +105,73 @@ public interface IModelStructure {
     void addParameter(String key, String value);
 
     /**
-     * Get all street connectors of the structure.
+     * Get all street connectors for vehicle of the structure.
      *
      * @return street connectors of structure
      */
     Set<IStreetConnector> getStreetConnectors();
 
     /**
-     * Get all routes of the structure.
+     * Get all street connectors for pedestrians of the structure.
+     *
+     * @return street connectors of structure
+     */
+    Set<IStreetConnector> getPedestrianStreetConnectors();
+
+    /**
+     * Get all vehicle-routes of the structure.
      *
      * @return routes of structure
      */
     Map<AbstractSource, List<IRoute>> getRoutes();
 
     /**
-     * Get all intersections of the structure.
+     * Get all pedestrian-routes of the structure.
+     *
+     * @return routes of structure
+     */
+    Map<AbstractSource, List<IRoute>> getPedestrianRoutes();
+
+    /**
+     * Get all vehicle-intersections of the structure.
      *
      * @return intersections of structure
      */
     Set<Intersection> getIntersections();
 
     /**
-     * Get all streets of the structure.
+     * Get all vehicle-streets of the structure.
      *
      * @return streets of structure
      */
     Set<Street> getStreets();
 
     /**
-     * Gets all sinks from the structure.
+     * Get all pedestrian-streets of the structure.
+     *
+     * @return streets of structure
+     */
+    Set<PedestrianStreet> getPedestrianStreets();
+
+    /**
+     * Gets all vehicle-sinks from the structure.
      */
     Set<AbstractSink> getSinks();
 
     /**
-     * Gets all sources from the structure.
+     * Gets all pedestrian-sinks from the structure.
+     */
+    Set<PedestrianAbstractSink> getPedestrianSinks();
+
+    /**
+     * Gets all vehicle-sources from the structure.
      */
     Set<AbstractSource> getSources();
+
+    /**
+     * Gets all pedestrian-sources from the structure.
+     */
+    Set<PedestrianAbstractSource> getPedestrianSources();
 
     /**
      * Gets all roundabout inlets as {@link Street}
