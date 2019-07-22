@@ -16,6 +16,7 @@ public class Section implements IDTO {
 
     //pedestrian
     private String pedestrianCrossingIDReference;
+    private String pedestrianCrossingComponentIDReference;
     private Boolean isPedestrianCrossing;
 
     @XmlAttribute
@@ -87,6 +88,15 @@ public class Section implements IDTO {
 
     public void setPedestrianCrossingIDReference(String pedestrianCrossingIDReference) {
         this.pedestrianCrossingIDReference = pedestrianCrossingIDReference;
+    }
+
+    @XmlAttribute
+    public String getPedestrianCrossingComponentIDReference() {
+        return pedestrianCrossingComponentIDReference;
+    }
+
+    public void setPedestrianCrossingComponentIDReference(String pedestrianCrossingComponentIDReference) {
+        this.pedestrianCrossingComponentIDReference = pedestrianCrossingComponentIDReference;
     }
 
     @XmlAttribute

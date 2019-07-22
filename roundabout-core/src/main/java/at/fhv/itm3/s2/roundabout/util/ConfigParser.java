@@ -403,6 +403,12 @@ public class ConfigParser {
 
                 final boolean isTrafficLightActive = s.getIsTrafficLightActive() != null ? s.getIsTrafficLightActive() : false;
 
+
+                Double pedestrianCrossingWidth =
+                        (PEDESTRIAN_SECTION_REGISTRY.get(s.getPedestrianCrossingComponentIDReference())).
+                                get(s.getPedestrianCrossingIDReference()).getWidth();
+                if(pedestrianCrossingWidth == null) pedestrianCrossingWidth = 0.0; //width must be a positive number
+
                 final StreetSection streetSection = new StreetSection(
                     s.getId(),
                     s.getLength(),
@@ -413,7 +419,7 @@ public class ConfigParser {
                     s.getMinGreenPhaseDuration(),
                     s.getGreenPhaseDuration(),
                     s.getRedPhaseDuration(),
-                    s.getPedestrianCrossingIDReference()
+                    pedestrianCrossingWidth
                 );
 
 

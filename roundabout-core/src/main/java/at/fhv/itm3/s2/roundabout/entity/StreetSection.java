@@ -31,7 +31,7 @@ public class StreetSection extends Street {
 
     private IntersectionController intersectionController;
 
-    private String pedestrianCrossingIDReference;
+    private Double pedestrianCrossingWidth;
 
     public StreetSection(
         double length,
@@ -51,7 +51,7 @@ public class StreetSection extends Street {
     ) {
         this(
             id, length, model, modelDescription, showInTrace,
-            false, null, null, null, null
+            false, null, null, null, 0.0
         );
     }
 
@@ -66,7 +66,7 @@ public class StreetSection extends Street {
     ) {
         this(
             UUID.randomUUID().toString(), length, model, modelDescription, showInTrace,
-            trafficLightActive, null, greenPhaseDuration, redPhaseDuration, null
+            trafficLightActive, null, greenPhaseDuration, redPhaseDuration, 0.0
         );
     }
 
@@ -80,7 +80,7 @@ public class StreetSection extends Street {
         Long minGreenPhaseDuration,
         Long greenPhaseDuration,
         Long redPhaseDuration,
-        String pedestrianCrossingIDReference
+        Double pedestrianCrossingWidth
     ) {
         super(
             id,
@@ -98,7 +98,7 @@ public class StreetSection extends Street {
         this.carQueue = new LinkedList<>();
         this.carPositions = new HashMap<>();
         this.intersectionController = IntersectionController.getInstance();
-        this.pedestrianCrossingIDReference = pedestrianCrossingIDReference;
+        this.pedestrianCrossingWidth = pedestrianCrossingWidth;
 
         if(this.isTrafficLightActive() && !this.isTrafficLightTriggeredByJam()) {
             RoundaboutEventFactory.getInstance().createToggleTrafficLightStateEvent(getRoundaboutModel()).schedule(
@@ -318,7 +318,12 @@ public class StreetSection extends Street {
                     previousCar
                 );
 
-                final double maxActuallyPossiblePositionValue = carPosition + (currentTime - carLastUpdateTime) * carSpeed;
+
+                // if a pedestrian crossing has to be crossed too this time has to be added.
+                // It is not handled as a vehicle street section as a vehicle is not allowed to stand on it.
+                final double maxActuallyPossiblePositionValue = carPosition - getPedestrianCrossingWidth() +
+                        (currentTime - carLastUpdateTime) * carSpeed;
+
 
                 // Select the new RoundaboutCar position based on previous calculations.
                 double newCarPosition = Math.min(
@@ -326,7 +331,7 @@ public class StreetSection extends Street {
                     maxActuallyPossiblePositionValue
                 );
 
-                if (newCarPosition < carPosition) {
+                if (newCarPosition < carPosition) {  //this considers also when vehicle would stop on pedestrian crossing (maxActuallyPossiblePositionValue < 0)
                     newCarPosition = carPosition;
                     currentTimeLastMovement =  getModel().getExperiment().getSimClock().getTime().getTimeAsDouble();
                     currentWaitingTime = 0; //reset
@@ -616,6 +621,8 @@ public class StreetSection extends Street {
         // Otherwise whole section is empty.
         return getLength();
     }
+
+    Double getPedestrianCrossingWidth(){ return pedestrianCrossingWidth;}
 
     private static double calculateDistanceToNextCar(
         double carMinDistanceToNextCar,

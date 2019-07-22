@@ -81,7 +81,7 @@
             </sinks>
             <sections>
                 <section id="s1_t1" length="110.45" isTrafficLightActive="true" greenPhaseDuration="18"
-                         redPhaseDuration="50"/>
+                         redPhaseDuration="50" pedestrianCrossingComponentIDReference="ro1" pedestrianCrossingIDReference="pc1"/>
 
                 <section id="s2_t1" length="110.45"/>
                 <section id="s2_t2" length="110.45"/>
@@ -248,8 +248,8 @@
                 <section id="s5_t2" length="106.36"/>
                 <section id="s5_t3" length="106.36"/>
 
-                <section id="s6_t1" length="110.45"/>
-                <section id="s6_t2" length="110.45"/>
+                <section id="s6_t1" length="110.45" pedestrianCrossingComponentIDReference="ro1" pedestrianCrossingIDReference="pc1"/>
+                <section id="s6_t2" length="110.45" pedestrianCrossingComponentIDReference="ro1" pedestrianCrossingIDReference="pc1"/>
 
             </sections>
             <connectors>
@@ -281,16 +281,16 @@
         </component>
         <connectors>
             <connector id="co_ro1_s1_t1_is1_s2">
-                <track order="1" fromComponentId="ro1" fromSectionId="s1_t1" fromSectionType="STREET_SECTION" toComponentId="is1" toSectionId="s2_t1" toSectionType="STREET_SECTION" pedestrianCrossingIDReference="pc1"/>
-                <track order="2" fromComponentId="ro1" fromSectionId="s1_t1" fromSectionType="STREET_SECTION" toComponentId="is1" toSectionId="s2_t2" toSectionType="STREET_SECTION" pedestrianCrossingIDReference="pc1"/>
+                <track order="1" fromComponentId="ro1" fromSectionId="s1_t1" fromSectionType="STREET_SECTION" toComponentId="is1" toSectionId="s2_t1" toSectionType="STREET_SECTION"/>
+                <track order="2" fromComponentId="ro1" fromSectionId="s1_t1" fromSectionType="STREET_SECTION" toComponentId="is1" toSectionId="s2_t2" toSectionType="STREET_SECTION"/>
             </connector>
 
             <connector id="co_is1_s6_t1_ro1_s2_t1">
-                <track fromComponentId="is1" fromSectionId="s6_t1" fromSectionType="STREET_SECTION" toComponentId="ro1" toSectionId="s2_t1" toSectionType="STREET_SECTION" pedestrianCrossingIDReference="pc1"/>
+                <track fromComponentId="is1" fromSectionId="s6_t1" fromSectionType="STREET_SECTION" toComponentId="ro1" toSectionId="s2_t1" toSectionType="STREET_SECTION"/>
             </connector>
 
             <connector id="co_is1_s6_t2_ro1_s2_t2">
-                <track fromComponentId="is1" fromSectionId="s6_t2" fromSectionType="STREET_SECTION" toComponentId="ro1" toSectionId="s2_t2" toSectionType="STREET_SECTION" pedestrianCrossingIDReference="pc1"/>
+                <track fromComponentId="is1" fromSectionId="s6_t2" fromSectionType="STREET_SECTION" toComponentId="ro1" toSectionId="s2_t2" toSectionType="STREET_SECTION" />
             </connector>
         </connectors>
         <routes>
