@@ -324,21 +324,29 @@ public class ConfigParser {
         INTERSECTION_REGISTRY.put(intersectionComponent.getId(), intersection);
     }
 
-    private Map<String, PedestrianSource> handlePedestrianSources(String scopeComponentId, Sources sources, Model model) {
-        return sources.getSource().stream().collect(toMap(
-            Source::getId,
-            so -> {
-                final PedestrianStreet street = resolvePedestrianSection(scopeComponentId, so.getSectionId());
-                final PedestrianSource source = new PedestrianSource(so.getId(), so.getGeneratorExpectation(),
-                        model, so.getId(), false, street);
-                if (!PEDESTRIAN_SOURCE_REGISTRY.containsKey(scopeComponentId)) {
-                    PEDESTRIAN_SOURCE_REGISTRY.put(scopeComponentId, new HashMap<>());
-                }
+    private Map<String, PedestrianSource> handlePedestrianSources(String scopeComponentId, Sources sources, Model model)throws IllegalStateException  {
+            return sources.getSource().stream().collect(toMap(
+                    Source::getId,
+                    so1 -> {
+                        if (so1 instanceof SourcePedestrian) {
+                            SourcePedestrian so = (SourcePedestrian) so1;
 
-                PEDESTRIAN_SOURCE_REGISTRY.get(scopeComponentId).put(so.getId(), source);
-                return source;
-            }
-        ));
+                            final PedestrianStreet street = resolvePedestrianSection(scopeComponentId, so.getSectionId());
+                            final PedestrianSource source = new PedestrianSource(so.getId(), so.getGeneratorExpectation(),
+                                    so.getXPositionStart(), so.getXPositionEnd(), so.getYPositonStart(), so.getYPositonEnd(),
+                                    model, so.getId(), false, street);
+                            if (!PEDESTRIAN_SOURCE_REGISTRY.containsKey(scopeComponentId)) {
+                                PEDESTRIAN_SOURCE_REGISTRY.put(scopeComponentId, new HashMap<>());
+                            }
+
+                            PEDESTRIAN_SOURCE_REGISTRY.get(scopeComponentId).put(so.getId(), source);
+                            return source;
+
+                        } else {
+                            throw new IllegalArgumentException("source is not part of SourcePedestrian.");
+                        }
+                    }
+            ));
     }
 
     private Map<String, RoundaboutSource> handleSources(String scopeComponentId, Sources sources, Model model) {
@@ -404,7 +412,8 @@ public class ConfigParser {
                 final boolean isTrafficLightActive = s.getIsTrafficLightActive() != null ? s.getIsTrafficLightActive() : false;
 
 
-                Double pedestrianCrossingWidth =
+
+                Double pedestrianCrossingWidth = //TODO chatch if
                         (PEDESTRIAN_SECTION_REGISTRY.get(s.getPedestrianCrossingComponentIDReference())).
                                 get(s.getPedestrianCrossingIDReference()).getWidth();
                 if(pedestrianCrossingWidth == null) pedestrianCrossingWidth = 0.0; //width must be a positive number
@@ -473,32 +482,32 @@ public class ConfigParser {
 
     private Map<String, StreetConnector> handleConnectors(String scopeComponentId, Connectors connectors) {
         return connectors.getConnector().stream().collect(toMap(
-            Connector::getId,
-            co -> {
-                final Collection<IConsumer> previousSections = new LinkedHashSet<>();
-                final Collection<IConsumer> nextSections = new LinkedHashSet<>();
+                Connector::getId,
+                co -> {
+                    final Collection<IConsumer> previousSections = new LinkedHashSet<>();
+                    final Collection<IConsumer> nextSections = new LinkedHashSet<>();
 
-                final List<Consumer<StreetConnector>> trackInitializers = new LinkedList<>();
-                final List<Track> trackList = SORTED_TRACK_EXTRACTOR.apply(co);
-                for (Track track : trackList) {
-                    final String fromComponentId = track.getFromComponentId() != null ? track.getFromComponentId() : scopeComponentId;
-                    final Street fromSection = resolveStreet(fromComponentId, track.getFromSectionId());
-                    if (!previousSections.contains(fromSection)) previousSections.add(fromSection);
+                    final List<Consumer<StreetConnector>> trackInitializers = new LinkedList<>();
+                    final List<Track> trackList = SORTED_TRACK_EXTRACTOR.apply(co);
+                    for (Track track : trackList) {
+                        final String fromComponentId = track.getFromComponentId() != null ? track.getFromComponentId() : scopeComponentId;
+                        final Street fromSection = resolveStreet(fromComponentId, track.getFromSectionId());
+                        if (!previousSections.contains(fromSection)) previousSections.add(fromSection);
 
-                    final String toComponentId = track.getToComponentId() != null ? track.getToComponentId() : scopeComponentId;
-                    final Street toSection = resolveStreet(toComponentId, track.getToSectionId());
-                    if (!nextSections.contains(toSection)) nextSections.add(toSection);
+                        final String toComponentId = track.getToComponentId() != null ? track.getToComponentId() : scopeComponentId;
+                        final Street toSection = resolveStreet(toComponentId, track.getToSectionId());
+                        if (!nextSections.contains(toSection)) nextSections.add(toSection);
 
-                    trackInitializers.add(connector -> connector.initializeTrack(
-                        fromSection, track.getFromSectionType(), toSection, track.getToSectionType()
-                    ));
+                        trackInitializers.add(connector -> connector.initializeTrack(
+                                fromSection, track.getFromSectionType(), toSection, track.getToSectionType()
+                        ));
+                    }
+
+                    final StreetConnector streetConnector = new StreetConnector(co.getId(), previousSections, nextSections);
+                    trackInitializers.forEach(streetConnectorConsumer -> streetConnectorConsumer.accept(streetConnector));
+
+                    return streetConnector;
                 }
-
-                final StreetConnector streetConnector = new StreetConnector(co.getId(), previousSections, nextSections);
-                trackInitializers.forEach(streetConnectorConsumer -> streetConnectorConsumer.accept(streetConnector));
-
-                return streetConnector;
-            }
         ));
     }
 

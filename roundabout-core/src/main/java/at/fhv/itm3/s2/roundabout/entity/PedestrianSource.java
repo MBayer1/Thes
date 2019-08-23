@@ -5,7 +5,6 @@ import at.fhv.itm14.trafsim.model.events.CarDepartureEvent;
 import at.fhv.itm14.trafsim.persistence.model.DTO;
 import at.fhv.itm3.s2.roundabout.api.entity.PedestrianAbstractSource;
 import at.fhv.itm3.s2.roundabout.api.entity.PedestrianStreet;
-import at.fhv.itm3.s2.roundabout.api.entity.Street;
 import at.fhv.itm3.s2.roundabout.event.RoundaboutEventFactory;
 import at.fhv.itm3.s2.roundabout.model.RoundaboutSimulationModel;
 import desmoj.core.simulator.Model;
@@ -16,17 +15,24 @@ public class PedestrianSource extends PedestrianAbstractSource {
     private PedestrianStreet connectedStreet;
     private RoundaboutSimulationModel model;
     protected RoundaboutEventFactory roundaboutEventFactory;
-    private double generateRatio;
+    private double generateRatio,
+            xPositionStart, yPositionStart,
+            xPositionEnd, yPositionEnd;
 
     public PedestrianSource(Model model, String description, boolean showInTrace, PedestrianStreet connectedStreet) {
         this(UUID.randomUUID().toString(), null, model, description, showInTrace, connectedStreet);
     }
 
-    public PedestrianSource(String id, Double generatorExpectation, Model model, String description,
+    public PedestrianSource(String id, Double generatorExpectation,
+                            Model model, String description,
                             boolean showInTrace, PedestrianStreet connectedStreet) {
         super(id, generatorExpectation, model, description, showInTrace);
         this.connectedStreet = connectedStreet;
         this.roundaboutEventFactory = RoundaboutEventFactory.getInstance();
+        this.addXPositonStart(xPositionStart);
+        this.addXPositonEnd(xPositionEnd);
+        this.addYPositonStart(yPositionStart);
+        this.addYPositonEnd(yPositionEnd);
 
         if (model instanceof RoundaboutSimulationModel) {
             this.model = (RoundaboutSimulationModel)model;
@@ -52,6 +58,38 @@ public class PedestrianSource extends PedestrianAbstractSource {
         this.generateRatio += ratio;
     }
 
+
+    public double getXPositionStart() {
+        return this.xPositionStart;
+    }
+
+    public void addXPositonStart(Double xPositionStart) {
+        this.xPositionStart = xPositionStart;
+    }
+
+    public double getXPositionEnd() {
+        return this.xPositionEnd;
+    }
+
+    public void addXPositonEnd(Double xPositionEnd) {
+        this.xPositionEnd = xPositionEnd;
+    }
+
+    public double getYPositionStart() {
+        return this.yPositionStart;
+    }
+
+    public void addYPositonStart(Double yPositionStart) {
+        this.yPositionStart = yPositionStart;
+    }
+
+    public double getYPositionEnd() {
+        return this.yPositionEnd;
+    }
+
+    public void addYPositonEnd(Double yPositionEnd) {
+        this.yPositionEnd += yPositionEnd;
+    }
 
     /**
      * needed for integration in to the very first basis framework

@@ -1,17 +1,23 @@
 package at.fhv.itm3.s2.roundabout.entity;
 
 import at.fhv.itm14.trafsim.model.entities.IConsumer;
+import at.fhv.itm3.s2.roundabout.api.entity.ConnectorInterfaceGap;
 import at.fhv.itm3.s2.roundabout.api.entity.IStreetConnector;
 import at.fhv.itm3.s2.roundabout.api.entity.ConsumerType;
 import at.fhv.itm3.s2.roundabout.api.entity.Street;
+import javafx.util.Pair;
 
+import java.awt.*;
 import java.util.*;
+import java.util.List;
 
 public class StreetConnector implements IStreetConnector {
 
     private final String id;
     private final Collection<IConsumer> nextSections;
     private final Collection<IConsumer> previousSections;
+    private final Map<IConsumer, ConnectorInterfaceGap> nextSectionsConnectionGap;
+    private final Map<IConsumer, ConnectorInterfaceGap> previousSectionsConnectionGap;
     private final Map<IConsumer, List<IConsumer>> nextSectionsOnTrackMap;
     private final Map<IConsumer, List<IConsumer>> previousSectionsOnTrackMap;
     private final Map<IConsumer, ConsumerType> streetTypeMap;
@@ -21,6 +27,11 @@ public class StreetConnector implements IStreetConnector {
     }
 
     public StreetConnector(String id, Collection<IConsumer> previousSections, Collection<IConsumer> nextSections) {
+        this(id, previousSections, nextSections, null, null);
+    }
+
+    public StreetConnector(String id, Collection<IConsumer> previousSections, Collection<IConsumer> nextSections,
+                           ,) {
         this.id = id;
 
         this.previousSections = previousSections;
@@ -37,6 +48,12 @@ public class StreetConnector implements IStreetConnector {
         this.previousSectionsOnTrackMap = new HashMap<>();
         this.streetTypeMap = new HashMap<>();
     }
+
+
+
+
+
+
 
     /**
      * {@inheritDoc}

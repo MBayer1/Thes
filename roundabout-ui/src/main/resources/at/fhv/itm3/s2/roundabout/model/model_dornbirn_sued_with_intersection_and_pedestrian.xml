@@ -31,8 +31,8 @@
     <components>
         <component id="p1" type="PEDESTRIANWALKINGAREA" name="Zebrastreifen">
             <sources>
-                <source id="pso1"/>
-                <source id="pso2"/>
+                <source id="pso1" sectionId="pc1"/>
+                <source id="pso2" sectionId="pc1" generatorExpectation="10.0"/>
             </sources>
 
             <sinks>
@@ -41,9 +41,22 @@
             </sinks>
 
             <sections>
-                <section id="pc1" length="3" width="8" isPedestrianCrossing="true"/>
+                <section id="pc1" length="5.0" width="8.0" isPedestrianCrossing="true"/>
             </sections>
         </component>
+        <connectors>
+            <connectorPedestrian id="pco_1">
+                <track fromSectionId="pc1" fromSectionType="PEDESTRIAN_CROSSING" toSectionId="psk1" toSectionType="PEDESTRIAN_EXIT"
+                       xPositionStart="0.0" yPositionStart="0.0"
+                       xPositionEnd="5.0" yPositionEnd="5.0" />
+            </connectorPedestrian>
+            <connectorPedestrian id="pco_2">
+                <track fromSectionId="pc1" fromSectionType="PEDESTRIAN_CROSSING" toSectionId="psk2" toSectionType="PEDESTRIAN_EXIT"
+                       xPositionStart="0.0" yPositionStart="0.0"
+                       xPositionEnd="5.0" yPositionEnd="5.0" />
+            </connectorPedestrian>
+        </connectors>
+
 
         <component id="ro1" type="ROUNDABOUT" name="Kreisverkehr Dornbirn Süd">
             <sources>
