@@ -43,7 +43,8 @@ public class TrafficJamIntegration {
         RouteGeneratorMock routeGeneratorMock = new RouteGeneratorMock(model);
 
         IRoute route = routeGeneratorMock.getRoute(RouteType.TWO_STREETSECTIONS_ONE_STREETSECTIONMOCK_TWO_CARS);
-        AbstractSource source = route.getSource();
+        if(!(route.getSource() instanceof AbstractSource)) throw new IllegalArgumentException("Type mismatch");
+        AbstractSource source = (AbstractSource) route.getSource();
 
         source.startGeneratingCars(0.0);
 
@@ -67,7 +68,8 @@ public class TrafficJamIntegration {
         RouteGeneratorMock routeGeneratorMock = new RouteGeneratorMock(model);
 
         IRoute route = routeGeneratorMock.getRoute(RouteType.STREETSECTION_INTERSECTION_STREETSECTIONMOCK_TEN_CARS);
-        AbstractSource source = route.getSource();
+        if(!(route.getSource() instanceof AbstractSource)) throw new IllegalArgumentException("Type mismatch");
+        AbstractSource source = (AbstractSource) route.getSource();
         RoundaboutIntersection intersection = (RoundaboutIntersection)route.getSectionAt(1);
         intersection.getController().start();
 

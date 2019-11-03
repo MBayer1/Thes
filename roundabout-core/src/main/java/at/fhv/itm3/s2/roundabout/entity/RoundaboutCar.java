@@ -107,7 +107,7 @@ public class RoundaboutCar implements ICar {
         return getTimeToTraverseSection(getCurrentSection());
     }
 
-    /**
+        /**
      * {@inheritDoc}
      */
     @Override
@@ -121,7 +121,7 @@ public class RoundaboutCar implements ICar {
                 carPosition = streetSection.getCarPositions().get(this);
             }
 
-            double remainingLength = streetSection.getLength() - carPosition;
+            double remainingLength = streetSection.getLength() - carPosition + ((StreetSection) section).getPedestrianCrossingWidth();
             return remainingLength / this.getDriverBehaviour().getSpeed();
         } else if (section instanceof RoundaboutIntersection && section == this.currentSection) {
             RoundaboutIntersection intersection = (RoundaboutIntersection)section;

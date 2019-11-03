@@ -20,7 +20,7 @@ public abstract class PedestrianAbstractSink extends PedestrianStreet implements
      *
      * @return  the mean time of all pedestrians used to pass a roundabout as model time units
      */
-    public abstract double getMeanRoundaboutPassTimeForEnteredPedestrians();
+    public abstract double getMeanPassTimeForEnteredPedestrians();
 
     /**
      * Used for statistical values. Returns the mean time the pedestrians spent in the system.

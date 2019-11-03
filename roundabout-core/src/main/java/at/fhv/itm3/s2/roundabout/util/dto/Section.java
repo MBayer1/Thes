@@ -1,5 +1,6 @@
 package at.fhv.itm3.s2.roundabout.util.dto;
 
+import at.fhv.itm3.s2.roundabout.api.entity.PedestrianConsumerType;
 import at.fhv.itm3.s2.roundabout.api.util.dto.IDTO;
 
 import javax.xml.bind.annotation.XmlAttribute;
@@ -13,11 +14,12 @@ public class Section implements IDTO {
     private Long minGreenPhaseDuration;
     private Long greenPhaseDuration;
     private Long redPhaseDuration;
+    private String pedestrianCrossingIDRef, pedestrianCrossingComponentIDRef;
 
     //pedestrian
-    private String pedestrianCrossingIDReference;
-    private String pedestrianCrossingComponentIDReference;
-    private Boolean isPedestrianCrossing;
+    private PedestrianConsumerType pedestrianSectionType;
+    private Integer pedestrianLength, pedestrianWidth;
+
 
     @XmlAttribute
     public String getId() {
@@ -82,29 +84,51 @@ public class Section implements IDTO {
     }
 
     @XmlAttribute
-    public String getPedestrianCrossingIDReference() {
-        return pedestrianCrossingIDReference;
+    public String getPedestrianCrossingIDRef() {
+        return pedestrianCrossingIDRef;
     }
 
-    public void setPedestrianCrossingIDReference(String pedestrianCrossingIDReference) {
-        this.pedestrianCrossingIDReference = pedestrianCrossingIDReference;
-    }
-
-    @XmlAttribute
-    public String getPedestrianCrossingComponentIDReference() {
-        return pedestrianCrossingComponentIDReference;
-    }
-
-    public void setPedestrianCrossingComponentIDReference(String pedestrianCrossingComponentIDReference) {
-        this.pedestrianCrossingComponentIDReference = pedestrianCrossingComponentIDReference;
+    public void setPedestrianCrossingIDRef(String pedestrianCrossingIDRef) {
+        this.pedestrianCrossingIDRef = pedestrianCrossingIDRef;
     }
 
     @XmlAttribute
-    public Boolean getIsPedestrianCrossing() {
-        return isPedestrianCrossing;
+    public String getPedestrianCrossingComponentIDRef() {
+        return pedestrianCrossingIDRef;
     }
 
-    public void setIsPedestrianCrossing(Boolean isPedestrianCrossing) {
-        this.isPedestrianCrossing = isPedestrianCrossing;
+    public void setPedestrianCrossingComponentIDRef(String pedestrianCrossingComponentIDRef) {
+        this.pedestrianCrossingComponentIDRef = pedestrianCrossingComponentIDRef;
+    }
+
+
+    // Pedestrian Part
+
+    @XmlAttribute
+    public PedestrianConsumerType getPedestrianSectionType() {
+        return pedestrianSectionType;
+    }
+
+    public void setPedestrianSectionType(PedestrianConsumerType pedestrianSectionType) {
+        this.pedestrianSectionType = pedestrianSectionType;
+    }
+
+    @XmlAttribute
+    public Integer getPedestrianLength() {
+        return pedestrianLength;
+    }
+
+
+    public void setPedestrianLength(Integer pedestrianLength) {
+        this.pedestrianLength = pedestrianLength;
+    }
+
+    @XmlAttribute
+    public Integer getPedestrianWidth() {
+        return pedestrianWidth;
+    }
+
+    public void setPedestrianWidth(Integer pedestrianWidth) {
+        this.pedestrianWidth = pedestrianWidth;
     }
 }

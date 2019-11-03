@@ -40,7 +40,8 @@ public class StatisticsIntegration {
         RouteGeneratorMock routeGeneratorMock = new RouteGeneratorMock(model);
 
         IRoute route = routeGeneratorMock.getRoute(RouteType.TWO_STREETSECTIONS_TWO_CARS);
-        AbstractSource source = route.getSource();
+        if(!(route.getSource() instanceof AbstractSource)) throw new IllegalArgumentException("Type mismatch");
+        AbstractSource source = (AbstractSource) route.getSource();
 
         source.startGeneratingCars(0.0);
 
@@ -66,10 +67,12 @@ public class StatisticsIntegration {
         RouteGeneratorMock routeGeneratorMock = new RouteGeneratorMock(model);
 
         IRoute route1 = routeGeneratorMock.getRoute(RouteType.ONE_CAR_STAYS_ON_TRACK);
-        AbstractSource source1 = route1.getSource();
+        if(!(route1.getSource() instanceof AbstractSource)) throw new IllegalArgumentException("Type mismatch");
+        AbstractSource source1 = (AbstractSource) route1.getSource();
 
         IRoute route2 = routeGeneratorMock.getRoute(RouteType.ONE_CAR_CHANGES_TRACK);
-        AbstractSource source2 = route2.getSource();
+        if(!(route2.getSource() instanceof AbstractSource)) throw new IllegalArgumentException("Type mismatch");
+        AbstractSource source2 = (AbstractSource) route2.getSource();
 
         // start generating cars simultaneously so one have to give precedence to another
         source2.startGeneratingCars(0.0);
@@ -99,10 +102,12 @@ public class StatisticsIntegration {
         RouteGeneratorMock routeGeneratorMock = new RouteGeneratorMock(model);
 
         IRoute route1 = routeGeneratorMock.getRoute(RouteType.STOPS_FOUR_CARS_CHANGE_TRACK);
-        AbstractSource source1 = route1.getSource();
+        if(!(route1.getSource() instanceof AbstractSource)) throw new IllegalArgumentException("Type mismatch");
+        AbstractSource source1 = (AbstractSource) route1.getSource();
 
         IRoute route2 = routeGeneratorMock.getRoute(RouteType.STOPS_FOUR_CARS_STAY_ON_TRACK);
-        AbstractSource source2 = route2.getSource();
+        if(!(route2.getSource() instanceof AbstractSource)) throw new IllegalArgumentException("Type mismatch");
+        AbstractSource source2 = (AbstractSource) route2.getSource();
 
         // start generating cars simultaneously so one have to give precedence to another
         source1.startGeneratingCars(0.0);

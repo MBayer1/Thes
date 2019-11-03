@@ -1,31 +1,39 @@
 package at.fhv.itm3.s2.roundabout.entity;
 
+import at.fhv.itm14.trafsim.model.entities.AbstractProSumer;
 import at.fhv.itm14.trafsim.model.entities.Car;
 import at.fhv.itm14.trafsim.model.entities.IConsumer;
 import at.fhv.itm14.trafsim.statistics.StopWatch;
 import at.fhv.itm3.s2.roundabout.api.entity.IPedestrian;
 import at.fhv.itm3.s2.roundabout.api.entity.IPedestrianBehaviour;
 import at.fhv.itm3.s2.roundabout.api.entity.IRoute;
+import at.fhv.itm3.s2.roundabout.api.entity.PedestrianStreet;
 import at.fhv.itm3.s2.roundabout.model.RoundaboutSimulationModel;
+import at.fhv.itm3.s2.roundabout.util.dto.PedestrianConnector;
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeSpan;
 import desmoj.core.statistic.Count;
 import desmoj.core.statistic.Tally;
 
+import javax.vecmath.Vector2d;
 import java.awt.*;
 import java.util.Iterator;
 
 public class Pedestrian implements IPedestrian {
 
-    private final Car car; // this is needed to use the framework base. Otherwise the connection to the very original would not be possible
+    private final Car car; //keep existing structure as dummy for some specific function considered simulation
     private final Point currentPosition;
+    private final Double preferredSpeed;
+    private final Double maxPreferredSpeed;
     private final IRoute route;
     private final IPedestrianBehaviour pedestrianBehaviour;
     private final Iterator<IConsumer> routeIterator;
     private final StopWatch pedestrianStopWatch;
     private final Count pedestrianCounter;
-    private final Tally pedestrianTime;
-    private final StopWatch stopsStopWatch;
+    private final Tally pedestrianAreaTime;
+    private final StopWatch pedestrianCrossingStopWatch;
+    private final Count pedestrianCrossingCounter;
+    private final Tally pedestrianCrossingTime;
 
     private double lastUpdateTime;
 
@@ -33,15 +41,18 @@ public class Pedestrian implements IPedestrian {
     private IConsumer currentSection;
     private IConsumer nextSection;
     private IConsumer sectionAfterNextSection;
+    private Double currentSpeed;
+    private Double walkedDistance;
+    private double timeRelatedParameterFactorForSpeedCalculation;
 
-    public Pedestrian(Model model, Point currentPosition, Car car, IPedestrianBehaviour pedestrianBehaviour, IRoute route)
+    public Pedestrian(Model model, Point currentPosition, IPedestrianBehaviour pedestrianBehaviour, IRoute route){
+        this(model, currentPosition, pedestrianBehaviour, route, 1.0);
+    }
+
+
+    public Pedestrian(Model model, Point currentPosition, IPedestrianBehaviour pedestrianBehaviour, IRoute route,
+                      double timeRelatedParameterFactorForSpeedCalculation)
             throws IllegalArgumentException {
-
-        if (car != null) {
-            this.car = car;
-        } else {
-            throw new IllegalArgumentException("Pedestrian should not be null.");
-        }
 
         this.currentPosition = currentPosition;
 
@@ -65,16 +76,30 @@ public class Pedestrian implements IPedestrian {
 
         this.setLastUpdateTime(getRoundaboutModel().getCurrentTime());
 
+        // Extended of Pedestrian speed -> also include stress factor.
+        double val1 = getRoundaboutModel().getRandomPreferredSpeed();
+        double val2 = getRoundaboutModel().getRandomPreferredSpeed();
+        this.preferredSpeed = Math.min(val1, val2);
+        this.maxPreferredSpeed = Math.max(val1, val2);
+        this.walkedDistance = 0.0;
+
+        this.timeRelatedParameterFactorForSpeedCalculation = timeRelatedParameterFactorForSpeedCalculation;
+
+        this.car = new Car(model, "dummy", false);
+
         this.pedestrianStopWatch = new StopWatch(model);
-        this.stopsStopWatch = new StopWatch(model);
         this.pedestrianCounter = new Count(model, "Roundabout counter", false, false);
         this.pedestrianCounter.reset();
-        this.pedestrianTime = new Tally(model, "Roundabout time", false, false);
-        this.pedestrianTime.reset();
-    }
+        this.pedestrianAreaTime = new Tally(model, "Roundabout time", false, false);
+        this.pedestrianAreaTime.reset();
 
-    public Car getOldImplementationCar() {
-        return car;
+        this.pedestrianCrossingStopWatch = new StopWatch(model);
+        this.pedestrianCrossingCounter = new Count(model, "Roundabout counter", false, false);
+        this.pedestrianCounter.reset();
+        this.pedestrianCrossingTime = new Tally(model, "Roundabout time", false, false);
+        this.pedestrianCrossingTime.reset();
+
+        this.currentSpeed = 0.0;
     }
 
     /**
@@ -102,32 +127,18 @@ public class Pedestrian implements IPedestrian {
      * {@inheritDoc}
      */
     @Override
-    public double getTimeToTraverseCurrentSection() {
-
-        return getTimeToTraverseSection(getCurrentSection());
+    public Point getNextSubGoal() {
+        return null; //TODO
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public double getTimeToTraverseSection(IConsumer section) {
-        return 0.0;
-
+    public double getTimeToNextSubGoal(Point currentPosition) {
+        return 0;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public double getTransitionTime() {
-        final double currentTime = getRoundaboutModel().getCurrentTime();
-        final double minPossibleTransitionTime = getTimeToTraverseCurrentSection();
-        final double pedestrianLastUpdateTime = getLastUpdateTime();
-
-
-        return minPossibleTransitionTime;
-    }
 
     /**
      * {@inheritDoc}
@@ -153,13 +164,6 @@ public class Pedestrian implements IPedestrian {
         return route;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public IConsumer getLastSection() {
-        return lastSection;
-    }
 
     /**
      * {@inheritDoc}
@@ -185,19 +189,7 @@ public class Pedestrian implements IPedestrian {
         return sectionAfterNextSection;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void traverseToNextSection() {
-        this.lastSection = this.currentSection;
-        this.currentSection = this.nextSection;
-        this.nextSection = this.sectionAfterNextSection;
-        this.sectionAfterNextSection = retrieveNextRouteSection();
-        if (isWaiting()) {
-            stopWaiting();
-        }
-    }
+
 
     /**
      * {@inheritDoc}
@@ -208,7 +200,7 @@ public class Pedestrian implements IPedestrian {
     }
 
     private RoundaboutSimulationModel getRoundaboutModel() {
-        final Model model = getOldImplementationCar().getModel();
+        final Model model = car.getModel();
         if (model instanceof RoundaboutSimulationModel) {
             return (RoundaboutSimulationModel) model;
         } else {
@@ -220,77 +212,85 @@ public class Pedestrian implements IPedestrian {
         return routeIterator.hasNext() ? routeIterator.next() : null;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public double GetSocialForceVector(){
-        return 0;
-
-    }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void enterRoundabout() {
-        this.pedestrianCounter.update();
-        this.pedestrianStopWatch.start();
-        return;
-    }
+    public void enterSystem() { car.enterSystem(); }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void leaveRoundabout() {
-        if (this.pedestrianStopWatch.isRunning()) {
-            double res = this.pedestrianStopWatch.stop();
-            this.pedestrianTime.update(new TimeSpan(res));
-        }
-        return;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public double getMeanRoundaboutPassTime() {
-        return this.pedestrianTime.getObservations() <= 0L ? 0.0D : this.pedestrianTime.getMean();
-    }
-
-    public long getRoundaboutPassedCount() {
-        return this.pedestrianCounter.getValue();
-    }
-
-    public void enterSystem() {
-        car.enterSystem();
-    }
-
     public double leaveSystem() {
         return car.leaveSystem();
     }
 
-    public void enterIntersection() {
-        car.enterIntersection();
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void enterPedestrianCrossing() {
+        this.pedestrianCrossingCounter.update();
+        this.pedestrianCrossingStopWatch.start();
     }
 
-    public void leaveIntersection() {
-        car.leaveIntersection();
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void leavePedestrianCrossing() {
+        double res = this.pedestrianCrossingStopWatch.stop();
+        this.pedestrianCrossingTime.update(new TimeSpan(res));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public double getMeanStreetCrossingPassTime() {
+        return this.pedestrianCrossingTime.getObservations() <= 0L ? 0.0D : this.pedestrianCrossingTime.getMean();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void enterPedestrianArea() {
+        this.pedestrianCounter.update();
+        this.pedestrianStopWatch.start();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void leavePedestrianArea() {
+        double res = this.pedestrianStopWatch.stop();
+        this.pedestrianAreaTime.update(new TimeSpan(res));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public double getMeanStreetAreaPassTime() {
+        return this.pedestrianAreaTime.getObservations() <= 0L ? 0.0D : this.pedestrianAreaTime.getMean();
     }
 
     public void startWaiting() {
         if (!isWaiting()) {
             car.startWaiting();
         }
-        if (!this.stopsStopWatch.isRunning()) {
-            this.stopsStopWatch.start();
+        if (!this.pedestrianStopWatch.isRunning()) {
+            this.pedestrianStopWatch.start();
         }
     }
 
     public void stopWaiting() {
-        if (this.stopsStopWatch.isRunning()) {
-            this.stopsStopWatch.stop();
+        if (this.pedestrianStopWatch.isRunning()) {
+            this.pedestrianStopWatch.stop();
         } else {
             car.stopWaiting();
         }
@@ -312,15 +312,75 @@ public class Pedestrian implements IPedestrian {
         return car.getStopCount();
     }
 
-    public long getIntersectionPassedCount() {
-        return car.getIntersectionPassedCount();
-    }
-
-    public double getMeanIntersectionPassTime() {
-        return car.getMeanIntersectionPassTime();
-    }
-
     public double getCoveredDistanceInTime(double time) {
         return time * pedestrianBehaviour.getSpeed();
     }
+
+    public double getCurrentSpeed() {return currentSpeed;}
+
+    public void setCurrentSpeed( double currentSpeed) { this.currentSpeed = currentSpeed;}
+
+    public double getPreferredSpeed() {return this.preferredSpeed;}
+
+    public double calculatePreferredSpeed(){
+        double averageSpeed = walkedDistance/ getTimeSpentInSystem();
+
+        double timeRelatedParameter = averageSpeed/preferredSpeed;
+        timeRelatedParameter = timeRelatedParameterFactorForSpeedCalculation - timeRelatedParameter;
+
+        double part1 = (1-timeRelatedParameter);
+        part1 *= preferredSpeed;
+
+        double part2 = timeRelatedParameter * maxPreferredSpeed;
+
+        return part1 + part2;
+    }
+
+    public void updateWalkedDistance( double distance){ this.walkedDistance += distance; }
+
+    public Vector2d getVectorToDestination(){
+
+
+    }
+
+    private Vector2d calculateDestinationVector(){
+        if(!(route.getStartSection() instanceof PedestrianStreetSection)) throw new IllegalArgumentException("Type mismatch.");
+        PedestrianStreetSection streetSection = (PedestrianStreetSection) route.getStartSection();
+
+        Vector2d enterCoordinates = new Vector2d();
+        Vector2d currentPositionVector = new Vector2d(getCurrentPosition().getX(), getCurrentPosition().getY());
+
+        PedestrianConnector Connector =
+
+        while(!(streetSection instanceof PedestrianSink)) {
+            getRoundaboutModel().
+
+
+        }
+
+    }
+
+    public void updateDestinationVector(){
+
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public double GetSocialForceVector(){
+
+        getRoundaboutModel().getSFM_DegreeOfAccuracy();
+
+
+
+
+        //TODO summiere paramerter.
+
+
+        return 0;
+    }
+
+
+
 }

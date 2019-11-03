@@ -45,8 +45,10 @@ public class CarReachedDestinationIntegration {
         //when( roundaboutSinkMock.addCar(varArgs.capture())).thenReturn(true);
         // doAnswer(       ).when(roundaboutSinkMock).addCar(varArgs.capture());
 
-        AbstractSource source = route.getSource();
-        AbstractSink sink = route.getSink();
+        if(!(route.getSource() instanceof AbstractSource)) throw new IllegalArgumentException("Type mismatch");
+        AbstractSource source = (AbstractSource) route.getSource();
+        if(!(route.getSink() instanceof AbstractSink)) throw new IllegalArgumentException("Type mismatch");
+        AbstractSink sink = (AbstractSink) route.getSink();
         IConsumer destination = route.getDestinationSection();
 
         source.startGeneratingCars(0.0);

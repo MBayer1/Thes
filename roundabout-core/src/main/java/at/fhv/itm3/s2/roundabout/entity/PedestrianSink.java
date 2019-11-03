@@ -5,22 +5,24 @@ import at.fhv.itm14.trafsim.model.entities.IConsumer;
 import at.fhv.itm14.trafsim.model.events.CarDepartureEvent;
 import at.fhv.itm14.trafsim.persistence.model.DTO;
 import at.fhv.itm3.s2.roundabout.api.entity.*;
+import at.fhv.itm3.s2.roundabout.controller.CarController;
+import at.fhv.itm3.s2.roundabout.controller.PedestrianController;
 import desmoj.core.simulator.Model;
 
 import java.awt.*;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 
 public class PedestrianSink extends PedestrianAbstractSink {
 
-    private IStreetConnector previousStreetConnector;
+    private IPedestrianStreetConnector previousStreetConnector;
 
-    private double meanRoundaboutPassTime;
+    private double meanPedestrianCrossingTime;
     private double meanTimeSpentInSystem;
     private double meanWaitingTimePerStop;
     private double meanStopCount;
-    private double meanIntersectionPassTime;
+    private double meanPedestrianAreaTime;
+
 
     public PedestrianSink(Model owner, String name, boolean showInTrace) {
         this(UUID.randomUUID().toString(), owner, name, showInTrace);
@@ -29,12 +31,13 @@ public class PedestrianSink extends PedestrianAbstractSink {
     public PedestrianSink(String id, Model owner, String name, boolean showInTrace) {
         super(id, owner, name, showInTrace);
 
-        this.meanRoundaboutPassTime = 0;
+        this.meanPedestrianCrossingTime = 0;
         this.meanTimeSpentInSystem = 0;
         this.meanWaitingTimePerStop = 0;
         this.meanStopCount = 0;
-        this.meanIntersectionPassTime = 0;
+        this.meanPedestrianAreaTime = 0;
     }
+
 
     /**
      * {@inheritDoc}
@@ -43,6 +46,7 @@ public class PedestrianSink extends PedestrianAbstractSink {
     public double getLength() {
         return 0;
     }
+
 
     /**
      * {@inheritDoc}
@@ -56,33 +60,112 @@ public class PedestrianSink extends PedestrianAbstractSink {
      * {@inheritDoc}
      */
     @Override
-    public void addPedestrian(IPedestrian iPedestrian) {
-        iPedestrian.leaveSystem();
-        incrementEnteredPedestrianCounter();
-        updateStats(iPedestrian);
+    public PedestrianConsumerType getPedestrianConsumerType() { return PedestrianConsumerType.PEDESTRIAN_SINK;}
 
-        IConsumer consumer = iPedestrian.getLastSection();
-        incrementLeftPedestrianCounter();
-    }
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean isPedestrianCrossing() { return false;}
 
-    public void updateStats(IPedestrian car) {
-        // to avoid double overflow, as the sum of all the values over a long simulation time might cause this, the current average is stored directly
-        double dPreviousRate = ((double)getNrOfEnteredPedestrians()-1)/ (double) getNrOfEnteredPedestrians();
-        meanRoundaboutPassTime = meanRoundaboutPassTime * dPreviousRate + car.getMeanRoundaboutPassTime()/ getNrOfEnteredPedestrians();
-        meanTimeSpentInSystem = meanTimeSpentInSystem * dPreviousRate + car.getTimeSpentInSystem()/ getNrOfEnteredPedestrians();
-        meanWaitingTimePerStop = meanWaitingTimePerStop * dPreviousRate + car.getMeanWaitingTime()/ getNrOfEnteredPedestrians();
-        meanStopCount = meanStopCount * dPreviousRate + car.getStopCount()/ getNrOfEnteredPedestrians();
-        meanIntersectionPassTime = meanIntersectionPassTime * dPreviousRate + car.getMeanIntersectionPassTime()/ getNrOfEnteredPedestrians();
+
+
+    public void addPedestrian(IPedestrian iPedestrian){
+        addPedestrian(iPedestrian, new Point(0,0));
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public List<IPedestrian> getPedestrianQueue()
-    throws IllegalStateException {
+    public void addPedestrian(IPedestrian iPedestrian, Point position) {
+
+        iPedestrian.leaveSystem();
+        iPedestrian.leavePedestrianArea();
+        iPedestrian.leavePedestrianCrossing();
+
+        incrementEnteredPedestrianCounter();
+
+        updateStats(iPedestrian);
+
+        // needed for adaption to the trafsim framework
+        addCar(CarController.getICar(PedestrianController.getCar(iPedestrian)));
+
+
+        pedestrianObserver.notifyObservers(iPedestrian);
+        incrementLeftPedestrianCounter();
+    }
+
+    public void updateStats(IPedestrian pedestrian) {
+        // to avoid double overflow, as the sum of all the values over a long simulation time might cause this, the current average is stored directly
+        double dPreviousRate = ((double)getNrOfEnteredPedestrians()-1)/ (double) getNrOfEnteredPedestrians();
+        meanPedestrianCrossingTime = meanPedestrianCrossingTime * dPreviousRate + pedestrian.getMeanStreetCrossingPassTime()/ getNrOfEnteredPedestrians();
+        meanTimeSpentInSystem = meanTimeSpentInSystem * dPreviousRate + pedestrian.getTimeSpentInSystem()/ getNrOfEnteredPedestrians();
+        meanWaitingTimePerStop = meanWaitingTimePerStop * dPreviousRate + pedestrian.getMeanWaitingTime()/ getNrOfEnteredPedestrians();
+        meanStopCount = meanStopCount * dPreviousRate + pedestrian.getStopCount()/ getNrOfEnteredPedestrians();
+        meanPedestrianAreaTime = meanPedestrianAreaTime * dPreviousRate + pedestrian.getMeanStreetAreaPassTime()/ getNrOfEnteredPedestrians();
+    }
+
+    public void addCar(ICar iCar) {
+        iCar.leaveSystem();
+        IConsumer consumer = iCar.getLastSection();
+        if (consumer instanceof Street) {
+            Car car = CarController.getCar(iCar);
+            ((Street)consumer).carDelivered(null, car, true);
+        }
+        CarController.removeCarMapping(iCar);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void handleJamTrafficLight(){ return; }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void addCircularObstacle (double radius, Point midPoint){
+        return;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void addPolygonObstacle( List<Point> cornerPoints) {
+        return;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<IPedestrian> getPedestrianQueue(){
         return null;
     }
+
+
+    public Map<IPedestrian, Point> getPedestrianPositions()
+            throws IllegalStateException {
+        return null;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void removePedestrian(IPedestrian iPedestrian)
+            throws IllegalStateException {
+        return;
+    }
+
+
     /**
      * {@inheritDoc}
      */
@@ -95,7 +178,7 @@ public class PedestrianSink extends PedestrianAbstractSink {
      * {@inheritDoc}
      */
     @Override
-    public IStreetConnector getNextStreetConnector() {
+    public IPedestrianStreetConnector getNextStreetConnector() {
         return null;
     }
 
@@ -103,15 +186,15 @@ public class PedestrianSink extends PedestrianAbstractSink {
      * {@inheritDoc}
      */
     @Override
-    public IStreetConnector getPreviousStreetConnector() {
-        return this.previousStreetConnector;
+    public IPedestrianStreetConnector getPreviousStreetConnector() {
+        return previousStreetConnector;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void setPreviousStreetConnector(IStreetConnector previousStreetConnector) {
+    public void setPreviousStreetConnector(IPedestrianStreetConnector previousStreetConnector) {
         this.previousStreetConnector = previousStreetConnector;
     }
 
@@ -119,8 +202,34 @@ public class PedestrianSink extends PedestrianAbstractSink {
      * {@inheritDoc}
      */
     @Override
-    public void setNextStreetConnector(IStreetConnector nextStreetConnector) {
+    public void setNextStreetConnector(IPedestrianStreetConnector nextStreetConnector) {
+        return;
+    }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Point getPedestrianPosition(IPedestrian iPedestrian) {
+        return null;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void carDelivered(CarDepartureEvent carDepartureEvent, Car car, boolean successful) {
+        return;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void carEnter(Car car) {
+        return;
     }
 
     /**
@@ -128,6 +237,11 @@ public class PedestrianSink extends PedestrianAbstractSink {
      */
     @Override
     public boolean isFull() {
+        // this method is only used by an Intersection object
+        // so it is necessary that this always returns false
+        // because a RuntimeException is thrown when this is true
+        // (check if car can really enter the section is made in
+        // method carEnter(Car car))
         return false;
     }
 
@@ -144,8 +258,8 @@ public class PedestrianSink extends PedestrianAbstractSink {
      * {@inheritDoc}
      */
     @Override
-    public double getMeanRoundaboutPassTimeForEnteredPedestrians() {
-        return meanRoundaboutPassTime;
+    public double getMeanPassTimeForEnteredPedestrians() {
+        return meanPedestrianCrossingTime;
     }
 
     /**
@@ -176,48 +290,8 @@ public class PedestrianSink extends PedestrianAbstractSink {
      * {@inheritDoc}
      */
     @Override
-    public double getMeanIntersectionPassTimeForEnteredPedestrians() { return meanIntersectionPassTime;
+    public double getMeanIntersectionPassTimeForEnteredPedestrians() { return meanPedestrianAreaTime;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void addObsticalCircle(double radius, Point midPoint){} //TODO
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void addObsticalPolygone( List<Point> cornerPoints){} //TODO
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void removePedestrian(IPedestrian iPedestrian){}
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Map<IPedestrian, Point> getPedestrianPositions(IPedestrian iPedestrian){
-        return null;
-    }
-
-    /**
-     * needed for integration in to the very first basis framework
-     */
-    @Override
-    public void carEnter(Car car) {
-        return;
-    }
-
-    /**
-     * needed for integration in to the very first basis framework
-     */
-    @Override
-    public void carDelivered(CarDepartureEvent carDepartureEvent, Car car, boolean successful) {
-        return;
-    }
 }

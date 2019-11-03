@@ -4,16 +4,15 @@ import at.fhv.itm14.trafsim.model.entities.AbstractProducer;
 import at.fhv.itm14.trafsim.model.entities.IConsumer;
 
 import java.util.Collection;
-import java.util.List;
 
-public interface IRoute {
+public interface IPedestrianRoute {
 
     /**
-     * Returns the route as unmodifiable list of {@link Street}.
+     * Returns the route as unmodifiable list of {@link PedestrianStreetSectionPortPair}.
      *
-     * @return the route as unmodifiable list of {@link Street}.
+     * @return the route as unmodifiable list of {@link PedestrianStreetSectionPortPair}.
      */
-    Collection<IConsumer> getRoute();
+    Collection<PedestrianStreetSectionPortPair> getRoute();
 
     /**
      * Returns an {@link Street} at the given index of the route.
@@ -45,11 +44,11 @@ public interface IRoute {
     int getNumberOfSections();
 
     /**
-     * Adds a new {@link Street} to the route.
+     * Adds a new {@link PedestrianStreetSectionPortPair} to the route.
      *
-     * @param section the section that is added to the route at the end.
+     * @param section the section that is added to the route at the end included its enter and exit port.
      */
-    void addSection(IConsumer section);
+    void addSection(PedestrianStreetSectionPortPair section);
 
     /**
      * Checks if there are {@link Street}s in the route defined.
@@ -99,4 +98,20 @@ public interface IRoute {
     * @return true if there is a specific {@link Street} in the route, otherwise false.
     */
     boolean contains(IConsumer section);
+
+
+    /**
+     * Get the entry port of a {@PedestrianStreetSectionPort} specific {@link Street} in the route.
+     *
+     * @return the entry port of a specific {@link Street} in the route.
+     */
+    PedestrianStreetSectionPort getEnterPortOfSectionAt(int index);
+
+
+    /**
+     * Get the exit port of a {@PedestrianStreetSectionPort} specific {@link Street} in the route.
+     *
+     * @return the exit port of a specific {@link Street} in the route.
+     */
+    PedestrianStreetSectionPort getExitPortOfSectionAt(int index);
 }

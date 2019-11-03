@@ -40,6 +40,15 @@ public class RoundaboutSimulationModel extends Model {
     private static final Long DEFAULT_PEDESTRIAN_MAX_GROUPE_SIZE = 30L;
     private static final Double DEFAULT_PEDESTRIAN_MIN_STREET_LENGTH = 1.0;
     private static final Double DEFAULT_PEDESTRIAN_MIN_STREET_WIDTH = 1.0;
+    private static final Double DEFAULT_SFM_DEGREE_OF_ACCURACY = 10e-8;
+    private static final Double DEFAULT_MIN_PEDESTRIAN_RELAXING_TIME = 2.2-0.5;
+    private static final Double DEFAULT_MAX_PEDESTRIAN_RELAXING_TIME = 2.2+0.5;
+    private static final Double DEFAULT_EXPECTED_PEDESTRIAN_RELAXING_TIME = 2.2;
+    private static final Double DEFAULT_MIN_PEDESTRIAN_PREFERRED_SPEED = 1.34-0.26;
+    private static final Double DEFAULT_MAX_PEDESTRIAN_PREFERRED_SPEED = 1.34+0.26;
+    private static final Double DEFAULT_EXPECTED_PEDESTRIAN_PREFERRED_SPEED = 1.34;
+
+
 
     private final Long simulationSeed;
     private final Double minDistanceFactorBetweenCars;
@@ -58,12 +67,20 @@ public class RoundaboutSimulationModel extends Model {
     private final Double carRatioPerTotalVehicle;
     private final Double jamIndicatorInSeconds;
 
-    private final Double pedestrianMinArrivalRate;
-    private final Double pedestrianMaxArrivalRate;
-    private final Long pedestrianMinGroupeSize;
-    private final Long pedestrianMaxGroupeSize;
-    private final Double pedestrianMinStreetLength;
-    private final Double pedestrianMaxStreetWidth;
+    private final Double minPedestrianArrivalRate;
+    private final Double maxPedestrianArrivalRate;
+    private final Long minPedestrianGroupeSize;
+    private final Long maxPedestrianGroupeSize;
+    private final Double minPedestrianStreetLength;
+    private final Double maxPedestrianStreetWidth;
+    private final Double SFM_DegreeOfAccuracy;
+    private final Double minPedestrianRelaxingTimeTauAlpha;
+    private final Double maxPedestrianRelaxingTimeTauAlpha;
+    private final Double expectedPedestrianRelaxingTimeTauAlpha;
+    private final Double minPedestrianPreferredSpeed;
+    private final Double maxPedestrianPreferredSpeed;
+    private final Double expectedPedestrianPreferredSpeed;
+
 
     //Simulation
     private IModelStructure modelStructure;
@@ -109,6 +126,29 @@ public class RoundaboutSimulationModel extends Model {
      * See {@link RoundaboutSimulationModel#init()} method for stream parameters.
      */
     private ContDistNormal timeBetweenCarArrivals;
+
+
+
+
+
+    /////////////////////////////////////////////////////////////////////////////////
+    ////Social Force Model Calculations:
+
+    /**
+     * Random number stream used to draw a time between two car arrivals.
+     * See {@link RoundaboutSimulationModel#init()} method for stream parameters.
+     */
+    private ContDistNormal relaxingTimeTauAlpha;
+
+    /**
+     * Random number stream used to draw a time between two car arrivals.
+     * See {@link RoundaboutSimulationModel#init()} method for stream parameters.
+     */
+    private ContDistNormal preferredSpeed;
+
+
+
+
 
     /**
      * Constructs a new RoundaboutSimulationModel
@@ -159,8 +199,59 @@ public class RoundaboutSimulationModel extends Model {
 
             DEFAULT_PEDESTRIAN_MIN_ARRIVAL_RATE, DEFAULT_PEDESTRIAN_MAX_ARRIVAL_RATE,
             DEFAULT_PEDESTRIAN_MIN_GROUPE_SIZE, DEFAULT_PEDESTRIAN_MAX_GROUPE_SIZE,
-            DEFAULT_PEDESTRIAN_MIN_STREET_LENGTH, DEFAULT_PEDESTRIAN_MIN_STREET_WIDTH
+            DEFAULT_PEDESTRIAN_MIN_STREET_LENGTH, DEFAULT_PEDESTRIAN_MIN_STREET_WIDTH,
+            DEFAULT_SFM_DEGREE_OF_ACCURACY,
+            DEFAULT_MIN_PEDESTRIAN_RELAXING_TIME, DEFAULT_MAX_PEDESTRIAN_RELAXING_TIME, DEFAULT_EXPECTED_PEDESTRIAN_RELAXING_TIME,
+            DEFAULT_MIN_PEDESTRIAN_PREFERRED_SPEED, DEFAULT_MAX_PEDESTRIAN_PREFERRED_SPEED, DEFAULT_EXPECTED_PEDESTRIAN_PREFERRED_SPEED
+
             );
+    }
+
+    /**
+     * Constructs a new RoundaboutSimulationModel
+     *
+     * @param simulationSeed simulation seed.
+     * @param model the model this model is part of (set to null when there is no such model)
+     * @param name this model's name
+     * @param showInReport flag to indicate if this model shall produce output to the report file
+     * @param showInTrace flag to indicate if this model shall produce output to the trace file
+     */
+    public RoundaboutSimulationModel(
+            Long simulationSeed,
+            Model model,
+            String name,
+            boolean showInReport,
+            boolean showInTrace,
+            Double minTimeBetweenCarArrivals,
+            Double maxTimeBetweenCarArrivals,
+            Double minDistanceFactorBetweenCars,
+            Double maxDistanceFactorBetweenCars,
+            Double mainArrivalRateForOneWayStreets,
+            Double standardCarAccelerationTime,
+            Double minCarLength,
+            Double maxCarLength,
+            Double expectedCarLength,
+            Double minTruckLength,
+            Double maxTruckLength,
+            Double expectedTruckLength,
+            Double carRatioPerTotalVehicle,
+            Double jamIndicatorInSeconds
+    ) {
+        this(
+            simulationSeed, model, name, showInReport, showInTrace, minTimeBetweenCarArrivals,
+            maxTimeBetweenCarArrivals, minDistanceFactorBetweenCars, maxDistanceFactorBetweenCars,
+            mainArrivalRateForOneWayStreets, standardCarAccelerationTime,
+            minCarLength, maxCarLength, expectedCarLength, minTruckLength, maxTruckLength,
+            expectedTruckLength, carRatioPerTotalVehicle, jamIndicatorInSeconds,
+
+            DEFAULT_PEDESTRIAN_MIN_ARRIVAL_RATE, DEFAULT_PEDESTRIAN_MAX_ARRIVAL_RATE,
+            DEFAULT_PEDESTRIAN_MIN_GROUPE_SIZE, DEFAULT_PEDESTRIAN_MAX_GROUPE_SIZE,
+            DEFAULT_PEDESTRIAN_MIN_STREET_LENGTH, DEFAULT_PEDESTRIAN_MIN_STREET_WIDTH,
+            DEFAULT_SFM_DEGREE_OF_ACCURACY,
+            DEFAULT_MIN_PEDESTRIAN_RELAXING_TIME, DEFAULT_MAX_PEDESTRIAN_RELAXING_TIME, DEFAULT_EXPECTED_PEDESTRIAN_RELAXING_TIME,
+            DEFAULT_MIN_PEDESTRIAN_PREFERRED_SPEED, DEFAULT_MAX_PEDESTRIAN_PREFERRED_SPEED, DEFAULT_EXPECTED_PEDESTRIAN_PREFERRED_SPEED
+
+        );
     }
 
     /**
@@ -197,7 +288,14 @@ public class RoundaboutSimulationModel extends Model {
         Long pedestrianMinGroupeSize,
         Long pedestrianMaxGroupeSize,
         Double pedestrianMinStreetLength,
-        Double pedestrianMaxStreetWidth
+        Double pedestrianMaxStreetWidth,
+        Double SFM_DegreeOfAccuracy,
+        Double minPedestrianRelaxingTimeTauAlpha,
+        Double maxPedestrianRelaxingTimeTauAlpha,
+        Double expectedPedestrianRelaxingTimeTauAlpha,
+        Double minPedestrianPreferredSpeed,
+        Double maxPedestrianPreferredSpeed,
+        Double expectedPedestrianPreferredSpeed
         ) {
         super(model, name, showInReport, showInTrace);
 
@@ -218,12 +316,19 @@ public class RoundaboutSimulationModel extends Model {
         this.carRatioPerTotalVehicle = carRatioPerTotalVehicle;
         this.jamIndicatorInSeconds = jamIndicatorInSeconds;
 
-        this.pedestrianMinArrivalRate = pedestrianMinArrivalRate;
-        this.pedestrianMaxArrivalRate = pedestrianMaxArrivalRate;
-        this.pedestrianMinGroupeSize = pedestrianMinGroupeSize;
-        this.pedestrianMaxGroupeSize = pedestrianMaxGroupeSize;
-        this.pedestrianMinStreetLength = pedestrianMinStreetLength;
-        this.pedestrianMaxStreetWidth = pedestrianMaxStreetWidth;
+        this.minPedestrianArrivalRate = pedestrianMinArrivalRate;
+        this.maxPedestrianArrivalRate = pedestrianMaxArrivalRate;
+        this.minPedestrianGroupeSize = pedestrianMinGroupeSize;
+        this.maxPedestrianGroupeSize = pedestrianMaxGroupeSize;
+        this.minPedestrianStreetLength = pedestrianMinStreetLength;
+        this.maxPedestrianStreetWidth = pedestrianMaxStreetWidth;
+        this.SFM_DegreeOfAccuracy = SFM_DegreeOfAccuracy;
+        this.minPedestrianRelaxingTimeTauAlpha = minPedestrianRelaxingTimeTauAlpha;
+        this.maxPedestrianRelaxingTimeTauAlpha = maxPedestrianRelaxingTimeTauAlpha;
+        this.expectedPedestrianRelaxingTimeTauAlpha = expectedPedestrianRelaxingTimeTauAlpha;
+        this.minPedestrianPreferredSpeed = minPedestrianPreferredSpeed;
+        this.maxPedestrianPreferredSpeed = maxPedestrianPreferredSpeed;
+        this.expectedPedestrianPreferredSpeed = expectedPedestrianPreferredSpeed;
     }
 
     /**
@@ -332,6 +437,45 @@ public class RoundaboutSimulationModel extends Model {
             timeBetweenCarArrivalsOnOneWayStreets = ModelFactory.getInstance(this).createContDistConstant(mainArrivalRateForOneWayStreets);
             timeBetweenCarArrivalsOnOneWayStreets.setSeed(simulationSeed);
         }
+
+
+        //////////////////////////////////////////////////////////////////
+        //Social Force Model Calculations:
+
+        // calculate the standard deviation (of skew normal distribution) for relaxing Time for walking pedestrian
+        final StandardDeviation relaxingTimeTauAlphaDeviation = StandardDeviation.calculate(
+                2.2-0.5, 2.2+0.5, 2.2, 0.1
+        );
+
+        relaxingTimeTauAlpha = new ContDistNormal(
+                this,
+                "relaxingTimeTauAlpha",
+                2.2,
+                relaxingTimeTauAlphaDeviation.getLeft(),
+                relaxingTimeTauAlphaDeviation.getRight(),
+                true,
+                false
+        );
+        relaxingTimeTauAlpha.setSeed(simulationSeed);
+
+
+        // calculate the standard deviation (of skew normal distribution) for the preferred Speed of Pedestrians (m/s)
+        final StandardDeviation preferredSpeedDeviation = StandardDeviation.calculate(
+                1.34-0.26, 1.34+0.26, 1.34, 0.01
+        );
+
+        preferredSpeed  = new ContDistNormal(
+                this,
+                "preferredSpeed",
+                1.34,
+                preferredSpeedDeviation.getLeft(),
+                preferredSpeedDeviation.getRight(),
+                true,
+                false
+        );
+        relaxingTimeTauAlpha.setSeed(simulationSeed);
+
+
     }
 
     /**
@@ -485,4 +629,21 @@ public class RoundaboutSimulationModel extends Model {
     public Double getStandardCarAccelerationTime() {
         return standardCarAccelerationTime;
     }
+
+
+    /////////////////////////////////////////////////////////////////////////////////////////////
+    //Social Force Model Calculations:
+    public Double getSFM_DegreeOfAccuracy () {return SFM_DegreeOfAccuracy;}
+
+    public Double getRandomPreferredSpeed () { //TODO COMMENT
+        return Math.max(Math.min(preferredSpeed.sample(), maxPedestrianPreferredSpeed), minPedestrianPreferredSpeed);
+    }
+
+    public Double getRandomRelaxingTimeTauAlpha () {
+        return Math.max(Math.min(relaxingTimeTauAlpha.sample(), maxPedestrianRelaxingTimeTauAlpha), minPedestrianRelaxingTimeTauAlpha);
+    }
+
+
+
+
 }

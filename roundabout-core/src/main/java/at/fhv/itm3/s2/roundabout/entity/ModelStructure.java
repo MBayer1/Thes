@@ -9,9 +9,9 @@ import java.util.*;
 public class ModelStructure implements IModelStructure {
     private final Model model;
     private Set<IStreetConnector> connectors;
-    private Set<IStreetConnector> pedestrianConnectors;
+    private Set<IPedestrianStreetConnector> pedestrianConnectors;
     private Map<AbstractSource, List<IRoute>> routes;
-    private Map<AbstractSource, List<IRoute>> pedestiranRoutes;
+    private Map<PedestrianAbstractSource, List<IPedestrianRoute>> pedestrianRoutes;
     private Set<Intersection> intersections;
     private Set<Street> streets;
     private Set<PedestrianStreet> pedestrianStreets;
@@ -29,12 +29,17 @@ public class ModelStructure implements IModelStructure {
     public ModelStructure(Model model, Map<String, String> parameters) {
         this.model = model;
         this.connectors = new HashSet<>();
+        this.pedestrianConnectors = new HashSet<>();
         this.routes = new HashMap<>();
+        this.pedestrianRoutes = new HashMap<>();
         this.intersections = new HashSet<>();
         this.streets = new HashSet<>();
+        this.pedestrianStreets = new HashSet<>();
         this.parameters = parameters;
         this.sources = new HashSet<>();
         this.sinks = new HashSet<>();
+        this.pedestrianSources = new HashSet<>();
+        this.pedestrianSinks = new HashSet<>();
         this.roundaboutInlets = new HashSet<>();
     }
 
@@ -50,7 +55,7 @@ public class ModelStructure implements IModelStructure {
      * {@inheritDoc}
      */
     @Override
-    public void addPedestrianStreetConnectors(Collection<? extends IStreetConnector> streetConnectors) {
+    public void addPedestrianStreetConnectors(Collection<? extends IPedestrianStreetConnector> streetConnectors) {
         this.pedestrianConnectors.addAll(streetConnectors);
     }
 
@@ -67,24 +72,28 @@ public class ModelStructure implements IModelStructure {
 
             routeList.add(route);
 
-            this.routes.put(route.getSource(), routeList);
+            if (route.getSource() instanceof AbstractSource)
+            this.routes.put((AbstractSource) route.getSource(), routeList);
         });
     }
+
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void addPedestrianRoutes(Collection<? extends IRoute> routes) {
+    public void addPedestrianRoutes(Collection<? extends IPedestrianRoute> routes) {
         routes.forEach(route -> {
-            List<IRoute> pedestrianRouteList = this.routes.get(route.getSource());
+            List<IPedestrianRoute> pedestrianRouteList = this.pedestrianRoutes.get(route.getSource());
             if (pedestrianRouteList == null) {
                 pedestrianRouteList = new ArrayList<>();
             }
 
             pedestrianRouteList.add(route);
 
-            this.pedestiranRoutes.put(route.getSource(), pedestrianRouteList);
+            if(!(route instanceof PedestrianRoute)) throw new IllegalArgumentException("route not instance of PedestrianRoute.");
+            if(!(route.getSource() instanceof  PedestrianAbstractSource)) throw new IllegalArgumentException("Source not instance of PedestrianAbstractSource");
+            this.pedestrianRoutes.put((PedestrianAbstractSource) route.getSource(), pedestrianRouteList);
         });
     }
 
@@ -172,7 +181,7 @@ public class ModelStructure implements IModelStructure {
      * {@inheritDoc}
      */
     @Override
-    public Set<IStreetConnector> getPedestrianStreetConnectors() {
+    public Set<IPedestrianStreetConnector> getPedestrianStreetConnectors() {
         return Collections.unmodifiableSet(pedestrianConnectors);
     }
 
@@ -180,8 +189,8 @@ public class ModelStructure implements IModelStructure {
      * {@inheritDoc}
      */
     @Override
-    public Map<AbstractSource, List<IRoute>> getPedestrianRoutes() {
-        return Collections.unmodifiableMap(pedestiranRoutes);
+    public Map<PedestrianAbstractSource, List<IPedestrianRoute>> getPedestrianRoutes() {
+        return Collections.unmodifiableMap(pedestrianRoutes);
     }
 
     /**

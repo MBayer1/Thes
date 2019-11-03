@@ -85,7 +85,7 @@ public class CarGenerateEventMock extends CarGenerateEvent {
     }
 
     public AbstractSource getSource() {
-        return routeGeneratorMock.getRoute(this.type).getSource();
+        return (AbstractSource) routeGeneratorMock.getRoute(this.type).getSource();
     }
 
     public IConsumer getSink() {

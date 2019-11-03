@@ -72,12 +72,15 @@ public class CarCouldLeaveSectionEvent extends Event<Street> {
             if (nextSection != null && nextSection instanceof StreetSection) {
                 roundaboutEventFactory.createCarCouldLeaveSectionEvent(roundaboutSimulationModel).schedule(
                     (StreetSection) nextSection,
-                    new TimeSpan((donorStreet.getFirstCar().getTimeToTraverseSection(nextSection)), roundaboutSimulationModel.getModelTimeUnit())
+                    new TimeSpan((donorStreet.getFirstCar().getTimeToTraverseSection(nextSection))
+                            , roundaboutSimulationModel.getModelTimeUnit())
                 );
                 donorStreet.moveFirstCarToNextSection();
             }  else if (nextSection != null && (nextSection instanceof RoundaboutSink || nextSection instanceof Intersection)) {
                 donorStreet.moveFirstCarToNextSection();
             }
+
+
 
             // if the current section is not empty, schedule a new CarCouldLeaveSectionEvent after the time the first
             // car in the section needs to move away from its current position (this time is depending on whether the

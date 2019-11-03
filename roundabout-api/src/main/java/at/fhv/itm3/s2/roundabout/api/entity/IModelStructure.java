@@ -22,9 +22,9 @@ public interface IModelStructure {
      * Add a collection of street connectors for pedestrians-street for the structure.
      * Structure setup needs to be done before.
      *
-     * @param streetConnector street connectors to be added
+     * @param {@Link IPedestrianStreetConnector} street connectors to be added
      */
-    void addPedestrianStreetConnectors(Collection<? extends IStreetConnector> streetConnector);
+    void addPedestrianStreetConnectors(Collection<? extends IPedestrianStreetConnector> pedestrianStreetConnector);
 
     /**
      * Add a collection of routes for vehicle to the structure.
@@ -40,7 +40,7 @@ public interface IModelStructure {
      *
      * @param routes routes to be added
      */
-    void addPedestrianRoutes(Collection<? extends IRoute> routes);
+    void addPedestrianRoutes(Collection<? extends IPedestrianRoute> routes);
 
     /**
      * Add a collection of intersections to the structure.
@@ -116,7 +116,7 @@ public interface IModelStructure {
      *
      * @return street connectors of structure
      */
-    Set<IStreetConnector> getPedestrianStreetConnectors();
+    Set<IPedestrianStreetConnector> getPedestrianStreetConnectors();
 
     /**
      * Get all vehicle-routes of the structure.
@@ -130,7 +130,7 @@ public interface IModelStructure {
      *
      * @return routes of structure
      */
-    Map<AbstractSource, List<IRoute>> getPedestrianRoutes();
+    Map<PedestrianAbstractSource, List<IPedestrianRoute>> getPedestrianRoutes();
 
     /**
      * Get all vehicle-intersections of the structure.

@@ -26,71 +26,72 @@ public class StreetSection extends Street {
     private final LinkedList<ICar> carQueue;
     private final Map<ICar, Double> carPositions;
 
+    private final PedestrianStreet pedestrianCrossing;
+
     private IStreetConnector nextStreetConnector;
     private IStreetConnector previousStreetConnector;
 
     private IntersectionController intersectionController;
 
-    private Double pedestrianCrossingWidth;
 
     public StreetSection(
-        double length,
-        Model model,
-        String modelDescription,
-        boolean showInTrace
+            double length,
+            Model model,
+            String modelDescription,
+            boolean showInTrace
     ) {
         this(UUID.randomUUID().toString(), length, model, modelDescription, showInTrace);
     }
 
     public StreetSection(
-        String id,
-        double length,
-        Model model,
-        String modelDescription,
-        boolean showInTrace
+            String id,
+            double length,
+            Model model,
+            String modelDescription,
+            boolean showInTrace
     ) {
         this(
-            id, length, model, modelDescription, showInTrace,
-            false, null, null, null, 0.0
+                id, length, model, modelDescription, showInTrace,
+                false, null, null, null, null
         );
     }
 
     public StreetSection(
-        double length,
-        Model model,
-        String modelDescription,
-        boolean showInTrace,
-        boolean trafficLightActive,
-        Long greenPhaseDuration,
-        Long redPhaseDuration
+            double length,
+            Model model,
+            String modelDescription,
+            boolean showInTrace,
+            boolean trafficLightActive,
+            Long greenPhaseDuration,
+            Long redPhaseDuration
     ) {
         this(
-            UUID.randomUUID().toString(), length, model, modelDescription, showInTrace,
-            trafficLightActive, null, greenPhaseDuration, redPhaseDuration, 0.0
+                UUID.randomUUID().toString(), length, model, modelDescription, showInTrace,
+                trafficLightActive, null, greenPhaseDuration, redPhaseDuration, null
         );
     }
 
     public StreetSection(
-        String id,
-        double length,
-        Model model,
-        String modelDescription,
-        boolean showInTrace,
-        boolean trafficLightActive,
-        Long minGreenPhaseDuration,
-        Long greenPhaseDuration,
-        Long redPhaseDuration,
-        Double pedestrianCrossingWidth
+            String id,
+            double length,
+            Model model,
+            String modelDescription,
+            boolean showInTrace,
+            boolean trafficLightActive,
+            Long minGreenPhaseDuration,
+            Long greenPhaseDuration,
+            Long redPhaseDuration,
+            PedestrianStreet pedestrianCrossing
     ) {
         super(
-            id,
-            model,
-            modelDescription,
-            showInTrace,
-            trafficLightActive,
-            minGreenPhaseDuration,
-            greenPhaseDuration,
-            redPhaseDuration
+                id,
+                model,
+                modelDescription,
+                showInTrace,
+                trafficLightActive,
+                minGreenPhaseDuration,
+                greenPhaseDuration,
+                redPhaseDuration
         );
 
         this.length = length;
@@ -98,12 +99,12 @@ public class StreetSection extends Street {
         this.carQueue = new LinkedList<>();
         this.carPositions = new HashMap<>();
         this.intersectionController = IntersectionController.getInstance();
-        this.pedestrianCrossingWidth = pedestrianCrossingWidth;
+        this.pedestrianCrossing = pedestrianCrossing;
 
         if(this.isTrafficLightActive() && !this.isTrafficLightTriggeredByJam()) {
             RoundaboutEventFactory.getInstance().createToggleTrafficLightStateEvent(getRoundaboutModel()).schedule(
-                this,
-                new TimeSpan(greenPhaseDuration)
+                    this,
+                    new TimeSpan(greenPhaseDuration)
             );
         }
     }
@@ -179,8 +180,8 @@ public class StreetSection extends Street {
                     if (!streetSectionNext.isEmpty() && isWaitingTimeBiggerThanJamIndicator && isActualGreenPhaseBiggerThanMin) {
                         // trigger red
                         RoundaboutEventFactory.getInstance().createToggleTrafficLightStateEvent(getRoundaboutModel()).schedule(
-                            this,
-                            new TimeSpan(0, getRoundaboutModel().getModelTimeUnit())
+                                this,
+                                new TimeSpan(0, getRoundaboutModel().getModelTimeUnit())
                         );
                     }
                 }
@@ -228,7 +229,7 @@ public class StreetSection extends Street {
      */
     @Override
     public List<ICar> getCarQueue()
-    throws IllegalStateException {
+            throws IllegalStateException {
         if (carQueue == null) {
             throw new IllegalStateException("carQueue in section cannot be null");
         }
@@ -305,33 +306,28 @@ public class StreetSection extends Street {
 
                 // Calculate distance to next car / end of street section based on distributed driver behaviour values.
                 final double distanceToNextCar = calculateDistanceToNextCar(
-                    carDriverBehaviour.getMinDistanceToNextCar(),
-                    carDriverBehaviour.getMaxDistanceToNextCar(),
-                    getRoundaboutModel().getRandomDistanceFactorBetweenCars()
+                        carDriverBehaviour.getMinDistanceToNextCar(),
+                        carDriverBehaviour.getMaxDistanceToNextCar(),
+                        getRoundaboutModel().getRandomDistanceFactorBetweenCars()
                 );
 
                 // Calculate possible car positions.
                 final double maxTheoreticallyPossiblePositionValue = calculateMaxPossibleCarPosition(
-                    getLength(),
-                    distanceToNextCar,
-                    getCarPosition(previousCar),
-                    previousCar
+                        getLength(),
+                        distanceToNextCar,
+                        getCarPosition(previousCar),
+                        previousCar
                 );
 
-
-                // if a pedestrian crossing has to be crossed too this time has to be added.
-                // It is not handled as a vehicle street section as a vehicle is not allowed to stand on it.
-                final double maxActuallyPossiblePositionValue = carPosition - getPedestrianCrossingWidth() +
-                        (currentTime - carLastUpdateTime) * carSpeed;
-
+                final double maxActuallyPossiblePositionValue = carPosition + (currentTime - carLastUpdateTime) * carSpeed;
 
                 // Select the new RoundaboutCar position based on previous calculations.
                 double newCarPosition = Math.min(
-                    maxTheoreticallyPossiblePositionValue,
-                    maxActuallyPossiblePositionValue
+                        maxTheoreticallyPossiblePositionValue,
+                        maxActuallyPossiblePositionValue
                 );
 
-                if (newCarPosition < carPosition) {  //this considers also when vehicle would stop on pedestrian crossing (maxActuallyPossiblePositionValue < 0)
+                if (newCarPosition < carPosition) {
                     newCarPosition = carPosition;
                     currentTimeLastMovement =  getModel().getExperiment().getSimClock().getTime().getTimeAsDouble();
                     currentWaitingTime = 0; //reset
@@ -342,10 +338,10 @@ public class StreetSection extends Street {
                 if (carPosition == newCarPosition && !currentCar.isWaiting()) {
                     currentCar.startWaiting();
                 } else if (
-                    (carPosition != newCarPosition || carPosition == currentCar.getLength())
-                    && currentCar.isWaiting()
-                    && newCarPosition - carPosition > currentCar.getLength()
-                ) {
+                        (carPosition != newCarPosition || carPosition == currentCar.getLength())
+                                && currentCar.isWaiting()
+                                && newCarPosition - carPosition > currentCar.getLength()
+                        ) {
                     currentCar.stopWaiting();
                 }
 
@@ -406,9 +402,9 @@ public class StreetSection extends Street {
                                 // case 1: car is in the roundabout and wants to remain on the track
                                 // (it has precedence)
                                 case ROUNDABOUT_SECTION:
-                                // case 2: car is on a normal street section and wants to remain on the track
+                                    // case 2: car is on a normal street section and wants to remain on the track
                                 case STREET_SECTION:
-                                // case 3: car is on a roundabout exit and wants to remain on the track
+                                    // case 3: car is on a roundabout exit and wants to remain on the track
                                 case ROUNDABOUT_EXIT:
                                     return true;
                                 // case 4: car wants to enter the roundabout from an inlet
@@ -436,8 +432,8 @@ public class StreetSection extends Street {
                                 // case 5: car wants to change the track in the roundabout exit
                                 // (it has to give precedence to a car on that track)
                                 case ROUNDABOUT_EXIT:
-                                // case 6: car wants to change the track on a streetsection
-                                // (it has to give precedence to a car on that track)
+                                    // case 6: car wants to change the track on a streetsection
+                                    // (it has to give precedence to a car on that track)
                                 case STREET_SECTION:
                                     List<IConsumer> streetsThatHavePrecedence = nextConnector.getPreviousTrackConsumers(nextStreet, currentConsumerType);
                                     for (IConsumer precedenceSection: streetsThatHavePrecedence) {
@@ -562,7 +558,7 @@ public class StreetSection extends Street {
      */
     @Override
     public void moveFirstCarToNextSection()
-    throws IllegalStateException {
+            throws IllegalStateException {
         ICar firstCar = removeFirstCar();
         if (firstCar != null) {
             if (!Objects.equals(firstCar.getCurrentSection(), firstCar.getDestination())) {
@@ -622,22 +618,20 @@ public class StreetSection extends Street {
         return getLength();
     }
 
-    Double getPedestrianCrossingWidth(){ return pedestrianCrossingWidth;}
-
     private static double calculateDistanceToNextCar(
-        double carMinDistanceToNextCar,
-        double carMaxDistanceToNextCar,
-        double randomDistanceFactorBetweenCars
+            double carMinDistanceToNextCar,
+            double carMaxDistanceToNextCar,
+            double randomDistanceFactorBetweenCars
     ) {
         final double carVariationDistanceToNextCar = carMaxDistanceToNextCar - carMinDistanceToNextCar;
         return carMinDistanceToNextCar + carVariationDistanceToNextCar * randomDistanceFactorBetweenCars;
     }
 
     private static double calculateMaxPossibleCarPosition(
-        double lengthInMeters,
-        double distanceToNextCar,
-        double previousCarPosition,
-        ICar previousCar
+            double lengthInMeters,
+            double distanceToNextCar,
+            double previousCarPosition,
+            ICar previousCar
     ) {
         if (previousCar != null) {
             return previousCarPosition - previousCar.getLength() - distanceToNextCar;
@@ -663,7 +657,7 @@ public class StreetSection extends Street {
             addCar(iCar);
             double traverseTime = iCar.getTimeToTraverseCurrentSection();
             CarCouldLeaveSectionEvent carCouldLeaveSectionEvent = RoundaboutEventFactory.getInstance().createCarCouldLeaveSectionEvent(
-                getRoundaboutModel()
+                    getRoundaboutModel()
             );
             carCouldLeaveSectionEvent.schedule(this, new TimeSpan(traverseTime, getRoundaboutModel().getModelTimeUnit()));
         } else {
@@ -713,5 +707,35 @@ public class StreetSection extends Street {
     @Override
     public DTO toDTO() {
         return null;
+    }
+
+
+    /**
+     * Returns whether there is a pedestrian crossing or not.
+     *
+     * @return true when there is a pedestrian crossing, false when not.
+     */
+    public Boolean doesHavePedestrianCrossing(){
+        return pedestrianCrossing != null;
+    }
+
+    /**
+     * Returns pedestrian crossing {@link PedestrianStreet}
+     * to add it's width to the travers time of the vehicle reach next section.
+     *
+     * @return pedestrian crossing {@Link PedestrianStreet}.
+     */
+    public PedestrianStreet getPedestrianCrossing(){
+        return pedestrianCrossing;
+    }
+
+    /**
+     * Returns width of pedestrian crossing to add it for time a vehicle takes for crossing section
+     * A vehicle can not stop on such a section
+     *
+     * @return width of pedestrian crossing {@Link double}.
+     */
+    public double getPedestrianCrossingWidth(){
+        return this.doesHavePedestrianCrossing() ? this.getPedestrianCrossing().getWidth() : 0.0;
     }
 }

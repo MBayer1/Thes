@@ -38,7 +38,8 @@ public class NoOtherCarsStreetIntegration {
         RouteGeneratorMock routeGeneratorMock = new RouteGeneratorMock(model);
 
         IRoute route = routeGeneratorMock.getRoute(RouteType.TWO_STREETSECTIONS_ONE_CAR);
-        AbstractSource source = route.getSource();
+        if(!(route.getSource() instanceof AbstractSource)) throw new IllegalArgumentException("Type mismatch");
+        AbstractSource source = (AbstractSource) route.getSource();
 
         source.startGeneratingCars(0.0);
 

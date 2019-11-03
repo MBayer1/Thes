@@ -23,9 +23,11 @@
         <parameter name="PEDESTRIAN_MIN_ARRIVAL_RATE" value="0.1"/>
         <parameter name="PEDESTRIAN_MAX_ARRIVAL_RATE" value="1"/>
         <parameter name="PEDESTRIAN_MIN_GROUPE_SIZE" value="2"/>
-        <parameter name="PEDESTRIAN_MAX_GROUPE_SIZE" value="30"/>
-        <parameter name="PEDESTRIAN_MIN_STREET_LENGTH" value="1"/>
-        <parameter name="PEDESTRIAN_MIN_STREET_WIDTH" value="1"/>
+        <parameter name="PEDESTRIAN_MAX_GROUPE_SIZE" value="30"/> //persons
+        <parameter name="PEDESTRIAN_MIN_STREET_LENGTH" value="2"/>
+        <parameter name="PEDESTRIAN_MIN_STREET_WIDTH" value="2"/> //in meter
+
+        <parameter name="SFM_DEGREE_OF_ACCURACY" value="10e-8"/>
 
     </parameters>
     <components>
@@ -41,22 +43,47 @@
             </sinks>
 
             <sections>
-                <section id="pc1" length="5.0" width="8.0" isPedestrianCrossing="true"/>
+                <section id="pc1" length="50.0" width="80.0" pedestrianSectionType="PEDESTRIAN_CROSSING"/> <!-- In cm-->
             </sections>
+            <connectors>
+                <connectorPedestrian id="pco_1">
+                    <pedestiranTrack fromSectionId="pso1" fromSectionType="PEDESTRIAN_CROSSING"
+                                     fromXPortPositionStart="0.0" fromYPortPositionStart="0.0"
+                                     fromXPortPositionEnd="50.0" fromYPortPositionEnd="50.0"
+                                     toSectionId="pc1" toSectionType="PEDESTRIAN_STREET_SECTION"
+                                     toXPortPositionStart="0.0" toYPortPositionStart="0.0"
+                                     toXPortPositionEnd="50.0" toYPortPositionEnd="50.0" />
+                </connectorPedestrian>
+                <connectorPedestrian id="pco_2">
+                    <pedestiranTrack fromSectionId="pso2" fromSectionType="PEDESTRIAN_CROSSING"
+                                     fromXPortPositionStart="0.0" fromYPortPositionStart="0.0"
+                                     fromXPortPositionEnd="50.0" fromYPortPositionEnd="50.0"
+                                     toSectionId="pc1" toSectionType="PEDESTRIAN_STREET_SECTION"
+                                     toXPortPositionStart="0.0" toYPortPositionStart="0.0"
+                                     toXPortPositionEnd="50.0" toYPortPositionEnd="50.0" />
+                </connectorPedestrian>
+                <connectorPedestrian id="pco_1">
+                    <pedestiranTrack fromSectionId="pc1" fromSectionType="PEDESTRIAN_CROSSING"
+                                     fromXPortPositionStart="0.0" fromYPortPositionStart="0.0"
+                                     fromXPortPositionEnd="50.0" fromYPortPositionEnd="50.0"
+                                     toSectionId="psk1" toSectionType="PEDESTRIAN_STREET_SECTION"
+                                     toXPortPositionStart="0.0" toYPortPositionStart="0.0"
+                                     toXPortPositionEnd="50.0" toYPortPositionEnd="50.0" />
+                </connectorPedestrian>
+                <connectorPedestrian id="pco_2">
+                    <pedestiranTrack fromSectionId="pc1" fromSectionType="PEDESTRIAN_CROSSING"
+                                     fromXPortPositionStart="0.0" fromYPortPositionStart="0.0"
+                                     fromXPortPositionEnd="50.0" fromYPortPositionEnd="50.0"
+                                     toSectionId="psk2" toSectionType="PEDESTRIAN_STREET_SECTION"
+                                     toXPortPositionStart="0.0" toYPortPositionStart="0.0"
+                                     toXPortPositionEnd="50.0" toYPortPositionEnd="50.0" />
+                </connectorPedestrian>
+            </connectors>
+            <pedestrianRoutes>
+                <route fromComponentId="p1" fromSourceId="pso1" toComponentId="p1" toSinkId="psk2" ratio="1.0"/>
+                <route fromComponentId="p1" fromSourceId="pso2" toComponentId="p1" toSinkId="psk1" ratio="1.0"/>
+            </pedestrianRoutes>
         </component>
-        <connectors>
-            <connectorPedestrian id="pco_1">
-                <track fromSectionId="pc1" fromSectionType="PEDESTRIAN_CROSSING" toSectionId="psk1" toSectionType="PEDESTRIAN_EXIT"
-                       xPositionStart="0.0" yPositionStart="0.0"
-                       xPositionEnd="5.0" yPositionEnd="5.0" />
-            </connectorPedestrian>
-            <connectorPedestrian id="pco_2">
-                <track fromSectionId="pc1" fromSectionType="PEDESTRIAN_CROSSING" toSectionId="psk2" toSectionType="PEDESTRIAN_EXIT"
-                       xPositionStart="0.0" yPositionStart="0.0"
-                       xPositionEnd="5.0" yPositionEnd="5.0" />
-            </connectorPedestrian>
-        </connectors>
-
 
         <component id="ro1" type="ROUNDABOUT" name="Kreisverkehr Dornbirn Süd">
             <sources>
@@ -261,8 +288,8 @@
                 <section id="s5_t2" length="106.36"/>
                 <section id="s5_t3" length="106.36"/>
 
-                <section id="s6_t1" length="110.45" pedestrianCrossingComponentIDReference="ro1" pedestrianCrossingIDReference="pc1"/>
-                <section id="s6_t2" length="110.45" pedestrianCrossingComponentIDReference="ro1" pedestrianCrossingIDReference="pc1"/>
+                <section id="s6_t1" length="110.45" pedestrianCrossingComponentIDRef="p1" pedestrianCrossingIDRef="pc1"/>
+                <section id="s6_t2" length="110.45" pedestrianCrossingComponentIDRef="p1" pedestrianCrossingIDRef="pc1"/>
 
             </sections>
             <connectors>
@@ -346,4 +373,7 @@
             <route fromComponentId="ro1" fromSourceId="so_s18_t1" toComponentId="ro1" toSinkId="sk_s13_t1" ratio="0.333"/>
         </routes>
     </components>
+    <streetNeighbours>
+        <neighbour ComponentId1="is1" StreetId1="s6_t1" ComponentId2="is1" StreetId2="s6_t2"/>
+    </streetNeighbours>
 </model>

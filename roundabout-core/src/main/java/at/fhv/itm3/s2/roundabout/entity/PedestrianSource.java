@@ -15,9 +15,7 @@ public class PedestrianSource extends PedestrianAbstractSource {
     private PedestrianStreet connectedStreet;
     private RoundaboutSimulationModel model;
     protected RoundaboutEventFactory roundaboutEventFactory;
-    private double generateRatio,
-            xPositionStart, yPositionStart,
-            xPositionEnd, yPositionEnd;
+    private double generateRatio;
 
     public PedestrianSource(Model model, String description, boolean showInTrace, PedestrianStreet connectedStreet) {
         this(UUID.randomUUID().toString(), null, model, description, showInTrace, connectedStreet);
@@ -29,10 +27,6 @@ public class PedestrianSource extends PedestrianAbstractSource {
         super(id, generatorExpectation, model, description, showInTrace);
         this.connectedStreet = connectedStreet;
         this.roundaboutEventFactory = RoundaboutEventFactory.getInstance();
-        this.addXPositonStart(xPositionStart);
-        this.addXPositonEnd(xPositionEnd);
-        this.addYPositonStart(yPositionStart);
-        this.addYPositonEnd(yPositionEnd);
 
         if (model instanceof RoundaboutSimulationModel) {
             this.model = (RoundaboutSimulationModel)model;
@@ -59,44 +53,12 @@ public class PedestrianSource extends PedestrianAbstractSource {
     }
 
 
-    public double getXPositionStart() {
-        return this.xPositionStart;
-    }
-
-    public void addXPositonStart(Double xPositionStart) {
-        this.xPositionStart = xPositionStart;
-    }
-
-    public double getXPositionEnd() {
-        return this.xPositionEnd;
-    }
-
-    public void addXPositonEnd(Double xPositionEnd) {
-        this.xPositionEnd = xPositionEnd;
-    }
-
-    public double getYPositionStart() {
-        return this.yPositionStart;
-    }
-
-    public void addYPositonStart(Double yPositionStart) {
-        this.yPositionStart = yPositionStart;
-    }
-
-    public double getYPositionEnd() {
-        return this.yPositionEnd;
-    }
-
-    public void addYPositonEnd(Double yPositionEnd) {
-        this.yPositionEnd += yPositionEnd;
-    }
-
     /**
      * needed for integration in to the very first basis framework
      */
     @Override
     public void carDelivered(CarDepartureEvent carDepartureEvent, Car car, boolean successful) {
-        return;
+
     }
 
     /**

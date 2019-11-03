@@ -39,7 +39,7 @@ public class IntersectionIntegration {
         RouteGeneratorMock routeGeneratorMock = new RouteGeneratorMock(model);
 
         IRoute route = routeGeneratorMock.getRoute(RouteType.STREETSECTION_INTERSECTION_STREETSECTION_TWO_CARS);
-        AbstractSource source = route.getSource();
+        AbstractSource source = (AbstractSource) route.getSource();
         RoundaboutIntersection intersection = (RoundaboutIntersection)route.getSectionAt(1);
         intersection.getController().start();
 

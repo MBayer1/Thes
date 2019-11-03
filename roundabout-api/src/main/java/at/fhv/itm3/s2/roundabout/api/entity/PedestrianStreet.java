@@ -101,7 +101,7 @@ public abstract class PedestrianStreet extends AbstractProSumer implements IPede
         this.trafficLightObserver = new RoundaboutObservable();
 
         addObserver(
-            ObserverType.CAR_LOST,
+            ObserverType.PEDESTRIAN_LOST,
             (o, arg) ->  System.out.println(String.format("Street \"%s\" pedestrians lost: %s", id, arg))
         );
     }
@@ -173,7 +173,7 @@ public abstract class PedestrianStreet extends AbstractProSumer implements IPede
      *
      * @return The length in meters.
      */
-    public abstract double getLength();
+    public abstract double getLength( );
 
     /**
      * Gets physical width of the street section.
@@ -182,12 +182,29 @@ public abstract class PedestrianStreet extends AbstractProSumer implements IPede
      */
     public abstract double getWidth();
 
+
+    /**
+     * Get type of PedestrianStreetSection
+     *
+     * @return type of PedestrianStreetSection as {@PedestrianConsumerType}.
+     */
+    public abstract PedestrianConsumerType getPedestrianConsumerType();
+
+
+    /**
+     * When true border of PedestrianStreet can be overstepped
+     *
+     * @return The width in meters.
+     */
+    public abstract boolean isPedestrianCrossing();
+
     /**
      * Adds a new pedestrian to the street section.
      *
-     * @param pedestrian The pedestrian to add.
+     * @param iPedestrian The pedestrian to add.
+     * @param position location where pedestrians stands
      */
-    public abstract void addPedestrian(IPedestrian pedestrian);
+    public abstract void addPedestrian(IPedestrian iPedestrian, Point position);
 
     /**
      * Adds a new circularly obstical on current {@link PedestrianStreet}
@@ -195,7 +212,7 @@ public abstract class PedestrianStreet extends AbstractProSumer implements IPede
      * @param radius radius of the circularly optical The pedestrian to add.
      * @param midPoint coordinates of the circle center
      */
-    public abstract void addObsticalCircle(double radius, Point midPoint);
+    public abstract void addCircularObstacle(double radius, Point midPoint);
 
 
     /**
@@ -203,7 +220,7 @@ public abstract class PedestrianStreet extends AbstractProSumer implements IPede
      *
      * @param cornerPoints list of corner coordinates of the obstical in the according Order to another.
      */
-    public abstract void addObsticalPolygone( List<Point> cornerPoints);
+    public abstract void addPolygonObstacle( List<Point> cornerPoints);
 
 
     /**
@@ -220,7 +237,7 @@ public abstract class PedestrianStreet extends AbstractProSumer implements IPede
      *
      * @return removed pedestrian.
      */
-    public abstract void removePedestrian(IPedestrian iPedestrian); //TODO
+    public abstract void removePedestrian(IPedestrian iPedestrian);
 
     /**
      * Checks if the street section is empty.
@@ -232,37 +249,37 @@ public abstract class PedestrianStreet extends AbstractProSumer implements IPede
     /**
      * Gets the next street connector if available.
      *
-     * @return reference to next {@link IStreetConnector}.
+     * @return reference to next {@link IPedestrianStreetConnector}.
      */
-    public abstract IStreetConnector getNextStreetConnector();
+    public abstract IPedestrianStreetConnector getNextStreetConnector();
 
     /**
      * Gets the previous street connector if available.
      *
-     * @return reference to previous {@link IStreetConnector}.
+     * @return reference to previous {@link IPedestrianStreetConnector}.
      */
-    public abstract IStreetConnector getPreviousStreetConnector();
+    public abstract IPedestrianStreetConnector getPreviousStreetConnector();
 
     /**
      * Sets the previous street connector
      *
      * @param previousStreetConnector street connector to be set
      */
-    public abstract void setPreviousStreetConnector(IStreetConnector previousStreetConnector);
+    public abstract void setPreviousStreetConnector(IPedestrianStreetConnector previousStreetConnector);
 
     /**
      *  Sets the next street connector
      *
      * @param nextStreetConnector street connector to be set
      */
-    public abstract void setNextStreetConnector(IStreetConnector nextStreetConnector);
+    public abstract void setNextStreetConnector(IPedestrianStreetConnector nextStreetConnector);
 
     /**
      * Gets all pedestrian positions of the street section.
      *
      * @return unmodifiable map of pedestrian positions.
      */
-    public abstract Map<IPedestrian, Point> getPedestrianPositions(IPedestrian iPedestrian); //  TODO
+    public abstract Point getPedestrianPosition (IPedestrian iPedestrian);
 
     /**
      * Returns if traffic light at end of the street is active or not.
