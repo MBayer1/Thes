@@ -4,10 +4,7 @@ import at.fhv.itm14.trafsim.model.entities.AbstractProSumer;
 import at.fhv.itm14.trafsim.model.entities.Car;
 import at.fhv.itm14.trafsim.model.entities.IConsumer;
 import at.fhv.itm14.trafsim.statistics.StopWatch;
-import at.fhv.itm3.s2.roundabout.api.entity.IPedestrian;
-import at.fhv.itm3.s2.roundabout.api.entity.IPedestrianBehaviour;
-import at.fhv.itm3.s2.roundabout.api.entity.IRoute;
-import at.fhv.itm3.s2.roundabout.api.entity.PedestrianStreet;
+import at.fhv.itm3.s2.roundabout.api.entity.*;
 import at.fhv.itm3.s2.roundabout.model.RoundaboutSimulationModel;
 import at.fhv.itm3.s2.roundabout.util.dto.PedestrianConnector;
 import desmoj.core.simulator.Model;
@@ -25,9 +22,9 @@ public class Pedestrian implements IPedestrian {
     private final Point currentPosition;
     private final Double preferredSpeed;
     private final Double maxPreferredSpeed;
-    private final IRoute route;
+    private final IPedestrianRoute route;
     private final IPedestrianBehaviour pedestrianBehaviour;
-    private final Iterator<IConsumer> routeIterator;
+    private final Iterator<PedestrianStreetSectionPortPair > routeIterator;
     private final StopWatch pedestrianStopWatch;
     private final Count pedestrianCounter;
     private final Tally pedestrianAreaTime;
@@ -37,20 +34,20 @@ public class Pedestrian implements IPedestrian {
 
     private double lastUpdateTime;
 
-    private IConsumer lastSection;
-    private IConsumer currentSection;
-    private IConsumer nextSection;
-    private IConsumer sectionAfterNextSection;
+    private PedestrianStreetSection lastSection;
+    private PedestrianStreetSectionPortPair currentSection;
+    private PedestrianStreetSectionPortPair nextSection;
+    private PedestrianStreetSectionPortPair sectionAfterNextSection;
     private Double currentSpeed;
     private Double walkedDistance;
     private double timeRelatedParameterFactorForSpeedCalculation;
 
-    public Pedestrian(Model model, Point currentPosition, IPedestrianBehaviour pedestrianBehaviour, IRoute route){
+    public Pedestrian(Model model, Point currentPosition, IPedestrianBehaviour pedestrianBehaviour, IPedestrianRoute  route){
         this(model, currentPosition, pedestrianBehaviour, route, 1.0);
     }
 
 
-    public Pedestrian(Model model, Point currentPosition, IPedestrianBehaviour pedestrianBehaviour, IRoute route,
+    public Pedestrian(Model model, Point currentPosition, IPedestrianBehaviour pedestrianBehaviour, IPedestrianRoute route,
                       double timeRelatedParameterFactorForSpeedCalculation)
             throws IllegalArgumentException {
 
@@ -160,7 +157,7 @@ public class Pedestrian implements IPedestrian {
      * {@inheritDoc}
      */
     @Override
-    public IRoute getRoute() {
+    public IPedestrianRoute getRoute() {
         return route;
     }
 
@@ -169,7 +166,7 @@ public class Pedestrian implements IPedestrian {
      * {@inheritDoc}
      */
     @Override
-    public IConsumer getCurrentSection() {
+    public PedestrianStreetSectionPortPair getCurrentSection() {
         return currentSection;
     }
 
@@ -177,7 +174,7 @@ public class Pedestrian implements IPedestrian {
      * {@inheritDoc}
      */
     @Override
-    public IConsumer getNextSection() {
+    public PedestrianStreetSectionPortPair getNextSection() {
         return nextSection;
     }
 
@@ -185,7 +182,7 @@ public class Pedestrian implements IPedestrian {
      * {@inheritDoc}
      */
     @Override
-    public IConsumer getSectionAfterNextSection() {
+    public PedestrianStreetSectionPortPair getSectionAfterNextSection() {
         return sectionAfterNextSection;
     }
 
@@ -195,7 +192,7 @@ public class Pedestrian implements IPedestrian {
      * {@inheritDoc}
      */
     @Override
-    public IConsumer getDestination() {
+    public PedestrianStreetSectionPortPair getDestination() {
         return route.getDestinationSection();
     }
 
@@ -208,7 +205,7 @@ public class Pedestrian implements IPedestrian {
         }
     }
 
-    private IConsumer retrieveNextRouteSection() {
+    private PedestrianStreetSectionPortPair retrieveNextRouteSection() {
         return routeIterator.hasNext() ? routeIterator.next() : null;
     }
 
@@ -338,31 +335,40 @@ public class Pedestrian implements IPedestrian {
 
     public void updateWalkedDistance( double distance){ this.walkedDistance += distance; }
 
-    public Vector2d getVectorToDestination(){
 
 
-    }
 
     private Vector2d calculateDestinationVector(){
-        if(!(route.getStartSection() instanceof PedestrianStreetSection)) throw new IllegalArgumentException("Type mismatch.");
-        PedestrianStreetSection streetSection = (PedestrianStreetSection) route.getStartSection();
+        boolean skipSection = true;
+        Point destinationPos = new Point(currentPosition.x * -1,currentPosition.y *-1); //negative to set the current position as center (0/0)
 
-        Vector2d enterCoordinates = new Vector2d();
-        Vector2d currentPositionVector = new Vector2d(getCurrentPosition().getX(), getCurrentPosition().getY());
+        for(PedestrianStreetSectionPortPair routeData : route.getRoute()){
+            if (!skipSection){
+                // set enter Port of next Section as 0/0 and then add the exit Port
+                destinationPos.setLocation( destinationPos.getX() - routeData.getEnterPort().getBeginOfStreetPort().getX() +
+                                routeData.getEnterPort().getBeginOfStreetPort().getX(),
+                        destinationPos.getY() - routeData.getEnterPort().getBeginOfStreetPort().getY()+
+                                routeData.getEnterPort().getBeginOfStreetPort().getY());
 
-        PedestrianConnector Connector =
+            }
 
-        while(!(streetSection instanceof PedestrianSink)) {
-            getRoundaboutModel().
+            //get to current Street Section
+            if (routeData == currentSection){
+                skipSection = false;
 
-
+                // get to exit Port of current Section
+                destinationPos.setLocation( destinationPos.getX() + routeData.getExitPort().getBeginOfStreetPort().getX(),
+                        destinationPos.getY() + routeData.getExitPort().getBeginOfStreetPort().getY());
+            }
         }
 
+        return new Vector2d(destinationPos.getX(), destinationPos.getY());
     }
 
     public void updateDestinationVector(){
-
+// TODO
     }
+
 
     /**
      * {@inheritDoc}

@@ -60,40 +60,41 @@ public interface IPedestrian {
     /**
      * Returns predefined pedestrian route.
      *
-     * @return pedestrian route in form of {@link IRoute}.
+     * @return pedestrian route in form of {@link IPedestrianRoute}.
      */
-    IRoute getRoute();
+    IPedestrianRoute getRoute();
 
     /**
-     * Return a reference to a current {@link Street} present in pedestrian route,
+     * Return a reference to a current {@link PedestrianStreet} present in pedestrian route,
      * where pedestrian currently belongs to.
      *
-     * @return reference to {@link Street} where pedestrian is currently located.
+     * @return reference to {@link PedestrianStreet} where pedestrian is currently located.
      */
-    IConsumer getCurrentSection();
+    PedestrianStreetSectionPortPair getCurrentSection();
 
     /**
-     * Returns reference to the next {@link Street} scheduled
+     * Returns reference to the next {@link PedestrianStreet} scheduled
      * in pedestrian pre-calculated route.
      *
-     * @return reference to next {@link Street}.
+     * @return reference to next {@link PedestrianStreet}.
      */
-    IConsumer getNextSection();
+    PedestrianStreetSectionPortPair getNextSection();
 
     /**
-     * Returns reference to the section after the next {@link IConsumer} scheduled
+     * Returns reference to the section after the next {@link PedestrianStreetSectionPortPair} scheduled
      * in pedestrian pre-calculated route.
      *
-     * @return  reference to section after next {@link IConsumer}
+     * @return  reference to section after next {@link PedestrianStreetSectionPortPair}
      */
-    IConsumer getSectionAfterNextSection();
+    PedestrianStreetSectionPortPair getSectionAfterNextSection();
 
     /**
      * Return the last available section specified in pedestrian route.
      *
-     * @return reference to last instance of {@link Street} in route.
+     * @return reference to last instance of {@link PedestrianStreet} in route.
      */
-    IConsumer getDestination();
+    PedestrianStreetSectionPortPair getDestination();
+
 
     /**
      * Used for statistical values. Starts a stopwatch to determine the

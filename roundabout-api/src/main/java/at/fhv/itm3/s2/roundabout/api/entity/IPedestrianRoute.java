@@ -15,31 +15,31 @@ public interface IPedestrianRoute {
     Collection<PedestrianStreetSectionPortPair> getRoute();
 
     /**
-     * Returns an {@link Street} at the given index of the route.
+     * Returns an {@link PedestrianStreetSectionPortPair} at the given index of the route.
      *
-     * @param index the index the {@link Street} should be returned from the route.
+     * @param index the index the {@link PedestrianStreetSectionPortPair} should be returned from the route.
      * @return an {@link Street} located at given index.
      */
-    IConsumer getSectionAt(int index);
+    PedestrianStreetSectionPortPair getSectionAt(int index);
 
     /**
-     * Returns a start {@link Street} of the route.
+     * Returns a start {@link PedestrianStreetSectionPortPair} of the route.
      *
-     * @return start {@link Street} of the route if present, otherwise null.
+     * @return start {@link PedestrianStreetSectionPortPair} of the route if present, otherwise null.
      */
-    IConsumer getStartSection();
+    PedestrianStreetSectionPortPair getStartSection();
 
     /**
-     * Returns a destination {@link Street} of the route.
+     * Returns a destination {@link PedestrianStreetSectionPortPair} of the route.
      *
-     * @return start {@link Street} of the route if present, otherwise null.
+     * @return start {@link PedestrianStreetSectionPortPair} of the route if present, otherwise null.
      */
-    IConsumer getDestinationSection();
+    PedestrianStreetSectionPortPair getDestinationSection();
 
     /**
-     * Returns the number of {@link Street} in the route.
+     * Returns the number of {@link PedestrianStreetSectionPortPair} in the route.
      *
-     * @return the number of {@link Street} in the route as int.
+     * @return the number of {@link PedestrianStreetSectionPortPair} in the route as int.
      */
     int getNumberOfSections();
 
@@ -51,19 +51,19 @@ public interface IPedestrianRoute {
     void addSection(PedestrianStreetSectionPortPair section);
 
     /**
-     * Checks if there are {@link Street}s in the route defined.
+     * Checks if there are {@link PedestrianStreetSectionPortPair}s in the route defined.
      *
-     * @return true if there are {@link Street} in the route, otherwise false.
+     * @return true if there are {@link PedestrianStreetSectionPortPair} in the route, otherwise false.
      */
     boolean isEmpty();
 
     /**
      * Returns the index in the route of given {@link Street}
      *
-     * @param streetSection is the {@link Street} from which the index should be returned
+     * @param streetSection is the {@link PedestrianStreetSectionPortPair} from which the index should be returned
      * @return the index of streetSection in the route
      */
-     int getIndexOfSection(IConsumer streetSection);
+     int getIndexOfSection(PedestrianStreetSectionPortPair streetSection);
 
     /**
      * Returns the {@link AbstractProducer} source of the route
@@ -79,9 +79,9 @@ public interface IPedestrianRoute {
     void setSource(AbstractProducer source);
 
     /**
-     * Returns the {@link Street} sink of the route
+     * Returns the {@link PedestrianStreetSectionPortPair} sink of the route
      *
-     * @return  the sink of the route as {@link Street}
+     * @return  the sink of the route as {@link PedestrianStreetSectionPortPair}
      */
     AbstractSink getSink();
 
@@ -93,25 +93,25 @@ public interface IPedestrianRoute {
     Double getRatio();
 
     /**
-    * Checks if there is a specific {@link Street}s already in the route.
+    * Checks if there is a specific {@link PedestrianStreetSectionPortPair}s already in the route.
     *
     * @return true if there is a specific {@link Street} in the route, otherwise false.
     */
-    boolean contains(IConsumer section);
+    boolean contains(PedestrianStreetSectionPortPair section);
 
 
     /**
-     * Get the entry port of a {@PedestrianStreetSectionPort} specific {@link Street} in the route.
+     * Get the entry port of a {@PedestrianStreetSectionPort} specific {@link PedestrianStreetSectionPortPair} in the route.
      *
-     * @return the entry port of a specific {@link Street} in the route.
+     * @return the entry port of a specific {@link PedestrianStreetSectionPortPair} in the route.
      */
     PedestrianStreetSectionPort getEnterPortOfSectionAt(int index);
 
 
     /**
-     * Get the exit port of a {@PedestrianStreetSectionPort} specific {@link Street} in the route.
+     * Get the exit port of a {@PedestrianStreetSectionPort} specific {@link PedestrianStreetSectionPortPair} in the route.
      *
-     * @return the exit port of a specific {@link Street} in the route.
+     * @return the exit port of a specific {@link PedestrianStreetSectionPortPair} in the route.
      */
     PedestrianStreetSectionPort getExitPortOfSectionAt(int index);
 }

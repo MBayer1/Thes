@@ -40,11 +40,11 @@ public class PedestrianRoute implements IPedestrianRoute {
      * {@inheritDoc}
      */
     @Override
-    public IConsumer getSectionAt(int index) {
+    public PedestrianStreetSectionPortPair getSectionAt(int index) {
         if (index >= route.size()) {
             throw new IllegalArgumentException("Index value for accessing a section in a route is too big.");
         }
-        return route.get(index).getStreetSection();
+        return route.get(index);
     }
 
     /**
@@ -75,16 +75,16 @@ public class PedestrianRoute implements IPedestrianRoute {
      * {@inheritDoc}
      */
     @Override
-    public IConsumer getStartSection() {
-        return !isEmpty() ? route.get(0).getStreetSection() : null;
+    public PedestrianStreetSectionPortPair getStartSection() {
+        return !isEmpty() ? route.get(0) : null;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public IConsumer getDestinationSection() {
-        return !isEmpty() ? route.get(route.size() - 1).getStreetSection() : null;
+    public PedestrianStreetSectionPortPair getDestinationSection() {
+        return !isEmpty() ? route.get(route.size() - 1) : null;
     }
 
     /**
@@ -131,9 +131,9 @@ public class PedestrianRoute implements IPedestrianRoute {
      */
     @Override
     public AbstractSink getSink() {
-        final IConsumer destinationSection = this.getDestinationSection();
-        if (destinationSection instanceof AbstractSink) {
-            return (AbstractSink) destinationSection;
+        final PedestrianStreetSectionPortPair destinationSection = this.getDestinationSection();
+        if (destinationSection.getStreetSection() instanceof AbstractSink) {
+            return (AbstractSink) destinationSection.getStreetSection();
         } else {
             throw new IllegalArgumentException("Destination section is not an instance of Sink.");
         }
@@ -160,7 +160,7 @@ public class PedestrianRoute implements IPedestrianRoute {
      * {@inheritDoc}
      */
     @Override
-    public int getIndexOfSection(IConsumer streetSection) {
+    public int getIndexOfSection(PedestrianStreetSectionPortPair streetSection) {
         if (!route.contains(streetSection)) {
             throw new IllegalArgumentException("Track must be part of the route");
         }
@@ -171,10 +171,10 @@ public class PedestrianRoute implements IPedestrianRoute {
      * {@inheritDoc}
      */
     @Override
-    public boolean contains (IConsumer section) {
-        if (!(section instanceof Street)) {
+    public boolean contains (PedestrianStreetSectionPortPair section) {
+        if (!(section.getStreetSection() instanceof Street)) {
            throw new IllegalStateException("All previous IConsumer should be of type Street");
         }
-        return IntStream.range(0, route.size()).anyMatch(i -> route.get(i).equals(section));
+        return IntStream.range(0, route.size()).anyMatch(i -> route.get(i).getStreetSection().equals(section));
     }
 }
