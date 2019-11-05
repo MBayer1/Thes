@@ -16,6 +16,7 @@ import at.fhv.itm3.s2.roundabout.entity.Route;
 import at.fhv.itm3.s2.roundabout.model.RoundaboutSimulationModel;
 import at.fhv.itm3.s2.roundabout.util.dto.*;
 import at.fhv.itm3.s2.roundabout.util.dto.Component;
+import at.fhv.itm3.s2.roundabout.util.dto.StreetNeighbour;
 import desmoj.core.simulator.Experiment;
 import desmoj.core.simulator.Model;
 
@@ -85,7 +86,7 @@ public class ConfigParser {
     private static final Map<PedestrianAbstractSource, Map<PedestrianSink, PedestrianRoute>> PEDESTRIAN_ROUTE_REGISTRY = new HashMap<>(); // source, sink, route
     private static final Map<String, Intersection> INTERSECTION_REGISTRY = new HashMap<>(); // componentId, intersection
 
-    private static final Map<String, Map<StreetSection, StreetSection>> NEIGHBOUR_STREET_SECTION_REGISTRY = new HashMap<>();
+    private static final Map<IConsumer , at.fhv.itm3.s2.roundabout.entity.StreetNeighbour> STREET_NEIGHBOURS_REGISTRY = new HashMap<>(); //needed for Gui
 
     private static final double DEFAULT_ROUTE_RATIO = 0.0;
 
@@ -187,6 +188,13 @@ public class ConfigParser {
         modelStructure.addPedestrianRoutes(pedestrianRoutes);
 
         RouteController.getInstance(model).setRoutes(modelStructure.getRoutes());
+
+        // Neighbouring of Street Section needed for GUI
+        if(modelConfig.getNeighbours() != null){
+            if(modelConfig.getNeighbours().getNeighbourList() != null){
+                handleStreetNeighbours(modelConfig.getNeighbours());
+            }
+        }
 
         model.registerModelStructure(modelStructure);
         return modelStructure;
@@ -580,6 +588,30 @@ public class ConfigParser {
         }
         return false;
     }
+
+    private Map<IConsumer, at.fhv.itm3.s2.roundabout.entity.StreetNeighbour> handleStreetNeighbours(StreetNeighbours streetNeighbours){
+        if(SECTION_REGISTRY == null) return null; //no lamda as not a functional interface
+
+        Map<IConsumer , at.fhv.itm3.s2.roundabout.entity.StreetNeighbour> neighMap = new HashMap<>();
+
+        for(StreetNeighbour sn : streetNeighbours.getNeighbourList()){
+            String baseComp = sn.getBaseStreetComponent();
+            String base = sn.getBaseStreet();
+
+            String neighComp1 = sn.getNeighbouringStreetComponent1();
+            String neigh1 = sn.getNeighbouringStreet1();
+            String neighComp2 = sn.getNeighbouringStreetComponent2();
+            String neigh2 = sn.getNeighbouringStreet2();
+
+            neighMap.put(resolveSection(baseComp,base),
+                    new at.fhv.itm3.s2.roundabout.entity.StreetNeighbour(
+                            resolveStreet(neighComp1,neigh1), resolveStreet(neighComp2, neigh2)
+                    ));
+
+        }
+        return neighMap;
+    }
+
 
     private Map<String, StreetConnector> handleConnectors(String scopeComponentId, Connectors connectors) {
         return connectors.getConnector().stream().collect(toMap(

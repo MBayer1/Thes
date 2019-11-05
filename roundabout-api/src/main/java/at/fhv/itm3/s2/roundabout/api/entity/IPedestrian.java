@@ -26,11 +26,19 @@ public interface IPedestrian {
 
 
     /**
-     * Calculates the the next subgoal {@link Point} considered the Social Force Model.
+     * Calculates the the next subgoal {@link Point} considered.
      *
      * @return the next subgoal.
      */
     Point getNextSubGoal();
+
+
+    /**
+     * checks if the the next subgoal {@link Point} is reached
+     *
+     * @return true when subgoal is reached, otherwise false
+     */
+    boolean nextSubGoalIsReached();
 
 
     /**

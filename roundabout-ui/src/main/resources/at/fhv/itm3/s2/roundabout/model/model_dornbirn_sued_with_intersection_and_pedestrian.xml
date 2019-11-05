@@ -373,7 +373,5 @@
             <route fromComponentId="ro1" fromSourceId="so_s18_t1" toComponentId="ro1" toSinkId="sk_s13_t1" ratio="0.333"/>
         </routes>
     </components>
-    <streetNeighbours>
-        <neighbour ComponentId1="is1" StreetId1="s6_t1" ComponentId2="is1" StreetId2="s6_t2"/>
-    </streetNeighbours>
+
 </model>

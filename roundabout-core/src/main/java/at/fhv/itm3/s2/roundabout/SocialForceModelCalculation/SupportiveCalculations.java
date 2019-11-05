@@ -61,10 +61,26 @@ public class SupportiveCalculations {
         return AlmostEqual(dVal1,dVal2, 10e-8);
     }
 
+    public boolean LowerOrAlmostEqual(double dVal1, double dVal2){
+        return LowerOrAlmostEqual(dVal1,dVal2, 10e-8);
+    }
+
+    public boolean BiggerOrAlmostEqual(double dVal1, double dVal2){
+        return BiggerOrAlmostEqual(dVal1,dVal2, 10e-8);
+    }
+
+    public boolean LowerOrAlmostEqual(double dVal1, double dVal2, double SFM_DegreeOfAccuracy) {
+        return ((dVal1 < dVal1) || AlmostEqual(dVal1,dVal2, SFM_DegreeOfAccuracy));
+    }
+
+    public boolean BiggerOrAlmostEqual(double dVal1, double dVal2, double SFM_DegreeOfAccuracy) {
+        return ((dVal1 > dVal1) || AlmostEqual(dVal1,dVal2, SFM_DegreeOfAccuracy));
+    }
+
     public boolean AlmostEqual(double dVal1, double dVal2, double SFM_DegreeOfAccuracy)
     {
-        if (GetRoundValue(Math.abs(dVal1-dVal2), SFM_DegreeOfAccuracy) < SFM_DegreeOfAccuracy) return true;
-        return false;
+        return (GetRoundValue(Math.abs(dVal1-dVal2), SFM_DegreeOfAccuracy) < SFM_DegreeOfAccuracy);
+
     }
 
     public double GetRoundValue(double dValue){
@@ -126,12 +142,5 @@ public class SupportiveCalculations {
     }
 
 
-
-    Vector2d GetClosestExitPoint(){
-        // if an orthogonal form Sink Port to Point match the intersection of the orthogonal is the enter point.
-
-        // else if it is above or beneath is is lower? - subtract pedestrian size
-        return new Vector2d();
-    }
 }
 

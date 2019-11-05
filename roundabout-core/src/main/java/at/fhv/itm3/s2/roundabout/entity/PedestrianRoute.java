@@ -47,6 +47,19 @@ public class PedestrianRoute implements IPedestrianRoute {
         return route.get(index);
     }
 
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public PedestrianStreetSectionPortPair getSectionAt(PedestrianStreet pedestrianStreet){
+        for (PedestrianStreetSectionPortPair routePart : route ){
+            if (routePart.getStreetSection().equals(pedestrianStreet)) return routePart;
+        }
+        return null;
+    }
+
+
     /**
      * {@inheritDoc}
      */

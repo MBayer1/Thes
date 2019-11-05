@@ -1,6 +1,5 @@
 package at.fhv.itm3.s2.roundabout.util.dto;
 
-import at.fhv.itm3.s2.roundabout.api.entity.PedestrianStreet;
 import at.fhv.itm3.s2.roundabout.api.util.dto.IDTO;
 
 import javax.xml.bind.annotation.XmlAttribute;
@@ -15,9 +14,7 @@ public class Connector implements IDTO {
         return id;
     }
 
-    public void setId(String id) {
-        this.id = id;
-    }
+    public void setId(String id) { this.id = id;}
 
     public List<Track> getTrack() {
         return trackList;

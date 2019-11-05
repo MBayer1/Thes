@@ -18,9 +18,17 @@ public interface IPedestrianRoute {
      * Returns an {@link PedestrianStreetSectionPortPair} at the given index of the route.
      *
      * @param index the index the {@link PedestrianStreetSectionPortPair} should be returned from the route.
-     * @return an {@link Street} located at given index.
+     * @return an {@link PedestrianStreetSectionPortPair} located at given index.
      */
     PedestrianStreetSectionPortPair getSectionAt(int index);
+
+    /**
+     * Returns an {@link PedestrianStreetSectionPortPair} at the given index of the route.
+     *
+     * @param index the index the {@link PedestrianStreet} should be returned from the route.
+     * @return an {@link PedestrianStreetSectionPortPair} located at given index.
+     */
+    PedestrianStreetSectionPortPair getSectionAt(PedestrianStreet pedestrianStreet);
 
     /**
      * Returns a start {@link PedestrianStreetSectionPortPair} of the route.

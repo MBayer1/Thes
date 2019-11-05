@@ -633,12 +633,26 @@ public class RoundaboutSimulationModel extends Model {
 
     /////////////////////////////////////////////////////////////////////////////////////////////
     //Social Force Model Calculations:
+
+    /**
+     * This method returns the Accuracy for Calculations.
+     *
+     * @return returns the Accuracy for Calculations
+     */
     public Double getSFM_DegreeOfAccuracy () {return SFM_DegreeOfAccuracy;}
 
-    public Double getRandomPreferredSpeed () { //TODO COMMENT
+    /**
+     * Random number stream used to calculate a the preferred waling speed of an pedestrian.
+     * See {@link RoundaboutSimulationModel#init()} method for stream parameters.
+     */
+    public Double getRandomPreferredSpeed () {
         return Math.max(Math.min(preferredSpeed.sample(), maxPedestrianPreferredSpeed), minPedestrianPreferredSpeed);
     }
 
+    /**
+     * Random number stream used to calculate the "delay" to reach new defined walking speed
+     * See {@link RoundaboutSimulationModel#init()} method for stream parameters.
+     */
     public Double getRandomRelaxingTimeTauAlpha () {
         return Math.max(Math.min(relaxingTimeTauAlpha.sample(), maxPedestrianRelaxingTimeTauAlpha), minPedestrianRelaxingTimeTauAlpha);
     }

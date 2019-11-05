@@ -6,25 +6,19 @@ import desmoj.core.dist.ContDistNormal;
 import desmoj.core.simulator.Model;
 
 import javax.vecmath.Vector2d;
+import java.awt.*;
 import java.util.function.IntToDoubleFunction;
 
 public class AccelerationForceToTarget {
 
-    public RoundaboutSimulationModel model;
-    public Pedestrian pedestrian;
-
-    public AccelerationForceToTarget(RoundaboutSimulationModel model, Pedestrian pedestrian){
-        this.model = model;
-        this.pedestrian = pedestrian;
-    }
-
-    public Vector2d getAccelerationForceToTarget(){
+    public Vector2d getAccelerationForceToTarget(RoundaboutSimulationModel model, Pedestrian pedestrian){
 
         Vector2d currentSpeedVector = new Vector2d(pedestrian.getCurrentSpeed(),0.0);
         Vector2d currentPositionVector = new Vector2d(pedestrian.getCurrentPosition().getX(), pedestrian.getCurrentPosition().getY());
 
 
-        Vector2d preferredSpeedVector = new Vector2d(pedestrian.getNextSubGoal().getX(), pedestrian.getNextSubGoal().getY()); //nextDestinationVector
+        Point subGoal = pedestrian.getNextSubGoal();
+        Vector2d preferredSpeedVector = new Vector2d(subGoal.getX(), subGoal.getY()); //nextDestinationVector
         preferredSpeedVector.sub(currentPositionVector); //nextDestinationVector - currentPositionVector
 
 
