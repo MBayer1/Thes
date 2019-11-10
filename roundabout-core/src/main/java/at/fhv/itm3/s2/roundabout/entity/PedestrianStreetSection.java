@@ -203,9 +203,9 @@ public class PedestrianStreetSection extends PedestrianStreet {
         // can be removed (saves memory)
         // caution! that requires to call traverseToNextSection before calling this method
         Car car = PedestrianController.getCar(iPedestrian);
-        IConsumer consumer = iPedestrian.getDestination();
-        if (consumer instanceof Street) {
-            ((Street)consumer).carDelivered(null, car, true);
+        IConsumer consumer = iPedestrian.getDestination().getStreetSection();
+        if (consumer instanceof PedestrianStreet) {
+            ((PedestrianStreet)consumer).carDelivered(null, car, true);
         }
 
         pedestrianObserver.notifyObservers(iPedestrian);

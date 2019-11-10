@@ -7,11 +7,11 @@ import java.util.List;
 public class PedestrianConnectors implements IDTO {
     private List<PedestrianConnector> pedestrianConnectorList;
 
-    public List<PedestrianConnector> getConnector() {
+    public List<PedestrianConnector> getPedestrianConnector() {
         return pedestrianConnectorList;
     }
 
-    public void setConnector(List<PedestrianConnector> pedestrianConnectorList) {
+    public void setPedestrianConnector(List<PedestrianConnector> pedestrianConnectorList) {
         this.pedestrianConnectorList = pedestrianConnectorList;
     }
 }

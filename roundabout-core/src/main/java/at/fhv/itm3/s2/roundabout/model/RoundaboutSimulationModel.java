@@ -34,13 +34,14 @@ public class RoundaboutSimulationModel extends Model {
 
     private static final Double VEHICLE_LENGTH_STEP_SIZE = 0.1;
 
-    private static final Double DEFAULT_PEDESTRIAN_MIN_ARRIVAL_RATE = 0.1;
-    private static final Double DEFAULT_PEDESTRIAN_MAX_ARRIVAL_RATE = 1.0;
-    private static final Long DEFAULT_PEDESTRIAN_MIN_GROUPE_SIZE = 2L;
-    private static final Long DEFAULT_PEDESTRIAN_MAX_GROUPE_SIZE = 30L;
-    private static final Double DEFAULT_PEDESTRIAN_MIN_STREET_LENGTH = 1.0;
-    private static final Double DEFAULT_PEDESTRIAN_MIN_STREET_WIDTH = 1.0;
+    private static final Double DEFAULT_MIN_PEDESTRIAN_ARRIVAL_RATE = 0.1;
+    private static final Double DEFAULT_MAX_PEDESTRIAN_ARRIVAL_RATE = 1.0;
+    private static final Long DEFAULT_MIN_PEDESTRIAN_GROUPE_SIZE = 2L;
+    private static final Long DEFAULT_MAX_PEDESTRIAN_GROUPE_SIZE = 30L;
+    private static final Double DEFAULT_MIN_PEDESTRIAN_STREET_LENGTH = 10.0;
+    private static final Double DEFAULT_MIN_PEDESTRIAN_STREET_WIDTH = 10.0;
     private static final Double DEFAULT_SFM_DEGREE_OF_ACCURACY = 10e-8;
+
     private static final Double DEFAULT_MIN_PEDESTRIAN_RELAXING_TIME = 2.2-0.5;
     private static final Double DEFAULT_MAX_PEDESTRIAN_RELAXING_TIME = 2.2+0.5;
     private static final Double DEFAULT_EXPECTED_PEDESTRIAN_RELAXING_TIME = 2.2;
@@ -72,7 +73,7 @@ public class RoundaboutSimulationModel extends Model {
     private final Long minPedestrianGroupeSize;
     private final Long maxPedestrianGroupeSize;
     private final Double minPedestrianStreetLength;
-    private final Double maxPedestrianStreetWidth;
+    private final Double minPedestrianStreetWidth;
     private final Double SFM_DegreeOfAccuracy;
     private final Double minPedestrianRelaxingTimeTauAlpha;
     private final Double maxPedestrianRelaxingTimeTauAlpha;
@@ -197,9 +198,9 @@ public class RoundaboutSimulationModel extends Model {
             DEFAULT_CAR_RATIO_PER_TOTAL_VEHICLE,
             DEFAULT_JAM_INDICATOR_IN_SECONDS,
 
-            DEFAULT_PEDESTRIAN_MIN_ARRIVAL_RATE, DEFAULT_PEDESTRIAN_MAX_ARRIVAL_RATE,
-            DEFAULT_PEDESTRIAN_MIN_GROUPE_SIZE, DEFAULT_PEDESTRIAN_MAX_GROUPE_SIZE,
-            DEFAULT_PEDESTRIAN_MIN_STREET_LENGTH, DEFAULT_PEDESTRIAN_MIN_STREET_WIDTH,
+            DEFAULT_MIN_PEDESTRIAN_ARRIVAL_RATE, DEFAULT_MAX_PEDESTRIAN_ARRIVAL_RATE,
+            DEFAULT_MIN_PEDESTRIAN_GROUPE_SIZE, DEFAULT_MAX_PEDESTRIAN_GROUPE_SIZE,
+            DEFAULT_MIN_PEDESTRIAN_STREET_LENGTH, DEFAULT_MIN_PEDESTRIAN_STREET_WIDTH,
             DEFAULT_SFM_DEGREE_OF_ACCURACY,
             DEFAULT_MIN_PEDESTRIAN_RELAXING_TIME, DEFAULT_MAX_PEDESTRIAN_RELAXING_TIME, DEFAULT_EXPECTED_PEDESTRIAN_RELAXING_TIME,
             DEFAULT_MIN_PEDESTRIAN_PREFERRED_SPEED, DEFAULT_MAX_PEDESTRIAN_PREFERRED_SPEED, DEFAULT_EXPECTED_PEDESTRIAN_PREFERRED_SPEED
@@ -244,9 +245,9 @@ public class RoundaboutSimulationModel extends Model {
             minCarLength, maxCarLength, expectedCarLength, minTruckLength, maxTruckLength,
             expectedTruckLength, carRatioPerTotalVehicle, jamIndicatorInSeconds,
 
-            DEFAULT_PEDESTRIAN_MIN_ARRIVAL_RATE, DEFAULT_PEDESTRIAN_MAX_ARRIVAL_RATE,
-            DEFAULT_PEDESTRIAN_MIN_GROUPE_SIZE, DEFAULT_PEDESTRIAN_MAX_GROUPE_SIZE,
-            DEFAULT_PEDESTRIAN_MIN_STREET_LENGTH, DEFAULT_PEDESTRIAN_MIN_STREET_WIDTH,
+            DEFAULT_MIN_PEDESTRIAN_ARRIVAL_RATE, DEFAULT_MAX_PEDESTRIAN_ARRIVAL_RATE,
+            DEFAULT_MIN_PEDESTRIAN_GROUPE_SIZE, DEFAULT_MAX_PEDESTRIAN_GROUPE_SIZE,
+            DEFAULT_MIN_PEDESTRIAN_STREET_LENGTH, DEFAULT_MIN_PEDESTRIAN_STREET_WIDTH,
             DEFAULT_SFM_DEGREE_OF_ACCURACY,
             DEFAULT_MIN_PEDESTRIAN_RELAXING_TIME, DEFAULT_MAX_PEDESTRIAN_RELAXING_TIME, DEFAULT_EXPECTED_PEDESTRIAN_RELAXING_TIME,
             DEFAULT_MIN_PEDESTRIAN_PREFERRED_SPEED, DEFAULT_MAX_PEDESTRIAN_PREFERRED_SPEED, DEFAULT_EXPECTED_PEDESTRIAN_PREFERRED_SPEED
@@ -283,13 +284,15 @@ public class RoundaboutSimulationModel extends Model {
         Double expectedTruckLength,
         Double carRatioPerTotalVehicle,
         Double jamIndicatorInSeconds,
-        Double pedestrianMinArrivalRate,
-        Double pedestrianMaxArrivalRate,
-        Long pedestrianMinGroupeSize,
-        Long pedestrianMaxGroupeSize,
-        Double pedestrianMinStreetLength,
-        Double pedestrianMaxStreetWidth,
+
+        Double minPedestrianArrivalRate,
+        Double maxPedestrianArrivalRate,
+        Long minPedestrianGroupeSize,
+        Long maxPedestrianGroupeSize,
+        Double minPedestrianStreetLength,
+        Double minPedestrianStreetWidth,
         Double SFM_DegreeOfAccuracy,
+
         Double minPedestrianRelaxingTimeTauAlpha,
         Double maxPedestrianRelaxingTimeTauAlpha,
         Double expectedPedestrianRelaxingTimeTauAlpha,
@@ -316,13 +319,14 @@ public class RoundaboutSimulationModel extends Model {
         this.carRatioPerTotalVehicle = carRatioPerTotalVehicle;
         this.jamIndicatorInSeconds = jamIndicatorInSeconds;
 
-        this.minPedestrianArrivalRate = pedestrianMinArrivalRate;
-        this.maxPedestrianArrivalRate = pedestrianMaxArrivalRate;
-        this.minPedestrianGroupeSize = pedestrianMinGroupeSize;
-        this.maxPedestrianGroupeSize = pedestrianMaxGroupeSize;
-        this.minPedestrianStreetLength = pedestrianMinStreetLength;
-        this.maxPedestrianStreetWidth = pedestrianMaxStreetWidth;
+        this.minPedestrianArrivalRate = minPedestrianArrivalRate;
+        this.maxPedestrianArrivalRate = maxPedestrianArrivalRate;
+        this.minPedestrianGroupeSize = minPedestrianGroupeSize;
+        this.maxPedestrianGroupeSize = maxPedestrianGroupeSize;
+        this.minPedestrianStreetLength = minPedestrianStreetLength;
+        this.minPedestrianStreetWidth = minPedestrianStreetWidth;
         this.SFM_DegreeOfAccuracy = SFM_DegreeOfAccuracy;
+
         this.minPedestrianRelaxingTimeTauAlpha = minPedestrianRelaxingTimeTauAlpha;
         this.maxPedestrianRelaxingTimeTauAlpha = maxPedestrianRelaxingTimeTauAlpha;
         this.expectedPedestrianRelaxingTimeTauAlpha = expectedPedestrianRelaxingTimeTauAlpha;

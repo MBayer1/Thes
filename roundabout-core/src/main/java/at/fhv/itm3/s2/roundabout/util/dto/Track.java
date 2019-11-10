@@ -9,8 +9,7 @@ public class Track implements IDTO {
 
     private Long order;
 
-    private String fromComponentId;
-    private String fromSectionId;
+    private String fromComponentId, fromSectionId;
     private ConsumerType fromSectionType;
 
     private String toComponentId;

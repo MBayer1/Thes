@@ -20,20 +20,29 @@
         <parameter name="JAM_INDICATOR_IN_SECONDS" value="10"/>
 
         <!--Parameter for pedestrians-->
-        <parameter name="PEDESTRIAN_MIN_ARRIVAL_RATE" value="0.1"/>
-        <parameter name="PEDESTRIAN_MAX_ARRIVAL_RATE" value="1"/>
-        <parameter name="PEDESTRIAN_MIN_GROUPE_SIZE" value="2"/>
-        <parameter name="PEDESTRIAN_MAX_GROUPE_SIZE" value="30"/> //persons
-        <parameter name="PEDESTRIAN_MIN_STREET_LENGTH" value="2"/>
-        <parameter name="PEDESTRIAN_MIN_STREET_WIDTH" value="2"/> //in meter
+        <parameter name="MIN_PEDESTRIAN_ARRIVAL_RATE" value="0.1"/>
+        <parameter name="MAX_PEDESTRIAN_ARRIVAL_RATE" value="1"/>
+        <parameter name="MIN_PEDESTRIAN_GROUPE_SIZE" value="2"/>
+        <parameter name="MAX_PEDESTRIAN_GROUPE_SIZE" value="30"/>   //persons
+        <parameter name="MIN_PEDESTRIAN_STREET_LENGTH" value="20"/>  //in cm
+        <parameter name="MIN_PEDESTRIAN_STREET_WIDTH" value="20"/>   //in cm
 
         <parameter name="SFM_DEGREE_OF_ACCURACY" value="10e-8"/>
+
+        <parameter name="MIN_PEDESTRIAN_RELAXING_TIME" value="1.7"/>
+        <parameter name="MAX_PEDESTRIAN_RELAXING_TIME" value="2.7"/>
+        <parameter name="EXPECTED_PEDESTRIAN_RELAXING_TIME" value="2.2"/>
+        <parameter name="MIN_PEDESTRIAN_PREFERRED_SPEED" value="1.08"/>
+        <parameter name="MAX_PEDESTRIAN_PREFERRED_SPEED" value="1.6"/>
+        <parameter name="EXPECTED_PEDESTRIAN_PREFERRED_SPEED" value="1.34"/>
+
+
 
     </parameters>
     <components>
         <component id="p1" type="PEDESTRIANWALKINGAREA" name="Zebrastreifen">
             <sources>
-                <source id="pso1" sectionId="pc1"/>
+                <source id="pso1" sectionId="pc1" generatorExpectation="10.0"/>
                 <source id="pso2" sectionId="pc1" generatorExpectation="10.0"/>
             </sources>
 
@@ -41,44 +50,25 @@
                 <sink id="psk1"/>
                 <sink id="psk2"/>
             </sinks>
-
             <sections>
                 <section id="pc1" length="50.0" width="80.0" pedestrianSectionType="PEDESTRIAN_CROSSING"/> <!-- In cm-->
             </sections>
-            <connectors>
-                <connectorPedestrian id="pco_1">
-                    <pedestiranTrack fromSectionId="pso1" fromSectionType="PEDESTRIAN_CROSSING"
-                                     fromXPortPositionStart="0.0" fromYPortPositionStart="0.0"
-                                     fromXPortPositionEnd="50.0" fromYPortPositionEnd="50.0"
-                                     toSectionId="pc1" toSectionType="PEDESTRIAN_STREET_SECTION"
-                                     toXPortPositionStart="0.0" toYPortPositionStart="0.0"
-                                     toXPortPositionEnd="50.0" toYPortPositionEnd="50.0" />
-                </connectorPedestrian>
-                <connectorPedestrian id="pco_2">
-                    <pedestiranTrack fromSectionId="pso2" fromSectionType="PEDESTRIAN_CROSSING"
-                                     fromXPortPositionStart="0.0" fromYPortPositionStart="0.0"
-                                     fromXPortPositionEnd="50.0" fromYPortPositionEnd="50.0"
-                                     toSectionId="pc1" toSectionType="PEDESTRIAN_STREET_SECTION"
-                                     toXPortPositionStart="0.0" toYPortPositionStart="0.0"
-                                     toXPortPositionEnd="50.0" toYPortPositionEnd="50.0" />
-                </connectorPedestrian>
-                <connectorPedestrian id="pco_1">
-                    <pedestiranTrack fromSectionId="pc1" fromSectionType="PEDESTRIAN_CROSSING"
-                                     fromXPortPositionStart="0.0" fromYPortPositionStart="0.0"
-                                     fromXPortPositionEnd="50.0" fromYPortPositionEnd="50.0"
-                                     toSectionId="psk1" toSectionType="PEDESTRIAN_STREET_SECTION"
-                                     toXPortPositionStart="0.0" toYPortPositionStart="0.0"
-                                     toXPortPositionEnd="50.0" toYPortPositionEnd="50.0" />
-                </connectorPedestrian>
-                <connectorPedestrian id="pco_2">
-                    <pedestiranTrack fromSectionId="pc1" fromSectionType="PEDESTRIAN_CROSSING"
-                                     fromXPortPositionStart="0.0" fromYPortPositionStart="0.0"
-                                     fromXPortPositionEnd="50.0" fromYPortPositionEnd="50.0"
-                                     toSectionId="psk2" toSectionType="PEDESTRIAN_STREET_SECTION"
-                                     toXPortPositionStart="0.0" toYPortPositionStart="0.0"
-                                     toXPortPositionEnd="50.0" toYPortPositionEnd="50.0" />
-                </connectorPedestrian>
-            </connectors>
+
+            <pedestrianConnectors>
+                <pedestrianConnector id="pco_1">
+                    <pedestrianTrack fromSectionId="pso1" fromSectionType="PEDESTRIAN_CROSSING" fromXPortPositionStart="0" fromYPortPositionStart="0" fromXPortPositionEnd="50" fromYPortPositionEnd="50" toSectionId="pc1" toComponentId="p1" toSectionType="PEDESTRIAN_STREET_SECTION"  toXPortPositionStart="0" toYPortPositionStart="0" toXPortPositionEnd="50" toYPortPositionEnd="50"/>
+                </pedestrianConnector>
+                <pedestrianConnector id="pco_2">
+                    <pedestrianTrack fromSectionId="pso2" fromSectionType="PEDESTRIAN_CROSSING" fromXPortPositionStart="0" fromYPortPositionStart="0" fromXPortPositionEnd="50" fromYPortPositionEnd="50" toSectionId="pc1" toComponentId="p1" toSectionType="PEDESTRIAN_STREET_SECTION" toXPortPositionStart="0" toYPortPositionStart="0" toXPortPositionEnd="50" toYPortPositionEnd="50"/>
+                </pedestrianConnector>
+                <pedestrianConnector id="pco_1">
+                    <pedestrianTrack fromSectionId="pc1" fromSectionType="PEDESTRIAN_CROSSING" fromXPortPositionStart="0" fromYPortPositionStart="0" fromXPortPositionEnd="50" fromYPortPositionEnd="50" toSectionId="psk1" toComponentId="p1" toSectionType="PEDESTRIAN_STREET_SECTION" toXPortPositionStart="0" toYPortPositionStart="0" toXPortPositionEnd="50" toYPortPositionEnd="50"/>
+                </pedestrianConnector>
+                <pedestrianConnector id="pco_2">
+                    <pedestrianTrack fromSectionId="pc1" fromSectionType="PEDESTRIAN_CROSSING" fromXPortPositionStart="0" fromYPortPositionStart="0" fromXPortPositionEnd="50" fromYPortPositionEnd="50" toSectionId="psk2" toComponentId="p1" toSectionType="PEDESTRIAN_STREET_SECTION" toXPortPositionStart="0" toYPortPositionStart="0" toXPortPositionEnd="50" toYPortPositionEnd="50"/>
+                </pedestrianConnector>
+            </pedestrianConnectors>
+
             <pedestrianRoutes>
                 <route fromComponentId="p1" fromSourceId="pso1" toComponentId="p1" toSinkId="psk2" ratio="1.0"/>
                 <route fromComponentId="p1" fromSourceId="pso2" toComponentId="p1" toSinkId="psk1" ratio="1.0"/>

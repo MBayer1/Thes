@@ -7,7 +7,7 @@ import java.util.List;
 
 public class PedestrianConnector implements IDTO {
     private String id;
-    List<PedestrianTrack> pedestrianTrackList;
+    private List<PedestrianTrack> pedestrianTrackList;
 
     @XmlAttribute
     public String getId() {
