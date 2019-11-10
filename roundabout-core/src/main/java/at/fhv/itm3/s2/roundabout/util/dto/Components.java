@@ -44,7 +44,6 @@ public class Components implements IDTO {
         this.routes = routes;
     }
 
-
     public PedestrianRoutes getPedestrianRoutes() {
         return pedestrianRoutes;
     }

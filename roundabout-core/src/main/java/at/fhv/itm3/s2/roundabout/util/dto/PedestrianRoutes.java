@@ -5,13 +5,13 @@ import at.fhv.itm3.s2.roundabout.api.util.dto.IDTO;
 import java.util.List;
 
 public class PedestrianRoutes implements IDTO {
-    private List<PedestrianRoute> routeList;
+    private List<PedestrianRoute> pedestrianRouteList;
 
     public List<PedestrianRoute> getPedestrianRoute() {
-        return routeList;
+        return pedestrianRouteList;
     }
 
-    public void setPedestrianRoutes(List<PedestrianRoute> routeList) {
-        this.routeList = routeList;
+    public void setPedestrianRoute(List<PedestrianRoute> pedestrianRouteList) {
+        this.pedestrianRouteList = pedestrianRouteList;
     }
 }

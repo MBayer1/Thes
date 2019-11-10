@@ -9,12 +9,12 @@ public class PedestrianTrack implements IDTO {
 
     private String fromSectionId, fromComponentId;
     private PedestrianConsumerType fromSectionType;
-    private String fromXPortPositionStart, fromYPortPositionStart,
+    private Integer fromXPortPositionStart, fromYPortPositionStart,
             fromXPortPositionEnd, fromYPortPositionEnd;
 
     private String toSectionId, toComponentId;
     private PedestrianConsumerType toSectionType;
-    private String toXPortPositionStart, toYPortPositionStart,
+    private Integer toXPortPositionStart, toYPortPositionStart,
             toXPortPositionEnd, toYPortPositionEnd;
 
 
@@ -46,38 +46,38 @@ public class PedestrianTrack implements IDTO {
     }
 
     @XmlAttribute
-    public String getFromXPortPositionStart() {
+    public Integer getFromXPortPositionStart() {
         return fromXPortPositionStart;
     }
 
-    public void setFromXPortPositionStart(String fromXPortPositionStart) {
+    public void setFromXPortPositionStart(Integer fromXPortPositionStart) {
         this.fromXPortPositionStart = fromXPortPositionStart;
     }
 
     @XmlAttribute
-    public String getFromYPortPositionStart() {
+    public Integer getFromYPortPositionStart() {
         return fromYPortPositionStart;
     }
 
-    public void setFromYPortPositionStart(String fromYPortPositionStart) {
+    public void setFromYPortPositionStart(Integer fromYPortPositionStart) {
         this.fromYPortPositionStart = fromYPortPositionStart;
     }
 
     @XmlAttribute
-    public String getFromXPortPositionEnd() {
+    public Integer getFromXPortPositionEnd() {
         return fromXPortPositionEnd;
     }
 
-    public void setFromXPortPositionEnd (String fromXPortPositionEnd) {
+    public void setFromXPortPositionEnd (Integer fromXPortPositionEnd) {
         this.fromXPortPositionEnd = fromXPortPositionEnd;
     }
 
     @XmlAttribute
-    public String getFromYPortPositionEnd() {
+    public Integer getFromYPortPositionEnd() {
         return fromYPortPositionEnd;
     }
 
-    public void setFromYPortPositionEnd(String fromYPortPositionEnd) {
+    public void setFromYPortPositionEnd(Integer fromYPortPositionEnd) {
         this.fromYPortPositionEnd = fromYPortPositionEnd;
     }
 
@@ -111,38 +111,38 @@ public class PedestrianTrack implements IDTO {
     }
 
     @XmlAttribute
-    public String getToXPortPositionStart() {
+    public Integer getToXPortPositionStart() {
         return toXPortPositionStart;
     }
 
-    public void setToXPortPositionStart(String toXPortPositionStart) {
+    public void setToXPortPositionStart(Integer toXPortPositionStart) {
         this.toXPortPositionStart = toXPortPositionStart;
     }
 
     @XmlAttribute
-    public String getToYPortPositionStart() {
+    public Integer getToYPortPositionStart() {
         return toYPortPositionStart;
     }
 
-    public void setToYPortPositionStart(String toYPortPositionStart) {
+    public void setToYPortPositionStart(Integer toYPortPositionStart) {
         this.toYPortPositionStart = toYPortPositionStart;
     }
 
     @XmlAttribute
-    public String getToXPortPositionEnd() {
+    public Integer getToXPortPositionEnd() {
         return toXPortPositionEnd;
     }
 
-    public void setToXPortPositionEnd(String toXPortPositionEnd) {
+    public void setToXPortPositionEnd(Integer toXPortPositionEnd) {
         this.toXPortPositionEnd = toXPortPositionEnd;
     }
 
     @XmlAttribute
-    public String getToYPortPositionEnd() {
+    public Integer getToYPortPositionEnd() {
         return toYPortPositionEnd;
     }
 
-    public void setToYPortPositionEnd(String toYPortPositionEnd) {
+    public void setToYPortPositionEnd(Integer toYPortPositionEnd) {
         this.toYPortPositionEnd = toYPortPositionEnd;
     }
 

@@ -544,14 +544,14 @@ public class ConfigParser {
                         final String componentID1 = track.getFromComponentId() != null ? track.getFromComponentId() : scopeComponentId;
                         final IConsumer pedestrianStreetSection1 = resolvePedestrianStreet(componentID1, track.getFromSectionId());
                         PedestrianStreetSectionPort streetSectionPort1 = new PedestrianStreetSectionPort(
-                                Integer.parseInt(track.getFromXPortPositionStart()), Integer.parseInt(track.getFromYPortPositionStart()),
-                                Integer.parseInt(track.getFromXPortPositionEnd()), Integer.parseInt(track.getFromYPortPositionEnd()));
+                                track.getFromXPortPositionStart(), track.getFromYPortPositionStart(),
+                                track.getFromXPortPositionEnd(), track.getFromYPortPositionEnd());
 
                         final String componentID2 = track.getToComponentId() != null ? track.getToComponentId() : scopeComponentId;
                         final IConsumer pedestrianStreetSection2 = resolvePedestrianStreet(componentID2, track.getToSectionId());
                         PedestrianStreetSectionPort streetSectionPort2 = new PedestrianStreetSectionPort(
-                                Integer.parseInt(track.getToXPortPositionStart()), Integer.parseInt(track.getToYPortPositionStart()),
-                                        Integer.parseInt(track.getToXPortPositionEnd()), Integer.parseInt(track.getToYPortPositionEnd()));
+                                track.getToXPortPositionStart(), track.getToYPortPositionStart(),
+                                        track.getToXPortPositionEnd(), track.getToYPortPositionEnd());
 
 
                         if(pedestrianStreetSection1 instanceof PedestrianStreetSection &&
@@ -600,7 +600,7 @@ public class ConfigParser {
             String neighComp2 = sn.getNeighbouringStreetComponent2();
             String neigh2 = sn.getNeighbouringStreet2();
 
-            neighMap.put(resolveSection(baseComp,base), 
+            neighMap.put(resolveSection(baseComp,base),
                     new at.fhv.itm3.s2.roundabout.entity.StreetNeighbour(
                             resolveStreet(neighComp1,neigh1), resolveStreet(neighComp2, neigh2)
                     ));
@@ -909,8 +909,8 @@ public class ConfigParser {
         for (PedestrianConnector connector : component.getPedestrianConnectors().getPedestrianConnector()) {
             for (PedestrianTrack track : connector.getPedestrianTrack()) {
                 if (track.getFromSectionId().equals(currentSectionId)) {
-                    final PedestrianStreetSectionPort exitPortPrevious = new PedestrianStreetSectionPort(Integer.parseInt(track.getFromXPortPositionStart()),
-                            Integer.parseInt(track.getFromYPortPositionStart()), Integer.parseInt(track.getFromXPortPositionEnd()), Integer.parseInt(track.getFromYPortPositionEnd()));
+                    final PedestrianStreetSectionPort exitPortPrevious = new PedestrianStreetSectionPort(track.getFromXPortPositionStart(),
+                            track.getFromYPortPositionStart(), track.getFromXPortPositionEnd(), track.getFromYPortPositionEnd());
                     routeSections.get(routeSections.size() - 1).setExitPort(exitPortPrevious);
 
                     final String toComponentId = track.getToComponentId() != null ? track.getToComponentId() : component.getId();
@@ -921,8 +921,8 @@ public class ConfigParser {
 
                     if (!pedestrianStreetSectionPortPairListContain(routeSections, toSection)) {
 
-                        PedestrianStreetSectionPort enterPortToSection = new PedestrianStreetSectionPort(Integer.parseInt(track.getToXPortPositionStart()),
-                                Integer.parseInt(track.getToYPortPositionStart()), Integer.parseInt(track.getToXPortPositionEnd()), Integer.parseInt(track.getToYPortPositionEnd()));
+                        PedestrianStreetSectionPort enterPortToSection = new PedestrianStreetSectionPort(track.getToXPortPositionStart(),
+                                track.getToYPortPositionStart(), track.getToXPortPositionEnd(), track.getToYPortPositionEnd());
 
                         if(!(routeSections instanceof PedestrianStreetSection)) throw new IllegalArgumentException("Type mismatch.");
                         PedestrianStreetSectionPortPair routInfo = new PedestrianStreetSectionPortPair((PedestrianStreet)routeSections, enterPortToSection);
@@ -972,8 +972,8 @@ public class ConfigParser {
 
                     if (fromComponentId.equals(component.getId()) && fromSectionId.equals(currentSectionId)) {
 
-                        PedestrianStreetSectionPort exitPortToSection = new PedestrianStreetSectionPort(Integer.parseInt(track.getFromXPortPositionStart()),
-                                Integer.parseInt(track.getFromYPortPositionStart()), Integer.parseInt(track.getFromXPortPositionEnd()), Integer.parseInt(track.getFromYPortPositionEnd()));
+                        PedestrianStreetSectionPort exitPortToSection = new PedestrianStreetSectionPort(track.getFromXPortPositionStart(),
+                                track.getFromYPortPositionStart(), track.getFromXPortPositionEnd(), track.getFromYPortPositionEnd());
                         routeSections.get(routeSections.size() - 1).setExitPort(exitPortToSection);
 
                         for (Component localComponent : modelConfig.getComponents().getComponent()) {
@@ -982,8 +982,8 @@ public class ConfigParser {
 
                             if (toComponentId.equals(localComponent.getId())) {
                                 final PedestrianStreet toSection = resolvePedestrianStreet(toComponentId, toSectionId);
-                                PedestrianStreetSectionPort enterPortToSection = new PedestrianStreetSectionPort(Integer.parseInt(track.getToXPortPositionStart()),
-                                        Integer.parseInt(track.getToYPortPositionStart()), Integer.parseInt(track.getToXPortPositionEnd()), Integer.parseInt(track.getToYPortPositionEnd()));
+                                PedestrianStreetSectionPort enterPortToSection = new PedestrianStreetSectionPort(track.getToXPortPositionStart(),
+                                        track.getToYPortPositionStart(), track.getToXPortPositionEnd(), track.getToYPortPositionEnd());
                                 if(!(toSection instanceof PedestrianStreetSection)) throw new IllegalArgumentException("Type mismatch.");
                                 PedestrianStreetSectionPortPair routInfo2 = new PedestrianStreetSectionPortPair((PedestrianStreet)toSection, enterPortToSection);
 

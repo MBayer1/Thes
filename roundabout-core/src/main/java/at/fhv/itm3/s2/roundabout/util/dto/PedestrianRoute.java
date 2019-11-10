@@ -5,11 +5,9 @@ import at.fhv.itm3.s2.roundabout.api.util.dto.IDTO;
 import javax.xml.bind.annotation.XmlAttribute;
 
 public class PedestrianRoute implements IDTO {
-    private String fromComponentId;
-    private String fromSourceId;
+    private String fromComponentId,fromSourceId;
 
-    private String toComponentId;
-    private String toSinkId;
+    private String toComponentId, toSinkId;
 
     private Double ratio;
 
