@@ -17,12 +17,10 @@ import at.fhv.itm3.s2.roundabout.model.RoundaboutSimulationModel;
 import at.fhv.itm3.s2.roundabout.util.dto.*;
 import at.fhv.itm3.s2.roundabout.util.dto.Component;
 import at.fhv.itm3.s2.roundabout.util.dto.StreetNeighbour;
-import com.sun.org.apache.xpath.internal.operations.Mod;
 import desmoj.core.simulator.Experiment;
 import desmoj.core.simulator.Model;
 
 import javax.xml.bind.JAXB;
-import javax.xml.bind.JAXBContext;
 import java.io.File;
 import java.util.*;
 import java.util.List;
@@ -464,7 +462,7 @@ public class ConfigParser {
 
                     final boolean isTrafficLightActive = s.getIsTrafficLightActive() != null ? s.getIsTrafficLightActive() : false;
                     final PedestrianStreet pedestrianStreetSectionRef = s.getPedestrianCrossingIDRef() != null ?
-                    PEDESTRIAN_SECTION_REGISTRY.get(s.getPedestrianCrossingComponentIDRef()).get(s.getPedestrianCrossingIDRef()) : null;
+                            resolvePedestrianSection(s.getPedestrianCrossingComponentIDRef(), s.getPedestrianCrossingIDRef()) : null;
 
                     final StreetSection streetSection = new StreetSection(
                             s.getId(),
@@ -553,18 +551,12 @@ public class ConfigParser {
                                 track.getToXPortPositionStart(), track.getToYPortPositionStart(),
                                         track.getToXPortPositionEnd(), track.getToYPortPositionEnd());
 
-
-                        if(pedestrianStreetSection1 instanceof PedestrianStreetSection &&
-                                pedestrianStreetSection2 instanceof PedestrianStreetSection) {
-                            if (checkForExistingPedestrianStreetSectionPair(pairs, (PedestrianStreet) pedestrianStreetSection1,
-                                    (PedestrianStreet)pedestrianStreetSection2)) {
-                                throw new IllegalArgumentException("Pedestrian street sections pair does already exist");
-                            }
-                            pairs.add(new PedestrianConnectedStreetSections(pedestrianStreetSection1, streetSectionPort1,
-                                    pedestrianStreetSection2, streetSectionPort2));
-                        } else throw new IllegalStateException("Is not instance of PedestrianStreetSection");
-
-
+                        if (checkForExistingPedestrianStreetSectionPair(pairs, (PedestrianStreet) pedestrianStreetSection1,
+                                (PedestrianStreet)pedestrianStreetSection2)) {
+                            throw new IllegalArgumentException("Pedestrian street sections pair does already exist");
+                        }
+                        pairs.add(new PedestrianConnectedStreetSections(pedestrianStreetSection1, streetSectionPort1,
+                                pedestrianStreetSection2, streetSectionPort2));
                     }
 
                     final PedestrianStreetConnector streetConnector = new PedestrianStreetConnector(pairs);
@@ -575,11 +567,10 @@ public class ConfigParser {
 
 
     private boolean checkForExistingPedestrianStreetSectionPair(List<PedestrianConnectedStreetSections> sectionPair,
-                                                                PedestrianStreet section1, PedestrianStreet section2){
+                                                                PedestrianStreet fromSection, PedestrianStreet toSection){
 
         for (PedestrianConnectedStreetSections pair : sectionPair){
-            if ((pair.getFromStreetSection().equals(section1) && pair.getToStreetSection().equals(section2)) ||
-                    (pair.getFromStreetSection().equals(section2) && pair.getToStreetSection().equals(section1))) {
+            if ((pair.getFromStreetSection().equals(fromSection) && pair.getToStreetSection().equals(toSection)) ) {
                 return  true;
             }
         }
@@ -728,16 +719,18 @@ public class ConfigParser {
 
     private Map<AbstractSource, Map<RoundaboutSink, Route>> handleRoutes(ModelConfig modelConfig) {
         modelConfig.getComponents().getComponent().forEach(component -> {
-            // Start generating roots for every source.
-            component.getSources().getSource().forEach(sourceDTO -> {
-                final AbstractSource source = SOURCE_REGISTRY.get(component.getId()).get(sourceDTO.getId());
-                final Street connectedStreet = source.getConnectedStreet();
+            // Start generating roots for every vehicle source.
+            if(component.getType().equals(ComponentType.INTERSECTION) || component.getType().equals(ComponentType.ROUNDABOUT)) {
+                component.getSources().getSource().forEach(sourceDTO -> {
+                    final AbstractSource source = SOURCE_REGISTRY.get(component.getId()).get(sourceDTO.getId());
+                    final Street connectedStreet = source.getConnectedStreet();
 
-                final List<IConsumer> route = new LinkedList<>();
-                route.add(connectedStreet);
+                    final List<IConsumer> route = new LinkedList<>();
+                    route.add(connectedStreet);
 
-                doDepthFirstSearch(source, route, component, modelConfig);
-            });
+                    doDepthFirstSearch(source, route, component, modelConfig);
+                });
+            }
         });
 
         return ROUTE_REGISTRY;
@@ -746,15 +739,17 @@ public class ConfigParser {
     private Map<PedestrianAbstractSource, Map<PedestrianSink, PedestrianRoute>> handlePedestrianRoutes(ModelConfig modelConfig) {
         modelConfig.getComponents().getComponent().forEach(component -> {
             // Start generating routs for every source.
-            component.getSources().getSource().forEach(sourceDTO -> {
-                final PedestrianAbstractSource source = PEDESTRIAN_SOURCE_REGISTRY.get(component.getId()).get(sourceDTO.getId());
-                final PedestrianStreetSectionPortPair connectedStreet = new PedestrianStreetSectionPortPair(source.getConnectedStreet());
+            if(component.getType().equals(ComponentType.PEDESTRIANWALKINGAREA)) {
+                component.getSources().getSource().forEach(sourceDTO -> {
+                    final PedestrianAbstractSource source = PEDESTRIAN_SOURCE_REGISTRY.get(component.getId()).get(sourceDTO.getId());
+                    final PedestrianStreetSectionAndPortPair connectedStreet = new PedestrianStreetSectionAndPortPair(source.getConnectedStreet());
 
-                final List<PedestrianStreetSectionPortPair> route = new LinkedList<>();
-                route.add(connectedStreet);
+                    final List<PedestrianStreetSectionAndPortPair> route = new LinkedList<>();
+                    route.add(connectedStreet);
 
-                doPedestrianDepthFirstSearch(source, route, component, modelConfig);
-            });
+                    doPedestrianDepthFirstSearch(source, route, component, modelConfig);
+                });
+            }
         });
 
         return PEDESTRIAN_ROUTE_REGISTRY;
@@ -850,7 +845,6 @@ public class ConfigParser {
                                 }
                                 targetRoutes.put(sink, new Route(source, newRouteSections, flowRatio));
                             }
-                            return;
                         } else {
                             doDepthFirstSearch(source, newRouteSections, component, modelConfig);
                         }
@@ -886,8 +880,8 @@ public class ConfigParser {
         }
     }
 
-    private boolean pedestrianStreetSectionPortPairListContain(List<PedestrianStreetSectionPortPair> list, PedestrianStreet section){
-        for ( PedestrianStreetSectionPortPair PortPair : list) {
+    private boolean pedestrianStreetSectionAndPortPairListContain(List<PedestrianStreetSectionAndPortPair> list, PedestrianStreet section){
+        for ( PedestrianStreetSectionAndPortPair PortPair : list) {
             if (PortPair.getStreetSection().equals(section)) return true;
         }
         return false;
@@ -895,7 +889,7 @@ public class ConfigParser {
 
     private void doPedestrianDepthFirstSearch(
             PedestrianAbstractSource source,
-            List<PedestrianStreetSectionPortPair> routeSections,
+            List<PedestrianStreetSectionAndPortPair> routeSections,
             Component component,
             ModelConfig modelConfig
     ) {
@@ -916,19 +910,16 @@ public class ConfigParser {
                     final String toComponentId = track.getToComponentId() != null ? track.getToComponentId() : component.getId();
                     final String toSectionId = track.getToSectionId();
 
-
                     final PedestrianStreet toSection = resolvePedestrianStreet(toComponentId, toSectionId);
 
-                    if (!pedestrianStreetSectionPortPairListContain(routeSections, toSection)) {
+                    if (!pedestrianStreetSectionAndPortPairListContain(routeSections, toSection)) {
 
                         PedestrianStreetSectionPort enterPortToSection = new PedestrianStreetSectionPort(track.getToXPortPositionStart(),
                                 track.getToYPortPositionStart(), track.getToXPortPositionEnd(), track.getToYPortPositionEnd());
 
-                        if(!(routeSections instanceof PedestrianStreetSection)) throw new IllegalArgumentException("Type mismatch.");
-                        PedestrianStreetSectionPortPair routInfo = new PedestrianStreetSectionPortPair((PedestrianStreet)routeSections, enterPortToSection);
+                        PedestrianStreetSectionAndPortPair routInfo = new PedestrianStreetSectionAndPortPair(resolvePedestrianStreet(toComponentId, toSectionId), enterPortToSection);
 
-
-                        final List<PedestrianStreetSectionPortPair> newRouteSections = new LinkedList<>(routeSections);
+                        final List<PedestrianStreetSectionAndPortPair> newRouteSections = new LinkedList<>(routeSections);
                         newRouteSections.add(routInfo);
 
                         if (toSection instanceof PedestrianSink) {
@@ -954,7 +945,6 @@ public class ConfigParser {
                                 }
                                 targetRoutes.put(sink, new PedestrianRoute(source, newRouteSections, flowRatio));
                             }
-                            return;
                         } else {
                             doPedestrianDepthFirstSearch(source, newRouteSections, component, modelConfig);
                         }
@@ -963,11 +953,11 @@ public class ConfigParser {
             }
         }
 
-        if (modelConfig.getComponents().getConnectors() !=  null) {
+        if (modelConfig.getComponents().getPedestrianConnectors() !=  null) {
             // Check the connectors between networks components (Roundabouts or Intersections)
             for (PedestrianConnector connector : modelConfig.getComponents().getPedestrianConnectors().getPedestrianConnector()) {
                 for (PedestrianTrack track : connector.getPedestrianTrack()) {
-                    final String fromComponentId = track.getFromComponentId(); //TODO
+                    final String fromComponentId = track.getFromComponentId();
                     final String fromSectionId = track.getFromSectionId();
 
                     if (fromComponentId.equals(component.getId()) && fromSectionId.equals(currentSectionId)) {
@@ -981,15 +971,15 @@ public class ConfigParser {
                             final String toSectionId = track.getToSectionId();
 
                             if (toComponentId.equals(localComponent.getId())) {
-                                final PedestrianStreet toSection = resolvePedestrianStreet(toComponentId, toSectionId);
+                                final PedestrianStreet toSection = resolvePedestrianSection(toComponentId, toSectionId);
+
                                 PedestrianStreetSectionPort enterPortToSection = new PedestrianStreetSectionPort(track.getToXPortPositionStart(),
                                         track.getToYPortPositionStart(), track.getToXPortPositionEnd(), track.getToYPortPositionEnd());
-                                if(!(toSection instanceof PedestrianStreetSection)) throw new IllegalArgumentException("Type mismatch.");
-                                PedestrianStreetSectionPortPair routInfo2 = new PedestrianStreetSectionPortPair((PedestrianStreet)toSection, enterPortToSection);
 
+                                PedestrianStreetSectionAndPortPair routInfo = new PedestrianStreetSectionAndPortPair(resolvePedestrianStreet(toComponentId,toSectionId), enterPortToSection);
 
-                                final List<PedestrianStreetSectionPortPair> newRouteSections = new LinkedList<>(routeSections);
-                                newRouteSections.add(routInfo2);
+                                final List<PedestrianStreetSectionAndPortPair> newRouteSections = new LinkedList<>(routeSections);
+                                newRouteSections.add(routInfo);
 
                                 doPedestrianDepthFirstSearch(source, newRouteSections, localComponent, modelConfig);
                             }

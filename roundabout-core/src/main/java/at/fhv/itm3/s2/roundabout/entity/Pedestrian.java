@@ -1,19 +1,15 @@
 package at.fhv.itm3.s2.roundabout.entity;
 
-import at.fhv.itm14.trafsim.model.entities.AbstractProSumer;
 import at.fhv.itm14.trafsim.model.entities.Car;
-import at.fhv.itm14.trafsim.model.entities.IConsumer;
 import at.fhv.itm14.trafsim.statistics.StopWatch;
 import at.fhv.itm3.s2.roundabout.SocialForceModelCalculation.SupportiveCalculations;
 import at.fhv.itm3.s2.roundabout.api.entity.*;
 import at.fhv.itm3.s2.roundabout.model.RoundaboutSimulationModel;
-import at.fhv.itm3.s2.roundabout.util.dto.PedestrianConnector;
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeSpan;
 import desmoj.core.statistic.Count;
 import desmoj.core.statistic.Tally;
 
-import javax.vecmath.Vector2d;
 import java.awt.*;
 import java.util.Iterator;
 
@@ -25,7 +21,7 @@ public class Pedestrian implements IPedestrian {
     private final Double maxPreferredSpeed;
     private final IPedestrianRoute route;
     private final IPedestrianBehaviour pedestrianBehaviour;
-    private final Iterator<PedestrianStreetSectionPortPair > routeIterator;
+    private final Iterator<PedestrianStreetSectionAndPortPair> routeIterator;
     private final StopWatch pedestrianStopWatch;
     private final Count pedestrianCounter;
     private final Tally pedestrianAreaTime;
@@ -37,9 +33,9 @@ public class Pedestrian implements IPedestrian {
     private double lastUpdateTime;
 
     private PedestrianStreetSection lastSection;
-    private PedestrianStreetSectionPortPair currentSection;
-    private PedestrianStreetSectionPortPair nextSection;
-    private PedestrianStreetSectionPortPair sectionAfterNextSection;
+    private PedestrianStreetSectionAndPortPair currentSection;
+    private PedestrianStreetSectionAndPortPair nextSection;
+    private PedestrianStreetSectionAndPortPair sectionAfterNextSection;
     private Double currentSpeed;
     private Double walkedDistance;
     private double timeRelatedParameterFactorForSpeedCalculation;
@@ -179,7 +175,7 @@ public class Pedestrian implements IPedestrian {
      * {@inheritDoc}
      */
     @Override
-    public PedestrianStreetSectionPortPair getCurrentSection() {
+    public PedestrianStreetSectionAndPortPair getCurrentSection() {
         return currentSection;
     }
 
@@ -187,7 +183,7 @@ public class Pedestrian implements IPedestrian {
      * {@inheritDoc}
      */
     @Override
-    public PedestrianStreetSectionPortPair getNextSection() {
+    public PedestrianStreetSectionAndPortPair getNextSection() {
         return nextSection;
     }
 
@@ -195,7 +191,7 @@ public class Pedestrian implements IPedestrian {
      * {@inheritDoc}
      */
     @Override
-    public PedestrianStreetSectionPortPair getSectionAfterNextSection() {
+    public PedestrianStreetSectionAndPortPair getSectionAfterNextSection() {
         return sectionAfterNextSection;
     }
 
@@ -205,7 +201,7 @@ public class Pedestrian implements IPedestrian {
      * {@inheritDoc}
      */
     @Override
-    public PedestrianStreetSectionPortPair getDestination() {
+    public PedestrianStreetSectionAndPortPair getDestination() {
         return route.getDestinationSection();
     }
 
@@ -218,7 +214,7 @@ public class Pedestrian implements IPedestrian {
         }
     }
 
-    private PedestrianStreetSectionPortPair retrieveNextRouteSection() {
+    private PedestrianStreetSectionAndPortPair retrieveNextRouteSection() {
         return routeIterator.hasNext() ? routeIterator.next() : null;
     }
 
@@ -438,9 +434,12 @@ public class Pedestrian implements IPedestrian {
         return pos;
     }
 
+
     public void updateWalkedDistance( double distance){ this.walkedDistance += distance; }
 
-
+    public Double getWalkedDistance() {
+        return walkedDistance;
+    }
 
     /**
      * {@inheritDoc}

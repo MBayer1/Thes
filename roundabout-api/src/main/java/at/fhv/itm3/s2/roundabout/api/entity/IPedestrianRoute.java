@@ -1,77 +1,76 @@
 package at.fhv.itm3.s2.roundabout.api.entity;
 
 import at.fhv.itm14.trafsim.model.entities.AbstractProducer;
-import at.fhv.itm14.trafsim.model.entities.IConsumer;
 
 import java.util.Collection;
 
 public interface IPedestrianRoute {
 
     /**
-     * Returns the route as unmodifiable list of {@link PedestrianStreetSectionPortPair}.
+     * Returns the route as unmodifiable list of {@link PedestrianStreetSectionAndPortPair}.
      *
-     * @return the route as unmodifiable list of {@link PedestrianStreetSectionPortPair}.
+     * @return the route as unmodifiable list of {@link PedestrianStreetSectionAndPortPair}.
      */
-    Collection<PedestrianStreetSectionPortPair> getRoute();
+    Collection<PedestrianStreetSectionAndPortPair> getRoute();
 
     /**
-     * Returns an {@link PedestrianStreetSectionPortPair} at the given index of the route.
+     * Returns an {@link PedestrianStreetSectionAndPortPair} at the given index of the route.
      *
-     * @param index the index the {@link PedestrianStreetSectionPortPair} should be returned from the route.
-     * @return an {@link PedestrianStreetSectionPortPair} located at given index.
+     * @param index the index the {@link PedestrianStreetSectionAndPortPair} should be returned from the route.
+     * @return an {@link PedestrianStreetSectionAndPortPair} located at given index.
      */
-    PedestrianStreetSectionPortPair getSectionAt(int index);
+    PedestrianStreetSectionAndPortPair getSectionAt(int index);
 
     /**
-     * Returns an {@link PedestrianStreetSectionPortPair} at the given index of the route.
+     * Returns an {@link PedestrianStreetSectionAndPortPair} at the given index of the route.
      *
      * @param index the index the {@link PedestrianStreet} should be returned from the route.
-     * @return an {@link PedestrianStreetSectionPortPair} located at given index.
+     * @return an {@link PedestrianStreetSectionAndPortPair} located at given index.
      */
-    PedestrianStreetSectionPortPair getSectionAt(PedestrianStreet pedestrianStreet);
+    PedestrianStreetSectionAndPortPair getSectionAt(PedestrianStreet pedestrianStreet);
 
     /**
-     * Returns a start {@link PedestrianStreetSectionPortPair} of the route.
+     * Returns a start {@link PedestrianStreetSectionAndPortPair} of the route.
      *
-     * @return start {@link PedestrianStreetSectionPortPair} of the route if present, otherwise null.
+     * @return start {@link PedestrianStreetSectionAndPortPair} of the route if present, otherwise null.
      */
-    PedestrianStreetSectionPortPair getStartSection();
+    PedestrianStreetSectionAndPortPair getStartSection();
 
     /**
-     * Returns a destination {@link PedestrianStreetSectionPortPair} of the route.
+     * Returns a destination {@link PedestrianStreetSectionAndPortPair} of the route.
      *
-     * @return start {@link PedestrianStreetSectionPortPair} of the route if present, otherwise null.
+     * @return start {@link PedestrianStreetSectionAndPortPair} of the route if present, otherwise null.
      */
-    PedestrianStreetSectionPortPair getDestinationSection();
+    PedestrianStreetSectionAndPortPair getDestinationSection();
 
     /**
-     * Returns the number of {@link PedestrianStreetSectionPortPair} in the route.
+     * Returns the number of {@link PedestrianStreetSectionAndPortPair} in the route.
      *
-     * @return the number of {@link PedestrianStreetSectionPortPair} in the route as int.
+     * @return the number of {@link PedestrianStreetSectionAndPortPair} in the route as int.
      */
     int getNumberOfSections();
 
     /**
-     * Adds a new {@link PedestrianStreetSectionPortPair} to the route.
+     * Adds a new {@link PedestrianStreetSectionAndPortPair} to the route.
      *
      * @param section the section that is added to the route at the end included its enter and exit port.
      */
-    void addSection(PedestrianStreetSectionPortPair section);
+    void addSection(PedestrianStreetSectionAndPortPair section);
 
     /**
-     * Checks if there are {@link PedestrianStreetSectionPortPair}s in the route defined.
+     * Checks if there are {@link PedestrianStreetSectionAndPortPair}s in the route defined.
      *
-     * @return true if there are {@link PedestrianStreetSectionPortPair} in the route, otherwise false.
+     * @return true if there are {@link PedestrianStreetSectionAndPortPair} in the route, otherwise false.
      */
     boolean isEmpty();
 
     /**
      * Returns the index in the route of given {@link Street}
      *
-     * @param streetSection is the {@link PedestrianStreetSectionPortPair} from which the index should be returned
+     * @param streetSection is the {@link PedestrianStreetSectionAndPortPair} from which the index should be returned
      * @return the index of streetSection in the route
      */
-     int getIndexOfSection(PedestrianStreetSectionPortPair streetSection);
+     int getIndexOfSection(PedestrianStreetSectionAndPortPair streetSection);
 
     /**
      * Returns the {@link AbstractProducer} source of the route
@@ -87,9 +86,9 @@ public interface IPedestrianRoute {
     void setSource(AbstractProducer source);
 
     /**
-     * Returns the {@link PedestrianStreetSectionPortPair} sink of the route
+     * Returns the {@link PedestrianStreetSectionAndPortPair} sink of the route
      *
-     * @return  the sink of the route as {@link PedestrianStreetSectionPortPair}
+     * @return  the sink of the route as {@link PedestrianStreetSectionAndPortPair}
      */
     AbstractSink getSink();
 
@@ -101,25 +100,25 @@ public interface IPedestrianRoute {
     Double getRatio();
 
     /**
-    * Checks if there is a specific {@link PedestrianStreetSectionPortPair}s already in the route.
+    * Checks if there is a specific {@link PedestrianStreetSectionAndPortPair}s already in the route.
     *
     * @return true if there is a specific {@link Street} in the route, otherwise false.
     */
-    boolean contains(PedestrianStreetSectionPortPair section);
+    boolean contains(PedestrianStreetSectionAndPortPair section);
 
 
     /**
-     * Get the entry port of a {@PedestrianStreetSectionPort} specific {@link PedestrianStreetSectionPortPair} in the route.
+     * Get the entry port of a {@PedestrianStreetSectionPort} specific {@link PedestrianStreetSectionAndPortPair} in the route.
      *
-     * @return the entry port of a specific {@link PedestrianStreetSectionPortPair} in the route.
+     * @return the entry port of a specific {@link PedestrianStreetSectionAndPortPair} in the route.
      */
     PedestrianStreetSectionPort getEnterPortOfSectionAt(int index);
 
 
     /**
-     * Get the exit port of a {@PedestrianStreetSectionPort} specific {@link PedestrianStreetSectionPortPair} in the route.
+     * Get the exit port of a {@PedestrianStreetSectionPort} specific {@link PedestrianStreetSectionAndPortPair} in the route.
      *
-     * @return the exit port of a specific {@link PedestrianStreetSectionPortPair} in the route.
+     * @return the exit port of a specific {@link PedestrianStreetSectionAndPortPair} in the route.
      */
     PedestrianStreetSectionPort getExitPortOfSectionAt(int index);
 }

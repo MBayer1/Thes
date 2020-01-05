@@ -1,8 +1,5 @@
 package at.fhv.itm3.s2.roundabout.api.entity;
 
-import at.fhv.itm14.trafsim.model.entities.IConsumer;
-import at.fhv.itm14.trafsim.model.entities.IProducer;
-
 import java.awt.*;
 
 public interface IPedestrian {
@@ -78,7 +75,7 @@ public interface IPedestrian {
      *
      * @return reference to {@link PedestrianStreet} where pedestrian is currently located.
      */
-    PedestrianStreetSectionPortPair getCurrentSection();
+    PedestrianStreetSectionAndPortPair getCurrentSection();
 
     /**
      * Returns reference to the next {@link PedestrianStreet} scheduled
@@ -86,22 +83,22 @@ public interface IPedestrian {
      *
      * @return reference to next {@link PedestrianStreet}.
      */
-    PedestrianStreetSectionPortPair getNextSection();
+    PedestrianStreetSectionAndPortPair getNextSection();
 
     /**
-     * Returns reference to the section after the next {@link PedestrianStreetSectionPortPair} scheduled
+     * Returns reference to the section after the next {@link PedestrianStreetSectionAndPortPair} scheduled
      * in pedestrian pre-calculated route.
      *
-     * @return  reference to section after next {@link PedestrianStreetSectionPortPair}
+     * @return  reference to section after next {@link PedestrianStreetSectionAndPortPair}
      */
-    PedestrianStreetSectionPortPair getSectionAfterNextSection();
+    PedestrianStreetSectionAndPortPair getSectionAfterNextSection();
 
     /**
      * Return the last available section specified in pedestrian route.
      *
      * @return reference to last instance of {@link PedestrianStreet} in route.
      */
-    PedestrianStreetSectionPortPair getDestination();
+    PedestrianStreetSectionAndPortPair getDestination();
 
 
     /**

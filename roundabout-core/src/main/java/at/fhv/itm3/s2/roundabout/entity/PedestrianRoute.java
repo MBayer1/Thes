@@ -1,18 +1,16 @@
 package at.fhv.itm3.s2.roundabout.entity;
 
 import at.fhv.itm14.trafsim.model.entities.AbstractProducer;
-import at.fhv.itm14.trafsim.model.entities.IConsumer;
 import at.fhv.itm3.s2.roundabout.api.entity.*;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.IntStream;
 
 public class PedestrianRoute implements IPedestrianRoute {
 
-    private List<PedestrianStreetSectionPortPair> route;
+    private List<PedestrianStreetSectionAndPortPair> route;
     private PedestrianAbstractSource source;
     private Double ratio;
 
@@ -21,7 +19,7 @@ public class PedestrianRoute implements IPedestrianRoute {
     }
 
     public PedestrianRoute(PedestrianAbstractSource source,
-                           List<PedestrianStreetSectionPortPair>  route,
+                           List<PedestrianStreetSectionAndPortPair>  route,
                            Double ratio) {
         this.route = route;
         this.source = source;
@@ -32,7 +30,7 @@ public class PedestrianRoute implements IPedestrianRoute {
      * {@inheritDoc}
      */
     @Override
-    public List<PedestrianStreetSectionPortPair> getRoute() {
+    public List<PedestrianStreetSectionAndPortPair> getRoute() {
         return Collections.unmodifiableList(route);
     }
 
@@ -40,7 +38,7 @@ public class PedestrianRoute implements IPedestrianRoute {
      * {@inheritDoc}
      */
     @Override
-    public PedestrianStreetSectionPortPair getSectionAt(int index) {
+    public PedestrianStreetSectionAndPortPair getSectionAt(int index) {
         if (index >= route.size()) {
             throw new IllegalArgumentException("Index value for accessing a section in a route is too big.");
         }
@@ -52,8 +50,8 @@ public class PedestrianRoute implements IPedestrianRoute {
      * {@inheritDoc}
      */
     @Override
-    public PedestrianStreetSectionPortPair getSectionAt(PedestrianStreet pedestrianStreet){
-        for (PedestrianStreetSectionPortPair routePart : route ){
+    public PedestrianStreetSectionAndPortPair getSectionAt(PedestrianStreet pedestrianStreet){
+        for (PedestrianStreetSectionAndPortPair routePart : route ){
             if (routePart.getStreetSection().equals(pedestrianStreet)) return routePart;
         }
         return null;
@@ -88,7 +86,7 @@ public class PedestrianRoute implements IPedestrianRoute {
      * {@inheritDoc}
      */
     @Override
-    public PedestrianStreetSectionPortPair getStartSection() {
+    public PedestrianStreetSectionAndPortPair getStartSection() {
         return !isEmpty() ? route.get(0) : null;
     }
 
@@ -96,7 +94,7 @@ public class PedestrianRoute implements IPedestrianRoute {
      * {@inheritDoc}
      */
     @Override
-    public PedestrianStreetSectionPortPair getDestinationSection() {
+    public PedestrianStreetSectionAndPortPair getDestinationSection() {
         return !isEmpty() ? route.get(route.size() - 1) : null;
     }
 
@@ -112,7 +110,7 @@ public class PedestrianRoute implements IPedestrianRoute {
      * {@inheritDoc}
      */
     @Override
-    public void addSection(PedestrianStreetSectionPortPair section) {
+    public void addSection(PedestrianStreetSectionAndPortPair section) {
         // Adds as a last element to list.
         route.add(section);
     }
@@ -144,7 +142,7 @@ public class PedestrianRoute implements IPedestrianRoute {
      */
     @Override
     public AbstractSink getSink() {
-        final PedestrianStreetSectionPortPair destinationSection = this.getDestinationSection();
+        final PedestrianStreetSectionAndPortPair destinationSection = this.getDestinationSection();
         if (destinationSection.getStreetSection() instanceof AbstractSink) {
             return (AbstractSink) destinationSection.getStreetSection();
         } else {
@@ -173,7 +171,7 @@ public class PedestrianRoute implements IPedestrianRoute {
      * {@inheritDoc}
      */
     @Override
-    public int getIndexOfSection(PedestrianStreetSectionPortPair streetSection) {
+    public int getIndexOfSection(PedestrianStreetSectionAndPortPair streetSection) {
         if (!route.contains(streetSection)) {
             throw new IllegalArgumentException("Track must be part of the route");
         }
@@ -184,7 +182,7 @@ public class PedestrianRoute implements IPedestrianRoute {
      * {@inheritDoc}
      */
     @Override
-    public boolean contains (PedestrianStreetSectionPortPair section) {
+    public boolean contains (PedestrianStreetSectionAndPortPair section) {
         if (!(section.getStreetSection() instanceof Street)) {
            throw new IllegalStateException("All previous IConsumer should be of type Street");
         }

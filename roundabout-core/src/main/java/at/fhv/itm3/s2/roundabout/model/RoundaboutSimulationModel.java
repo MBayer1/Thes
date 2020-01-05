@@ -81,7 +81,9 @@ public class RoundaboutSimulationModel extends Model {
     private final Double minPedestrianPreferredSpeed;
     private final Double maxPedestrianPreferredSpeed;
     private final Double expectedPedestrianPreferredSpeed;
-
+    public final Double pedestrianFieldOfViewRadius = 800.0; //cm
+    public final Double pedestrianFieldOfViewDegree = 170.0; // Degree
+    public final Double getPedestrianFieldOfViewWeakeningFactor = 0.1; // Value between 0 and 1
 
     //Simulation
     private IModelStructure modelStructure;
@@ -204,7 +206,6 @@ public class RoundaboutSimulationModel extends Model {
             DEFAULT_SFM_DEGREE_OF_ACCURACY,
             DEFAULT_MIN_PEDESTRIAN_RELAXING_TIME, DEFAULT_MAX_PEDESTRIAN_RELAXING_TIME, DEFAULT_EXPECTED_PEDESTRIAN_RELAXING_TIME,
             DEFAULT_MIN_PEDESTRIAN_PREFERRED_SPEED, DEFAULT_MAX_PEDESTRIAN_PREFERRED_SPEED, DEFAULT_EXPECTED_PEDESTRIAN_PREFERRED_SPEED
-
             );
     }
 
@@ -660,8 +661,4 @@ public class RoundaboutSimulationModel extends Model {
     public Double getRandomRelaxingTimeTauAlpha () {
         return Math.max(Math.min(relaxingTimeTauAlpha.sample(), maxPedestrianRelaxingTimeTauAlpha), minPedestrianRelaxingTimeTauAlpha);
     }
-
-
-
-
 }
