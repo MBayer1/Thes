@@ -173,14 +173,14 @@ public abstract class PedestrianStreet extends AbstractProSumer implements IPede
      *
      * @return The length in meters.
      */
-    public abstract double getLength( );
+    public abstract double getLengthX( );
 
     /**
      * Gets physical width of the street section.
      *
      * @return The width in meters.
      */
-    public abstract double getWidth();
+    public abstract double getLengthY();
 
 
     /**

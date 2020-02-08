@@ -28,6 +28,8 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import java.awt.*;
+
 import static java.util.stream.Collectors.toMap;
 
 
@@ -48,10 +50,13 @@ public class ConfigParser {
     private static final String CAR_RATIO_PER_TOTAL_VEHICLE = "CAR_RATIO_PER_TOTAL_VEHICLE";
     private static final String JAM_INDICATOR_IN_SECONDS = "JAM_INDICATOR_IN_SECONDS";
 
-    private static final String MIN_PEDESTRIAN_ARRIVAL_RATE = "MIN_PEDESTRIAN_ARRIVAL_RATE";
-    private static final String MAX_PEDESTRIAN_ARRIVAL_RATE = "MAX_PEDESTRIAN_ARRIVAL_RATE";
-    private static final String MIN_PEDESTRIAN_GROUPE_SIZE = "MIN_PEDESTRIAN_GROUPE_SIZE";
-    private static final String MAX_PEDESTRIAN_GROUPE_SIZE = "MAX_PEDESTRIAN_GROUPE_SIZE";
+    private static final String MIN_TIME_BETWEEN_PEDESTRIAN_ARRIVALS = "MIN_TIME_BETWEEN_PEDESTRIAN_ARRIVALS";
+    private static final String MAX_TIME_BETWEEN_PEDESTRIAN_ARRIVALS = "MAX_TIME_BETWEEN_PEDESTRIAN_ARRIVALS";
+    private static final String MEAN_TIME_BETWEEN_PEDESTRIAN_ARRIVALS = "MEAN_TIME_BETWEEN_PEDESTRIAN_ARRIVALS";
+    private static final String MIN_DISTANCE_FACTOR_BETWEEN_PEDESTRIAN = "MIN_DISTANCE_FACTOR_BETWEEN_PEDESTRIAN";
+    private static final String MAX_DISTANCE_FACTOR_BETWEEN_PEDESTRIAN = "MAX_DISTANCE_FACTOR_BETWEEN_PEDESTRIAN";
+    private static final String MIN_PEDESTRIAN_GROUP_SIZE = "MIN_PEDESTRIAN_GROUP_SIZE";
+    private static final String MAX_PEDESTRIAN_GROUP_SIZE = "MAX_PEDESTRIAN_GROUP_SIZE";
     private static final String MIN_PEDESTRIAN_STREET_LENGTH = "MIN_PEDESTRIAN_STREET_LENGTH";
     private static final String MIN_PEDESTRIAN_STREET_WIDTH = "MIN_PEDESTRIAN_STREET_WIDTH";
 
@@ -61,8 +66,6 @@ public class ConfigParser {
     private static final String MIN_PEDESTRIAN_PREFERRED_SPEED = "MIN_PEDESTRIAN_PREFERRED_SPEED";
     private static final String MAX_PEDESTRIAN_PREFERRED_SPEED = "MAX_PEDESTRIAN_PREFERRED_SPEED";
     private static final String EXPECTED_PEDESTRIAN_PREFERRED_SPEED = "EXPECTED_PEDESTRIAN_PREFERRED_SPEED";
-
-
 
     private static final String INTERSECTION_SIZE = "INTERSECTION_SIZE";
     private static final String INTERSECTION_SERVICE_DELAY = "INTERSECTION_SERVICE_DELAY";
@@ -143,10 +146,13 @@ public class ConfigParser {
             extractParameter(parameters::get, Double::valueOf, CAR_RATIO_PER_TOTAL_VEHICLE),
             extractParameter(parameters::get, Double::valueOf, JAM_INDICATOR_IN_SECONDS),
 
-            extractParameter(parameters::get, Double::valueOf, MIN_PEDESTRIAN_ARRIVAL_RATE),
-            extractParameter(parameters::get, Double::valueOf, MAX_PEDESTRIAN_ARRIVAL_RATE),
-            extractParameter(parameters::get, Long::valueOf, MIN_PEDESTRIAN_GROUPE_SIZE),
-            extractParameter(parameters::get, Long::valueOf, MAX_PEDESTRIAN_GROUPE_SIZE),
+            extractParameter(parameters::get, Double::valueOf, MIN_TIME_BETWEEN_PEDESTRIAN_ARRIVALS),
+            extractParameter(parameters::get, Double::valueOf, MAX_TIME_BETWEEN_PEDESTRIAN_ARRIVALS),
+            extractParameter(parameters::get, Double::valueOf, MEAN_TIME_BETWEEN_PEDESTRIAN_ARRIVALS),
+            extractParameter(parameters::get, Double::valueOf, MIN_DISTANCE_FACTOR_BETWEEN_PEDESTRIAN),
+            extractParameter(parameters::get, Double::valueOf, MAX_DISTANCE_FACTOR_BETWEEN_PEDESTRIAN),
+            extractParameter(parameters::get, Long::valueOf, MIN_PEDESTRIAN_GROUP_SIZE),
+            extractParameter(parameters::get, Long::valueOf, MAX_PEDESTRIAN_GROUP_SIZE),
             extractParameter(parameters::get, Double::valueOf, MIN_PEDESTRIAN_STREET_LENGTH),
             extractParameter(parameters::get, Double::valueOf, MIN_PEDESTRIAN_STREET_WIDTH),
             extractParameter(parameters::get, Double::valueOf, SFM_DEGREE_OF_ACCURACY),
@@ -183,6 +189,7 @@ public class ConfigParser {
 
         final List<PedestrianRoute> pedestrianRoutes = handlePedestrianRoutes(modelConfig).values().stream().map(Map::values).flatMap(Collection::stream).collect(Collectors.toList());
         modelStructure.addPedestrianRoutes(pedestrianRoutes);
+        initGlobalCoordinates();
 
         RouteController.getInstance(model).setRoutes(modelStructure.getRoutes());
 
@@ -192,7 +199,6 @@ public class ConfigParser {
                 handleStreetNeighbours(modelConfig.getNeighbours());
             }
         }
-
         model.registerModelStructure(modelStructure);
         return modelStructure;
     }
@@ -454,19 +460,22 @@ public class ConfigParser {
         return sections.getSection().stream().collect(toMap(
                 Section::getId,
                 s -> {
-                    if(s.getLength() < minStreetLength) {
+                    if(s.getLengthX() < minStreetLength) {
                         throw new IllegalArgumentException(
-                                "Street must not be smaller than the biggest vehicle incl. distance to other vehicles"
+                             "Street must not be smaller than the biggest vehicle incl. distance to other vehicles"
                         );
                     }
 
                     final boolean isTrafficLightActive = s.getIsTrafficLightActive() != null ? s.getIsTrafficLightActive() : false;
                     final PedestrianStreet pedestrianStreetSectionRef = s.getPedestrianCrossingIDRef() != null ?
                             resolvePedestrianSection(s.getPedestrianCrossingComponentIDRef(), s.getPedestrianCrossingIDRef()) : null;
+                    PedestrianStreetReferenceForVehicleStreet pedestrianStreetRef =
+                            new PedestrianStreetReferenceForVehicleStreet(pedestrianStreetSectionRef,
+                            s.getPedestrianCrossingIDRefEnterHigh(), s.getPedestrianCrossingRefLinkedAtBegin());
 
                     final StreetSection streetSection = new StreetSection(
                             s.getId(),
-                            s.getLength(),
+                            s.getLengthX(),
                             model,
                             s.getId(),
                             false,
@@ -474,8 +483,13 @@ public class ConfigParser {
                             s.getMinGreenPhaseDuration(),
                             s.getGreenPhaseDuration(),
                             s.getRedPhaseDuration(),
-                            pedestrianStreetSectionRef
+                            pedestrianStreetRef
                     );
+
+                    if ( (pedestrianStreetSectionRef instanceof PedestrianStreetSection) &&
+                            pedestrianStreetSectionRef.getPedestrianConsumerType().equals(PedestrianConsumerType.PEDESTRIAN_CROSSING)) {
+                        ((PedestrianStreetSection) pedestrianStreetSectionRef).addVehicleStreetList(streetSection);
+                    }
 
                     if (!SECTION_REGISTRY.containsKey(scopeComponentId)) {
                         SECTION_REGISTRY.put(scopeComponentId, new HashMap<>());
@@ -491,13 +505,13 @@ public class ConfigParser {
         return sections.getSection().stream().collect(toMap(
                 Section::getId,
                 s -> {
-                    if(s.getLength() < Double.parseDouble(MODEL_PARAMETERS.get(MIN_PEDESTRIAN_STREET_LENGTH))) {
+                    if(s.getLengthX() < Double.parseDouble(MODEL_PARAMETERS.get(MIN_PEDESTRIAN_STREET_LENGTH))) {
                         throw new IllegalArgumentException(
                               "Street must not be smaller than a pedestrian or the minimum of a pedestrian street."
                         );
                     }
 
-                    if(s.getWidth() < Double.parseDouble(MODEL_PARAMETERS.get(MIN_PEDESTRIAN_STREET_WIDTH))) {
+                    if(s.getLengthY() < Double.parseDouble(MODEL_PARAMETERS.get(MIN_PEDESTRIAN_STREET_WIDTH))) {
                         throw new IllegalArgumentException(
                                 "Street must not be smaller than a pedestrian or the minimum of a pedestrian street."
                         );
@@ -507,8 +521,8 @@ public class ConfigParser {
 
                     final PedestrianStreetSection pedestrianStreetSection = new PedestrianStreetSection(
                             s.getId(),
-                            s.getLength(),
-                            s.getWidth(),
+                            s.getLengthX(),
+                            s.getLengthY(),
                             s.getPedestrianSectionType(),
                             model,
                             s.getId(),
@@ -516,7 +530,8 @@ public class ConfigParser {
                             isTrafficLightActive,
                             s.getMinGreenPhaseDuration(),
                             s.getGreenPhaseDuration(),
-                            s.getRedPhaseDuration()
+                            s.getRedPhaseDuration(),
+                            null
                     );
 
 
@@ -595,11 +610,9 @@ public class ConfigParser {
                     new at.fhv.itm3.s2.roundabout.entity.StreetNeighbour(
                             resolveStreet(neighComp1,neigh1), resolveStreet(neighComp2, neigh2)
                     ));
-
         }
         return neighMap;
     }
-
 
     private Map<String, StreetConnector> handleConnectors(String scopeComponentId, Connectors connectors) {
         return connectors.getConnector().stream().collect(toMap(
@@ -746,13 +759,77 @@ public class ConfigParser {
 
                     final List<PedestrianStreetSectionAndPortPair> route = new LinkedList<>();
                     route.add(connectedStreet);
-
                     doPedestrianDepthFirstSearch(source, route, component, modelConfig);
                 });
             }
         });
-
         return PEDESTRIAN_ROUTE_REGISTRY;
+    }
+
+    private PedestrianStreetSection getAStartForGlobalCoordinates(){
+        for ( Map.Entry<String, Map<String, PedestrianSource>> sourceRegistry : getPedestrianSourceRegistry().entrySet() ) {
+            for ( Map.Entry <String, PedestrianSource> startSource : sourceRegistry.getValue().entrySet() ) {
+                if ( startSource instanceof  PedestrianStreetSection) {
+                    return (PedestrianStreetSection) startSource;
+                }
+                else throw new IllegalArgumentException("Street not instance of PedestrianStreetSection.");
+            }
+        }
+        return null;
+    }
+
+    private void initGlobalCoordinates(){
+        // start at any source
+        PedestrianStreetSection currentSection = getAStartForGlobalCoordinates();
+        currentSection.setGlobalCoordinateOfSectionOrigin(new Point(0,0));
+        deepSearchGlobalCoordinates(currentSection);
+    }
+
+    private void deepSearchGlobalCoordinates (PedestrianStreetSection currentSection) {
+        for ( PedestrianConnectedStreetSections connector: currentSection.getNextStreetConnector().getSectionPairs()) {
+
+            IConsumer toStreetSection = connector.getToStreetSection();
+            if ( !(toStreetSection instanceof PedestrianStreetSection)) {
+                throw new IllegalArgumentException("Street not instance of PedestrianStreetSection.");
+            }
+            PedestrianConsumerType toType = ((PedestrianStreetSection) toStreetSection).getPedestrianConsumerType();
+
+            if ( toType.equals(PedestrianConsumerType.PEDESTRIAN_SINK) ||
+                 toType.equals(PedestrianConsumerType.PEDESTRIAN_SOURCE )) return;
+
+            if( currentSection.getGlobalCoordinateOfSectionOrigin() != null ) {
+                addGlobalCoordinates(   currentSection,
+                                        connector.getPortOfFromStreetSection().getBeginOfStreetPort(),
+                                        (PedestrianStreetSection)toStreetSection,
+                                        connector.getPortOfFromStreetSection().getBeginOfStreetPort());
+
+                deepSearchGlobalCoordinates( (PedestrianStreetSection)toStreetSection );
+            }
+        }
+    }
+
+    private void addGlobalCoordinates( PedestrianStreet previousSection,
+                                       Point localEntryPort,
+                                       PedestrianStreet currentSection,
+                                       Point localExitPort){
+    // Setup Global Network Coordinates for Pedestrian Street Sections
+    // global exit point - local entry point = global origin of entry street section
+        if (!(currentSection instanceof PedestrianStreetSection)) {
+            throw new IllegalArgumentException("Street not instance of PedestrianStreetSection.");
+        }
+
+        Point globalOrigin = ((PedestrianStreetSection)previousSection).getGlobalCoordinateOfSectionOrigin();
+        Point globalExitPoint = new Point(  (int)(globalOrigin.getX()+ localExitPort.getX()),
+                                            (int)(globalOrigin.getY()+ localExitPort.getY()));
+
+        if (!(previousSection instanceof PedestrianStreetSection)) {
+            throw new IllegalArgumentException("Street not instance of PedestrianStreetSection.");
+        }
+        Point globalOriginCurrent = new Point(  (int) (globalExitPoint.getX() - localEntryPort.getX()),
+                                                (int) (globalExitPoint.getY() - localEntryPort.getY()));
+        ((PedestrianStreetSection)currentSection).setGlobalCoordinateOfSectionOrigin(globalOriginCurrent);
+
+
     }
 
     private Street resolveStreet(String componentId, String streetId) {
@@ -947,6 +1024,7 @@ public class ConfigParser {
                             }
                         } else {
                             doPedestrianDepthFirstSearch(source, newRouteSections, component, modelConfig);
+
                         }
                     }
                 }

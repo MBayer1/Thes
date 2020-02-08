@@ -2,11 +2,13 @@ package at.fhv.itm3.s2.roundabout.api.entity;
 
 import at.fhv.itm14.trafsim.model.entities.IConsumer;
 
+import java.awt.*;
+
 public class PedestrianStreetSectionAndPortPair {
     // Information in cm
-    PedestrianStreetSectionPort enterPort;
-    PedestrianStreetSectionPort exitPort;
-    IConsumer streetSection;
+    private PedestrianStreetSectionPort enterPort;
+    private PedestrianStreetSectionPort exitPort;
+    private IConsumer streetSection;
 
 
     public PedestrianStreetSectionAndPortPair(IConsumer streetSection){

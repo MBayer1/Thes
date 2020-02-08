@@ -2,8 +2,7 @@ package at.fhv.itm3.s2.roundabout.model;
 
 import at.fhv.itm14.trafsim.model.ModelFactory;
 import at.fhv.itm14.trafsim.model.entities.OneWayStreet;
-import at.fhv.itm3.s2.roundabout.api.entity.IModelStructure;
-import at.fhv.itm3.s2.roundabout.api.entity.Street;
+import at.fhv.itm3.s2.roundabout.api.entity.*;
 import desmoj.core.dist.ContDist;
 import desmoj.core.dist.ContDistNormal;
 import desmoj.core.dist.ContDistUniform;
@@ -34,10 +33,13 @@ public class RoundaboutSimulationModel extends Model {
 
     private static final Double VEHICLE_LENGTH_STEP_SIZE = 0.1;
 
-    private static final Double DEFAULT_MIN_PEDESTRIAN_ARRIVAL_RATE = 0.1;
-    private static final Double DEFAULT_MAX_PEDESTRIAN_ARRIVAL_RATE = 1.0;
-    private static final Long DEFAULT_MIN_PEDESTRIAN_GROUPE_SIZE = 2L;
-    private static final Long DEFAULT_MAX_PEDESTRIAN_GROUPE_SIZE = 30L;
+    private static final Double DEFAULT_MIN_TIME_BETWEEN_PEDESTRIAN_ARRIVALS = 3.5;
+    private static final Double DEFAULT_MAX_TIME_BETWEEN_PEDESTRIAN_ARRIVALS = 10.0;
+    private static final Double DEFAULT_MEAN_TIME_BETWEEN_PEDESTRIAN_ARRIVALS = 6.0;
+    private static final Double DEFAULT_MIN_DISTANCE_FACTOR_BETWEEN_PEDESTRIAN = 3.5;
+    private static final Double DEFAULT_MAX_DISTANCE_FACTOR_BETWEEN_PEDESTRIAN = 10.0;
+    private static final Long DEFAULT_MIN_PEDESTRIAN_GROUP_SIZE = 2L;
+    private static final Long DEFAULT_MAX_PEDESTRIAN_GROUP_SIZE = 30L;
     private static final Double DEFAULT_MIN_PEDESTRIAN_STREET_LENGTH = 10.0;
     private static final Double DEFAULT_MIN_PEDESTRIAN_STREET_WIDTH = 10.0;
     private static final Double DEFAULT_SFM_DEGREE_OF_ACCURACY = 10e-8;
@@ -50,8 +52,8 @@ public class RoundaboutSimulationModel extends Model {
     private static final Double DEFAULT_EXPECTED_PEDESTRIAN_PREFERRED_SPEED = 1.34;
 
 
-
     private final Long simulationSeed;
+
     private final Double minDistanceFactorBetweenCars;
     private final Double maxDistanceFactorBetweenCars;
     private final Double minTimeBetweenCarArrivals;
@@ -68,8 +70,11 @@ public class RoundaboutSimulationModel extends Model {
     private final Double carRatioPerTotalVehicle;
     private final Double jamIndicatorInSeconds;
 
-    private final Double minPedestrianArrivalRate;
-    private final Double maxPedestrianArrivalRate;
+    private final Double minDistanceFactorBetweenPedestrians;
+    private final Double maxDistanceFactorBetweenPedestrians;
+    private final Double minTimeBetweenPedestrianArrivals;
+    private final Double maxTimeBetweenPedestrianArrivals;
+    private final Double meanTimeBetweenPedestrianArrivals;
     private final Long minPedestrianGroupeSize;
     private final Long maxPedestrianGroupeSize;
     private final Double minPedestrianStreetLength;
@@ -130,9 +135,17 @@ public class RoundaboutSimulationModel extends Model {
      */
     private ContDistNormal timeBetweenCarArrivals;
 
+    /**
+     * Random number stream used to draw a time between two pedestrians arrivals.
+     * See {@link RoundaboutSimulationModel#init()} method for stream parameters.
+     */
+    private ContDistNormal timeBetweenPedestrianArrivals;
 
-
-
+    /**
+     * Random number stream used to calculate a distance between two pedestrians.
+     * See {@link RoundaboutSimulationModel#init()} method for stream parameters.
+     */
+    private ContDistUniform distanceFactorBetweenPedestrians;
 
     /////////////////////////////////////////////////////////////////////////////////
     ////Social Force Model Calculations:
@@ -141,15 +154,37 @@ public class RoundaboutSimulationModel extends Model {
      * Random number stream used to draw a time between two car arrivals.
      * See {@link RoundaboutSimulationModel#init()} method for stream parameters.
      */
-    private ContDistNormal relaxingTimeTauAlpha;
+    private ContDistNormal pedestrianRelaxingTimeTauAlpha;
 
     /**
      * Random number stream used to draw a time between two car arrivals.
      * See {@link RoundaboutSimulationModel#init()} method for stream parameters.
      */
-    private ContDistNormal preferredSpeed;
+    private ContDistNormal pedestrianPreferredSpeed;
 
+    /**
+     * Random number stream used to define gender
+     * See {@link RoundaboutSimulationModel#init()} method for stream parameters.
+     */
+    private ContDistNormal pedestrianGender;
 
+    /**
+     * Random number stream used to define age group
+     * See {@link RoundaboutSimulationModel#init()} method for stream parameters.
+     */
+    private ContDistNormal pedestrianAgeRangeGroup;
+
+    /**
+     * Random number stream used to define psychological nature
+     * See {@link RoundaboutSimulationModel#init()} method for stream parameters.
+     */
+    private ContDistNormal pedestrianPsychologicalNature;
+
+    /**
+     * Random number stream used to define entry point
+     * See {@link RoundaboutSimulationModel#init()} method for stream parameters.
+     */
+    private ContDistUniform pedestrianEntryPoint;
 
 
 
@@ -198,14 +233,7 @@ public class RoundaboutSimulationModel extends Model {
             DEFAULT_MIN_CAR_LENGTH, DEFAULT_MAX_CAR_LENGTH, DEFAULT_EXPECTED_CAR_LENGTH,
             DEFAULT_MIN_TRUCK_LENGTH, DEFAULT_MAX_TRUCK_LENGTH, DEFAULT_EXPECTED_TRUCK_LENGTH,
             DEFAULT_CAR_RATIO_PER_TOTAL_VEHICLE,
-            DEFAULT_JAM_INDICATOR_IN_SECONDS,
-
-            DEFAULT_MIN_PEDESTRIAN_ARRIVAL_RATE, DEFAULT_MAX_PEDESTRIAN_ARRIVAL_RATE,
-            DEFAULT_MIN_PEDESTRIAN_GROUPE_SIZE, DEFAULT_MAX_PEDESTRIAN_GROUPE_SIZE,
-            DEFAULT_MIN_PEDESTRIAN_STREET_LENGTH, DEFAULT_MIN_PEDESTRIAN_STREET_WIDTH,
-            DEFAULT_SFM_DEGREE_OF_ACCURACY,
-            DEFAULT_MIN_PEDESTRIAN_RELAXING_TIME, DEFAULT_MAX_PEDESTRIAN_RELAXING_TIME, DEFAULT_EXPECTED_PEDESTRIAN_RELAXING_TIME,
-            DEFAULT_MIN_PEDESTRIAN_PREFERRED_SPEED, DEFAULT_MAX_PEDESTRIAN_PREFERRED_SPEED, DEFAULT_EXPECTED_PEDESTRIAN_PREFERRED_SPEED
+            DEFAULT_JAM_INDICATOR_IN_SECONDS
             );
     }
 
@@ -246,13 +274,17 @@ public class RoundaboutSimulationModel extends Model {
             minCarLength, maxCarLength, expectedCarLength, minTruckLength, maxTruckLength,
             expectedTruckLength, carRatioPerTotalVehicle, jamIndicatorInSeconds,
 
-            DEFAULT_MIN_PEDESTRIAN_ARRIVAL_RATE, DEFAULT_MAX_PEDESTRIAN_ARRIVAL_RATE,
-            DEFAULT_MIN_PEDESTRIAN_GROUPE_SIZE, DEFAULT_MAX_PEDESTRIAN_GROUPE_SIZE,
+            DEFAULT_MIN_DISTANCE_FACTOR_BETWEEN_PEDESTRIAN,
+            DEFAULT_MAX_DISTANCE_FACTOR_BETWEEN_PEDESTRIAN,
+            DEFAULT_MIN_TIME_BETWEEN_PEDESTRIAN_ARRIVALS,
+            DEFAULT_MAX_TIME_BETWEEN_PEDESTRIAN_ARRIVALS,
+            DEFAULT_MEAN_TIME_BETWEEN_PEDESTRIAN_ARRIVALS,
+
+            DEFAULT_MIN_PEDESTRIAN_GROUP_SIZE, DEFAULT_MAX_PEDESTRIAN_GROUP_SIZE,
             DEFAULT_MIN_PEDESTRIAN_STREET_LENGTH, DEFAULT_MIN_PEDESTRIAN_STREET_WIDTH,
             DEFAULT_SFM_DEGREE_OF_ACCURACY,
             DEFAULT_MIN_PEDESTRIAN_RELAXING_TIME, DEFAULT_MAX_PEDESTRIAN_RELAXING_TIME, DEFAULT_EXPECTED_PEDESTRIAN_RELAXING_TIME,
             DEFAULT_MIN_PEDESTRIAN_PREFERRED_SPEED, DEFAULT_MAX_PEDESTRIAN_PREFERRED_SPEED, DEFAULT_EXPECTED_PEDESTRIAN_PREFERRED_SPEED
-
         );
     }
 
@@ -286,10 +318,14 @@ public class RoundaboutSimulationModel extends Model {
         Double carRatioPerTotalVehicle,
         Double jamIndicatorInSeconds,
 
-        Double minPedestrianArrivalRate,
-        Double maxPedestrianArrivalRate,
-        Long minPedestrianGroupeSize,
-        Long maxPedestrianGroupeSize,
+        Double minDistanceFactorBetweenPedestrians,
+        Double maxDistanceFactorBetweenPedestrians,
+        Double minTimeBetweenPedestrianArrivals,
+        Double maxTimeBetweenPedestrianArrivals,
+        Double meanTimeBetweenPedestrianArrivals,
+
+        Long minPedestrianGroupSize,
+        Long maxPedestrianGroupSize,
         Double minPedestrianStreetLength,
         Double minPedestrianStreetWidth,
         Double SFM_DegreeOfAccuracy,
@@ -320,10 +356,14 @@ public class RoundaboutSimulationModel extends Model {
         this.carRatioPerTotalVehicle = carRatioPerTotalVehicle;
         this.jamIndicatorInSeconds = jamIndicatorInSeconds;
 
-        this.minPedestrianArrivalRate = minPedestrianArrivalRate;
-        this.maxPedestrianArrivalRate = maxPedestrianArrivalRate;
-        this.minPedestrianGroupeSize = minPedestrianGroupeSize;
-        this.maxPedestrianGroupeSize = maxPedestrianGroupeSize;
+        this.minDistanceFactorBetweenPedestrians = minDistanceFactorBetweenPedestrians;
+        this.maxDistanceFactorBetweenPedestrians = maxDistanceFactorBetweenPedestrians;
+        this.minTimeBetweenPedestrianArrivals = minTimeBetweenPedestrianArrivals;
+        this.maxTimeBetweenPedestrianArrivals = maxTimeBetweenPedestrianArrivals;
+        this. meanTimeBetweenPedestrianArrivals = meanTimeBetweenPedestrianArrivals;
+
+        this.minPedestrianGroupeSize = minPedestrianGroupSize;
+        this.maxPedestrianGroupeSize = maxPedestrianGroupSize;
         this.minPedestrianStreetLength = minPedestrianStreetLength;
         this.minPedestrianStreetWidth = minPedestrianStreetWidth;
         this.SFM_DegreeOfAccuracy = SFM_DegreeOfAccuracy;
@@ -452,16 +492,16 @@ public class RoundaboutSimulationModel extends Model {
                 2.2-0.5, 2.2+0.5, 2.2, 0.1
         );
 
-        relaxingTimeTauAlpha = new ContDistNormal(
+        pedestrianRelaxingTimeTauAlpha = new ContDistNormal(
                 this,
-                "relaxingTimeTauAlpha",
+                "pedestrianRelaxingTimeTauAlpha",
                 2.2,
                 relaxingTimeTauAlphaDeviation.getLeft(),
                 relaxingTimeTauAlphaDeviation.getRight(),
                 true,
                 false
         );
-        relaxingTimeTauAlpha.setSeed(simulationSeed);
+        pedestrianRelaxingTimeTauAlpha.setSeed(simulationSeed);
 
 
         // calculate the standard deviation (of skew normal distribution) for the preferred Speed of Pedestrians (m/s)
@@ -469,17 +509,76 @@ public class RoundaboutSimulationModel extends Model {
                 1.34-0.26, 1.34+0.26, 1.34, 0.01
         );
 
-        preferredSpeed  = new ContDistNormal(
+        pedestrianPreferredSpeed = new ContDistNormal(
                 this,
-                "preferredSpeed",
+                "pedestrianPreferredSpeed",
                 1.34,
                 preferredSpeedDeviation.getLeft(),
                 preferredSpeedDeviation.getRight(),
                 true,
                 false
         );
-        relaxingTimeTauAlpha.setSeed(simulationSeed);
+        pedestrianRelaxingTimeTauAlpha.setSeed(simulationSeed);
 
+        // calculate the standard deviation (of normal distribution) for determine gender
+        final StandardDeviation genderDeviation = StandardDeviation.calculate(
+                0, 100, 31.9, 1
+        );
+
+        pedestrianGender = new ContDistNormal(
+                this,
+                "gender",
+                2.2,
+                genderDeviation.getLeft(),
+                genderDeviation.getRight(),
+                true,
+                false
+        );
+        pedestrianGender.setSeed(simulationSeed);
+
+        // calculate the standard deviation (of normal distribution) to define age range group
+        final StandardDeviation AgeRangeGroupDeviation = StandardDeviation.calculate(
+                0, 100, 3.6+35.1, 0.1
+        );
+
+        pedestrianAgeRangeGroup= new ContDistNormal(
+                this,
+                "pedestrianAgeRangeGroup",
+                2.2,
+                AgeRangeGroupDeviation.getLeft(),
+                AgeRangeGroupDeviation.getRight(),
+                true,
+                false
+        );
+        pedestrianAgeRangeGroup.setSeed(simulationSeed);
+
+
+        // calculate the standard deviation (of normal distribution) to define psychological nature
+        final StandardDeviation PsychologicalNatureDeviation = StandardDeviation.calculate(
+                0, 100, 4+13+13, 0.1
+        );
+
+        pedestrianPsychologicalNature= new ContDistNormal(
+                this,
+                "pedestrianAgeRangeGroup",
+                2.2,
+                PsychologicalNatureDeviation.getLeft(),
+                PsychologicalNatureDeviation.getRight(),
+                true,
+                false
+        );
+        pedestrianPsychologicalNature.setSeed(simulationSeed);
+
+
+        pedestrianEntryPoint = new ContDistUniform(
+                this,
+                "pedestrianEntryPoint",
+                0,
+                1,
+                true,
+                false
+        );
+        pedestrianEntryPoint.setSeed(simulationSeed);
 
     }
 
@@ -564,6 +663,16 @@ public class RoundaboutSimulationModel extends Model {
     }
 
     /**
+     * Returns a sample of the random stream {@link ContDistUniform} used to determine the time between car arrivals.
+     *
+     * @return a {@code timeBetweenCarArrivals} sample as double.
+     */
+    public double getRandomTimeBetweenPedestrianArrivals() {
+        final double value = timeBetweenPedestrianArrivals.sample();
+        return Math.max(Math.min(value, maxTimeBetweenPedestrianArrivals), minDistanceFactorBetweenPedestrians);
+    }
+
+    /**
      * Returns a sample of the random stream {@link ContDistNormal} used to determine the length of a vehicle
      *
      * @return a {@code getRandomVehicleLength} sample as double.
@@ -635,6 +744,80 @@ public class RoundaboutSimulationModel extends Model {
         return standardCarAccelerationTime;
     }
 
+////////////////////////////////////////////////////////////////////////////////////////////
+    //Pedestrian
+    /**
+     * This method returns the min arrival rate of pedestrians
+     *
+     * @return minDistanceFactorBetweenPedestrians
+     */
+    public Double getMinDistanceFactorBetweenPedestrian() {
+        return minDistanceFactorBetweenPedestrians;
+    }
+
+    /**
+     * This method returns the min arrival rate of pedestrians
+     *
+     * @return maxDistanceFactorBetweenPedestrians
+     */
+    public Double getMaxDistanceFactorBetweenPedestrians() {
+        return maxDistanceFactorBetweenPedestrians;
+    }
+
+    /**
+     * This method returns the min arrival rate of pedestrians
+     *
+     * @return minTimeBetweenPedestrianArrivals
+     */
+    public Double getMinTimeBetweenPedestrianArrivals() {
+        return minTimeBetweenPedestrianArrivals;
+    }
+
+    /**
+     * This method returns the min arrival rate of pedestrians
+     *
+     * @return maxTimeBetweenPedestrianArrivals
+     */
+    public Double getMaxTimeBetweenPedestrianArrivals() {
+        return maxTimeBetweenPedestrianArrivals;
+    }
+
+    /**
+     * This method returns the min arrival rate of pedestrians
+     *
+     * @return meanTimeBetweenPedestrianArrivals
+     */
+    public Double getMeanTimeBetweenPedestrianArrivals() {
+        return meanTimeBetweenPedestrianArrivals;
+    }
+
+    /**
+     * This method returns the minimum street Length
+     *
+     * @return minPedestrianStreetLength
+     */
+    public Double getMinPedestrianStreetLength() {
+        return minPedestrianStreetLength;
+    } // TODO
+
+    /**
+     * This method returns the minimum street width
+     *
+     * @return minPedestrianStreetWidth
+     */
+
+    public Double getMinPedestrianStreetWidth() {
+        return minPedestrianStreetWidth;
+    } // TODO
+
+    /**
+     * Returns a sample of the random stream {@link ContDistUniform} used to determine the distance factor between cars.
+     *
+     * @return a {@code distanceFactorBetweenCars} sample as double.
+     */
+    public double getRandomDistanceFactorBetweenPedestrains() {
+        return distanceFactorBetweenPedestrians.sample();
+    }
 
     /////////////////////////////////////////////////////////////////////////////////////////////
     //Social Force Model Calculations:
@@ -650,15 +833,57 @@ public class RoundaboutSimulationModel extends Model {
      * Random number stream used to calculate a the preferred waling speed of an pedestrian.
      * See {@link RoundaboutSimulationModel#init()} method for stream parameters.
      */
-    public Double getRandomPreferredSpeed () {
-        return Math.max(Math.min(preferredSpeed.sample(), maxPedestrianPreferredSpeed), minPedestrianPreferredSpeed);
+    public Double getRandomPedestrianPreferredSpeed() {
+        return Math.max(Math.min(pedestrianPreferredSpeed.sample(), maxPedestrianPreferredSpeed), minPedestrianPreferredSpeed);
     }
 
     /**
      * Random number stream used to calculate the "delay" to reach new defined walking speed
      * See {@link RoundaboutSimulationModel#init()} method for stream parameters.
      */
-    public Double getRandomRelaxingTimeTauAlpha () {
-        return Math.max(Math.min(relaxingTimeTauAlpha.sample(), maxPedestrianRelaxingTimeTauAlpha), minPedestrianRelaxingTimeTauAlpha);
+    public Double getRandomPedestrianRelaxingTimeTauAlpha() {
+        return Math.max(Math.min(pedestrianRelaxingTimeTauAlpha.sample(), maxPedestrianRelaxingTimeTauAlpha), minPedestrianRelaxingTimeTauAlpha);
+    }
+
+    /**
+     * Random number to define the Gender
+     * See {@link RoundaboutSimulationModel#init()} method for stream parameters.
+     */
+    public Gender getRandomPedestrianGender() {
+        int maxValue = Gender.values().length -1;
+        int minValue = 0;
+        long val = Math.round(Math.max(Math.min(pedestrianGender.sample(), maxValue), minValue));
+        return Gender.values()[(int)val];
+    }
+
+    /**
+     * Random number stream to define age range group
+     * See {@link RoundaboutSimulationModel#init()} method for stream parameters.
+     */
+    public AgeRangeGroup getRandomPedestrianAgeGroupe() {
+        int maxValue = AgeRangeGroup.values().length -1;
+        int minValue = 0;
+        double val = Math.round(Math.max(Math.min(pedestrianAgeRangeGroup.sample(),  maxValue), minValue));
+        return AgeRangeGroup.values()[(int)val];
+    }
+
+    /**
+     * Random number stream to define psychological nature
+     * See {@link RoundaboutSimulationModel#init()} method for stream parameters.
+     */
+    public PsychologicalNature getRandomPedestrianPsychologicalNature() {
+        int maxValue = PsychologicalNature.values().length -1;
+        int minValue = 0;
+        double val = Math.round(Math.max(Math.min(pedestrianPsychologicalNature.sample(),  maxValue), minValue));
+        return PsychologicalNature.values()[(int)val];
+    }
+
+    /**
+     * Random number stream to define the entry point
+     * See {@link RoundaboutSimulationModel#init()} method for stream parameters.
+     */
+    public double getRandomEntryPoint(double maxValue, double minValue) {
+        return Math.max(Math.min(pedestrianEntryPoint.sample(),  maxValue), minValue);
+
     }
 }

@@ -7,14 +7,16 @@ import javax.xml.bind.annotation.XmlAttribute;
 
 public class Section implements IDTO {
     private String id;
-    private Double length;
-    private Double width;
+    private Double lengthX;
+    private Double lengthY;
     private Integer order;
     private Boolean isTrafficLightActive;
     private Long minGreenPhaseDuration;
     private Long greenPhaseDuration;
     private Long redPhaseDuration;
-    private String pedestrianCrossingIDRef, pedestrianCrossingComponentIDRef;
+    private String pedestrianCrossingIDRef, pedestrianCrossingComponentIDRef; // TODO
+    private Integer pedestrianCrossingIDRefEnterHigh;
+    private Boolean pedestrianCrossingRefLinkedAtBegin;
 
     //pedestrian
     private PedestrianConsumerType pedestrianSectionType;
@@ -31,21 +33,21 @@ public class Section implements IDTO {
     }
 
     @XmlAttribute
-    public Double getLength() {
-        return length;
+    public Double getLengthX() {
+        return lengthX;
     }
 
-    public void setLength(Double length) {
-        this.length = length;
+    public void setLengthX(Double lengthX) {
+        this.lengthX = lengthX;
     }
 
     @XmlAttribute
-    public Double getWidth() {
-        return width;
+    public Double getLengthY() {
+        return lengthY;
     }
 
-    public void setWidth(Double width) {
-        this.width = width;
+    public void setLengthY(Double lengthY) {
+        this.lengthY = lengthY;
     }
 
     @XmlAttribute
@@ -88,11 +90,22 @@ public class Section implements IDTO {
         return pedestrianCrossingIDRef;
     }
 
+    @XmlAttribute
+    public Integer getPedestrianCrossingIDRefEnterHigh() {
+        if (pedestrianCrossingIDRefEnterHigh != null) return pedestrianCrossingIDRefEnterHigh;
+        return pedestrianCrossingIDRefEnterHigh;
+    }
+
+    @XmlAttribute
+    public Boolean getPedestrianCrossingRefLinkedAtBegin() {
+        return pedestrianCrossingRefLinkedAtBegin;
+    }
+
+
     public void setPedestrianCrossingIDRef(String pedestrianCrossingIDRef) {
         this.pedestrianCrossingIDRef = pedestrianCrossingIDRef;
     }
 
-    @XmlAttribute
     public String getPedestrianCrossingComponentIDRef() {
         return pedestrianCrossingIDRef;
     }

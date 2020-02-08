@@ -1,12 +1,17 @@
 package at.fhv.itm3.s2.roundabout.SocialForceModelCalculation;
 
+import at.fhv.itm14.trafsim.model.entities.IConsumer;
+import at.fhv.itm3.s2.roundabout.api.entity.*;
 import at.fhv.itm3.s2.roundabout.entity.Pedestrian;
-import at.fhv.itm3.s2.roundabout.entity.PedestrianRoute;
+import at.fhv.itm3.s2.roundabout.entity.PedestrianStreetConnector;
+import at.fhv.itm3.s2.roundabout.entity.PedestrianStreetSection;
 import at.fhv.itm3.s2.roundabout.model.RoundaboutSimulationModel;
 
 import javax.vecmath.Vector2d;
 import java.awt.*;
 import java.awt.geom.Point2D;
+import java.util.ArrayList;
+import java.util.List;
 
 public class RepulsiveForceAgainstOtherPedestrians {
 
@@ -14,62 +19,180 @@ public class RepulsiveForceAgainstOtherPedestrians {
     final private Double VAlphaBeta = 210.0; // (cm / s)^2
     SupportiveCalculations calculations;
 
-    public Vector2d getRepulsiveForceAgainstAllOtherPedestrians(RoundaboutSimulationModel model,
-                                                              Pedestrian pedestrian, Vector2d destination){
+    public Vector2d getRepulsiveForceAgainstAllOtherPedestrians(    RoundaboutSimulationModel model,
+                                                                    Pedestrian pedestrian,
+                                                                    Vector2d destination){
 
         Vector2d sumForce = new Vector2d(0,0);
 
-        for() {
-            Pedestrian pedestrianBeta =; // TODO
-
-            // Everything in Range? --> 8 m
-            if (calculations.AlmostEqual( Point2D.distance(destination.x, destination.y,
-                    pedestrianBeta.getCurrentPosition().getX(), pedestrianBeta.getCurrentPosition().getY()) ,
-                    model.pedestrianFieldOfViewRadius)) {
-                Double weightingFactor = 1.;
-
-                Vector2d force = getRepulsiveForceAgainstOtherPedestrian(model, pedestrian, pedestrianBeta);
-
-                Vector2d destinationAndForce = destination;
-
-                // Check Field of View --> 170°
-                if (calculations.BiggerOrAlmostEqual(destinationAndForce.dot(force),  //A ⋅ B = ||A|| * ||B|| * cos θ
-                        force.length() * Math.cos(model.pedestrianFieldOfViewDegree/2))) {
-                    weightingFactor = model.getPedestrianFieldOfViewWeakeningFactor;
-                }
-                force.scale(weightingFactor);
-                sumForce.add(force);
-            }
-        }
+        // run through all previous and following connected street sections up to 8m distance
+        // from current position of alpha pedestrian
+        GetAllPedestrianFromPreviousStreets( model, pedestrian, destination, sumForce );
+        GetAllPedestrianFromFollowingStreets ( model, pedestrian, destination, sumForce );
 
         return sumForce;
     }
 
+    public void GetAllPedestrianFromPreviousStreets(RoundaboutSimulationModel model,
+                                                    Pedestrian pedestrian,
+                                                    Vector2d destination,
+                                                    Vector2d sumForce) {
+        IConsumer currentStreetSection = pedestrian.getCurrentSection().getStreetSection();
+        if(!(currentStreetSection instanceof PedestrianStreetSection)){
+            throw new IllegalArgumentException("Consumer is not an instance of PedestrianStreetSection");
+        }
 
-    boolean checkPedestrianInRange(){
+        List<IConsumer> listOfStreetSectionsInRange = new ArrayList<>();
+        listOfStreetSectionsInRange.add(currentStreetSection);
+
+        while( !listOfStreetSectionsInRange.isEmpty() ){
+            currentStreetSection = listOfStreetSectionsInRange.remove(listOfStreetSectionsInRange.size()-1);
+            IPedestrianStreetConnector previousConnector = ((PedestrianStreetSection)currentStreetSection).getPreviousStreetConnector();
+            if(!(previousConnector instanceof PedestrianStreetConnector)){
+                throw new IllegalArgumentException("Connector is not an instance of PedestrianConnector");
+            }
+
+            for( PedestrianConnectedStreetSections previousStreetSectionPair : previousConnector.getSectionPairs() ) {
+                if( previousStreetSectionPair.getFromStreetSection().equals(currentStreetSection) ) {
+                    IConsumer previousSection = previousStreetSectionPair.getFromStreetSection(); // TODO check if its mirrowed
+
+                    if( !(previousSection instanceof PedestrianStreetSection) ){
+                        throw new IllegalArgumentException("Section is not an instance of PedestrianStreetSection");
+                    }
+
+                    boolean noPedestrian = true;
+                    boolean pedestrianOutOfRange = false;
+                    for(IPedestrian pedestrianBeta:((PedestrianStreetSection)previousSection).getPedestrianQueue()){
+                        if( !(pedestrianBeta instanceof Pedestrian) ){
+                            throw new IllegalArgumentException("Pedestrian is not an instance of Pedestrian");
+                        }
+                        noPedestrian = false;
+                        // calculate forces
+                        if( ((PedestrianStreetSection) previousSection).getPedestrianConsumerType().equals(PedestrianConsumerType.PEDESTRIAN_SINK) ||
+                                checkPedestrianInRange( model, pedestrian,(Pedestrian)pedestrianBeta)){
+                            sumForce.add(calculateActualRepulsiveForceAgainstOtherPedestrian( model, destination, pedestrian,(Pedestrian)pedestrianBeta) );
+                        } else {
+                            pedestrianOutOfRange = true;
+                        }
+                    }
+                    if ( noPedestrian || ! pedestrianOutOfRange ) {
+                        // no Pedestrian to estimate distance or all existing pedestrian where in range
+                        listOfStreetSectionsInRange.add( previousSection );
+                    }
+
+                }
+            }
+        }
+    }
+
+    public void GetAllPedestrianFromFollowingStreets ( RoundaboutSimulationModel model,
+                                                       Pedestrian pedestrian,
+                                                       Vector2d destination,
+                                                       Vector2d sumForce) {
+        IConsumer currentStreetSection = pedestrian.getCurrentSection().getStreetSection();
+        if(!(currentStreetSection instanceof PedestrianStreetSection)){
+        throw new IllegalArgumentException("Consumer is not an instance of PedestrianStreetSection");
+        }
+
+        List<IConsumer> listOfStreetSectionsInRange = new ArrayList<>();
+        listOfStreetSectionsInRange.add(currentStreetSection);
+
+        while( !listOfStreetSectionsInRange.isEmpty() ){
+            currentStreetSection = listOfStreetSectionsInRange.remove(listOfStreetSectionsInRange.size()-1);
+            IPedestrianStreetConnector nextConnector = ((PedestrianStreetSection)currentStreetSection).getNextStreetConnector();
+            if(!(nextConnector instanceof PedestrianStreetConnector)){
+            throw new IllegalArgumentException("Next connector is not an instance of PedestrianConnector");
+            }
+
+            for( PedestrianConnectedStreetSections nextStreetSectionPair : nextConnector.getSectionPairs() ) {
+                if( nextStreetSectionPair.getFromStreetSection().equals(currentStreetSection) ) {
+                    IConsumer nextSection = nextStreetSectionPair.getFromStreetSection();
+
+                    if( !(nextSection instanceof PedestrianStreetSection) ){
+                        throw new IllegalArgumentException("Section is not an instance of PedestrianStreetSection");
+                    }
+
+                    boolean noPedestrian = true;
+                    boolean pedestrianOutOfRange = false;
+                    for(IPedestrian pedestrianBeta:((PedestrianStreetSection)nextSection).getPedestrianQueue()){
+                        if( !(pedestrianBeta instanceof Pedestrian) ){
+                            throw new IllegalArgumentException("Pedestrian is not an instance of Pedestrian");
+                        }
+                        noPedestrian = false;
+                        // calculate forces
+                        if( ((PedestrianStreetSection) nextSection).getPedestrianConsumerType().equals(PedestrianConsumerType.PEDESTRIAN_SINK) ||
+                                checkPedestrianInRange( model, pedestrian,(Pedestrian)pedestrianBeta)){
+                            sumForce.add(calculateActualRepulsiveForceAgainstOtherPedestrian( model, destination, pedestrian,(Pedestrian)pedestrianBeta) );
+                        } else {
+                            pedestrianOutOfRange = true;
+                        }
+                    }
+                    if ( noPedestrian || ! pedestrianOutOfRange ) {
+                        // no Pedestrian to estimate distance or all existing pedestrian where in range
+                        listOfStreetSectionsInRange.add( nextSection );
+                    }
+
+                }
+            }
+        }
+    }
+
+
+    public Vector2d calculateActualRepulsiveForceAgainstOtherPedestrian(RoundaboutSimulationModel model,
+                                                                        Vector2d destination,
+                                                                        Pedestrian pedestrian,
+                                                                        Pedestrian pedestrianBeta){
+        Double weightingFactor = 1.;
+        Vector2d force = getRepulsiveForceAgainstOtherPedestrian(model, pedestrian, pedestrianBeta);
+
+        // Check Field of View --> 170°
+        if (calculations.val1BiggerOrAlmostEqual(destination.dot(force),  //A ⋅ B = ||A|| * ||B|| * cos θ
+                force.length() * Math.cos(model.pedestrianFieldOfViewDegree / 2))) {
+            weightingFactor = model.getPedestrianFieldOfViewWeakeningFactor;
+        } else {
+            weightingFactor = 0.0;
+        }
+
+        force.scale(weightingFactor);
+        return force;
+    }
+
+    boolean checkPedestrianInRange( RoundaboutSimulationModel model, Pedestrian pedestrian, Pedestrian pedestrianBeta){
+        if ( calculations.almostEqual( Point2D.distance(   pedestrian.getCurrentGlobalPosition().getX(),
+                                                           pedestrian.getCurrentGlobalPosition().getY(),
+                                                           pedestrianBeta.getCurrentGlobalPosition().getX(),
+                                                           pedestrianBeta.getCurrentGlobalPosition().getY()) ,
+                                                           model.pedestrianFieldOfViewRadius)) {
+            return true;
+        }
         return false;
     }
 
-    public Vector2d getRepulsiveForceAgainstOtherPedestrian(   RoundaboutSimulationModel model,
-                                                                Pedestrian pedestrianAlpha, Pedestrian pedestrianBeta){
+    public Vector2d getRepulsiveForceAgainstOtherPedestrian(  RoundaboutSimulationModel model,
+                                                              IPedestrian pedestrianAlpha, IPedestrian pedestrianBeta){
+
+        if ( !(pedestrianAlpha instanceof Pedestrian) || !(pedestrianBeta instanceof Pedestrian) ) {
+            throw new IllegalArgumentException("One of the pedestrian is not an instance of Pedestrian");
+        }
 
         //vectorBetweenBothPedestrian
-        Vector2d vectorBetweenBothPedestrian = new Vector2d(pedestrianAlpha.getCurrentPosition().x, pedestrianAlpha.getCurrentPosition().y);
-        vectorBetweenBothPedestrian.sub(new Vector2d(pedestrianBeta.getCurrentPosition().x, pedestrianBeta.getCurrentPosition().y));
+        Point posBeta = pedestrianBeta.getCurrentGlobalPosition();
+        Vector2d vectorBetweenBothPedestrian = calculations.getVector(
+                                pedestrianAlpha.getCurrentGlobalPosition().x, pedestrianAlpha.getCurrentGlobalPosition().y,
+                                posBeta.x, posBeta.y);
 
         //preferredDirectionOfBeta = eBeta
-        Point posBeta = pedestrianBeta.getCurrentPosition();
         Vector2d vecPosBeta = new Vector2d(posBeta.getX(), posBeta.getY());
         Point nextAimBeta = pedestrianBeta.getNextSubGoal();
         Vector2d vecNextAimBeta = new Vector2d(nextAimBeta.getX(), nextAimBeta.getY());
-        vecNextAimBeta.sub(vecPosBeta);
-        Double nextAimBetaLength = vecNextAimBeta.length();
-        vecPosBeta.scale(1/nextAimBetaLength);
+
         Vector2d preferredDirectionOfBeta = vecPosBeta;
+        preferredDirectionOfBeta.sub(vecNextAimBeta);       // t is in the estimated future. when reaching destination (expected)
+        Double nextAimBetaLength = preferredDirectionOfBeta.length();
+        preferredDirectionOfBeta.scale(1/nextAimBetaLength);
 
         //Traveled path of the walker β within ∆t
-        Double traveledPathWithinTOfBeta = pedestrianBeta.getWalkedDistance();
-
+        Double traveledPathWithinTOfBeta = nextAimBetaLength;
 
         //small half axis of the ellipse
         Vector2d betaData = preferredDirectionOfBeta;
@@ -81,6 +204,7 @@ public class RepulsiveForceAgainstOtherPedestrians {
                                                      Math.pow(traveledPathWithinTOfBeta,2));
 
         // Repulsive force against other pedestrians
+        // V_alphaBeta(t0)* e^(-b/sigma)
         Double exponent = smallHalfAxisOfEllipse/-2;  // is 2b --> and we need b
         exponent /= sigma;
         exponent = Math.exp(exponent);
@@ -89,10 +213,6 @@ public class RepulsiveForceAgainstOtherPedestrians {
         vectorBetweenBothPedestrian.scale(repulsiveForce);
         vectorBetweenBothPedestrian.negate();
 
-
         return vectorBetweenBothPedestrian;
     }
-
-
-
 }

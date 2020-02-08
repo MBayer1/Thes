@@ -1,5 +1,6 @@
 package at.fhv.itm3.s2.roundabout.entity;
 
+import at.fhv.itm14.trafsim.model.entities.IConsumer;
 import at.fhv.itm3.s2.roundabout.api.entity.*;
 
 import java.util.*;
@@ -60,6 +61,16 @@ public class PedestrianStreetConnector implements IPedestrianStreetConnector {
             }
         }
         throw new IllegalArgumentException("Street section pair does not exist.");
+    }
+
+    public PedestrianConnectedStreetSections getConnectorBySection (IConsumer section) {
+        for (PedestrianConnectedStreetSections pair : sectionPairs) {
+            if(pair.getFromStreetSection().equals(section)){
+                return pair;
+            }
+
+        }
+        return null;
     }
 
 }

@@ -8,6 +8,7 @@ import at.fhv.itm3.s2.roundabout.model.RoundaboutSimulationModel;
 import at.fhv.itm3.s2.roundabout.api.entity.ICar;
 import at.fhv.itm3.s2.roundabout.api.entity.IDriverBehaviour;
 import at.fhv.itm3.s2.roundabout.api.entity.IRoute;
+import com.sun.org.apache.bcel.internal.generic.ICONST;
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeSpan;
 import desmoj.core.statistic.Count;
@@ -112,16 +113,8 @@ public class RoundaboutCar implements ICar {
      */
     @Override
     public double getTimeToTraverseSection(IConsumer section) {
-
         if (section instanceof StreetSection) {
-            double carPosition = 0;
-            StreetSection streetSection = (StreetSection)section;
-
-            if (streetSection.getCarPositions().containsKey(this)) {
-                carPosition = streetSection.getCarPositions().get(this);
-            }
-
-            double remainingLength = streetSection.getLength() - carPosition + ((StreetSection) section).getPedestrianCrossingWidth();
+            double remainingLength = getRemainingLengthOfCurrentSection();
             return remainingLength / this.getDriverBehaviour().getSpeed();
         } else if (section instanceof RoundaboutIntersection && section == this.currentSection) {
             RoundaboutIntersection intersection = (RoundaboutIntersection)section;
@@ -130,6 +123,22 @@ public class RoundaboutCar implements ICar {
             return intersection.getTimeToTraverseIntersection(inDirection, outDirection);
         }
         else {
+            throw new IllegalStateException("Sections needs to be instance of StreetSection.");
+        }
+    }
+
+    public double getRemainingLengthOfCurrentSection ( ){
+        IConsumer section = this.getCurrentSection();
+        if (section instanceof StreetSection) {
+            double carPosition = 0;
+            StreetSection streetSection = (StreetSection)section;
+            if (streetSection.getCarPositions().containsKey(this)) {
+                carPosition = streetSection.getCarPositions().get(this);
+            }
+
+            double remainingLength = streetSection.getLength() - carPosition + ((StreetSection) section).getPedestrianCrossingWidth();
+            return remainingLength ;
+        }else {
             throw new IllegalStateException("Sections needs to be instance of StreetSection.");
         }
     }

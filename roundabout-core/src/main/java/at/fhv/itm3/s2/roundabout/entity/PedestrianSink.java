@@ -43,7 +43,7 @@ public class PedestrianSink extends PedestrianAbstractSink {
      * {@inheritDoc}
      */
     @Override
-    public double getLength() {
+    public double getLengthX() {
         return 0;
     }
 
@@ -52,7 +52,7 @@ public class PedestrianSink extends PedestrianAbstractSink {
      * {@inheritDoc}
      */
     @Override
-    public double getWidth() {
+    public double getLengthY() {
         return 0;
     }
 

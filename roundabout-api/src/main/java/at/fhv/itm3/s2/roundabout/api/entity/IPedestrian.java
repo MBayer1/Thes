@@ -41,10 +41,9 @@ public interface IPedestrian {
     /**
      * Calculates the time the pedestrian needs to traverse to reach the next subgoal {@link Point}.
      *
-     * @param  currentPosition contains current coordinates of pedestrian at {@PedestrianStreetSection}
      * @return the traverse time in model time units.
      */
-    double getTimeToNextSubGoal(Point currentPosition);
+    double getTimeToNextSubGoal();
 
 
     /**
@@ -52,7 +51,7 @@ public interface IPedestrian {
      *
      * @return the coordinates of the center of the pedestrian.
      */
-    Point getCurrentPosition();
+    Point getCurrentGlobalPosition();
 
 
     /**

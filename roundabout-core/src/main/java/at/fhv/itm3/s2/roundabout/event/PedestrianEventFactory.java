@@ -3,6 +3,7 @@ package at.fhv.itm3.s2.roundabout.event;
 import at.fhv.itm3.s2.roundabout.model.RoundaboutSimulationModel;
 
 public class PedestrianEventFactory {
+
     /**
      * Holds a static instance of a {@link PedestrianEventFactory} object.
      */
@@ -29,15 +30,14 @@ public class PedestrianEventFactory {
     }
 
     /**
-     * Creates a new {@link PedestrianGenerateEvent} within the given model.
+     * Creates a new {@link PedestrianReachedAimEvent} within the given model.
      *
      * @param model the model the event is part of.
-     * @return the newly created {@link PedestrianGenerateEvent}.
+     * @return the newly created {@link PedestrianReachedAimEvent}.
      */
-    public PedestrianGenerateEvent createPedestrianGenerateEvent(RoundaboutSimulationModel model) {
-        return new PedestrianGenerateEvent(model, "PedestrianGenerateEvent", true);
+    public PedestrianReachedAimEvent createPedestrianReachedAimEvent(RoundaboutSimulationModel model) {
+        return new PedestrianReachedAimEvent(model, "PedestrianReachedAimEvent", true);
     }
-
 
     /**
      * Creates a new {@link PedestrianGenerateEvent} within the given model.
@@ -45,8 +45,8 @@ public class PedestrianEventFactory {
      * @param model the model the event is part of.
      * @return the newly created {@link PedestrianGenerateEvent}.
      */
-    public PedestrianReachedAimEvent pedestrianReachedAimEvent(RoundaboutSimulationModel model) {
-        return new PedestrianReachedAimEvent(model, "PedestrianGenerateEvent", true);
+    public PedestrianGenerateEvent createPedestrianGenerateEvent(RoundaboutSimulationModel model) {
+        return new PedestrianGenerateEvent(model, "PedestrianGenerateEvent", true);
     }
 
     /**

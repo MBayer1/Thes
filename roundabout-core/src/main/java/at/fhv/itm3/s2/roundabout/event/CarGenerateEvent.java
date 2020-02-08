@@ -53,7 +53,6 @@ public class CarGenerateEvent extends Event<AbstractSource> {
             throw new IllegalArgumentException("No suitable model given over.");
         }
         routeController = RouteController.getInstance(roundaboutSimulationModel);
-
     }
 
     /**
@@ -82,6 +81,7 @@ public class CarGenerateEvent extends Event<AbstractSource> {
 
         if (nextSection instanceof StreetSection) {
             ((Street)nextSection).addCar(roundaboutCar);
+
             final double traverseTime = roundaboutCar.getTimeToTraverseCurrentSection();
             final CarCouldLeaveSectionEvent carCouldLeaveSectionEvent = roundaboutEventFactory.createCarCouldLeaveSectionEvent(roundaboutSimulationModel);
             carCouldLeaveSectionEvent.schedule((Street)nextSection, new TimeSpan(traverseTime, roundaboutSimulationModel.getModelTimeUnit()));

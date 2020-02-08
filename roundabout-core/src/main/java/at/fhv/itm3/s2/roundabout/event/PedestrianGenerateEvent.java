@@ -2,41 +2,43 @@ package at.fhv.itm3.s2.roundabout.event;
 
 import at.fhv.itm14.trafsim.model.entities.Car;
 import at.fhv.itm14.trafsim.model.entities.IConsumer;
-import at.fhv.itm3.s2.roundabout.api.entity.AbstractSource;
-import at.fhv.itm3.s2.roundabout.api.entity.ICar;
-import at.fhv.itm3.s2.roundabout.api.entity.IRoute;
-import at.fhv.itm3.s2.roundabout.api.entity.Street;
-import at.fhv.itm3.s2.roundabout.controller.CarController;
+import at.fhv.itm3.s2.roundabout.SocialForceModelCalculation.SupportiveCalculations;
+import at.fhv.itm3.s2.roundabout.api.entity.*;
+import at.fhv.itm3.s2.roundabout.controller.PedestrianController;
+import at.fhv.itm3.s2.roundabout.controller.PedestrianRouteController;
 import at.fhv.itm3.s2.roundabout.controller.RouteController;
-import at.fhv.itm3.s2.roundabout.entity.DriverBehaviour;
-import at.fhv.itm3.s2.roundabout.entity.RoundaboutCar;
-import at.fhv.itm3.s2.roundabout.entity.StreetSection;
+import at.fhv.itm3.s2.roundabout.entity.*;
 import at.fhv.itm3.s2.roundabout.model.RoundaboutSimulationModel;
 import desmoj.core.simulator.Event;
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeSpan;
 
+import java.awt.*;
+import java.util.List;
 
-public class PedestrianGenerateEvent extends Event<AbstractSource> {
+
+public class PedestrianGenerateEvent extends Event<PedestrianAbstractSource> {
+
+    SupportiveCalculations calc;
 
     /**
-     * A reference to the {@link RoundaboutSimulationModel} the {@link CarCouldLeaveSectionEvent} is part of.
+     * A reference to the {@link RoundaboutSimulationModel} the {@link PedestrianReachedAimEvent} is part of.
      */
     private RoundaboutSimulationModel roundaboutSimulationModel;
 
     /**
-     * Instance of {@link RoundaboutEventFactory} for creating new events.
+     * Instance of {@link PedestrianEventFactory} for creating new events.
      */
-    protected RoundaboutEventFactory roundaboutEventFactory;
+    protected PedestrianEventFactory pedestrianEventFactory;
 
     /**
      * Instance of {@link RouteController} for creating new routes.
      * (protected because of testing)
      */
-    protected RouteController routeController;
+    protected PedestrianRouteController routeController;
 
     /**
-     * Constructs a new {@link CarCouldLeaveSectionEvent}.
+     * Constructs a new {@link PedestrianReachedAimEvent}.
      *
      * @param model the model this event belongs to.
      * @param name this event's name.
@@ -45,61 +47,89 @@ public class PedestrianGenerateEvent extends Event<AbstractSource> {
     public PedestrianGenerateEvent(Model model, String name, boolean showInTrace) {
         super(model, name, showInTrace);
 
-        roundaboutEventFactory = RoundaboutEventFactory.getInstance();
+        pedestrianEventFactory = PedestrianEventFactory.getInstance();
 
         if (model instanceof RoundaboutSimulationModel) {
             roundaboutSimulationModel = (RoundaboutSimulationModel)model;
         } else {
             throw new IllegalArgumentException("No suitable model given over.");
         }
-        routeController = RouteController.getInstance(roundaboutSimulationModel);
-
+        routeController = PedestrianRouteController.getInstance(roundaboutSimulationModel);
     }
 
     /**
-     * The event routine describes the generation (arrival) of a new car.
+     * The event routine describes the generation (arrival) of a new pedestrian.
      *
-     * A new car is generated and added to the given section. A new {@link CarCouldLeaveSectionEvent} is
-     * scheduled for the time the car needs to traverse this section at optimal conditions, which means
-     * that the car knows how long it needs to reach the end of this section if it can drive to the end of
-     * it without the need to stop and after this time the section checks if a car could leave the section.
+     * A new pedestrian is generated and added to the given section. A new {@link PedestrianReachedAimEvent} is
+     * scheduled for the time the pedestrian needs to traverse this section at optimal conditions, which means
+     * that the pedestrian knows how long it needs to reach the end of this section if it can walk to the end of
+     * it without the need to stop and after this time the section checks if a pedestrian could leave the section.
      * At the end the event routine schedules a new {@link PedestrianGenerateEvent} with a normally distributed time.
      *
-     * @param source instance of {@link AbstractSource} in which the car is generated
+     * @param source instance of {@link PedestrianAbstractSource} in which the pedestrian is generated
      */
     @Override
-    public void eventRoutine(AbstractSource source) {
-        final IRoute route = routeController.getRandomRoute(source);
-        final double carLength = roundaboutSimulationModel.getRandomVehicleLength();
-
-        final Car car = new Car(roundaboutSimulationModel, "", false);
-        final DriverBehaviour driverBehaviour = new DriverBehaviour(6.0, 0.5, 1, 1, 1);
-        final ICar roundaboutCar = new RoundaboutCar(getModel(), carLength, car, driverBehaviour, route);
-        roundaboutCar.enterSystem();
-
-        CarController.addCarMapping(car, roundaboutCar);
+    public void eventRoutine(PedestrianAbstractSource source) {
         final IConsumer nextSection = source.getConnectedStreet();
+        final IPedestrianRoute route = routeController.getRandomRoute(source);
+        Point global = ((PedestrianStreetSection) nextSection).getGlobalCoordinateOfSectionOrigin();
 
-        if (nextSection instanceof StreetSection) {
-            ((Street)nextSection).addCar(roundaboutCar);
-            final double traverseTime = roundaboutCar.getTimeToTraverseCurrentSection();
-            final CarCouldLeaveSectionEvent carCouldLeaveSectionEvent = roundaboutEventFactory.createCarCouldLeaveSectionEvent(roundaboutSimulationModel);
-            carCouldLeaveSectionEvent.schedule((Street)nextSection, new TimeSpan(traverseTime, roundaboutSimulationModel.getModelTimeUnit()));
+        if ( nextSection instanceof  PedestrianStreetSection) {
+            if( !(((PedestrianStreetSection) nextSection).getNextStreetConnector() instanceof PedestrianStreetConnector)) {
+                throw new IllegalArgumentException("connector not instance of PedestrianConnectedStreetSections");
+            }
+            PedestrianConnectedStreetSections connectorPair = ((PedestrianStreetConnector)(((PedestrianStreetSection) nextSection).getNextStreetConnector())).getConnectorBySection(nextSection);
 
-           // final PedestrianGenerateEvent carGenerateEvent = roundaboutEventFactory.createCarGenerateEvent(roundaboutSimulationModel);
+            Point start = connectorPair.getPortOfFromStreetSection().getBeginOfStreetPort();
+            Point end = connectorPair.getPortOfFromStreetSection().getEndOfStreetPort();
+            Point entryPoint = new Point();
+            if( calc.almostEqual(end.getX(), start.getX()) ){
+                double entryY = roundaboutSimulationModel.getRandomEntryPoint(
+                                                                    Math.min(end.getY(), start.getY()),
+                                                                    Math.max(end.getY(), start.getY()));
+                entryPoint.setLocation(start.getX() + global.getX(), entryY + global.getY());
 
-            final double minTimeBetweenCarArrivals = roundaboutSimulationModel.getMinTimeBetweenCarArrivals();
-            final double meanTimeBetweenCarArrivals = roundaboutSimulationModel.getMeanTimeBetweenCarArrivals();
+            } else {
+                double entryX = roundaboutSimulationModel.getRandomEntryPoint(
+                        Math.min(end.getX(), start.getX()),
+                        Math.max(end.getX(), start.getX()));
+                entryPoint.setLocation(start.getX() + global.getX(), entryX + global.getY());
 
-            final double randomTimeUntilCarArrival = roundaboutSimulationModel.getRandomTimeBetweenCarArrivals();
-            final double generatorExpectationShift = source.getGeneratorExpectation() - meanTimeBetweenCarArrivals;
+            }
+            final PedestrianBehaviour behaviour = new PedestrianBehaviour(
+                    roundaboutSimulationModel.getRandomPedestrianPreferredSpeed(),
+                    0.5,
+                    0.5,
+                    1,
+                    1, //TODO
+                    roundaboutSimulationModel.getRandomPedestrianGender(),
+                    roundaboutSimulationModel.getRandomPedestrianPsychologicalNature(),
+                    roundaboutSimulationModel.getRandomPedestrianAgeGroupe());
+            final Pedestrian pedestrian = new Pedestrian(roundaboutSimulationModel, entryPoint, behaviour, route);
+            final Car car = new Car(roundaboutSimulationModel, "", false);
+            PedestrianController.addCarMapping(car, pedestrian);
+            pedestrian.enterSystem();
+            ((PedestrianStreet)nextSection).addPedestrian(pedestrian, entryPoint);
 
-            final double shiftedTimeUntilCarArrival = randomTimeUntilCarArrival + generatorExpectationShift;
-            final double actualTimeUntilCarArrival = Math.max(shiftedTimeUntilCarArrival, minTimeBetweenCarArrivals);
+            // schedule next events
+            final double traverseTime = pedestrian.getTimeToNextSubGoal();
+            final PedestrianReachedAimEvent pedestrianReachedAimEvent = pedestrianEventFactory.createPedestrianReachedAimEvent(roundaboutSimulationModel);
+            pedestrianReachedAimEvent.schedule((PedestrianStreet) nextSection, new TimeSpan(traverseTime, roundaboutSimulationModel.getModelTimeUnit()));
 
-            //carGenerateEvent.schedule(source, new TimeSpan(actualTimeUntilCarArrival, roundaboutSimulationModel.getModelTimeUnit()));
+            final PedestrianGenerateEvent pedestrianGenerateEvent = pedestrianEventFactory.createPedestrianGenerateEvent(roundaboutSimulationModel);
+
+            final double minTimeBetweenPedestrianArrivals = roundaboutSimulationModel.getMinTimeBetweenPedestrianArrivals();
+            final double meanTimeBetweenPedestrianArrivals = roundaboutSimulationModel.getMeanTimeBetweenPedestrianArrivals();
+
+            final double randomTimeUntilPedestrianArrival = roundaboutSimulationModel.getRandomTimeBetweenPedestrianArrivals();
+            final double generatorExpectationShift = source.getGeneratorExpectation() - meanTimeBetweenPedestrianArrivals;
+
+            final double shiftedTimeUntilPedestrianArrival = randomTimeUntilPedestrianArrival + generatorExpectationShift;
+            final double actualTimeUntilPedestrianArrival = Math.max(shiftedTimeUntilPedestrianArrival, minTimeBetweenPedestrianArrivals);
+
+            pedestrianGenerateEvent.schedule(source, new TimeSpan(actualTimeUntilPedestrianArrival, roundaboutSimulationModel.getModelTimeUnit()));
         } else {
-            throw new IllegalStateException("NextSection should be of type Street");
+            throw new IllegalStateException("NextSection should be of type PedestrianStreet");
         }
     }
 }

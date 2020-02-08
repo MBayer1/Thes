@@ -26,7 +26,7 @@ public class StreetSection extends Street {
     private final LinkedList<ICar> carQueue;
     private final Map<ICar, Double> carPositions;
 
-    private final PedestrianStreet pedestrianCrossing;
+    private final PedestrianStreetReferenceForVehicleStreet pedestrianCrossing;
 
     private IStreetConnector nextStreetConnector;
     private IStreetConnector previousStreetConnector;
@@ -81,7 +81,7 @@ public class StreetSection extends Street {
             Long minGreenPhaseDuration,
             Long greenPhaseDuration,
             Long redPhaseDuration,
-            PedestrianStreet pedestrianCrossing
+            PedestrianStreetReferenceForVehicleStreet pedestrianCrossing
     ) {
         super(
                 id,
@@ -725,8 +725,37 @@ public class StreetSection extends Street {
      *
      * @return pedestrian crossing {@Link PedestrianStreet}.
      */
-    public PedestrianStreet getPedestrianCrossing(){
+    public PedestrianStreetReferenceForVehicleStreet getPedestrianCrossing(){
         return pedestrianCrossing;
+    }
+
+    /**
+     * Returns pedestrian crossing {@link PedestrianStreet} entry high (heigh y)
+     *
+     * @return int.
+     */
+    public int getPedestrianCrossingEntryHigh(){
+        return pedestrianCrossing.getHighOfEntry();
+    }
+
+    /**
+     * Returns pedestrian crossing {@link PedestrianStreet} entry width (heigh x)
+     *
+     * @return int.
+     */
+    public int getPedestrianCrossingEntryWidth(){
+
+        return (int)pedestrianCrossing.getPedestrianCrossing().getLengthX();
+    }
+
+    /**
+     * Returns pedestrian crossing {@link PedestrianStreet} entry does beginn at start side of seciton
+     *
+     * @return boolean.
+     */
+    public boolean getPedestrianCrossingEntryAtBeginning(){
+
+        return pedestrianCrossing.getLinkedAtBegin();
     }
 
     /**
@@ -736,6 +765,6 @@ public class StreetSection extends Street {
      * @return width of pedestrian crossing {@Link double}.
      */
     public double getPedestrianCrossingWidth(){
-        return this.doesHavePedestrianCrossing() ? this.getPedestrianCrossing().getWidth() : 0.0;
+        return this.doesHavePedestrianCrossing() ? this.getPedestrianCrossing().getPedestrianCrossing().getLengthY() : 0.0;
     }
 }

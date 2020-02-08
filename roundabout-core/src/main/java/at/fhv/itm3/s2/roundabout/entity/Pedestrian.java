@@ -16,7 +16,6 @@ import java.util.Iterator;
 public class Pedestrian implements IPedestrian {
 
     private final Car car; //keep existing structure as dummy for some specific function considered simulation
-    private final Point currentPosition;
     private final Double preferredSpeed;
     private final Double maxPreferredSpeed;
     private final IPedestrianRoute route;
@@ -31,6 +30,7 @@ public class Pedestrian implements IPedestrian {
     private final int minGapForPedestrian; // TODO
 
     private double lastUpdateTime;
+    private Point currentGlobalPosition;
 
     private PedestrianStreetSection lastSection;
     private PedestrianStreetSectionAndPortPair currentSection;
@@ -41,16 +41,16 @@ public class Pedestrian implements IPedestrian {
     private double timeRelatedParameterFactorForSpeedCalculation;
     private SupportiveCalculations calc;
 
-    public Pedestrian(Model model, Point currentPosition, IPedestrianBehaviour pedestrianBehaviour, IPedestrianRoute  route){
-        this(model, currentPosition, pedestrianBehaviour, route, 1.0);
+    public Pedestrian(Model model, Point currentGlobalPosition, IPedestrianBehaviour pedestrianBehaviour, IPedestrianRoute  route){
+        this(model, currentGlobalPosition, pedestrianBehaviour, route, 1.0);
     }
 
 
-    public Pedestrian(Model model, Point currentPosition, IPedestrianBehaviour pedestrianBehaviour, IPedestrianRoute route,
+    public Pedestrian(Model model, Point currentGlobalPosition, IPedestrianBehaviour pedestrianBehaviour, IPedestrianRoute route,
                       double timeRelatedParameterFactorForSpeedCalculation)
             throws IllegalArgumentException {
 
-        this.currentPosition = currentPosition;
+        this.currentGlobalPosition = currentGlobalPosition;
 
         if (pedestrianBehaviour != null) {
             this.pedestrianBehaviour = pedestrianBehaviour;
@@ -73,8 +73,8 @@ public class Pedestrian implements IPedestrian {
         this.setLastUpdateTime(getRoundaboutModel().getCurrentTime());
 
         // Extended of Pedestrian speed -> also include stress factor.
-        double val1 = getRoundaboutModel().getRandomPreferredSpeed();
-        double val2 = getRoundaboutModel().getRandomPreferredSpeed();
+        double val1 = getRoundaboutModel().getRandomPedestrianPreferredSpeed();
+        double val2 = getRoundaboutModel().getRandomPedestrianPreferredSpeed();
         this.preferredSpeed = Math.min(val1, val2);
         this.maxPreferredSpeed = Math.max(val1, val2);
         this.walkedDistance = 0.0;
@@ -141,17 +141,26 @@ public class Pedestrian implements IPedestrian {
      * {@inheritDoc}
      */
     @Override
-    public double getTimeToNextSubGoal(Point currentPosition) {
-        return 0;
-    }
+    public double getTimeToNextSubGoal() {
+        Point goal = getNextSubGoal();
+        Point origin = ((PedestrianStreetSection)getCurrentSection().getStreetSection()).getGlobalCoordinateOfSectionOrigin();
 
+        return calc.getDistanceByCoordinates(goal.getX() + origin.getX(),
+                goal.getY() + origin.getY(),
+                currentGlobalPosition.getX(),
+                currentGlobalPosition.getY()) * getPreferredSpeed();
+    }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Point getCurrentPosition() {
-        return currentPosition;
+    public Point getCurrentGlobalPosition() {
+        return currentGlobalPosition;
+    }
+
+    public void setCurrentGlobalPosition(Point currentGlobalPosition) {
+        this.currentGlobalPosition = currentGlobalPosition;
     }
 
     /**
@@ -169,7 +178,6 @@ public class Pedestrian implements IPedestrian {
     public IPedestrianRoute getRoute() {
         return route;
     }
-
 
     /**
      * {@inheritDoc}
@@ -195,8 +203,6 @@ public class Pedestrian implements IPedestrian {
         return sectionAfterNextSection;
     }
 
-
-
     /**
      * {@inheritDoc}
      */
@@ -217,7 +223,6 @@ public class Pedestrian implements IPedestrian {
     private PedestrianStreetSectionAndPortPair retrieveNextRouteSection() {
         return routeIterator.hasNext() ? routeIterator.next() : null;
     }
-
 
     /**
      * {@inheritDoc}
@@ -348,32 +353,32 @@ public class Pedestrian implements IPedestrian {
         return checkExitPortIsReached(pos);
     }
 
-    public boolean checkExitPortIsReached(){ return checkExitPortIsReached(currentPosition);}
+    public boolean checkExitPortIsReached(){ return checkExitPortIsReached(currentGlobalPosition);}
 
     public boolean checkExitPortIsReached(Point pedestrianPosition){
         // Port is along y axis
         if(currentSection.getExitPort().getBeginOfStreetPort().getX() == currentSection.getExitPort().getEndOfStreetPort().getX()){
-            if(    ((calc.LowerOrAlmostEqual((currentSection.getExitPort().getBeginOfStreetPort().getY() + minGapForPedestrian), pedestrianPosition.getY(), 10e-1) &&
-                    calc.BiggerOrAlmostEqual((currentSection.getExitPort().getEndOfStreetPort().getY() - minGapForPedestrian), pedestrianPosition.getY(), 10e-1))
+            if(    ((calc.val1LowerOrAlmostEqual((currentSection.getExitPort().getBeginOfStreetPort().getY() + minGapForPedestrian), pedestrianPosition.getY(), 10e-1) &&
+                    calc.val1BiggerOrAlmostEqual((currentSection.getExitPort().getEndOfStreetPort().getY() - minGapForPedestrian), pedestrianPosition.getY(), 10e-1))
                     ||
-                    calc.LowerOrAlmostEqual((currentSection.getExitPort().getEndOfStreetPort().getY() + minGapForPedestrian), pedestrianPosition.getY(), 10e-1) &&
-                    calc.BiggerOrAlmostEqual((currentSection.getExitPort().getBeginOfStreetPort().getY() - minGapForPedestrian), pedestrianPosition.getY(), 10e-1))
+                    calc.val1LowerOrAlmostEqual((currentSection.getExitPort().getEndOfStreetPort().getY() + minGapForPedestrian), pedestrianPosition.getY(), 10e-1) &&
+                    calc.val1BiggerOrAlmostEqual((currentSection.getExitPort().getBeginOfStreetPort().getY() - minGapForPedestrian), pedestrianPosition.getY(), 10e-1))
 
                     &&
-                    calc.AlmostEqual(currentSection.getExitPort().getBeginOfStreetPort().getX(), pedestrianPosition.getX(), 1.0)
+                    calc.almostEqual(currentSection.getExitPort().getBeginOfStreetPort().getX(), pedestrianPosition.getX(), 1.0)
                     ){
                 return true;
             }
         } // Port is along x axis
         else {
-            if(    ((calc.LowerOrAlmostEqual((currentSection.getExitPort().getBeginOfStreetPort().getX() + minGapForPedestrian), pedestrianPosition.getX(), 10e-1) &&
-                    calc.BiggerOrAlmostEqual((currentSection.getExitPort().getEndOfStreetPort().getX() - minGapForPedestrian), pedestrianPosition.getX(), 10e-1))
+            if(    ((calc.val1LowerOrAlmostEqual((currentSection.getExitPort().getBeginOfStreetPort().getX() + minGapForPedestrian), pedestrianPosition.getX(), 10e-1) &&
+                    calc.val1BiggerOrAlmostEqual((currentSection.getExitPort().getEndOfStreetPort().getX() - minGapForPedestrian), pedestrianPosition.getX(), 10e-1))
                     ||
-                    calc.LowerOrAlmostEqual((currentSection.getExitPort().getEndOfStreetPort().getX() + minGapForPedestrian), pedestrianPosition.getX(), 10e-1) &&
-                            calc.BiggerOrAlmostEqual((currentSection.getExitPort().getBeginOfStreetPort().getX() - minGapForPedestrian), pedestrianPosition.getX(), 10e-1))
+                    calc.val1LowerOrAlmostEqual((currentSection.getExitPort().getEndOfStreetPort().getX() + minGapForPedestrian), pedestrianPosition.getX(), 10e-1) &&
+                            calc.val1BiggerOrAlmostEqual((currentSection.getExitPort().getBeginOfStreetPort().getX() - minGapForPedestrian), pedestrianPosition.getX(), 10e-1))
 
                     &&
-                    calc.AlmostEqual(currentSection.getExitPort().getBeginOfStreetPort().getY(), pedestrianPosition.getY(), 1.0)
+                    calc.almostEqual(currentSection.getExitPort().getBeginOfStreetPort().getY(), pedestrianPosition.getY(), 1.0)
                     ){
                 return true;
             }
@@ -394,10 +399,10 @@ public class Pedestrian implements IPedestrian {
 
         // Port is along y axis
         if( beginX == endX){
-            if( checkExitPortIsReached(beginX, currentPosition.getY())){
-                pos.setLocation(beginX, currentPosition.getY());
+            if( checkExitPortIsReached(beginX, currentGlobalPosition.getY())){
+                pos.setLocation(beginX, currentGlobalPosition.getY());
             }
-            else if (Math.abs(currentPosition.getY()-beginY) < Math.abs(currentPosition.getY()-endY)){ // check if it is closer to end or begin
+            else if (Math.abs(currentGlobalPosition.getY()-beginY) < Math.abs(currentGlobalPosition.getY()-endY)){ // check if it is closer to end or begin
                 //closer to begin exit port
                 if(Math.abs((beginY - minGapForPedestrian)- endY) < Math.abs((beginY + minGapForPedestrian)- endY))
                     pos.setLocation(beginX, beginY - minGapForPedestrian);
@@ -413,10 +418,10 @@ public class Pedestrian implements IPedestrian {
 
         } // Port is along x axis
         else {
-            if( checkExitPortIsReached(currentPosition.getX(), beginY)){
-                pos.setLocation(currentPosition.getX(), beginY);
+            if( checkExitPortIsReached(currentGlobalPosition.getX(), beginY)){
+                pos.setLocation(currentGlobalPosition.getX(), beginY);
             }
-            else if (Math.abs(currentPosition.getX()-beginX) < Math.abs(currentPosition.getX()-endX)){ // check if it is closer to end or begin
+            else if (Math.abs(currentGlobalPosition.getX()-beginX) < Math.abs(currentGlobalPosition.getX()-endX)){ // check if it is closer to end or begin
                 //closer to begin exit port
                 if(Math.abs((beginX - minGapForPedestrian)- endX) < Math.abs((beginX + minGapForPedestrian)- endX))
                     pos.setLocation(beginX - minGapForPedestrian, beginY);
