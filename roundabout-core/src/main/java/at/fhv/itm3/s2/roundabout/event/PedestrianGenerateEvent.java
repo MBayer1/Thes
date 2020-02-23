@@ -14,12 +14,13 @@ import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeSpan;
 
 import java.awt.*;
-import java.util.List;
-
 
 public class PedestrianGenerateEvent extends Event<PedestrianAbstractSource> {
 
     SupportiveCalculations calc;
+    Model model;
+    String name;
+    boolean showInTrace;
 
     /**
      * A reference to the {@link RoundaboutSimulationModel} the {@link PedestrianReachedAimEvent} is part of.
@@ -54,6 +55,9 @@ public class PedestrianGenerateEvent extends Event<PedestrianAbstractSource> {
         } else {
             throw new IllegalArgumentException("No suitable model given over.");
         }
+        this.model = model;
+        this.name = name;
+        this.showInTrace = showInTrace;
         routeController = PedestrianRouteController.getInstance(roundaboutSimulationModel);
     }
 
@@ -105,7 +109,7 @@ public class PedestrianGenerateEvent extends Event<PedestrianAbstractSource> {
                     roundaboutSimulationModel.getRandomPedestrianGender(),
                     roundaboutSimulationModel.getRandomPedestrianPsychologicalNature(),
                     roundaboutSimulationModel.getRandomPedestrianAgeGroupe());
-            final Pedestrian pedestrian = new Pedestrian(roundaboutSimulationModel, entryPoint, behaviour, route);
+            final Pedestrian pedestrian = new Pedestrian(roundaboutSimulationModel, name, showInTrace, entryPoint, behaviour, route);
             final Car car = new Car(roundaboutSimulationModel, "", false);
             PedestrianController.addCarMapping(car, pedestrian);
             pedestrian.enterSystem();
@@ -114,7 +118,7 @@ public class PedestrianGenerateEvent extends Event<PedestrianAbstractSource> {
             // schedule next events
             final double traverseTime = pedestrian.getTimeToNextSubGoal();
             final PedestrianReachedAimEvent pedestrianReachedAimEvent = pedestrianEventFactory.createPedestrianReachedAimEvent(roundaboutSimulationModel);
-            pedestrianReachedAimEvent.schedule((PedestrianStreet) nextSection, new TimeSpan(traverseTime, roundaboutSimulationModel.getModelTimeUnit()));
+            pedestrianReachedAimEvent.schedule(pedestrian, new TimeSpan(traverseTime, roundaboutSimulationModel.getModelTimeUnit()));
 
             final PedestrianGenerateEvent pedestrianGenerateEvent = pedestrianEventFactory.createPedestrianGenerateEvent(roundaboutSimulationModel);
 

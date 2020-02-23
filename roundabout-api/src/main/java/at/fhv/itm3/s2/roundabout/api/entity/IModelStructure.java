@@ -50,6 +50,7 @@ public interface IModelStructure {
      */
     void addIntersections(Collection<? extends Intersection> intersections);
 
+
     /**
      * Add a collection of streets for vehicle to the structure.
      * Structure setup needs to be done before.

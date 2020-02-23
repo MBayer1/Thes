@@ -393,6 +393,9 @@ public class RoundaboutSimulationModel extends Model {
             modelStructure.getIntersections().forEach(is -> is.getController().start());
             modelStructure.getRoutes().keySet().forEach(so -> so.startGeneratingCars(0));
             modelStructure.getStreets().forEach(Street::initTrafficLight);
+
+            modelStructure.getPedestrianRoutes().keySet().forEach(so -> so.startGeneratingPedestrians(0));
+            modelStructure.getPedestrianStreets().forEach(PedestrianStreet::initTrafficLight);
         } else {
             throw new IllegalArgumentException("Model structure should not be null!");
         }

@@ -50,12 +50,12 @@ public class PedestrianEventFactory {
     }
 
     /**
-     * Creates a new {@link ToggleTrafficLightStateEvent} within the given model.
+     * Creates a new {@link PedestrianToggleTrafficLightStateEvent} within the given model.
      *
      * @param model the model the event is part of.
-     * @return the newly created {@link ToggleTrafficLightStateEvent}.
+     * @return the newly created {@link PedestrianToggleTrafficLightStateEvent}.
      */
-    public ToggleTrafficLightStateEvent createToggleTrafficLightStateEvent(RoundaboutSimulationModel model) {
-        return new ToggleTrafficLightStateEvent(model, "ToggleTrafficLightStateEvent", true);
+    public PedestrianToggleTrafficLightStateEvent createToggleTrafficLightStateEvent(RoundaboutSimulationModel model) {
+        return new PedestrianToggleTrafficLightStateEvent(model, "ToggleTrafficLightStateEvent", true);
     }
 }

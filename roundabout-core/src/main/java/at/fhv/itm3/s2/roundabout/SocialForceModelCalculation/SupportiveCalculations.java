@@ -8,12 +8,11 @@ public class SupportiveCalculations {
             return new Vector2d(endPointX-startPointX, endPointY-startPointY);
     }
 
-    
     public boolean checkLinesIntersectionByCoordinates(double intersectionX, double intersectionY,
-                                                       double lineStartX1,   double lineStartY1, 
-                                                       double lineEndX1, double lineEndY1, 
-                                                       double lineStartX2, double lineStartY2,
-                                                       double lineEndX2, double lineEndY2    
+                                                     double lineStartX1, double lineStartY1,
+                                                     double lineEndX1, double lineEndY1,
+                                                     double lineStartX2, double lineStartY2,
+                                                     double lineEndX2, double lineEndY2
     ){
 
         if((lineStartX1 == lineStartX2) && (lineStartY1 == lineStartY2) &&

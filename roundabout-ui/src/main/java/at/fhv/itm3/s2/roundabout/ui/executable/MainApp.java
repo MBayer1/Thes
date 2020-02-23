@@ -93,7 +93,6 @@ public class MainApp extends Application {
                 }
                 experiment.finish();
                 CarController.clear();
-
             });
             mainViewController.setPauseRunnable(experiment::stop);
             mainViewController.setDoStepRunnable(() -> {

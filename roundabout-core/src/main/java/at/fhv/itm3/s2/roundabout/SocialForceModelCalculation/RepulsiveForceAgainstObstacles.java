@@ -31,7 +31,7 @@ public class RepulsiveForceAgainstObstacles {
         return sumForce;
     }
 
-    public void forceAgainstWalls( Pedestrian pedestrian, Vector2d sumForce ) {
+    void forceAgainstWalls( Pedestrian pedestrian, Vector2d sumForce ) {
         IConsumer section = pedestrian.getCurrentSection().getStreetSection();
         if ( ! (section instanceof PedestrianStreetSection) ) {
             throw new IllegalArgumentException("Street section is not an instance of PedestrianStreetSection");
@@ -41,7 +41,7 @@ public class RepulsiveForceAgainstObstacles {
         forceAgainstWallsIteration( pedestrian, sumForce );
     }
 
-    public void forceAgainstWallsIteration ( Pedestrian pedestrian, Vector2d sumForce ){
+    void forceAgainstWallsIteration ( Pedestrian pedestrian, Vector2d sumForce ){
 
         IConsumer section = pedestrian.getCurrentSection().getStreetSection();
         if ( ! (section instanceof PedestrianStreetSection) ) {
@@ -114,7 +114,7 @@ public class RepulsiveForceAgainstObstacles {
         }
     }
 
-    public void checkWallIntersectionWithinPort (double portBeginX, double portBeginY, double portEndX, double portEndY, Vector2d wallIntersection1) {
+    void checkWallIntersectionWithinPort (double portBeginX, double portBeginY, double portEndX, double portEndY, Vector2d wallIntersection1) {
         if ((calculations.val1Bigger(portBeginX, wallIntersection1.getX()) &&
                 calculations.val1Bigger(portBeginY, wallIntersection1.getY()) &&
                 calculations.val1Lower(portEndX, wallIntersection1.getX()) &&
@@ -135,7 +135,7 @@ public class RepulsiveForceAgainstObstacles {
         }
     }
 
-    public Vector2d getRepulsiveForceAgainstObstacle(   Pedestrian pedestrian,
+    Vector2d getRepulsiveForceAgainstObstacle(   Pedestrian pedestrian,
                                                         Point obstaclePosition) {
         Double weightingFactor;
         Point dest = pedestrian.getNextSubGoal();
@@ -157,7 +157,7 @@ public class RepulsiveForceAgainstObstacles {
         return force;
     }
 
-    public Vector2d getRepulsiveForceAgainstObstacleCalculation(    Pedestrian pedestrian,
+    Vector2d getRepulsiveForceAgainstObstacleCalculation(    Pedestrian pedestrian,
                                                                     Point obstaclePosition) {
         // Distance vector
         Vector2d vectorBetweenPedestrianAndObstacle = new Vector2d(pedestrian.getCurrentGlobalPosition().x, pedestrian.getCurrentGlobalPosition().y);

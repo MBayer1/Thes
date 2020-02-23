@@ -2,18 +2,20 @@ package at.fhv.itm3.s2.roundabout.entity;
 
 import at.fhv.itm14.trafsim.model.entities.Car;
 import at.fhv.itm14.trafsim.statistics.StopWatch;
-import at.fhv.itm3.s2.roundabout.SocialForceModelCalculation.SupportiveCalculations;
+import at.fhv.itm3.s2.roundabout.SocialForceModelCalculation.*;
 import at.fhv.itm3.s2.roundabout.api.entity.*;
 import at.fhv.itm3.s2.roundabout.model.RoundaboutSimulationModel;
+import desmoj.core.simulator.Entity;
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeSpan;
 import desmoj.core.statistic.Count;
 import desmoj.core.statistic.Tally;
 
+import javax.vecmath.Vector2d;
 import java.awt.*;
 import java.util.Iterator;
 
-public class Pedestrian implements IPedestrian {
+public class Pedestrian extends Entity implements IPedestrian {
 
     private final Car car; //keep existing structure as dummy for some specific function considered simulation
     private final Double preferredSpeed;
@@ -39,16 +41,17 @@ public class Pedestrian implements IPedestrian {
     private Double currentSpeed;
     private Double walkedDistance;
     private double timeRelatedParameterFactorForSpeedCalculation;
-    private SupportiveCalculations calc;
+    Point currentNextGlobalAim;
+    SupportiveCalculations calc;
 
-    public Pedestrian(Model model, Point currentGlobalPosition, IPedestrianBehaviour pedestrianBehaviour, IPedestrianRoute  route){
-        this(model, currentGlobalPosition, pedestrianBehaviour, route, 1.0);
+    public Pedestrian(Model model, String name, boolean showInTrace, Point currentGlobalPosition, IPedestrianBehaviour pedestrianBehaviour, IPedestrianRoute  route){
+        this(model, name, showInTrace, currentGlobalPosition, pedestrianBehaviour, route, 1.0);
     }
 
-
-    public Pedestrian(Model model, Point currentGlobalPosition, IPedestrianBehaviour pedestrianBehaviour, IPedestrianRoute route,
-                      double timeRelatedParameterFactorForSpeedCalculation)
+    public Pedestrian(Model model, String name, boolean showInTrace, Point currentGlobalPosition, IPedestrianBehaviour pedestrianBehaviour,
+                      IPedestrianRoute route, double timeRelatedParameterFactorForSpeedCalculation)
             throws IllegalArgumentException {
+        super(model, "name", showInTrace);
 
         this.currentGlobalPosition = currentGlobalPosition;
 
@@ -66,6 +69,7 @@ public class Pedestrian implements IPedestrian {
             this.currentSection = retrieveNextRouteSection();
             this.nextSection = retrieveNextRouteSection();
             this.sectionAfterNextSection = retrieveNextRouteSection();
+            this.currentNextGlobalAim = null;
         } else {
             throw new IllegalArgumentException("Route should not be null.");
         }
@@ -95,8 +99,8 @@ public class Pedestrian implements IPedestrian {
         this.pedestrianCrossingTime = new Tally(model, "Roundabout time", false, false);
         this.pedestrianCrossingTime.reset();
 
-        this.currentSpeed = 0.0;
-        this.minGapForPedestrian = 40;
+        this.currentSpeed = this.getPreferredSpeed();
+        this.minGapForPedestrian = 50; //cm
     }
 
     /**
@@ -128,14 +132,17 @@ public class Pedestrian implements IPedestrian {
         return getPositionOnExitPort();
     }
 
+    public Point getGlobalNextSubGoal() {
+        if (! (getCurrentSection().getStreetSection() instanceof PedestrianStreetSection )) {
+            throw new IllegalArgumentException("Street section not instance of PedestrianStreetSection.");
+        }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean nextSubGoalIsReached() {
-        return checkExitPortIsReached();
+        Point global = ((PedestrianStreetSection) getCurrentSection().getStreetSection()).getGlobalCoordinateOfSectionOrigin();
+        Point globalGoal = new Point((int)(getPositionOnExitPort().getX() + global.getX()),
+                (int)(getPositionOnExitPort().getY() + global.getY()));
+        return globalGoal;
     }
+
 
     /**
      * {@inheritDoc}
@@ -148,7 +155,16 @@ public class Pedestrian implements IPedestrian {
         return calc.getDistanceByCoordinates(goal.getX() + origin.getX(),
                 goal.getY() + origin.getY(),
                 currentGlobalPosition.getX(),
-                currentGlobalPosition.getY()) * getPreferredSpeed();
+                currentGlobalPosition.getY()) * getCurrentSpeed();
+    }
+
+    public double getTimeToNextGlobalSubGoalByCoordinates(Point goal) {
+        Point origin = ((PedestrianStreetSection)getCurrentSection().getStreetSection()).getGlobalCoordinateOfSectionOrigin();
+
+        return calc.getDistanceByCoordinates(goal.getX() + origin.getX(),
+                goal.getY() + origin.getY(),
+                currentGlobalPosition.getX(),
+                currentGlobalPosition.getY()) * calculatePreferredSpeed();
     }
 
     /**
@@ -161,6 +177,13 @@ public class Pedestrian implements IPedestrian {
 
     public void setCurrentGlobalPosition(Point currentGlobalPosition) {
         this.currentGlobalPosition = currentGlobalPosition;
+    }
+
+    public void setCurrentGlobalPosition() {
+        if( currentNextGlobalAim != null) {
+            setCurrentGlobalPosition(getCurrentGlobalPosition());
+        }
+        setCurrentGlobalPosition(currentNextGlobalAim);
     }
 
     /**
@@ -439,30 +462,50 @@ public class Pedestrian implements IPedestrian {
         return pos;
     }
 
-
-    public void updateWalkedDistance( double distance){ this.walkedDistance += distance; }
+    public void updateWalkedDistance( ){
+        this.walkedDistance += calc.getDistanceByCoordinates(currentGlobalPosition.getX(), currentGlobalPosition.getY(),
+                getGlobalNextSubGoal().getX(), getGlobalNextSubGoal().getY());;
+    }
 
     public Double getWalkedDistance() {
         return walkedDistance;
     }
 
+    public void setCurrentNextGlobalAim(Point currentNextGlobalAim) {
+        this.currentNextGlobalAim = currentNextGlobalAim;
+    }
+
+    public Point getCurrentNextGlobalAim() {
+        return currentNextGlobalAim;
+    }
+
+
     /**
      * {@inheritDoc}
      */
     @Override
-    public double GetSocialForceVector(){
+    public Vector2d getSocialForceVector(){
 
         getRoundaboutModel().getSFM_DegreeOfAccuracy();
+        Vector2d sumForce = new Vector2d();
+        AccelerationForceToTarget accelerationForceToTarget = new AccelerationForceToTarget();
+        RepulsiveForceAgainstVehicles repulsiveForceAgainstVehicles = new RepulsiveForceAgainstVehicles();
+        RepulsiveForceAgainstObstacles repulsiveForceAgainstObstacles = new RepulsiveForceAgainstObstacles();
+        RepulsiveForceAgainstOtherPedestrians repulsiveForceAgainstOtherPedestrians = new RepulsiveForceAgainstOtherPedestrians();
 
+        Vector2d tmp = accelerationForceToTarget.getAccelerationForceToTarget(getRoundaboutModel(), this);
+        sumForce.add(tmp);
+        tmp = repulsiveForceAgainstOtherPedestrians.getRepulsiveForceAgainstAllOtherPedestrians(getRoundaboutModel(), this, getNextSubGoal());
+        sumForce.add(tmp);
+        tmp = repulsiveForceAgainstVehicles.getRepulsiveForceAgainstVehicles(getRoundaboutModel(), this);
+        sumForce.add(tmp);
+        tmp = repulsiveForceAgainstObstacles.getRepulsiveForceAgainstAllObstacles(getRoundaboutModel(), this);
+        sumForce.add(tmp);
 
-
-
-        //TODO summiere paramerter.
-
-
-        return 0;
+        return sumForce;
     }
 
-
-
+    public int getMinGapForPedestrian() {
+        return minGapForPedestrian;
+    }
 }

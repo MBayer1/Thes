@@ -16,7 +16,6 @@ public abstract class PedestrianStreet extends AbstractProSumer implements IPede
     private long leftPedestriansCounter;
     private long lostPedestriansCounter;
     private TrafficLight trafficLight;
-
     private double greenPhaseStart;
 
     protected Observable pedestrianObserver;

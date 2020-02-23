@@ -32,7 +32,6 @@ import java.awt.*;
 
 import static java.util.stream.Collectors.toMap;
 
-
 public class ConfigParser {
     private static final String SIMULATION_SEED = "SIMULATION_SEED";
     private static final String MIN_TIME_BETWEEN_CAR_ARRIVALS = "MIN_TIME_BETWEEN_CAR_ARRIVALS";
@@ -178,7 +177,6 @@ public class ConfigParser {
             if (modelConfig.getComponents().getPedestrianConnectors() != null)
                 handlePedestrianConnectors(null, modelConfig.getComponents().getPedestrianConnectors());
         }
-
 
         // Adding intersections.
         modelStructure.addIntersections(INTERSECTION_REGISTRY.values());
@@ -469,6 +467,12 @@ public class ConfigParser {
                     final boolean isTrafficLightActive = s.getIsTrafficLightActive() != null ? s.getIsTrafficLightActive() : false;
                     final PedestrianStreet pedestrianStreetSectionRef = s.getPedestrianCrossingIDRef() != null ?
                             resolvePedestrianSection(s.getPedestrianCrossingComponentIDRef(), s.getPedestrianCrossingIDRef()) : null;
+
+                    // a traffic light can currently solely be on a pedestrian crossing section
+                    if( isTrafficLightActive && !(pedestrianStreetSectionRef.getPedestrianConsumerType().equals(PedestrianConsumerType.PEDESTRIAN_CROSSING)) ) {
+                        throw new IllegalArgumentException("A pedestrian traffic light can currently solely be on a pedestrian crossing section.");
+                    }
+
                     PedestrianStreetReferenceForVehicleStreet pedestrianStreetRef =
                             new PedestrianStreetReferenceForVehicleStreet(pedestrianStreetSectionRef,
                             s.getPedestrianCrossingIDRefEnterHigh(), s.getPedestrianCrossingRefLinkedAtBegin());

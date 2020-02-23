@@ -8,8 +8,11 @@ import at.fhv.itm3.s2.roundabout.SocialForceModelCalculation.SupportiveCalculati
 import at.fhv.itm3.s2.roundabout.api.entity.*;
 import at.fhv.itm3.s2.roundabout.controller.IntersectionController;
 import at.fhv.itm3.s2.roundabout.controller.PedestrianController;
+import at.fhv.itm3.s2.roundabout.event.PedestrianEventFactory;
+import at.fhv.itm3.s2.roundabout.event.RoundaboutEventFactory;
 import at.fhv.itm3.s2.roundabout.model.RoundaboutSimulationModel;
 import desmoj.core.simulator.Model;
+import desmoj.core.simulator.TimeSpan;
 import javafx.scene.shape.Circle;
 
 import java.awt.*;
@@ -22,6 +25,7 @@ public class PedestrianStreetSection extends PedestrianStreet {
     private final double lengthY;
     private final PedestrianConsumerType consumerType;
     private Point globalCoordinateOfSectionOrigin;
+    private int minSizeOfPedestriansForTrafficLightTriggeredByJam = 10;
 
     // next two values are for the controlling of a traffic light [checking for jam/ needed for optimization]
     private double currentWaitingTime;
@@ -234,11 +238,21 @@ public class PedestrianStreetSection extends PedestrianStreet {
      */
     @Override
     public void handleJamTrafficLight(){
+        // TODO add pedestrian crossing button
         if (this.isTrafficLightActive() && this.isTrafficLightTriggeredByJam()) {
+            // for this the area in front of the crossing should be limited as an waiting in front of the crossing
 
+            final boolean isActualGreenPhaseBiggerThanMin = (getRoundaboutModel().getCurrentTime() - getGreenPhaseStart()) > getMinGreenPhaseDurationOfTrafficLight();
+
+            if( (getPedestrianQueue().size() >= minSizeOfPedestriansForTrafficLightTriggeredByJam) && isActualGreenPhaseBiggerThanMin) {
+                // trigger red
+                PedestrianEventFactory.getInstance().createToggleTrafficLightStateEvent(getRoundaboutModel()).schedule(
+                        this,
+                        new TimeSpan(0, getRoundaboutModel().getModelTimeUnit())
+                );
+            }
         }
     }
-
 
     /**
      * {@inheritDoc}

@@ -1,5 +1,6 @@
 package at.fhv.itm3.s2.roundabout.api.entity;
 
+import javax.vecmath.Vector2d;
 import java.awt.*;
 
 public interface IPedestrian {
@@ -35,7 +36,7 @@ public interface IPedestrian {
      *
      * @return true when subgoal is reached, otherwise false
      */
-    boolean nextSubGoalIsReached();
+    boolean checkExitPortIsReached();
 
 
     /**
@@ -209,8 +210,9 @@ public interface IPedestrian {
     double getCoveredDistanceInTime(double time);
 
     /**
+     *Returns a Vector of the sum of all forces that are consider to act on one pedestrian
      *
+     * @return Vector of forces on one pedestrian
      */
-    //TODO
-    double GetSocialForceVector();
+    Vector2d getSocialForceVector();
 }

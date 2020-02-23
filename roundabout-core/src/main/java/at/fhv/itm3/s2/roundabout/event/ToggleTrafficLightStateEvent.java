@@ -1,5 +1,6 @@
 package at.fhv.itm3.s2.roundabout.event;
 
+import at.fhv.itm3.s2.roundabout.api.entity.PedestrianStreet;
 import at.fhv.itm3.s2.roundabout.api.entity.Street;
 import at.fhv.itm3.s2.roundabout.model.RoundaboutSimulationModel;
 import co.paralleluniverse.fibers.SuspendExecution;

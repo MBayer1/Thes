@@ -21,14 +21,15 @@ public class RepulsiveForceAgainstOtherPedestrians {
 
     public Vector2d getRepulsiveForceAgainstAllOtherPedestrians(    RoundaboutSimulationModel model,
                                                                     Pedestrian pedestrian,
-                                                                    Vector2d destination){
+                                                                    Point destination){
 
+        Vector2d vacDestination = new Vector2d(destination.getX(), destination.getY());
         Vector2d sumForce = new Vector2d(0,0);
 
         // run through all previous and following connected street sections up to 8m distance
         // from current position of alpha pedestrian
-        GetAllPedestrianFromPreviousStreets( model, pedestrian, destination, sumForce );
-        GetAllPedestrianFromFollowingStreets ( model, pedestrian, destination, sumForce );
+        GetAllPedestrianFromPreviousStreets( model, pedestrian, vacDestination, sumForce );
+        GetAllPedestrianFromFollowingStreets ( model, pedestrian, vacDestination, sumForce );
 
         return sumForce;
     }
@@ -85,7 +86,7 @@ public class RepulsiveForceAgainstOtherPedestrians {
         }
     }
 
-    public void GetAllPedestrianFromFollowingStreets ( RoundaboutSimulationModel model,
+    void GetAllPedestrianFromFollowingStreets ( RoundaboutSimulationModel model,
                                                        Pedestrian pedestrian,
                                                        Vector2d destination,
                                                        Vector2d sumForce) {
@@ -138,7 +139,7 @@ public class RepulsiveForceAgainstOtherPedestrians {
     }
 
 
-    public Vector2d calculateActualRepulsiveForceAgainstOtherPedestrian(RoundaboutSimulationModel model,
+    Vector2d calculateActualRepulsiveForceAgainstOtherPedestrian(RoundaboutSimulationModel model,
                                                                         Vector2d destination,
                                                                         Pedestrian pedestrian,
                                                                         Pedestrian pedestrianBeta){
@@ -168,7 +169,7 @@ public class RepulsiveForceAgainstOtherPedestrians {
         return false;
     }
 
-    public Vector2d getRepulsiveForceAgainstOtherPedestrian(  RoundaboutSimulationModel model,
+    Vector2d getRepulsiveForceAgainstOtherPedestrian(  RoundaboutSimulationModel model,
                                                               IPedestrian pedestrianAlpha, IPedestrian pedestrianBeta){
 
         if ( !(pedestrianAlpha instanceof Pedestrian) || !(pedestrianBeta instanceof Pedestrian) ) {

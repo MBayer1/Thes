@@ -30,6 +30,16 @@ public class RoundaboutEventFactory {
     }
 
     /**
+     * Creates a new {@link ToggleTrafficLightStateEvent} within the given model.
+     *
+     * @param model the model the event is part of.
+     * @return the newly created {@link ToggleTrafficLightStateEvent}.
+     */
+    public ToggleTrafficLightStateEvent createToggleTrafficLightStateEvent(RoundaboutSimulationModel model) {
+        return new ToggleTrafficLightStateEvent(model, "ToggleTrafficLightStateEvent", true);
+    }
+
+    /**
      * Creates a new {@link CarCouldLeaveSectionEvent} within the given model.
      *
      * @param model the model the event is part of.
@@ -47,15 +57,5 @@ public class RoundaboutEventFactory {
      */
     public CarGenerateEvent createCarGenerateEvent(RoundaboutSimulationModel model) {
         return new CarGenerateEvent(model, "CarGenerateEvent", true);
-    }
-
-    /**
-     * Creates a new {@link ToggleTrafficLightStateEvent} within the given model.
-     *
-     * @param model the model the event is part of.
-     * @return the newly created {@link ToggleTrafficLightStateEvent}.
-     */
-    public ToggleTrafficLightStateEvent createToggleTrafficLightStateEvent(RoundaboutSimulationModel model) {
-        return new ToggleTrafficLightStateEvent(model, "ToggleTrafficLightStateEvent", true);
     }
 }
