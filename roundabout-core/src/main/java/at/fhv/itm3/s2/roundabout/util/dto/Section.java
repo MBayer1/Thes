@@ -16,7 +16,7 @@ public class Section implements IDTO {
     private Long redPhaseDuration;
     private String pedestrianCrossingIDRef, pedestrianCrossingComponentIDRef; // TODO
     private Integer pedestrianCrossingIDRefEnterHigh;
-    private Boolean pedestrianCrossingRefLinkedAtBegin;
+    private String pedestrianCrossingRefLinkedAtBegin;
 
     //pedestrian
     private PedestrianConsumerType pedestrianSectionType;
@@ -90,32 +90,36 @@ public class Section implements IDTO {
         return pedestrianCrossingIDRef;
     }
 
-    @XmlAttribute
-    public Integer getPedestrianCrossingIDRefEnterHigh() {
-        if (pedestrianCrossingIDRefEnterHigh != null) return pedestrianCrossingIDRefEnterHigh;
-        return pedestrianCrossingIDRefEnterHigh;
-    }
-
-    @XmlAttribute
-    public Boolean getPedestrianCrossingRefLinkedAtBegin() {
-        return pedestrianCrossingRefLinkedAtBegin;
-    }
-
-
     public void setPedestrianCrossingIDRef(String pedestrianCrossingIDRef) {
         this.pedestrianCrossingIDRef = pedestrianCrossingIDRef;
     }
 
+    @XmlAttribute
+    public Integer getPedestrianCrossingIDRefEnterHigh() {
+        return pedestrianCrossingIDRefEnterHigh;
+    }
+
+    public void setPedestrianCrossingIDRefEnterHigh( Integer pedestrianCrossingIDRefEnterHigh) {
+        this.pedestrianCrossingIDRefEnterHigh = pedestrianCrossingIDRefEnterHigh;
+    }
+
+    @XmlAttribute
+    public String getPedestrianCrossingRefLinkedAtBegin() {
+        return pedestrianCrossingRefLinkedAtBegin;
+    }
+
+    public void setPedestrianCrossingRefLinkedAtBegin( String pedestrianCrossingRefLinkedAtBegin ) {
+        this.pedestrianCrossingRefLinkedAtBegin = pedestrianCrossingRefLinkedAtBegin;
+    }
+
+    @XmlAttribute
     public String getPedestrianCrossingComponentIDRef() {
-        return pedestrianCrossingIDRef;
+        return pedestrianCrossingComponentIDRef;
     }
 
     public void setPedestrianCrossingComponentIDRef(String pedestrianCrossingComponentIDRef) {
         this.pedestrianCrossingComponentIDRef = pedestrianCrossingComponentIDRef;
     }
-
-
-    // Pedestrian Part
 
     @XmlAttribute
     public PedestrianConsumerType getPedestrianSectionType() {
@@ -124,24 +128,5 @@ public class Section implements IDTO {
 
     public void setPedestrianSectionType(PedestrianConsumerType pedestrianSectionType) {
         this.pedestrianSectionType = pedestrianSectionType;
-    }
-
-    @XmlAttribute
-    public Integer getPedestrianLength() {
-        return pedestrianLength;
-    }
-
-
-    public void setPedestrianLength(Integer pedestrianLength) {
-        this.pedestrianLength = pedestrianLength;
-    }
-
-    @XmlAttribute
-    public Integer getPedestrianWidth() {
-        return pedestrianWidth;
-    }
-
-    public void setPedestrianWidth(Integer pedestrianWidth) {
-        this.pedestrianWidth = pedestrianWidth;
     }
 }

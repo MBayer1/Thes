@@ -5,8 +5,8 @@ import java.awt.*;
 public class PedestrianStreetReferenceForVehicleStreet {
 
     private final PedestrianStreet pedestrianCrossing;
-    private final int highOfEntry;
-    private final boolean linkedAtBegin;
+    private final Integer highOfEntry;
+    private final Boolean linkedAtBegin;
 
     public PedestrianStreetReferenceForVehicleStreet(PedestrianStreet pedestrianCrossing, int highOfEntry, boolean linkedAtBegin){
         this.pedestrianCrossing = pedestrianCrossing;
