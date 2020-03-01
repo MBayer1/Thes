@@ -561,41 +561,45 @@ public class ConfigParser {
                     List<PedestrianConnectedStreetSections> pairs = new LinkedList<>();
 
                     for(PedestrianTrack track : pedestrianTrackList) {
-                        final String componentID1 = track.getFromComponentId() != null ? track.getFromComponentId() : scopeComponentId;
-                        final PedestrianStreetSection pedestrianStreetSection1 = (PedestrianStreetSection)resolvePedestrianStreet(componentID1, track.getFromSectionId());
-                        PedestrianStreetSectionPort streetSectionPort1 = new PedestrianStreetSectionPort(
+                        String componentID1 = track.getFromComponentId() != null ? track.getFromComponentId() : scopeComponentId;
+                        PedestrianStreetSection pedestrianStreetSectionFrom = (PedestrianStreetSection)resolvePedestrianStreet(componentID1, track.getFromSectionId());
+                        PedestrianStreetSectionPort streetSectionPortFrom = new PedestrianStreetSectionPort(
                                 track.getFromXPortPositionStart(), track.getFromYPortPositionStart(),
                                 track.getFromXPortPositionEnd(), track.getFromYPortPositionEnd());
 
-                        final String componentID2 = track.getToComponentId() != null ? track.getToComponentId() : scopeComponentId;
-                        final PedestrianStreetSection pedestrianStreetSection2 = (PedestrianStreetSection)resolvePedestrianStreet(componentID2, track.getToSectionId());
-                        PedestrianStreetSectionPort streetSectionPort2 = new PedestrianStreetSectionPort(
+                        String componentID2 = track.getToComponentId() != null ? track.getToComponentId() : scopeComponentId;
+                        PedestrianStreetSection pedestrianStreetSectionTo = null;
+                        PedestrianStreetSectionPort streetSectionPortTo = new PedestrianStreetSectionPort(
                                 track.getToXPortPositionStart(), track.getToYPortPositionStart(),
                                 track.getToXPortPositionEnd(), track.getToYPortPositionEnd());
 
-                        if (checkForExistingPedestrianStreetSectionPair(pairs, pedestrianStreetSection1,
-                                pedestrianStreetSection2)) {
+                        PedestrianConnectedStreetSections connector = null;
+
+                        if( !track.getToSectionType().equals(PedestrianConsumerType.PEDESTRIAN_SINK) ) {
+                            pedestrianStreetSectionTo = (PedestrianStreetSection) resolvePedestrianStreet(componentID2, track.getToSectionId());
+                            // from is always current section
+                            PedestrianConnectedStreetSections connector2 = new PedestrianConnectedStreetSections(
+                                    pedestrianStreetSectionTo, streetSectionPortTo, pedestrianStreetSectionFrom, streetSectionPortFrom);
+                            pedestrianStreetSectionTo.addPreviousStreetConnector(connector2);
+
+                            connector = new PedestrianConnectedStreetSections(pedestrianStreetSectionFrom, streetSectionPortFrom,
+                                    pedestrianStreetSectionTo, streetSectionPortTo);
+                        } else {
+                            connector = new PedestrianConnectedStreetSections(pedestrianStreetSectionFrom, streetSectionPortFrom,
+                                    resolvePedestrianSink(componentID2, track.getToSectionId()), streetSectionPortTo);
+                        }
+
+                        pedestrianStreetSectionFrom.addNextStreetConnector(connector);
+
+                        if (checkForExistingPedestrianStreetSectionPair(pairs, pedestrianStreetSectionFrom,
+                                pedestrianStreetSectionTo)) {
                             throw new IllegalArgumentException("Pedestrian street sections pair does already exist");
                         }
 
-                        PedestrianStreetConnector connector1 = new PedestrianStreetConnector(
-                                pedestrianStreetSection1, streetSectionPort1,
-                                pedestrianStreetSection2, streetSectionPort2);
-                        PedestrianStreetConnector connector2 = new PedestrianStreetConnector(,streetSectionPort1,);
-
-
-                        pedestrianStreetSection1.setNextStreetConnector(connector1);
-                        if ( !(pedestrianStreetSection1.getPedestrianConsumerType().equals(PedestrianConsumerType.PEDESTRIAN_SINK) ||
-                                pedestrianStreetSection1.getPedestrianConsumerType().equals(PedestrianConsumerType.PEDESTRIAN_SOURCE)) ) {
-                            pedestrianStreetSection1.setPreviousStreetConnector(connector1);
-                        }
-
-
-                        pairs.add(new PedestrianConnectedStreetSections(pedestrianStreetSection1, streetSectionPort1,
-                                pedestrianStreetSection2, streetSectionPort2));
+                        pairs.add(connector);
                     }
 
-                    final PedestrianStreetConnector streetConnector = new PedestrianStreetConnector(pairs);
+                    PedestrianStreetConnector streetConnector = new PedestrianStreetConnector(co.getId(), pairs);
                     return streetConnector;
                 }
         ));
@@ -807,11 +811,10 @@ public class ConfigParser {
     }
 
     private void deepSearchGlobalCoordinates (PedestrianStreetSection currentSection) {
-        IPedestrianStreetConnector test = currentSection.getNextStreetConnector();
-
-        for ( PedestrianConnectedStreetSections connector: currentSection.getNextStreetConnector().getSectionPairs()) {
-
+        for ( PedestrianConnectedStreetSections connector: currentSection.getNextStreetConnector()) {
             IConsumer toStreetSection = connector.getToStreetSection();
+            if ( toStreetSection instanceof PedestrianSink ) continue;
+
             if ( !(toStreetSection instanceof PedestrianStreetSection)) {
                 throw new IllegalArgumentException("Street not instance of PedestrianStreetSection.");
             }

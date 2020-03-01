@@ -15,7 +15,7 @@ import java.util.List;
 
 public class PedestrianSink extends PedestrianAbstractSink {
 
-    private IPedestrianStreetConnector previousStreetConnector;
+    private List<PedestrianConnectedStreetSections> previousStreetConnector;
 
     private double meanPedestrianCrossingTime;
     private double meanTimeSpentInSystem;
@@ -178,7 +178,7 @@ public class PedestrianSink extends PedestrianAbstractSink {
      * {@inheritDoc}
      */
     @Override
-    public IPedestrianStreetConnector getNextStreetConnector() {
+    public List<PedestrianConnectedStreetSections> getNextStreetConnector() {
         return null;
     }
 
@@ -186,7 +186,7 @@ public class PedestrianSink extends PedestrianAbstractSink {
      * {@inheritDoc}
      */
     @Override
-    public IPedestrianStreetConnector getPreviousStreetConnector() {
+    public List<PedestrianConnectedStreetSections> getPreviousStreetConnector() {
         return previousStreetConnector;
     }
 
@@ -194,17 +194,15 @@ public class PedestrianSink extends PedestrianAbstractSink {
      * {@inheritDoc}
      */
     @Override
-    public void setPreviousStreetConnector(IPedestrianStreetConnector previousStreetConnector) {
-        this.previousStreetConnector = previousStreetConnector;
+    public void addPreviousStreetConnector( PedestrianConnectedStreetSections previousStreetConnector) {
+        this.previousStreetConnector.add(previousStreetConnector);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void setNextStreetConnector(IPedestrianStreetConnector nextStreetConnector) {
-        return;
-    }
+    public void addNextStreetConnector( PedestrianConnectedStreetSections nextStreetConnector ) { }
 
     /**
      * {@inheritDoc}

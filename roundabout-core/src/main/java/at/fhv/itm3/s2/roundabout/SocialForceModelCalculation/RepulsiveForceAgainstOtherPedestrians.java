@@ -11,6 +11,7 @@ import javax.vecmath.Vector2d;
 import java.awt.*;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 public class RepulsiveForceAgainstOtherPedestrians {
@@ -18,6 +19,7 @@ public class RepulsiveForceAgainstOtherPedestrians {
     final private Double sigma = 30.0; // in centimeter
     final private Double VAlphaBeta = 210.0; // (cm / s)^2
     SupportiveCalculations calculations;
+    LinkedList<PedestrianStreet> listOfCheckedStreets = new LinkedList<PedestrianStreet>();
 
     public Vector2d getRepulsiveForceAgainstAllOtherPedestrians(    RoundaboutSimulationModel model,
                                                                     Pedestrian pedestrian,
@@ -34,6 +36,7 @@ public class RepulsiveForceAgainstOtherPedestrians {
         return sumForce;
     }
 
+
     public void GetAllPedestrianFromPreviousStreets(RoundaboutSimulationModel model,
                                                     Pedestrian pedestrian,
                                                     Vector2d destination,
@@ -43,19 +46,19 @@ public class RepulsiveForceAgainstOtherPedestrians {
             throw new IllegalArgumentException("Consumer is not an instance of PedestrianStreetSection");
         }
 
+        if( listOfCheckedStreets.contains(currentStreetSection)) return;
+        listOfCheckedStreets.add((PedestrianStreet) currentStreetSection);
+
         List<IConsumer> listOfStreetSectionsInRange = new ArrayList<>();
         listOfStreetSectionsInRange.add(currentStreetSection);
 
         while( !listOfStreetSectionsInRange.isEmpty() ){
             currentStreetSection = listOfStreetSectionsInRange.remove(listOfStreetSectionsInRange.size()-1);
-            IPedestrianStreetConnector previousConnector = ((PedestrianStreetSection)currentStreetSection).getPreviousStreetConnector();
-            if(!(previousConnector instanceof PedestrianStreetConnector)){
-                throw new IllegalArgumentException("Connector is not an instance of PedestrianConnector");
-            }
+            List<PedestrianConnectedStreetSections>  previousConnector = ((PedestrianStreetSection)currentStreetSection).getPreviousStreetConnector();
 
-            for( PedestrianConnectedStreetSections previousStreetSectionPair : previousConnector.getSectionPairs() ) {
+            for( PedestrianConnectedStreetSections previousStreetSectionPair : previousConnector ) {
                 if( previousStreetSectionPair.getFromStreetSection().equals(currentStreetSection) ) {
-                    IConsumer previousSection = previousStreetSectionPair.getFromStreetSection(); // TODO check if its mirrowed
+                    IConsumer previousSection = previousStreetSectionPair.getToStreetSection(); // from is always current section
 
                     if( !(previousSection instanceof PedestrianStreetSection) ){
                         throw new IllegalArgumentException("Section is not an instance of PedestrianStreetSection");
@@ -100,12 +103,9 @@ public class RepulsiveForceAgainstOtherPedestrians {
 
         while( !listOfStreetSectionsInRange.isEmpty() ){
             currentStreetSection = listOfStreetSectionsInRange.remove(listOfStreetSectionsInRange.size()-1);
-            IPedestrianStreetConnector nextConnector = ((PedestrianStreetSection)currentStreetSection).getNextStreetConnector();
-            if(!(nextConnector instanceof PedestrianStreetConnector)){
-            throw new IllegalArgumentException("Next connector is not an instance of PedestrianConnector");
-            }
+            List<PedestrianConnectedStreetSections>  nextConnector = ((PedestrianStreetSection)currentStreetSection).getNextStreetConnector();
 
-            for( PedestrianConnectedStreetSections nextStreetSectionPair : nextConnector.getSectionPairs() ) {
+            for( PedestrianConnectedStreetSections nextStreetSectionPair : nextConnector ) {
                 if( nextStreetSectionPair.getFromStreetSection().equals(currentStreetSection) ) {
                     IConsumer nextSection = nextStreetSectionPair.getFromStreetSection();
 
@@ -137,7 +137,6 @@ public class RepulsiveForceAgainstOtherPedestrians {
             }
         }
     }
-
 
     Vector2d calculateActualRepulsiveForceAgainstOtherPedestrian(RoundaboutSimulationModel model,
                                                                         Vector2d destination,

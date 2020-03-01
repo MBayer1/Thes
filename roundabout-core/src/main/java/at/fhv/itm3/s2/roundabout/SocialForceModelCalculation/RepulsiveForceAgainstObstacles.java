@@ -2,6 +2,7 @@ package at.fhv.itm3.s2.roundabout.SocialForceModelCalculation;
 
 import at.fhv.itm14.trafsim.model.entities.IConsumer;
 import at.fhv.itm3.s2.roundabout.api.entity.PedestrianConsumerType;
+import at.fhv.itm3.s2.roundabout.api.entity.PedestrianStreet;
 import at.fhv.itm3.s2.roundabout.entity.Pedestrian;
 import at.fhv.itm3.s2.roundabout.entity.PedestrianStreetSection;
 import at.fhv.itm3.s2.roundabout.api.entity.PedestrianConnectedStreetSections;
@@ -9,6 +10,7 @@ import at.fhv.itm3.s2.roundabout.model.RoundaboutSimulationModel;
 
 import javax.vecmath.Vector2d;
 import java.awt.*;
+import java.util.LinkedList;
 
 public class RepulsiveForceAgainstObstacles {
 
@@ -16,6 +18,7 @@ public class RepulsiveForceAgainstObstacles {
     final private Double U0AlphaBeta = 1000.0; // (cm/s)^2
     SupportiveCalculations calculations;
     RoundaboutSimulationModel model = null;
+    LinkedList<PedestrianStreet> listOfCeckedStreeds = new LinkedList<PedestrianStreet>();
 
     public Vector2d getRepulsiveForceAgainstAllObstacles( RoundaboutSimulationModel model,
                                                           Pedestrian pedestrian){
@@ -60,10 +63,11 @@ public class RepulsiveForceAgainstObstacles {
                                 |____________________|
                                         (xPerson/ yMin)
            */
-         Double pedestrianX = pedestrian.getCurrentGlobalPosition().getX();
-         Double pedestrianY = pedestrian.getCurrentGlobalPosition().getY();
-         Double sectionCenterX = currentSection.getGlobalCoordinateOfSectionOrigin().getX();
-         Double sectionCenterY = currentSection.getGlobalCoordinateOfSectionOrigin().getY();
+        Double pedestrianX = pedestrian.getCurrentGlobalPosition().getX();
+        Double pedestrianY = pedestrian.getCurrentGlobalPosition().getY();
+        Double sectionCenterX = currentSection.getGlobalCoordinateOfSectionOrigin().getX();
+        Double sectionCenterY = currentSection.getGlobalCoordinateOfSectionOrigin().getY();
+
         // person positions - border intersections
         Vector2d wallIntersection1 = calculations.getVector(pedestrianX, pedestrianY, pedestrianX, sectionCenterY);
         Vector2d wallIntersection2 = calculations.getVector(pedestrianX, pedestrianY, pedestrianX, sectionCenterY + currentSection.getLengthY());
@@ -71,7 +75,9 @@ public class RepulsiveForceAgainstObstacles {
         Vector2d wallIntersection4 = calculations.getVector(pedestrianX, pedestrianY, sectionCenterX + currentSection.getLengthX(), pedestrianY);
 
         // except it is within an port gab, then it will take enter or exit port depending which is closer.
-        for ( PedestrianConnectedStreetSections connected : ((PedestrianStreetSection) section).getNextStreetConnector().getSectionPairs()) {
+        for ( PedestrianConnectedStreetSections connected : ((PedestrianStreetSection) section).getNextStreetConnector()) {
+            if( listOfCeckedStreeds.contains(currentSection)) return;
+            listOfCeckedStreeds.add(currentSection);
             if (connected.getFromStreetSection().equals(currentSection)) {
                 double portBeginX  = connected.getPortOfFromStreetSection().getBeginOfStreetPort().getX();
                 double portBeginY  = connected.getPortOfFromStreetSection().getBeginOfStreetPort().getY();
@@ -84,8 +90,11 @@ public class RepulsiveForceAgainstObstacles {
                 checkWallIntersectionWithinPort(portBeginX, portBeginY, portEndX, portEndY, wallIntersection3);
             }
         }
-        for ( PedestrianConnectedStreetSections connected : ((PedestrianStreetSection) section).getPreviousStreetConnector().getSectionPairs()) {
+
+        for ( PedestrianConnectedStreetSections connected : ((PedestrianStreetSection) section).getPreviousStreetConnector()) {
             if (connected.getToStreetSection().equals(currentSection)) {
+                if( listOfCeckedStreeds.contains(currentSection)) return;
+                listOfCeckedStreeds.add(currentSection);
                 double portBeginX  = connected.getPortOfToStreetSection().getBeginOfStreetPort().getX();
                 double portBeginY  = connected.getPortOfToStreetSection().getBeginOfStreetPort().getY();
                 double portEndX  = connected.getPortOfToStreetSection().getEndOfStreetPort().getX();

@@ -9,17 +9,15 @@ import java.util.List;
 public class PedestrianStreetConnector implements IPedestrianStreetConnector {
 
     private final String id;
-    private final List<PedestrianConnectedStreetSections> sectionPairs = new LinkedList();
+    private final List<PedestrianConnectedStreetSections> sectionPairs;
 
-
-    public PedestrianStreetConnector(List<PedestrianConnectedStreetSections> sectionPairs){
-        this(UUID.randomUUID().toString(), sectionPairs);
+    public PedestrianStreetConnector( String id) {
+        this(id, new LinkedList());
     }
 
-
-    public PedestrianStreetConnector(String id, List<PedestrianConnectedStreetSections> sectionPairs) {
+    public PedestrianStreetConnector( String id, List<PedestrianConnectedStreetSections> connectorList) {
         this.id = id;
-        this.sectionPairs.addAll(sectionPairs);
+        this.sectionPairs = connectorList;
     }
 
     /**
@@ -38,7 +36,7 @@ public class PedestrianStreetConnector implements IPedestrianStreetConnector {
         return sectionPairs;
     }
 
-    public boolean DoesContainTwoConnectedStreetSections( PedestrianStreet section1, PedestrianStreet section2) {
+    public boolean doesContainTwoConnectedStreetSections( PedestrianStreet section1, PedestrianStreet section2) {
         if (sectionPairs != null || !sectionPairs.isEmpty()) {
             for (PedestrianConnectedStreetSections pair : sectionPairs) {
                 if ((pair.getFromStreetSection().equals(section1) && pair.getToStreetSection().equals(section2)) ||
@@ -71,6 +69,10 @@ public class PedestrianStreetConnector implements IPedestrianStreetConnector {
 
         }
         return null;
+    }
+
+    public void addConnector ( PedestrianConnectedStreetSections pedestrianConnectedStreetSections ) {
+        sectionPairs.add(pedestrianConnectedStreetSections);
     }
 
 }

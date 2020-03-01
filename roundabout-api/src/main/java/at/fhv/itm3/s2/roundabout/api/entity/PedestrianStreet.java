@@ -34,53 +34,53 @@ public abstract class PedestrianStreet extends AbstractProSumer implements IPede
     }
 
     public PedestrianStreet(
-        Model owner,
-        String name,
-        boolean showInTrace,
-        boolean trafficLightActive,
-        boolean isJamTrafficLight,
-        Long minGreenPhaseDuration,
-        Long redPhaseDuration
+            Model owner,
+            String name,
+            boolean showInTrace,
+            boolean trafficLightActive,
+            boolean isJamTrafficLight,
+            Long minGreenPhaseDuration,
+            Long redPhaseDuration
     ) {
         this(UUID.randomUUID().toString(),
-        owner,
-        name,
-        showInTrace,
-        trafficLightActive,
-        minGreenPhaseDuration,
-        null,
-        redPhaseDuration);
+                owner,
+                name,
+                showInTrace,
+                trafficLightActive,
+                minGreenPhaseDuration,
+                null,
+                redPhaseDuration);
     }
 
     public PedestrianStreet(
-        Model owner,
-        String name,
-        boolean showInTrace,
-        boolean trafficLightActive,
-        Long greenPhaseDuration,
-        Long redPhaseDuration
+            Model owner,
+            String name,
+            boolean showInTrace,
+            boolean trafficLightActive,
+            Long greenPhaseDuration,
+            Long redPhaseDuration
     ) {
         this(
-            UUID.randomUUID().toString(),
-            owner,
-            name,
-            showInTrace,
-            trafficLightActive,
-            null,
-            greenPhaseDuration,
-            redPhaseDuration
+                UUID.randomUUID().toString(),
+                owner,
+                name,
+                showInTrace,
+                trafficLightActive,
+                null,
+                greenPhaseDuration,
+                redPhaseDuration
         );
     }
 
     public PedestrianStreet(
-        String id,
-        Model owner,
-        String name,
-        boolean showInTrace,
-        boolean trafficLightActive,
-        Long minGreenPhaseDuration,
-        Long greenPhaseDuration,
-        Long redPhaseDuration
+            String id,
+            Model owner,
+            String name,
+            boolean showInTrace,
+            boolean trafficLightActive,
+            Long minGreenPhaseDuration,
+            Long greenPhaseDuration,
+            Long redPhaseDuration
     ) {
         super(owner, name, showInTrace);
 
@@ -100,8 +100,8 @@ public abstract class PedestrianStreet extends AbstractProSumer implements IPede
         this.trafficLightObserver = new RoundaboutObservable();
 
         addObserver(
-            ObserverType.PEDESTRIAN_LOST,
-            (o, arg) ->  System.out.println(String.format("Street \"%s\" pedestrians lost: %s", id, arg))
+                ObserverType.PEDESTRIAN_LOST,
+                (o, arg) ->  System.out.println(String.format("Street \"%s\" pedestrians lost: %s", id, arg))
         );
     }
 
@@ -229,7 +229,7 @@ public abstract class PedestrianStreet extends AbstractProSumer implements IPede
      * @throws IllegalStateException in case if queue equals null.
      */
     public abstract List<IPedestrian> getPedestrianQueue()
-    throws IllegalStateException;
+            throws IllegalStateException;
 
     /**
      * Removes the first pedestrian of the queue and returns the first pedestrian.
@@ -248,30 +248,30 @@ public abstract class PedestrianStreet extends AbstractProSumer implements IPede
     /**
      * Gets the next street connector if available.
      *
-     * @return reference to next {@link IPedestrianStreetConnector}.
+     * @return reference to next {@link PedestrianConnectedStreetSections}.
      */
-    public abstract IPedestrianStreetConnector getNextStreetConnector();
+    public abstract List<PedestrianConnectedStreetSections> getNextStreetConnector();
 
     /**
      * Gets the previous street connector if available.
      *
-     * @return reference to previous {@link IPedestrianStreetConnector}.
+     * @return reference to previous {@link PedestrianConnectedStreetSections}.
      */
-    public abstract IPedestrianStreetConnector getPreviousStreetConnector();
+    public abstract List<PedestrianConnectedStreetSections> getPreviousStreetConnector();
 
     /**
      * Sets the previous street connector
      *
      * @param previousStreetConnector street connector to be set
      */
-    public abstract void setPreviousStreetConnector(IPedestrianStreetConnector previousStreetConnector);
+    public abstract void addPreviousStreetConnector(PedestrianConnectedStreetSections previousStreetConnector);
 
     /**
      *  Sets the next street connector
      *
      * @param nextStreetConnector street connector to be set
      */
-    public abstract void setNextStreetConnector(IPedestrianStreetConnector nextStreetConnector);
+    public abstract void addNextStreetConnector(PedestrianConnectedStreetSections nextStreetConnector);
 
     /**
      * Gets all pedestrian positions of the street section.

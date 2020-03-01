@@ -20,7 +20,6 @@ import java.util.*;
 import java.util.List;
 
 public class PedestrianStreetSection extends PedestrianStreet {
-
     private final double lengthX;
     private final double lengthY;
     private final PedestrianConsumerType consumerType;
@@ -39,8 +38,9 @@ public class PedestrianStreetSection extends PedestrianStreet {
 
     private LinkedList<Street> vehicleStreetList;
 
-    private IPedestrianStreetConnector nextStreetConnector;
-    private IPedestrianStreetConnector previousStreetConnector;
+
+    private final List<PedestrianConnectedStreetSections> nextStreetConnector = new LinkedList();
+    private final List<PedestrianConnectedStreetSections> previousStreetConnector = new LinkedList();
 
     private IntersectionController intersectionController;
 
@@ -142,6 +142,7 @@ public class PedestrianStreetSection extends PedestrianStreet {
            //         this, TODO
            //         new TimeSpan(greenPhaseDuration)
            // );
+
         }
     }
 
@@ -263,7 +264,6 @@ public class PedestrianStreetSection extends PedestrianStreet {
         return;
     }
 
-
     /**
      * {@inheritDoc}
      */
@@ -272,7 +272,6 @@ public class PedestrianStreetSection extends PedestrianStreet {
         //TODO
         return;
     }
-
 
     /**
      * {@inheritDoc}
@@ -286,7 +285,6 @@ public class PedestrianStreetSection extends PedestrianStreet {
         return pedestrianQueue;
     }
 
-
     public Map<IPedestrian, Point> getPedestrianPositions()
             throws IllegalStateException {
         if (pedestrianPositions == null) {
@@ -296,9 +294,8 @@ public class PedestrianStreetSection extends PedestrianStreet {
         return Collections.unmodifiableMap(pedestrianPositions);
      }
 
-     public Point getGlobalCoodrionatesOfPedestrian( IPedestrian pedestrian)
+    public Point getGlobalCoodrionatesOfPedestrian( IPedestrian pedestrian)
         throws IllegalStateException {
-
          if (this.globalCoordinateOfSectionOrigin == null) {
              throw new IllegalStateException("There are no global references.");
          }
@@ -308,8 +305,7 @@ public class PedestrianStreetSection extends PedestrianStreet {
          position.y += globalCoordinateOfSectionOrigin.y;
 
          return position;
-     }
-
+    }
 
     /**
      * {@inheritDoc}
@@ -327,7 +323,6 @@ public class PedestrianStreetSection extends PedestrianStreet {
         }
     }
 
-
     /**
      * {@inheritDoc}
      */
@@ -341,7 +336,7 @@ public class PedestrianStreetSection extends PedestrianStreet {
      * {@inheritDoc}
      */
     @Override
-    public IPedestrianStreetConnector getNextStreetConnector() {
+    public List<PedestrianConnectedStreetSections> getNextStreetConnector() {
         return nextStreetConnector;
     }
 
@@ -349,7 +344,19 @@ public class PedestrianStreetSection extends PedestrianStreet {
      * {@inheritDoc}
      */
     @Override
-    public IPedestrianStreetConnector getPreviousStreetConnector() {
+    public void addNextStreetConnector(PedestrianConnectedStreetSections streetConnector) {
+        this.nextStreetConnector.add(streetConnector);
+    }
+
+    public int getMinSizeOfPedestriansForTrafficLightTriggeredByJam() {
+        return minSizeOfPedestriansForTrafficLightTriggeredByJam;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<PedestrianConnectedStreetSections> getPreviousStreetConnector() {
         return previousStreetConnector;
     }
 
@@ -357,16 +364,8 @@ public class PedestrianStreetSection extends PedestrianStreet {
      * {@inheritDoc}
      */
     @Override
-    public void setPreviousStreetConnector(IPedestrianStreetConnector previousStreetConnector) {
-        this.previousStreetConnector = previousStreetConnector;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void setNextStreetConnector(IPedestrianStreetConnector nextStreetConnector) {
-        this.nextStreetConnector = nextStreetConnector;
+    public void addPreviousStreetConnector(PedestrianConnectedStreetSections previousStreetConnector) {
+        this.previousStreetConnector.add(previousStreetConnector);
     }
 
     /**
