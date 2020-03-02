@@ -813,21 +813,17 @@ public class ConfigParser {
     private void deepSearchGlobalCoordinates (PedestrianStreetSection currentSection) {
         for ( PedestrianConnectedStreetSections connector: currentSection.getNextStreetConnector()) {
             IConsumer toStreetSection = connector.getToStreetSection();
-            if ( toStreetSection instanceof PedestrianSink ) continue;
+            if ( toStreetSection instanceof PedestrianSink || toStreetSection instanceof PedestrianSource ) continue;
 
             if ( !(toStreetSection instanceof PedestrianStreetSection)) {
                 throw new IllegalArgumentException("Street not instance of PedestrianStreetSection.");
             }
-            PedestrianConsumerType toType = ((PedestrianStreetSection) toStreetSection).getPedestrianConsumerType();
 
-            if ( toType.equals(PedestrianConsumerType.PEDESTRIAN_SINK) ||
-                 toType.equals(PedestrianConsumerType.PEDESTRIAN_SOURCE )) return;
-
-            if( currentSection.getGlobalCoordinateOfSectionOrigin() != null ) {
+            if( ((PedestrianStreetSection)toStreetSection).getGlobalCoordinateOfSectionOrigin() == null ) {
                 addGlobalCoordinates(   currentSection,
                                         connector.getPortOfFromStreetSection().getBeginOfStreetPort(),
                                         (PedestrianStreetSection)toStreetSection,
-                                        connector.getPortOfFromStreetSection().getBeginOfStreetPort());
+                                        connector.getPortOfToStreetSection().getBeginOfStreetPort());
 
                 deepSearchGlobalCoordinates( (PedestrianStreetSection)toStreetSection );
             }
@@ -835,9 +831,9 @@ public class ConfigParser {
     }
 
     private void addGlobalCoordinates( PedestrianStreet previousSection,
-                                       Point localEntryPort,
+                                       Point localExitPort,
                                        PedestrianStreet currentSection,
-                                       Point localExitPort){
+                                       Point localEntryPort){
     // Setup Global Network Coordinates for Pedestrian Street Sections
     // global exit point - local entry point = global origin of entry street section
         if (!(currentSection instanceof PedestrianStreetSection)) {
@@ -854,8 +850,6 @@ public class ConfigParser {
         Point globalOriginCurrent = new Point(  (int) (globalExitPoint.getX() - localEntryPort.getX()),
                                                 (int) (globalExitPoint.getY() - localEntryPort.getY()));
         ((PedestrianStreetSection)currentSection).setGlobalCoordinateOfSectionOrigin(globalOriginCurrent);
-
-
     }
 
     private Street resolveStreet(String componentId, String streetId) {
