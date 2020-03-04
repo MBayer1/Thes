@@ -192,7 +192,7 @@ public class ConfigParser {
         RouteController.getInstance(model).setRoutes(modelStructure.getRoutes());
 
         // Neighbouring of Street Section needed for GUI
-        if(modelConfig.getNeighbours() != null){
+        if(modelConfig.getNeighbours() != null){ //TODO
             if(modelConfig.getNeighbours().getNeighbourList() != null){
                 handleStreetNeighbours(modelConfig.getNeighbours());
             }
