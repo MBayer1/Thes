@@ -9,7 +9,6 @@ import at.fhv.itm3.s2.roundabout.api.entity.*;
 import at.fhv.itm3.s2.roundabout.controller.IntersectionController;
 import at.fhv.itm3.s2.roundabout.controller.PedestrianController;
 import at.fhv.itm3.s2.roundabout.event.PedestrianEventFactory;
-import at.fhv.itm3.s2.roundabout.event.RoundaboutEventFactory;
 import at.fhv.itm3.s2.roundabout.model.RoundaboutSimulationModel;
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeSpan;
@@ -30,17 +29,17 @@ public class PedestrianStreetSection extends PedestrianStreet {
     private double currentWaitingTime;
     private double currentTimeLastMovement;
 
-    private final LinkedList<IPedestrian> pedestrianQueue;
-    private final Map<IPedestrian, Point> pedestrianPositions;
+    private LinkedList<IPedestrian> pedestrianQueue;
+    private Map<IPedestrian, Point> pedestrianPositions;
 
-    private final LinkedList<Circle> circularObsticals; //TODO include those obstacles in to calculations
-    private final LinkedList<Polygon> polygoneObstical; //TODO include those obstacles in to calculations
+    private LinkedList<Circle> circularObsticals; //TODO include those obstacles in to calculations
+    private LinkedList<Polygon> polygoneObstical; //TODO include those obstacles in to calculations
 
     private LinkedList<Street> vehicleStreetList;
 
 
-    private final List<PedestrianConnectedStreetSections> nextStreetConnector = new LinkedList();
-    private final List<PedestrianConnectedStreetSections> previousStreetConnector = new LinkedList();
+    private List<PedestrianConnectedStreetSections> nextStreetConnector = new LinkedList<>();
+    private List<PedestrianConnectedStreetSections> previousStreetConnector = new LinkedList<>();
 
     private IntersectionController intersectionController;
 
@@ -338,6 +337,25 @@ public class PedestrianStreetSection extends PedestrianStreet {
     @Override
     public List<PedestrianConnectedStreetSections> getNextStreetConnector() {
         return nextStreetConnector;
+    }
+
+    public PedestrianConnectedStreetSections getConnectorByNextSection (IConsumer section) {
+        for (PedestrianConnectedStreetSections pair : nextStreetConnector) {
+            if(pair.getToStreetSection().equals(section)){
+                return pair;
+            }
+
+        }
+        return null;
+    }
+
+    public PedestrianConnectedStreetSections getConnectorByPreviouseSection (IConsumer section) {
+        for (PedestrianConnectedStreetSections pair : previousStreetConnector) {
+            if(pair.getToStreetSection().equals(section)){
+                return pair;
+            }
+        }
+        return null;
     }
 
     /**

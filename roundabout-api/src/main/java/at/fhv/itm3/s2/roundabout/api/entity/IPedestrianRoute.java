@@ -1,6 +1,7 @@
 package at.fhv.itm3.s2.roundabout.api.entity;
 
 import at.fhv.itm14.trafsim.model.entities.AbstractProducer;
+import at.fhv.itm14.trafsim.model.entities.IConsumer;
 
 import java.util.Collection;
 
@@ -20,6 +21,14 @@ public interface IPedestrianRoute {
      * @return an {@link PedestrianStreetSectionAndPortPair} located at given index.
      */
     PedestrianStreetSectionAndPortPair getSectionAt(int index);
+
+    /**
+     * Returns an {@link IConsumer} at the given index of the route.
+     *
+     * @param  the current {@link PedestrianStreet} to get the next one that should be returned from the route.
+     * @return an {@link PedestrianStreet} located at given next index of the current one.
+     */
+    public IConsumer getNextStreetSectionParameter(IConsumer pedestrianStreet );
 
     /**
      * Returns an {@link PedestrianStreetSectionAndPortPair} at the given index of the route.

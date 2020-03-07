@@ -49,6 +49,7 @@ public class PedestrianStreetConnector implements IPedestrianStreetConnector {
         return false;
     }
 
+
     public PedestrianConnectedStreetSections GetConnectedStreetSectionInfo( PedestrianStreet section1, PedestrianStreet section2) throws IllegalStateException {
         if (sectionPairs != null || !sectionPairs.isEmpty()) {
             for (PedestrianConnectedStreetSections pair : sectionPairs) {

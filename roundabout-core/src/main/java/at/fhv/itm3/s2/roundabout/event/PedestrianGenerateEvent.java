@@ -17,7 +17,7 @@ import java.awt.*;
 
 public class PedestrianGenerateEvent extends Event<PedestrianAbstractSource> {
 
-    SupportiveCalculations calc;
+    SupportiveCalculations calc = new SupportiveCalculations();
     Model model;
     String name;
     boolean showInTrace;
@@ -40,7 +40,7 @@ public class PedestrianGenerateEvent extends Event<PedestrianAbstractSource> {
 
     /**
      * Constructs a new {@link PedestrianReachedAimEvent}.
-     *
+     *,
      * @param model the model this event belongs to.
      * @param name this event's name.
      * @param showInTrace flag to indicate if this event shall produce output for the trace.
@@ -74,15 +74,21 @@ public class PedestrianGenerateEvent extends Event<PedestrianAbstractSource> {
      */
     @Override
     public void eventRoutine(PedestrianAbstractSource source) {
-        final IConsumer nextSection = source.getConnectedStreet();
+        final IConsumer currentSection = source.getConnectedStreet();
         final IPedestrianRoute route = routeController.getRandomRoute(source);
-        Point global = ((PedestrianStreetSection) nextSection).getGlobalCoordinateOfSectionOrigin();
+        Point global = ((PedestrianStreetSection) currentSection).getGlobalCoordinateOfSectionOrigin();
 
-        if ( nextSection instanceof  PedestrianStreetSection) {
-            if( !(((PedestrianStreetSection) nextSection).getNextStreetConnector() instanceof PedestrianStreetConnector)) {
-                throw new IllegalArgumentException("connector not instance of PedestrianConnectedStreetSections");
+        IConsumer nextSection = route.getNextStreetSectionParameter(currentSection);
+        if ( currentSection instanceof PedestrianStreetSection && nextSection instanceof PedestrianStreetSection) {
+            if( ((PedestrianStreetSection) currentSection).getNextStreetConnector() == null) {
+                throw new IllegalArgumentException("There are no connected streets");
             }
-            PedestrianConnectedStreetSections connectorPair = ((PedestrianStreetConnector)(((PedestrianStreetSection) nextSection).getNextStreetConnector())).getConnectorBySection(nextSection);
+
+            PedestrianConnectedStreetSections connectorPair = ((PedestrianStreetSection) currentSection).getConnectorByNextSection(nextSection);
+
+            if( connectorPair == null) {
+                throw new IllegalArgumentException("The next connector is missing");
+            }
 
             Point start = connectorPair.getPortOfFromStreetSection().getBeginOfStreetPort();
             Point end = connectorPair.getPortOfFromStreetSection().getEndOfStreetPort();
@@ -113,7 +119,7 @@ public class PedestrianGenerateEvent extends Event<PedestrianAbstractSource> {
             final Car car = new Car(roundaboutSimulationModel, "", false);
             PedestrianController.addCarMapping(car, pedestrian);
             pedestrian.enterSystem();
-            ((PedestrianStreet)nextSection).addPedestrian(pedestrian, entryPoint);
+            ((PedestrianStreet)currentSection).addPedestrian(pedestrian, entryPoint);
 
             // schedule next events
             final double traverseTime = pedestrian.getTimeToNextSubGoal();

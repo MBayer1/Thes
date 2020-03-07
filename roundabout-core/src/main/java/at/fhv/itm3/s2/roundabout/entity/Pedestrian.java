@@ -42,7 +42,7 @@ public class Pedestrian extends Entity implements IPedestrian {
     private Double walkedDistance;
     private double timeRelatedParameterFactorForSpeedCalculation;
     Point currentNextGlobalAim;
-    SupportiveCalculations calc;
+    SupportiveCalculations calc = new SupportiveCalculations();
 
     public Pedestrian(Model model, String name, boolean showInTrace, Point currentGlobalPosition, IPedestrianBehaviour pedestrianBehaviour, IPedestrianRoute  route){
         this(model, name, showInTrace, currentGlobalPosition, pedestrianBehaviour, route, 1.0);

@@ -18,7 +18,7 @@ public class RepulsiveForceAgainstOtherPedestrians {
 
     final private Double sigma = 30.0; // in centimeter
     final private Double VAlphaBeta = 210.0; // (cm / s)^2
-    SupportiveCalculations calculations;
+    SupportiveCalculations calculations = new SupportiveCalculations();
     LinkedList<PedestrianStreet> listOfCheckedStreets = new LinkedList<PedestrianStreet>();
 
     public Vector2d getRepulsiveForceAgainstAllOtherPedestrians(    RoundaboutSimulationModel model,

@@ -9,6 +9,7 @@ import at.fhv.itm14.trafsim.model.entities.intersection.IntersectionConnection;
 import at.fhv.itm14.trafsim.model.entities.intersection.IntersectionPhase;
 import at.fhv.itm3.s2.roundabout.api.entity.*;
 import at.fhv.itm3.s2.roundabout.controller.IntersectionController;
+import at.fhv.itm3.s2.roundabout.controller.PedestrianRouteController;
 import at.fhv.itm3.s2.roundabout.controller.RouteController;
 import at.fhv.itm3.s2.roundabout.entity.*;
 import at.fhv.itm3.s2.roundabout.entity.PedestrianRoute;
@@ -19,6 +20,7 @@ import at.fhv.itm3.s2.roundabout.util.dto.Component;
 import at.fhv.itm3.s2.roundabout.util.dto.StreetNeighbour;
 import desmoj.core.simulator.Experiment;
 import desmoj.core.simulator.Model;
+import sun.awt.image.ImageWatched;
 
 import javax.xml.bind.JAXB;
 import java.io.File;
@@ -190,6 +192,7 @@ public class ConfigParser {
         initGlobalCoordinates();
 
         RouteController.getInstance(model).setRoutes(modelStructure.getRoutes());
+        PedestrianRouteController.getInstance(model).setRoutes(modelStructure.getPedestrianRoutes());
 
         // Neighbouring of Street Section needed for GUI
         if(modelConfig.getNeighbours() != null){ //TODO
@@ -293,7 +296,6 @@ public class ConfigParser {
         modelStructure.addPedestrianStreetConnectors(connectors.values());
         modelStructure.addPedestrianSources(sources.values());
         modelStructure.addPedestrianSinks(sinks.values());
-
     }
 
     private void handleRoundabout(IModelStructure modelStructure, Component roundaboutComponent) {
@@ -573,8 +575,7 @@ public class ConfigParser {
                                 track.getToXPortPositionStart(), track.getToYPortPositionStart(),
                                 track.getToXPortPositionEnd(), track.getToYPortPositionEnd());
 
-                        PedestrianConnectedStreetSections connector = null;
-
+                        PedestrianConnectedStreetSections connector;
                         if( !track.getToSectionType().equals(PedestrianConsumerType.PEDESTRIAN_SINK) ) {
                             pedestrianStreetSectionTo = (PedestrianStreetSection) resolvePedestrianStreet(componentID2, track.getToSectionId());
                             // from is always current section
@@ -588,7 +589,6 @@ public class ConfigParser {
                             connector = new PedestrianConnectedStreetSections(pedestrianStreetSectionFrom, streetSectionPortFrom,
                                     resolvePedestrianSink(componentID2, track.getToSectionId()), streetSectionPortTo);
                         }
-
                         pedestrianStreetSectionFrom.addNextStreetConnector(connector);
 
                         if (checkForExistingPedestrianStreetSectionPair(pairs, pedestrianStreetSectionFrom,

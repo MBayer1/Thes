@@ -8,7 +8,7 @@ import javax.vecmath.Vector2d;
 import java.awt.*;
 
 public class AccelerationForceToTarget {
-    SupportiveCalculations calculations;
+    SupportiveCalculations calculations = new SupportiveCalculations();
 
     public Vector2d getAccelerationForceToTarget(RoundaboutSimulationModel model, Pedestrian pedestrian){
 

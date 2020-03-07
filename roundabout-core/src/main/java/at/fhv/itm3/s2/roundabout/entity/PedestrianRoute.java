@@ -1,6 +1,7 @@
 package at.fhv.itm3.s2.roundabout.entity;
 
 import at.fhv.itm14.trafsim.model.entities.AbstractProducer;
+import at.fhv.itm14.trafsim.model.entities.IConsumer;
 import at.fhv.itm3.s2.roundabout.api.entity.*;
 
 import java.util.ArrayList;
@@ -53,6 +54,20 @@ public class PedestrianRoute implements IPedestrianRoute {
     public PedestrianStreetSectionAndPortPair getSectionAt(PedestrianStreet pedestrianStreet){
         for (PedestrianStreetSectionAndPortPair routePart : route ){
             if (routePart.getStreetSection().equals(pedestrianStreet)) return routePart;
+        }
+        return null;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public IConsumer getNextStreetSectionParameter(IConsumer pedestrianStreet ) {
+        boolean hit = false;
+        for (PedestrianStreetSectionAndPortPair routePart : route ){
+            if ( hit ) return  routePart.getStreetSection();
+            if (routePart.getStreetSection().equals(pedestrianStreet)) hit = true;
         }
         return null;
     }

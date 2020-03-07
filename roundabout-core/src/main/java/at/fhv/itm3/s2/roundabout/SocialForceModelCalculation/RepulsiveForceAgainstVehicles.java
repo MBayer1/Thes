@@ -16,7 +16,7 @@ import java.awt.geom.Point2D;
 public class RepulsiveForceAgainstVehicles {
     final private Double sigma = 30.0; // in centimeter
     final private Double VAlphaBeta = 210.0; // (cm / s)^2
-    SupportiveCalculations calculations;
+    SupportiveCalculations calculations = new SupportiveCalculations();
 
     public Vector2d getRepulsiveForceAgainstVehicles( RoundaboutSimulationModel model,
                                                       Pedestrian pedestrian) {

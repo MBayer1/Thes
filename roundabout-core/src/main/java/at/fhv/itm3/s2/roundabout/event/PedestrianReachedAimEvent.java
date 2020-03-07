@@ -18,7 +18,7 @@ import java.awt.*;
 
 
 public class PedestrianReachedAimEvent extends Event<Pedestrian> {
-    private SupportiveCalculations calc;
+    private SupportiveCalculations calc = new SupportiveCalculations();
 
     /**
      * A reference to the {@link RoundaboutSimulationModel} the {@link PedestrianReachedAimEvent} is part of.

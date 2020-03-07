@@ -3,11 +3,12 @@ package at.fhv.itm3.s2.roundabout.util.dto;
 import at.fhv.itm3.s2.roundabout.api.util.dto.IDTO;
 
 import javax.xml.bind.annotation.XmlAttribute;
+import java.util.LinkedList;
 import java.util.List;
 
 public class PedestrianConnector implements IDTO {
     private String id;
-    private List<PedestrianTrack> pedestrianTrackList;
+    private List<PedestrianTrack> pedestrianTrackList = new LinkedList<>();
 
     @XmlAttribute
     public String getId() {

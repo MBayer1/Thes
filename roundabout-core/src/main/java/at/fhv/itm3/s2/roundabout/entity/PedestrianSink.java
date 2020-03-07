@@ -7,6 +7,7 @@ import at.fhv.itm14.trafsim.persistence.model.DTO;
 import at.fhv.itm3.s2.roundabout.api.entity.*;
 import at.fhv.itm3.s2.roundabout.controller.CarController;
 import at.fhv.itm3.s2.roundabout.controller.PedestrianController;
+import at.fhv.itm3.s2.roundabout.util.dto.PedestrianConnector;
 import desmoj.core.simulator.Model;
 
 import java.awt.*;
@@ -15,7 +16,7 @@ import java.util.List;
 
 public class PedestrianSink extends PedestrianAbstractSink {
 
-    private List<PedestrianConnectedStreetSections> previousStreetConnector;
+    private List<PedestrianConnectedStreetSections> previousStreetConnector = new LinkedList<>();
 
     private double meanPedestrianCrossingTime;
     private double meanTimeSpentInSystem;
