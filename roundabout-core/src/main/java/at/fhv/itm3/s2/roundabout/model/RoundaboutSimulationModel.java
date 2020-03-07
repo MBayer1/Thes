@@ -438,6 +438,17 @@ public class RoundaboutSimulationModel extends Model {
         );
         timeBetweenCarArrivals.setSeed(simulationSeed);
 
+
+        timeBetweenPedestrianArrivals = new ContDistNormal(
+                this,
+                "TimeBetweenPedestrianArrivalsStream",
+                getMeanTimeBetweenPedestrianArrivals(),
+                getStdDeviationTimeBetweenPedestrianArrivals(),
+                true,
+                false
+        );
+        timeBetweenPedestrianArrivals.setSeed(simulationSeed);
+
         // calculate the standard deviation (of skew normal distribution) for car length
         final StandardDeviation carLengthDeviation = StandardDeviation.calculate(
             minCarLength, maxCarLength, expectedCarLength, VEHICLE_LENGTH_STEP_SIZE
@@ -652,6 +663,14 @@ public class RoundaboutSimulationModel extends Model {
      * @return standard deviation value.
      */
     public double getStdDeviationTimeBetweenCarArrivals() {
+        return Math.abs(getMaxTimeBetweenCarArrivals() - getMeanTimeBetweenCarArrivals());
+    }
+
+    /**
+     * Returns standard deviation between pedestrian arrivals.
+     * @return standard deviation value.
+     */
+    public double getStdDeviationTimeBetweenPedestrianArrivals() {
         return Math.abs(getMaxTimeBetweenCarArrivals() - getMeanTimeBetweenCarArrivals());
     }
 

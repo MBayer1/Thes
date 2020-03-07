@@ -83,7 +83,9 @@ public class PedestrianSink extends PedestrianAbstractSink {
 
         iPedestrian.leaveSystem();
         iPedestrian.leavePedestrianArea();
-        iPedestrian.leavePedestrianCrossing();
+        if (((Pedestrian)iPedestrian).isPedestrianCrossingStopWatchActive()) {
+            iPedestrian.leavePedestrianCrossing();
+        }
 
         incrementEnteredPedestrianCounter();
 

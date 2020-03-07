@@ -211,14 +211,18 @@ public class PedestrianStreetSection extends PedestrianStreet {
         pedestrianPositions.put(iPedestrian, position);
         incrementEnteredPedestrianCounter();
 
+        if (!(iPedestrian instanceof Pedestrian)){
+            throw new IllegalArgumentException("pedestrian not instance of pedestrian.");
+        }
 
+        iPedestrian.enterPedestrianArea();
         if (this.getPedestrianConsumerType() == PedestrianConsumerType.PEDESTRIAN_CROSSING) {
             iPedestrian.enterPedestrianCrossing();
-            iPedestrian.leavePedestrianArea();
         } else
         if (this.getPedestrianConsumerType() == PedestrianConsumerType.PEDESTRIAN_STREET_SECTION) {
-            iPedestrian.enterPedestrianArea();
-            iPedestrian.leavePedestrianCrossing();
+            if (((Pedestrian)iPedestrian).isPedestrianCrossingStopWatchActive()) {
+                iPedestrian.leavePedestrianCrossing();
+            }
         }
 
         // call carDelivered events for last section, so the car position

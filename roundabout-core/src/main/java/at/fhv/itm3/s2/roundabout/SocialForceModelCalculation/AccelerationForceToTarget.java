@@ -32,7 +32,6 @@ public class AccelerationForceToTarget {
         preferredSpeedVector.scale(1/preferredSpeedValue);
         preferredSpeedVector.scale(pedestrian.calculatePreferredSpeed()); //v_alpha * e_alpha(t)
 
-
         preferredSpeedVector.sub(currentSpeedVector);
         preferredSpeedVector.scale(1/model.getRandomPedestrianRelaxingTimeTauAlpha());
 

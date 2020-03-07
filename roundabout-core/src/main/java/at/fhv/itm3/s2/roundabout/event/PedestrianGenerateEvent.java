@@ -116,10 +116,9 @@ public class PedestrianGenerateEvent extends Event<PedestrianAbstractSource> {
                     roundaboutSimulationModel.getRandomPedestrianPsychologicalNature(),
                     roundaboutSimulationModel.getRandomPedestrianAgeGroupe());
             final Pedestrian pedestrian = new Pedestrian(roundaboutSimulationModel, name, showInTrace, entryPoint, behaviour, route);
-            final Car car = new Car(roundaboutSimulationModel, "", false);
-            PedestrianController.addCarMapping(car, pedestrian);
+            PedestrianController.addCarMapping(pedestrian.getCarDummy(), pedestrian);
             pedestrian.enterSystem();
-            ((PedestrianStreet)currentSection).addPedestrian(pedestrian, entryPoint);
+            ((PedestrianStreetSection)currentSection).addPedestrian(pedestrian, entryPoint);
 
             // schedule next events
             final double traverseTime = pedestrian.getTimeToNextSubGoal();

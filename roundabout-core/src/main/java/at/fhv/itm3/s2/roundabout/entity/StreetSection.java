@@ -377,7 +377,7 @@ public class StreetSection extends Street {
 
 
         // when there is a pedestrian crossing at the end of the street and it does have a traffic light it has to be red to leave section
-        if( pedestrianCrossing.getPedestrianCrossing().getPedestrianConsumerType().equals(PedestrianConsumerType.PEDESTRIAN_CROSSING) &&
+        if( pedestrianCrossing != null && pedestrianCrossing.getPedestrianCrossing().getPedestrianConsumerType().equals(PedestrianConsumerType.PEDESTRIAN_CROSSING) &&
             pedestrianCrossing.getPedestrianCrossing().isTrafficLightActive() &&
             pedestrianCrossing.getPedestrianCrossing().isTrafficLightFreeToGo() ){
             return false;

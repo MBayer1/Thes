@@ -30,6 +30,7 @@ public class Pedestrian extends Entity implements IPedestrian {
     private final Count pedestrianCrossingCounter;
     private final Tally pedestrianCrossingTime;
     private final int minGapForPedestrian; // TODO
+    private double currentTimeSpendInSystem;
 
     private double lastUpdateTime;
     private Point currentGlobalPosition;
@@ -40,7 +41,7 @@ public class Pedestrian extends Entity implements IPedestrian {
     private PedestrianStreetSectionAndPortPair sectionAfterNextSection;
     private Double currentSpeed;
     private Double walkedDistance;
-    private double timeRelatedParameterFactorForSpeedCalculation;
+    private double timeRelatedParameterValueNForSpeedCalculation;
     Point currentNextGlobalAim;
     SupportiveCalculations calc = new SupportiveCalculations();
 
@@ -49,7 +50,7 @@ public class Pedestrian extends Entity implements IPedestrian {
     }
 
     public Pedestrian(Model model, String name, boolean showInTrace, Point currentGlobalPosition, IPedestrianBehaviour pedestrianBehaviour,
-                      IPedestrianRoute route, double timeRelatedParameterFactorForSpeedCalculation)
+                      IPedestrianRoute route, double timeRelatedParameterValueNForSpeedCalculation)
             throws IllegalArgumentException {
         super(model, "name", showInTrace);
 
@@ -74,7 +75,8 @@ public class Pedestrian extends Entity implements IPedestrian {
             throw new IllegalArgumentException("Route should not be null.");
         }
 
-        this.setLastUpdateTime(getRoundaboutModel().getCurrentTime());
+        this.currentTimeSpendInSystem = 0.0;
+        this.car = new Car(model, "pedestrianDummy", false);
 
         // Extended of Pedestrian speed -> also include stress factor.
         double val1 = getRoundaboutModel().getRandomPedestrianPreferredSpeed();
@@ -82,10 +84,9 @@ public class Pedestrian extends Entity implements IPedestrian {
         this.preferredSpeed = Math.min(val1, val2);
         this.maxPreferredSpeed = Math.max(val1, val2);
         this.walkedDistance = 0.0;
+        this.timeRelatedParameterValueNForSpeedCalculation = timeRelatedParameterValueNForSpeedCalculation;
 
-        this.timeRelatedParameterFactorForSpeedCalculation = timeRelatedParameterFactorForSpeedCalculation;
-
-        this.car = new Car(model, "dummy", false);
+        this.setLastUpdateTime(getRoundaboutModel().getCurrentTime());
 
         this.pedestrianStopWatch = new StopWatch(model);
         this.pedestrianCounter = new Count(model, "Roundabout counter", false, false);
@@ -119,6 +120,7 @@ public class Pedestrian extends Entity implements IPedestrian {
             throws IllegalArgumentException {
         if (lastUpdateTime >= 0) {
             this.lastUpdateTime = lastUpdateTime;
+            currentTimeSpendInSystem += Math.abs(this.lastUpdateTime - lastUpdateTime);
         } else {
             throw new IllegalArgumentException("last update time must be positive");
         }
@@ -279,6 +281,11 @@ public class Pedestrian extends Entity implements IPedestrian {
         this.pedestrianCrossingTime.update(new TimeSpan(res));
     }
 
+    public boolean isPedestrianCrossingStopWatchActive () {
+        return this.pedestrianCrossingStopWatch.isRunning();
+    }
+
+
     /**
      * {@inheritDoc}
      */
@@ -335,7 +342,7 @@ public class Pedestrian extends Entity implements IPedestrian {
     }
 
     public double getTimeSpentInSystem() {
-        return car.getTimeSpentInSystem();
+        return currentTimeSpendInSystem;
     }
 
     public double getMeanWaitingTime() {
@@ -357,14 +364,11 @@ public class Pedestrian extends Entity implements IPedestrian {
     public double getPreferredSpeed() {return this.preferredSpeed;}
 
     public double calculatePreferredSpeed(){
-        double averageSpeed = walkedDistance/ getTimeSpentInSystem();
-
+        double averageSpeed = getTimeSpentInSystem() == 0 ? 0 : walkedDistance/ getTimeSpentInSystem();
         double timeRelatedParameter = averageSpeed/preferredSpeed;
-        timeRelatedParameter = timeRelatedParameterFactorForSpeedCalculation - timeRelatedParameter;
+        timeRelatedParameter = timeRelatedParameterValueNForSpeedCalculation - timeRelatedParameter;
 
-        double part1 = (1-timeRelatedParameter);
-        part1 *= preferredSpeed;
-
+        double part1 = (1-timeRelatedParameter) * preferredSpeed;
         double part2 = timeRelatedParameter * maxPreferredSpeed;
 
         return part1 + part2;
@@ -479,6 +483,9 @@ public class Pedestrian extends Entity implements IPedestrian {
         return currentNextGlobalAim;
     }
 
+    public Car getCarDummy() {
+        return this.car;
+    }
 
     /**
      * {@inheritDoc}
