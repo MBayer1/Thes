@@ -46,7 +46,7 @@ public class RepulsiveForceAgainstVehicles {
 
                             // check if it is in range
                             if ( checkPedestrianInRangeFront(model, pedestrian, globalPositionOfVehicle) ){
-                                sumForce.add(calcualteRepulsiveForceAgainstVehicles( pedestrian, globalPositionOfVehicle, globalAimOfVehicle));
+                                sumForce.add(calculateRepulsiveForceAgainstVehicles( pedestrian, globalPositionOfVehicle, globalAimOfVehicle));
                             }
 
                             // check also next street sections as they are after the crossing
@@ -60,7 +60,7 @@ public class RepulsiveForceAgainstVehicles {
 
                                         // check if it is in range
                                         if (checkPedestrianInRangeBack(model, pedestrian, globalPositionOfVehicle)) {
-                                            sumForce.add(calcualteRepulsiveForceAgainstVehicles(pedestrian, globalPositionOfVehicle, globalAimOfVehicle));
+                                            sumForce.add(calculateRepulsiveForceAgainstVehicles(pedestrian, globalPositionOfVehicle, globalAimOfVehicle));
                                         }
                                     }
                                 }
@@ -127,7 +127,7 @@ public class RepulsiveForceAgainstVehicles {
         return false;
     }
 
-    public Vector2d calcualteRepulsiveForceAgainstVehicles ( Pedestrian pedestrian, Point globalPositionOfVehicle, Point globalAimOfVehicle) {
+    public Vector2d calculateRepulsiveForceAgainstVehicles(Pedestrian pedestrian, Point globalPositionOfVehicle, Point globalAimOfVehicle) {
         Vector2d vecPosOfVehicle = new Vector2d(globalPositionOfVehicle.getX(), globalPositionOfVehicle.getY());
 
         //vectorBetween both components

@@ -3,7 +3,6 @@ package at.fhv.itm3.s2.roundabout.SocialForceModelCalculation;
 import at.fhv.itm14.trafsim.model.entities.IConsumer;
 import at.fhv.itm3.s2.roundabout.api.entity.*;
 import at.fhv.itm3.s2.roundabout.entity.Pedestrian;
-import at.fhv.itm3.s2.roundabout.entity.PedestrianStreetConnector;
 import at.fhv.itm3.s2.roundabout.entity.PedestrianStreetSection;
 import at.fhv.itm3.s2.roundabout.model.RoundaboutSimulationModel;
 
@@ -19,7 +18,7 @@ public class RepulsiveForceAgainstOtherPedestrians {
     final private Double sigma = 30.0; // in centimeter
     final private Double VAlphaBeta = 210.0; // (cm / s)^2
     SupportiveCalculations calculations = new SupportiveCalculations();
-    LinkedList<PedestrianStreet> listOfCheckedStreets = new LinkedList<PedestrianStreet>();
+    LinkedList<PedestrianStreetSection> listOfCheckedStreets = new LinkedList<>();
 
     public Vector2d getRepulsiveForceAgainstAllOtherPedestrians(    RoundaboutSimulationModel model,
                                                                     Pedestrian pedestrian,
@@ -30,12 +29,43 @@ public class RepulsiveForceAgainstOtherPedestrians {
 
         // run through all previous and following connected street sections up to 8m distance
         // from current position of alpha pedestrian
+        GetAllPedestrianFromStreet( model, pedestrian, vacDestination, new LinkedList<> (),
+                (PedestrianStreetSection)pedestrian.getCurrentSection().getStreetSection(), sumForce);
         GetAllPedestrianFromPreviousStreets( model, pedestrian, vacDestination, sumForce );
         GetAllPedestrianFromFollowingStreets ( model, pedestrian, vacDestination, sumForce );
 
         return sumForce;
     }
 
+
+    void GetAllPedestrianFromStreet(RoundaboutSimulationModel model,
+                                    Pedestrian pedestrian,
+                                    Vector2d destination,
+                                    List<IConsumer> listOfStreetSectionsInRange,
+                                    PedestrianStreetSection section,
+                                    Vector2d sumForce){
+        boolean noPedestrian = true;
+        boolean pedestrianOutOfRange = false;
+        for(IPedestrian pedestrianBeta: section.getPedestrianQueue()){
+            if( !(pedestrianBeta instanceof Pedestrian) ){
+                throw new IllegalArgumentException("Pedestrian is not an instance of Pedestrian");
+            }
+            noPedestrian = false;
+            // calculate forces
+            if( (section).getPedestrianConsumerType().equals(PedestrianConsumerType.PEDESTRIAN_SINK) ||
+                    checkPedestrianInRange( model, pedestrian,(Pedestrian)pedestrianBeta)){
+                sumForce.add(calculateActualRepulsiveForceAgainstOtherPedestrian( model, destination, pedestrian,(Pedestrian)pedestrianBeta) );
+            } else {
+                pedestrianOutOfRange = true;
+            }
+        }
+        listOfCheckedStreets.add( section );
+
+        if ( noPedestrian || ! pedestrianOutOfRange ) {
+            // no Pedestrian to estimate distance or all existing pedestrian where in range
+            listOfStreetSectionsInRange.add( section );
+        }
+    }
 
     public void GetAllPedestrianFromPreviousStreets(RoundaboutSimulationModel model,
                                                     Pedestrian pedestrian,
@@ -45,9 +75,6 @@ public class RepulsiveForceAgainstOtherPedestrians {
         if(!(currentStreetSection instanceof PedestrianStreetSection)){
             throw new IllegalArgumentException("Consumer is not an instance of PedestrianStreetSection");
         }
-
-        if( listOfCheckedStreets.contains(currentStreetSection)) return;
-        listOfCheckedStreets.add((PedestrianStreet) currentStreetSection);
 
         List<IConsumer> listOfStreetSectionsInRange = new ArrayList<>();
         listOfStreetSectionsInRange.add(currentStreetSection);
@@ -64,26 +91,9 @@ public class RepulsiveForceAgainstOtherPedestrians {
                         throw new IllegalArgumentException("Section is not an instance of PedestrianStreetSection");
                     }
 
-                    boolean noPedestrian = true;
-                    boolean pedestrianOutOfRange = false;
-                    for(IPedestrian pedestrianBeta:((PedestrianStreetSection)previousSection).getPedestrianQueue()){
-                        if( !(pedestrianBeta instanceof Pedestrian) ){
-                            throw new IllegalArgumentException("Pedestrian is not an instance of Pedestrian");
-                        }
-                        noPedestrian = false;
-                        // calculate forces
-                        if( ((PedestrianStreetSection) previousSection).getPedestrianConsumerType().equals(PedestrianConsumerType.PEDESTRIAN_SINK) ||
-                                checkPedestrianInRange( model, pedestrian,(Pedestrian)pedestrianBeta)){
-                            sumForce.add(calculateActualRepulsiveForceAgainstOtherPedestrian( model, destination, pedestrian,(Pedestrian)pedestrianBeta) );
-                        } else {
-                            pedestrianOutOfRange = true;
-                        }
-                    }
-                    if ( noPedestrian || ! pedestrianOutOfRange ) {
-                        // no Pedestrian to estimate distance or all existing pedestrian where in range
-                        listOfStreetSectionsInRange.add( previousSection );
-                    }
+                    if ( listOfCheckedStreets.contains(previousSection) ) continue;
 
+                    GetAllPedestrianFromStreet( model, pedestrian, destination, listOfStreetSectionsInRange, (PedestrianStreetSection)previousSection, sumForce);
                 }
             }
         }
@@ -113,26 +123,9 @@ public class RepulsiveForceAgainstOtherPedestrians {
                         throw new IllegalArgumentException("Section is not an instance of PedestrianStreetSection");
                     }
 
-                    boolean noPedestrian = true;
-                    boolean pedestrianOutOfRange = false;
-                    for(IPedestrian pedestrianBeta:((PedestrianStreetSection)nextSection).getPedestrianQueue()){
-                        if( !(pedestrianBeta instanceof Pedestrian) ){
-                            throw new IllegalArgumentException("Pedestrian is not an instance of Pedestrian");
-                        }
-                        noPedestrian = false;
-                        // calculate forces
-                        if( ((PedestrianStreetSection) nextSection).getPedestrianConsumerType().equals(PedestrianConsumerType.PEDESTRIAN_SINK) ||
-                                checkPedestrianInRange( model, pedestrian,(Pedestrian)pedestrianBeta)){
-                            sumForce.add(calculateActualRepulsiveForceAgainstOtherPedestrian( model, destination, pedestrian,(Pedestrian)pedestrianBeta) );
-                        } else {
-                            pedestrianOutOfRange = true;
-                        }
-                    }
-                    if ( noPedestrian || ! pedestrianOutOfRange ) {
-                        // no Pedestrian to estimate distance or all existing pedestrian where in range
-                        listOfStreetSectionsInRange.add( nextSection );
-                    }
+                    if (  listOfCheckedStreets.contains(nextSection) ) continue;
 
+                    GetAllPedestrianFromStreet( model, pedestrian, destination, listOfStreetSectionsInRange, (PedestrianStreetSection)nextSection, sumForce);
                 }
             }
         }
@@ -142,12 +135,12 @@ public class RepulsiveForceAgainstOtherPedestrians {
                                                                         Vector2d destination,
                                                                         Pedestrian pedestrian,
                                                                         Pedestrian pedestrianBeta){
-        Double weightingFactor = 1.;
+        Double weightingFactor;
         Vector2d force = getRepulsiveForceAgainstOtherPedestrian(model, pedestrian, pedestrianBeta);
 
         // Check Field of View --> 170°
         if (calculations.val1BiggerOrAlmostEqual(destination.dot(force),  //A ⋅ B = ||A|| * ||B|| * cos θ
-                force.length() * Math.cos(model.pedestrianFieldOfViewDegree / 2))) {
+                destination.length() * force.length() * Math.cos(model.pedestrianFieldOfViewDegree / 2))) { // half as form center of angel as this is the "nose position" of alpha
             weightingFactor = model.getPedestrianFieldOfViewWeakeningFactor;
         } else {
             weightingFactor = 0.0;
@@ -200,8 +193,8 @@ public class RepulsiveForceAgainstOtherPedestrians {
         Vector2d nextDestinationVectorAlphaSubTravelPathBeta = vectorBetweenBothPedestrian;
         nextDestinationVectorAlphaSubTravelPathBeta.sub(betaData);
 
-        Double smallHalfAxisOfEllipse = Math.sqrt(  (Math.pow(vectorBetweenBothPedestrian.length() + nextDestinationVectorAlphaSubTravelPathBeta.length(),2)) -
-                                                     Math.pow(traveledPathWithinTOfBeta,2));
+        Double smallHalfAxisOfEllipse = Math.sqrt(  Math.pow(vectorBetweenBothPedestrian.length() + nextDestinationVectorAlphaSubTravelPathBeta.length(),2)) -
+                                                    Math.pow(traveledPathWithinTOfBeta,2);
 
         // Repulsive force against other pedestrians
         // V_alphaBeta(t0)* e^(-b/sigma)
