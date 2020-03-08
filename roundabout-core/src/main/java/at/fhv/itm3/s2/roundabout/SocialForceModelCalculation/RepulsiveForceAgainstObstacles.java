@@ -10,6 +10,7 @@ import at.fhv.itm3.s2.roundabout.model.RoundaboutSimulationModel;
 
 import javax.vecmath.Vector2d;
 import java.awt.*;
+import java.awt.geom.Point2D;
 import java.util.LinkedList;
 
 public class RepulsiveForceAgainstObstacles {
@@ -18,7 +19,6 @@ public class RepulsiveForceAgainstObstacles {
     final private Double U0AlphaBeta = 1000.0; // (cm/s)^2
     SupportiveCalculations calculations;
     RoundaboutSimulationModel model = null;
-    LinkedList<PedestrianStreet> listOfCheckedStreets = new LinkedList<PedestrianStreet>();
 
     public Vector2d getRepulsiveForceAgainstAllObstacles( RoundaboutSimulationModel model,
                                                           Pedestrian pedestrian){
@@ -35,12 +35,6 @@ public class RepulsiveForceAgainstObstacles {
     }
 
     void forceAgainstWalls( Pedestrian pedestrian, Vector2d sumForce ) {
-        IConsumer section = pedestrian.getCurrentSection().getStreetSection();
-        if ( ! (section instanceof PedestrianStreetSection) ) {
-            throw new IllegalArgumentException("Street section is not an instance of PedestrianStreetSection");
-        }
-        PedestrianStreetSection currentSection = (PedestrianStreetSection) section;
-
         forceAgainstWallsIteration( pedestrian, sumForce );
     }
 
@@ -76,46 +70,58 @@ public class RepulsiveForceAgainstObstacles {
 
         // except it is within an port gab, then it will take enter or exit port depending which is closer.
         for ( PedestrianConnectedStreetSections connected : ((PedestrianStreetSection) section).getNextStreetConnector()) {
-            if( listOfCheckedStreets.contains(currentSection)) return;
-            listOfCheckedStreets.add(currentSection);
             if (connected.getFromStreetSection().equals(currentSection)) {
-                double portBeginX  = connected.getPortOfFromStreetSection().getBeginOfStreetPort().getX();
-                double portBeginY  = connected.getPortOfFromStreetSection().getBeginOfStreetPort().getY();
-                double portEndX  = connected.getPortOfFromStreetSection().getEndOfStreetPort().getX();
-                double portEndY  = connected.getPortOfFromStreetSection().getEndOfStreetPort().getY();
-
-                checkWallIntersectionWithinPort(portBeginX, portBeginY, portEndX, portEndY, wallIntersection1);
-                checkWallIntersectionWithinPort(portBeginX, portBeginY, portEndX, portEndY, wallIntersection2);
-                checkWallIntersectionWithinPort(portBeginX, portBeginY, portEndX, portEndY, wallIntersection3);
-                checkWallIntersectionWithinPort(portBeginX, portBeginY, portEndX, portEndY, wallIntersection3);
+                addForce( pedestrian, sumForce, connected, wallIntersection1, wallIntersection2, wallIntersection3, wallIntersection4);
             }
         }
 
         for ( PedestrianConnectedStreetSections connected : ((PedestrianStreetSection) section).getPreviousStreetConnector()) {
             if (connected.getToStreetSection().equals(currentSection)) {
-                if( listOfCheckedStreets.contains(currentSection)) return;
-                listOfCheckedStreets.add(currentSection);
-                double portBeginX  = connected.getPortOfToStreetSection().getBeginOfStreetPort().getX();
-                double portBeginY  = connected.getPortOfToStreetSection().getBeginOfStreetPort().getY();
-                double portEndX  = connected.getPortOfToStreetSection().getEndOfStreetPort().getX();
-                double portEndY  = connected.getPortOfToStreetSection().getEndOfStreetPort().getY();
-
-                checkWallIntersectionWithinPort(portBeginX, portBeginY, portEndX, portEndY, wallIntersection1);
-                checkWallIntersectionWithinPort(portBeginX, portBeginY, portEndX, portEndY, wallIntersection2);
-                checkWallIntersectionWithinPort(portBeginX, portBeginY, portEndX, portEndY, wallIntersection3);
-                checkWallIntersectionWithinPort(portBeginX, portBeginY, portEndX, portEndY, wallIntersection3);
+                addForce( pedestrian, sumForce, connected, wallIntersection1, wallIntersection2, wallIntersection3, wallIntersection4);
             }
         }
+    }
+
+    boolean checkAttractingForce( PedestrianStreetSection section, Pedestrian pedestrian) {
+        if ( section.getPedestrianConsumerType().equals(PedestrianConsumerType.PEDESTRIAN_CROSSING) && !section.checkPedestrianIsWithinSection(pedestrian) ) return true;
+        return false;
+    }
+
+    void addForce ( Pedestrian pedestrian, Vector2d sumForce, PedestrianConnectedStreetSections connected,
+                    Vector2d wallIntersection1, Vector2d wallIntersection2,
+                    Vector2d wallIntersection3, Vector2d wallIntersection4) {
+        double portBeginX  = connected.getPortOfFromStreetSection().getBeginOfStreetPort().getX();
+        double portBeginY  = connected.getPortOfFromStreetSection().getBeginOfStreetPort().getY();
+        double portEndX  = connected.getPortOfFromStreetSection().getEndOfStreetPort().getX();
+        double portEndY  = connected.getPortOfFromStreetSection().getEndOfStreetPort().getY();
+
+        IConsumer section = pedestrian.getCurrentSection().getStreetSection();
+        if ( ! (section instanceof PedestrianStreetSection) ) {
+            throw new IllegalArgumentException("Street section is not an instance of PedestrianStreetSection");
+        }
+        PedestrianStreetSection currentSection = (PedestrianStreetSection) section;
+
+        if ( checkWallIntersectionWithinPort( portBeginX, portBeginY, portEndX, portEndY, wallIntersection1 ) )
+            shiftIntersection( portBeginX, portBeginY, portEndX, portEndY, wallIntersection1);
+        if ( checkWallIntersectionWithinPort( portBeginX, portBeginY, portEndX, portEndY, wallIntersection2 ) )
+            shiftIntersection( portBeginX, portBeginY, portEndX, portEndY, wallIntersection2);
+        if ( checkWallIntersectionWithinPort( portBeginX, portBeginY, portEndX, portEndY, wallIntersection3 ) )
+            shiftIntersection( portBeginX, portBeginY, portEndX, portEndY, wallIntersection3);
+        if ( checkWallIntersectionWithinPort( portBeginX, portBeginY, portEndX, portEndY, wallIntersection4 ) )
+            shiftIntersection( portBeginX, portBeginY, portEndX, portEndY, wallIntersection4);
 
         // special case of crossings. walls can be attracted or repulsive force
-        if ( currentSection.getPedestrianConsumerType().equals(PedestrianConsumerType.PEDESTRIAN_CROSSING) && !currentSection.checkPedestrianIsWithinSection(pedestrian)  ) {
-            // attracted force
+        wallIntersection1 = getRepulsiveForceAgainstObstacleCalculation( pedestrian, new Point( (int) Math.round(wallIntersection1.getX()), (int) Math.round(wallIntersection1.getY())));
+        wallIntersection2 = getRepulsiveForceAgainstObstacleCalculation( pedestrian, new Point( (int) Math.round(wallIntersection2.getX()), (int) Math.round(wallIntersection2.getY())));
+        wallIntersection3 = getRepulsiveForceAgainstObstacleCalculation( pedestrian, new Point( (int) Math.round(wallIntersection3.getX()), (int) Math.round(wallIntersection3.getY())));
+        wallIntersection4 = getRepulsiveForceAgainstObstacleCalculation( pedestrian, new Point( (int) Math.round(wallIntersection4.getX()), (int) Math.round(wallIntersection4.getY())));
+
+        if ( checkAttractingForce( currentSection, pedestrian ) ) {// attracted force
             sumForce.sub(wallIntersection1);
             sumForce.sub(wallIntersection2);
             sumForce.sub(wallIntersection3);
             sumForce.sub(wallIntersection4);
-        } else {
-            // repulsive force
+        } else {// repulsive force
             sumForce.add(wallIntersection1);
             sumForce.add(wallIntersection2);
             sumForce.add(wallIntersection3);
@@ -123,29 +129,40 @@ public class RepulsiveForceAgainstObstacles {
         }
     }
 
-    void checkWallIntersectionWithinPort (double portBeginX, double portBeginY, double portEndX, double portEndY, Vector2d wallIntersection1) {
-        if ((calculations.val1Bigger(portBeginX, wallIntersection1.getX()) &&
-                calculations.val1Bigger(portBeginY, wallIntersection1.getY()) &&
-                calculations.val1Lower(portEndX, wallIntersection1.getX()) &&
-                calculations.val1Lower(portEndY, wallIntersection1.getY()))
-                ||
-                (calculations.val1Lower(portBeginX, wallIntersection1.getX()) &&
-                        calculations.val1Lower(portBeginY, wallIntersection1.getY()) &&
-                        calculations.val1Bigger(portEndX, wallIntersection1.getX()) &&
-                        calculations.val1Bigger(portEndY, wallIntersection1.getY()))
-                ) {
-
-            // point within the port gab
-            // get closer corner of port
-            if (calculations.getDistanceByCoordinates(portBeginX, portBeginY, wallIntersection1.getX(), wallIntersection1.getY()) <
-                    calculations.getDistanceByCoordinates(portEndX, portEndY, wallIntersection1.getX(), wallIntersection1.getY()))
-                wallIntersection1.set(portBeginX, portBeginY);
-            else wallIntersection1.set(portEndX, portEndY);
+    boolean checkWallIntersectionWithinPort (double portBeginX, double portBeginY, double portEndX, double portEndY, Vector2d wallIntersection) {
+        if ( calculations.almostEqual(portBeginX, portEndX)) {
+            if (    (calculations.val1Bigger(portBeginY, wallIntersection.getY()) &&
+                    calculations.val1Lower(portEndY, wallIntersection.getY()) )
+                    ||
+                    (calculations.val1Lower(portBeginY, wallIntersection.getY()) &&
+                    calculations.val1Bigger(portEndY, wallIntersection.getY()))
+                    ) {
+                return true;
+            }
+        } else {//calculations.almostEqual(portBeginY, portEndY)
+            if (    (calculations.val1Bigger(portBeginX, wallIntersection.getX()) &&
+                    calculations.val1Lower(portEndX, wallIntersection.getX()) )
+                    ||
+                    (calculations.val1Lower(portBeginX, wallIntersection.getX()) &&
+                    calculations.val1Bigger(portEndX, wallIntersection.getX()))
+                    ) {
+                return true;
+            }
         }
+        return false;
+    }
+
+    void shiftIntersection( double portBeginX, double portBeginY, double portEndX, double portEndY, Vector2d wallIntersection){
+        // point within the port gab
+        // get closer corner of port
+        if (calculations.getDistanceByCoordinates(portBeginX, portBeginY, wallIntersection.getX(), wallIntersection.getY()) <
+                calculations.getDistanceByCoordinates(portEndX, portEndY, wallIntersection.getX(), wallIntersection.getY()))
+            wallIntersection.set(portBeginX, portBeginY);
+        else wallIntersection.set(portEndX, portEndY);
     }
 
     Vector2d getRepulsiveForceAgainstObstacle(   Pedestrian pedestrian,
-                                                        Point obstaclePosition) {
+                                                 Point obstaclePosition) {
         Double weightingFactor;
         Point dest = pedestrian.getNextSubGoal();
         Vector2d destination = new Vector2d( dest.getX(), dest.getY());
@@ -167,7 +184,11 @@ public class RepulsiveForceAgainstObstacles {
     }
 
     Vector2d getRepulsiveForceAgainstObstacleCalculation(    Pedestrian pedestrian,
-                                                                    Point obstaclePosition) {
+                                                             Point obstaclePosition) {
+        if( !checkPedestrianInRange( pedestrian, obstaclePosition) ){
+            return new Vector2d(0,0 );
+        }
+
         // Distance vector
         Vector2d vectorBetweenPedestrianAndObstacle = new Vector2d(pedestrian.getCurrentGlobalPosition().x, pedestrian.getCurrentGlobalPosition().y);
         vectorBetweenPedestrianAndObstacle.sub(new Vector2d(obstaclePosition.getX(), obstaclePosition.getY()));
@@ -181,5 +202,16 @@ public class RepulsiveForceAgainstObstacles {
         force.scale(U0AlphaBeta * expo);
         force.negate();
         return force;
+    }
+
+    boolean checkPedestrianInRange( Pedestrian pedestrian, Point intersectionPos){
+        if ( calculations.almostEqual( Point2D.distance(   pedestrian.getCurrentGlobalPosition().getX(),
+                pedestrian.getCurrentGlobalPosition().getY(),
+                intersectionPos.getX(),
+                intersectionPos.getY()) ,
+                model.pedestrianFieldOfViewRadius)) {
+            return true;
+        }
+        return false;
     }
 }
