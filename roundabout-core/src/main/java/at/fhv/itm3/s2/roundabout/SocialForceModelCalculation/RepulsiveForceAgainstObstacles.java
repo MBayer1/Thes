@@ -2,6 +2,7 @@ package at.fhv.itm3.s2.roundabout.SocialForceModelCalculation;
 
 import at.fhv.itm14.trafsim.model.entities.IConsumer;
 import at.fhv.itm3.s2.roundabout.api.entity.PedestrianConsumerType;
+import at.fhv.itm3.s2.roundabout.api.entity.PedestrianStreetSectionPort;
 import at.fhv.itm3.s2.roundabout.entity.Pedestrian;
 import at.fhv.itm3.s2.roundabout.entity.PedestrianStreetSection;
 import at.fhv.itm3.s2.roundabout.api.entity.PedestrianConnectedStreetSections;
@@ -65,38 +66,32 @@ public class RepulsiveForceAgainstObstacles {
         // except it is within an port gab, then it will take enter or exit port depending which is closer.
         for ( PedestrianConnectedStreetSections connected : ((PedestrianStreetSection) section).getNextStreetConnector()) {
             if (connected.getFromStreetSection().equals(currentSection)) {
-                double portBeginX  = connected.getPortOfFromStreetSection().getBeginOfStreetPort().getX();
-                double portBeginY  = connected.getPortOfFromStreetSection().getBeginOfStreetPort().getY();
-                double portEndX  = connected.getPortOfFromStreetSection().getEndOfStreetPort().getX();
-                double portEndY  = connected.getPortOfFromStreetSection().getEndOfStreetPort().getY();
+                PedestrianStreetSectionPort port = connected.getPortOfFromStreetSection();
 
-                if ( checkWallIntersectionWithinPort( portBeginX, portBeginY, portEndX, portEndY, wallIntersection1 ) )
-                    shiftIntersection( portBeginX, portBeginY, portEndX, portEndY, wallIntersection1);
-                if ( checkWallIntersectionWithinPort( portBeginX, portBeginY, portEndX, portEndY, wallIntersection2 ) )
-                    shiftIntersection( portBeginX, portBeginY, portEndX, portEndY, wallIntersection2);
-                if ( checkWallIntersectionWithinPort( portBeginX, portBeginY, portEndX, portEndY, wallIntersection3 ) )
-                    shiftIntersection( portBeginX, portBeginY, portEndX, portEndY, wallIntersection3);
-                if ( checkWallIntersectionWithinPort( portBeginX, portBeginY, portEndX, portEndY, wallIntersection4 ) )
-                    shiftIntersection( portBeginX, portBeginY, portEndX, portEndY, wallIntersection4);
+                if ( !calculations.checkWallIntersectionWithinPort( port, wallIntersection1 ) )
+                    calculations.shiftIntersection( port, wallIntersection1, pedestrian.getMinGapForPedestrian());
+                if ( !calculations.checkWallIntersectionWithinPort( port, wallIntersection2 ) )
+                    calculations.shiftIntersection( port, wallIntersection2, pedestrian.getMinGapForPedestrian());
+                if ( !calculations.checkWallIntersectionWithinPort( port, wallIntersection3 ) )
+                    calculations.shiftIntersection( port, wallIntersection3, pedestrian.getMinGapForPedestrian());
+                if ( !calculations.checkWallIntersectionWithinPort( port, wallIntersection4 ) )
+                    calculations.shiftIntersection( port, wallIntersection4, pedestrian.getMinGapForPedestrian());
             }
         }
 
         for ( PedestrianConnectedStreetSections connected : ((PedestrianStreetSection) section).getPreviousStreetConnector()) {
             if (connected.getToStreetSection().equals(currentSection)) {
                 if (connected.getFromStreetSection().equals(currentSection)) {
-                    double portBeginX  = connected.getPortOfFromStreetSection().getBeginOfStreetPort().getX();
-                    double portBeginY  = connected.getPortOfFromStreetSection().getBeginOfStreetPort().getY();
-                    double portEndX  = connected.getPortOfFromStreetSection().getEndOfStreetPort().getX();
-                    double portEndY  = connected.getPortOfFromStreetSection().getEndOfStreetPort().getY();
+                    PedestrianStreetSectionPort port = connected.getPortOfFromStreetSection();
 
-                    if ( checkWallIntersectionWithinPort( portBeginX, portBeginY, portEndX, portEndY, wallIntersection1 ) )
-                        shiftIntersection( portBeginX, portBeginY, portEndX, portEndY, wallIntersection1);
-                    if ( checkWallIntersectionWithinPort( portBeginX, portBeginY, portEndX, portEndY, wallIntersection2 ) )
-                        shiftIntersection( portBeginX, portBeginY, portEndX, portEndY, wallIntersection2);
-                    if ( checkWallIntersectionWithinPort( portBeginX, portBeginY, portEndX, portEndY, wallIntersection3 ) )
-                        shiftIntersection( portBeginX, portBeginY, portEndX, portEndY, wallIntersection3);
-                    if ( checkWallIntersectionWithinPort( portBeginX, portBeginY, portEndX, portEndY, wallIntersection4 ) )
-                        shiftIntersection( portBeginX, portBeginY, portEndX, portEndY, wallIntersection4);
+                    if ( !calculations.checkWallIntersectionWithinPort( port, wallIntersection1 ) )
+                        calculations.shiftIntersection( port, wallIntersection1, pedestrian.getMinGapForPedestrian());
+                    if ( !calculations.checkWallIntersectionWithinPort( port, wallIntersection2 ) )
+                        calculations.shiftIntersection( port, wallIntersection2, pedestrian.getMinGapForPedestrian());
+                    if ( !calculations.checkWallIntersectionWithinPort( port, wallIntersection3 ) )
+                        calculations.shiftIntersection( port, wallIntersection3, pedestrian.getMinGapForPedestrian());
+                    if ( !calculations.checkWallIntersectionWithinPort( port, wallIntersection4 ) )
+                        calculations.shiftIntersection( port, wallIntersection4, pedestrian.getMinGapForPedestrian());
                 }
             }
         }
@@ -136,38 +131,6 @@ public class RepulsiveForceAgainstObstacles {
             sumForce.add(wallIntersection3force);
             sumForce.add(wallIntersection4force);
         }
-    }
-
-    boolean checkWallIntersectionWithinPort (double portBeginX, double portBeginY, double portEndX, double portEndY, Point wallIntersection) {
-        if ( calculations.almostEqual(portBeginX, portEndX)) {
-            if (    (calculations.val1Bigger(portBeginY, wallIntersection.getY()) &&
-                    calculations.val1Lower(portEndY, wallIntersection.getY()) )
-                    ||
-                    (calculations.val1Lower(portBeginY, wallIntersection.getY()) &&
-                    calculations.val1Bigger(portEndY, wallIntersection.getY()))
-                    ) {
-                return true;
-            }
-        } else {//calculations.almostEqual(portBeginY, portEndY)
-            if (    (calculations.val1Bigger(portBeginX, wallIntersection.getX()) &&
-                    calculations.val1Lower(portEndX, wallIntersection.getX()) )
-                    ||
-                    (calculations.val1Lower(portBeginX, wallIntersection.getX()) &&
-                    calculations.val1Bigger(portEndX, wallIntersection.getX()))
-                    ) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    void shiftIntersection( double portBeginX, double portBeginY, double portEndX, double portEndY, Point wallIntersection){
-        // point within the port gab
-        // get closer corner of port
-        if (calculations.getDistanceByCoordinates(portBeginX, portBeginY, wallIntersection.getX(), wallIntersection.getY()) <
-                calculations.getDistanceByCoordinates(portEndX, portEndY, wallIntersection.getX(), wallIntersection.getY()))
-            wallIntersection.setLocation(portBeginX, portBeginY);
-        else wallIntersection.setLocation(portEndX, portEndY);
     }
 
     Vector2d getRepulsiveForceAgainstObstacle(   Pedestrian pedestrian,

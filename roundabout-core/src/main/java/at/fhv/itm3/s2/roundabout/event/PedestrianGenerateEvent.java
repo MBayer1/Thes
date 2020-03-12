@@ -104,7 +104,6 @@ public class PedestrianGenerateEvent extends Event<PedestrianAbstractSource> {
                         Math.min(end.getX(), start.getX()),
                         Math.max(end.getX(), start.getX()));
                 entryPoint.setLocation(start.getX() + global.getX(), entryX + global.getY());
-
             }
             final PedestrianBehaviour behaviour = new PedestrianBehaviour(
                     roundaboutSimulationModel.getRandomPedestrianPreferredSpeed(),

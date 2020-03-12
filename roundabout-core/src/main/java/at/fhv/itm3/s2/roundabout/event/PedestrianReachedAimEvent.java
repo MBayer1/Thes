@@ -6,6 +6,7 @@ import at.fhv.itm3.s2.roundabout.api.entity.IPedestrian;
 import at.fhv.itm3.s2.roundabout.api.entity.PedestrianConsumerType;
 import at.fhv.itm3.s2.roundabout.api.entity.PedestrianStreet;
 import at.fhv.itm3.s2.roundabout.entity.Pedestrian;
+import at.fhv.itm3.s2.roundabout.entity.PedestrianSink;
 import at.fhv.itm3.s2.roundabout.entity.PedestrianStreetSection;
 import at.fhv.itm3.s2.roundabout.model.RoundaboutSimulationModel;
 import co.paralleluniverse.fibers.SuspendExecution;
@@ -79,45 +80,58 @@ public class PedestrianReachedAimEvent extends Event<Pedestrian> {
         double timeToDestination = 0.0;
 
         // since all sup-aims are within one street section it is enough to check all other pedestrian on the same section
-        // check if the check if there
         if (! (pedestrian.getCurrentSection().getStreetSection() instanceof PedestrianStreet )) {
             throw new IllegalArgumentException( "Street not instance of PedestrianStreet." );
         }
 
-        for (IPedestrian otherPedestrian : ((PedestrianStreet)pedestrian.getCurrentSection().getStreetSection()).getPedestrianQueue()){
-            if(otherPedestrian.equals(pedestrian)) continue;
+        if( pedestrian.getCurrentNextGlobalAim() == null) {
+            // set as first aim the exit point of the street section
+            pedestrian.setCurrentNextGlobalAim( pedestrian.getClosestExitPointOfCurrentSection());
+        }
 
-            if (! (otherPedestrian instanceof Pedestrian )) {
-                throw new IllegalArgumentException( "Other pedestrian not instance of Pedestrian." );
-            }
-
+        if(pedestrian.checkExitPortIsReached()){
             // aim is reached -> update data
             pedestrian.updateWalkedDistance();
             pedestrian.setCurrentGlobalPosition();
             pedestrian.setLastUpdateTime(roundaboutSimulationModel.getCurrentTime());
+            // set to next section
+            if ( !(currentSection instanceof PedestrianStreet) ){
+                throw new IllegalArgumentException( "Street not instance of PedestrianStreet.");
+            }
 
-            // destination of the current street section is reached
-            if(pedestrian.checkExitPortIsReached()){
-                PedestrianStreet nextStreetSection = ((PedestrianStreet)(pedestrian.getNextSection().getStreetSection()));
-                // when the next section is a pedestrian crossing and does have a crossing light the light stage has to be checked
-                if( nextStreetSection.getPedestrianConsumerType().equals(PedestrianConsumerType.PEDESTRIAN_CROSSING)){
-                    if ( !(currentSection instanceof PedestrianStreet) ){
-                        throw new IllegalArgumentException( "Street not instance of PedestrianStreet.");
-                    }
-
-                    // solely on a crossing can be a traffic light. -> check in Parser
-                    if( nextStreetSection.isTrafficLightActive() ){
-                        if( !nextStreetSection.isTrafficLightFreeToGo()) {
-                            pedestrian.setCurrentSpeed(0.0);
-                        } else pedestrian.setCurrentSpeed(pedestrian.getPreferredSpeed());
-                        //nextStreetSection.handleJamTrafficLight();
-                    }
+            PedestrianStreet nextStreetSection = ((PedestrianStreet)(pedestrian.getNextSection().getStreetSection()));
+            if(nextStreetSection.getPedestrianConsumerType().equals(PedestrianConsumerType.PEDESTRIAN_SINK)) {
+                if ( !(nextStreetSection instanceof PedestrianSink) ){
+                    throw new IllegalArgumentException( "Street not instance of PedestrianSink.");
                 }
-                // set to next section
+            } else if ( !(nextStreetSection instanceof PedestrianStreet) ){
+                throw new IllegalArgumentException( "Street not instance of PedestrianStreet.");
+            }
 
-                timeToDestination = pedestrian.getTimeToNextGlobalSubGoalByCoordinates(pedestrian.getCurrentNextGlobalAim());
+            // when the next section is a pedestrian crossing and does have a crossing light the light stage has to be checked
+            if( nextStreetSection.getPedestrianConsumerType().equals(PedestrianConsumerType.PEDESTRIAN_CROSSING)){
+                // solely on a crossing can be a traffic light. -> check in Parser
+                if( nextStreetSection.isTrafficLightActive() ){
+                    if( !nextStreetSection.isTrafficLightFreeToGo()) {
+                        pedestrian.setCurrentSpeed(0.0);
+                    } else pedestrian.setCurrentSpeed(pedestrian.getPreferredSpeed());
+                    //nextStreetSection.handleJamTrafficLight();
+                }
+            }
 
-            } else {
+            timeToDestination = pedestrian.getTimeToNextGlobalSubGoalByCoordinates(pedestrian.getCurrentNextGlobalAim());
+
+            // destination of the current street section is reached move to next section
+
+
+
+        } else {
+            for (IPedestrian otherPedestrian : ((PedestrianStreet)pedestrian.getCurrentSection().getStreetSection()).getPedestrianQueue()){
+                if(otherPedestrian.equals(pedestrian)) continue;
+
+                if (! (otherPedestrian instanceof Pedestrian )) {
+                    throw new IllegalArgumentException( "Other pedestrian not instance of Pedestrian." );
+                }
 
                 // if an other pedestrian does already have a defined "current global aim" and
                 // does have an intersection with the current aim of the current pedestrian
@@ -143,8 +157,6 @@ public class PedestrianReachedAimEvent extends Event<Pedestrian> {
         }
 
         pedestrianEventFactory.createPedestrianReachedAimEvent(roundaboutSimulationModel).schedule(
-                pedestrian, new TimeSpan(timeToDestination, roundaboutSimulationModel.getModelTimeUnit())
-        );
+                pedestrian, new TimeSpan(timeToDestination, roundaboutSimulationModel.getModelTimeUnit()));
     }
-
 }

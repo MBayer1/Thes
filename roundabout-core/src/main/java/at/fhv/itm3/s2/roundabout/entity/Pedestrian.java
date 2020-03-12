@@ -1,6 +1,7 @@
 package at.fhv.itm3.s2.roundabout.entity;
 
 import at.fhv.itm14.trafsim.model.entities.Car;
+import at.fhv.itm14.trafsim.model.entities.IConsumer;
 import at.fhv.itm14.trafsim.statistics.StopWatch;
 import at.fhv.itm3.s2.roundabout.SocialForceModelCalculation.*;
 import at.fhv.itm3.s2.roundabout.api.entity.*;
@@ -161,6 +162,11 @@ public class Pedestrian extends Entity implements IPedestrian {
     }
 
     public double getTimeToNextGlobalSubGoalByCoordinates(Point goal) {
+
+        if ( goal == null) {
+            throw new IllegalArgumentException("No gaol defined.");
+        }
+
         Point origin = ((PedestrianStreetSection)getCurrentSection().getStreetSection()).getGlobalCoordinateOfSectionOrigin();
 
         return calc.getDistanceByCoordinates(goal.getX() + origin.getX(),
@@ -177,15 +183,57 @@ public class Pedestrian extends Entity implements IPedestrian {
         return currentGlobalPosition;
     }
 
+    public Point getCurrentLocalPosition() {
+        IConsumer section = getCurrentSection().getStreetSection();
+        if ( !(section instanceof PedestrianStreet)) {
+            throw new IllegalArgumentException("Section not instance of PedestrianStreet.");
+        }
+
+        Point globalOffset = ((PedestrianStreetSection)(getCurrentSection().getStreetSection())).getGlobalCoordinateOfSectionOrigin();
+        Point localPos = new Point( (int) (currentGlobalPosition.getX()- globalOffset.getX()),
+                                    (int)(currentGlobalPosition.getY() - globalOffset.getY()));
+        return localPos;
+    }
+
     public void setCurrentGlobalPosition(Point currentGlobalPosition) {
+        if(currentGlobalPosition == null) {
+            throw new IllegalArgumentException("there is no global position set");
+        }
         this.currentGlobalPosition = currentGlobalPosition;
     }
 
     public void setCurrentGlobalPosition() {
         if( currentNextGlobalAim != null) {
-            setCurrentGlobalPosition(getCurrentGlobalPosition());
+            setCurrentGlobalPosition(currentNextGlobalAim);
         }
-        setCurrentGlobalPosition(currentNextGlobalAim);
+        throw new IllegalArgumentException("there is no global position set");
+    }
+
+    public Point getClosestExitPointOfCurrentSection(){
+        PedestrianStreetSection currentSection = (PedestrianStreetSection)this.getCurrentSection().getStreetSection();
+        for ( PedestrianConnectedStreetSections connectedStreetSections : currentSection.getNextStreetConnector()){
+            if ( connectedStreetSections.getToStreetSection().equals(nextSection.getStreetSection()) ) {
+                PedestrianStreetSectionPort port = connectedStreetSections.getPortOfToStreetSection();
+                double onBorderX, onBorderY;
+                Point localPos = getCurrentLocalPosition();
+                if( calc.almostEqual(port.getBeginOfStreetPort().getX(), port.getEndOfStreetPort().getX()) ) { // port along y side
+                    onBorderX = 0; // Min of border
+                    onBorderY = localPos.getY();
+                } else { // port along x side
+                    onBorderX = localPos.getX();
+                    onBorderY = 0; // Min of border
+                }
+
+                Point intersection = calc.getLinesIntersectionByCoordinates( port, localPos.getX(), localPos.getY(), onBorderX, onBorderY);
+
+                if ( !calc.checkWallIntersectionWithinPort( port, intersection ) )
+                    calc.shiftIntersection( port, intersection, getMinGapForPedestrian());
+
+
+                return intersection;
+            }
+        }
+        throw new IllegalArgumentException("Pedestrian cannot leave section.");
     }
 
     /**
@@ -380,11 +428,20 @@ public class Pedestrian extends Entity implements IPedestrian {
         return checkExitPortIsReached(pos);
     }
 
-    public boolean checkExitPortIsReached(){ return checkExitPortIsReached(currentGlobalPosition);}
+    public boolean checkExitPortIsReached(){
+        if ( currentGlobalPosition == null ) {
+            throw new IllegalArgumentException(" no pedestrianPosition passed.");
+        }
+        return checkExitPortIsReached(currentGlobalPosition);
+    }
 
     public boolean checkExitPortIsReached(Point pedestrianPosition){
         // Port is along y axis
         if(currentSection.getExitPort().getBeginOfStreetPort().getX() == currentSection.getExitPort().getEndOfStreetPort().getX()){
+            if ( pedestrianPosition == null ) {
+                throw new IllegalArgumentException(" no pedestrianPosition passed.");
+            }
+
             if(    ((calc.val1LowerOrAlmostEqual((currentSection.getExitPort().getBeginOfStreetPort().getY() + minGapForPedestrian), pedestrianPosition.getY(), 10e-1) &&
                     calc.val1BiggerOrAlmostEqual((currentSection.getExitPort().getEndOfStreetPort().getY() - minGapForPedestrian), pedestrianPosition.getY(), 10e-1))
                     ||
@@ -475,6 +532,12 @@ public class Pedestrian extends Entity implements IPedestrian {
         return walkedDistance;
     }
 
+    public void setCurrentNextGlobalAim() {
+        // set end of street section/exit point as aim
+
+
+    }
+
     public void setCurrentNextGlobalAim(Point currentNextGlobalAim) {
         this.currentNextGlobalAim = currentNextGlobalAim;
     }
@@ -504,8 +567,8 @@ public class Pedestrian extends Entity implements IPedestrian {
         sumForce.add(tmp);
         tmp = repulsiveForceAgainstOtherPedestrians.getRepulsiveForceAgainstAllOtherPedestrians(getRoundaboutModel(), this, getNextSubGoal());
         sumForce.add(tmp);
-        tmp = repulsiveForceAgainstVehicles.getRepulsiveForceAgainstVehicles(getRoundaboutModel(), this);
-        sumForce.add(tmp);
+        //tmp = repulsiveForceAgainstVehicles.getRepulsiveForceAgainstVehicles(getRoundaboutModel(), this);
+        sumForce.add(tmp); //todo
         tmp = repulsiveForceAgainstObstacles.getRepulsiveForceAgainstAllObstacles(getRoundaboutModel(), this);
         sumForce.add(tmp);
 

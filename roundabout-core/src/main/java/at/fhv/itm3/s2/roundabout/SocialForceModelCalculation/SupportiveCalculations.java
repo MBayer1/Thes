@@ -1,6 +1,9 @@
 package at.fhv.itm3.s2.roundabout.SocialForceModelCalculation;
 
+import at.fhv.itm3.s2.roundabout.api.entity.PedestrianStreetSectionPort;
+
 import javax.vecmath.Vector2d;
+import java.awt.*;
 
 public class SupportiveCalculations {
     
@@ -110,6 +113,26 @@ public class SupportiveCalculations {
     }
 
 
+    public Point getLinesIntersectionByCoordinates(	     PedestrianStreetSectionPort port,
+                                                         double dLineStartX2, double dLineStartY2,
+                                                         double dLineEndX2, double dLineEndY2) {
+        return getLinesIntersectionByCoordinates( port.getBeginOfStreetPort().getX(), port.getBeginOfStreetPort().getY(),
+                port.getEndOfStreetPort().getX(), port.getEndOfStreetPort().getY(),
+                dLineStartX2, dLineStartY2, dLineEndX2, dLineEndY2);
+    }
+
+    public Point getLinesIntersectionByCoordinates(	     double dLineStartX1, double dLineStartY1,
+                                                         double dLineEndX1, double dLineEndY1,
+                                                         double dLineStartX2, double dLineStartY2,
+                                                         double dLineEndX2, double dLineEndY2) {
+        Vector2d returnIntersection = new Vector2d();
+        if(getLinesIntersectionByCoordinates(	returnIntersection,
+                dLineStartX1, dLineStartY1, dLineEndX1, dLineEndY1,
+                dLineStartX2, dLineStartY2, dLineEndX2, dLineEndY2)){
+            return new Point((int)returnIntersection.getX(), (int)returnIntersection.getY());
+        }
+        throw new IllegalArgumentException("Two lines do not have any intersection");
+    }
 
     public boolean getLinesIntersectionByCoordinates(	Vector2d returnIntersection,
                                             double dLineStartX1, double dLineStartY1,
@@ -173,5 +196,76 @@ public class SupportiveCalculations {
         }
     }
 
+    public boolean checkWallIntersectionWithinPort (PedestrianStreetSectionPort port, Point intersection) {
+        return checkWallIntersectionWithinPort(port.getBeginOfStreetPort().getX(), port.getBeginOfStreetPort().getY(),
+                port.getEndOfStreetPort().getX(), port.getEndOfStreetPort().getY(), intersection);
+    }
+
+
+    public boolean checkWallIntersectionWithinPort (double portBeginX, double portBeginY, double portEndX, double portEndY, Point wallIntersection) {
+        if ( almostEqual(portBeginX, portEndX)) {
+            if (    (val1Bigger(portBeginY, wallIntersection.getY()) &&
+                    val1Lower(portEndY, wallIntersection.getY()) )
+                    ||
+                    (val1Lower(portBeginY, wallIntersection.getY()) &&
+                            val1Bigger(portEndY, wallIntersection.getY()))
+                    ) {
+                return true;
+            }
+        } else {//calculations.almostEqual(portBeginY, portEndY)
+            if (    (val1Bigger(portBeginX, wallIntersection.getX()) &&
+                    val1Lower(portEndX, wallIntersection.getX()) )
+                    ||
+                    (val1Lower(portBeginX, wallIntersection.getX()) &&
+                            val1Bigger(portEndX, wallIntersection.getX()))
+                    ) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void shiftIntersection (PedestrianStreetSectionPort port, Point intersection) {
+        shiftIntersection(port, intersection, 0);
+    }
+
+    public void shiftIntersection (PedestrianStreetSectionPort port, Point intersection, double minGabToWall) {
+        shiftIntersection(port.getBeginOfStreetPort().getX(), port.getBeginOfStreetPort().getY(),
+                port.getEndOfStreetPort().getX(), port.getEndOfStreetPort().getY(), intersection);
+    }
+
+    public void shiftIntersection( double portBeginX, double portBeginY, double portEndX, double portEndY, Point wallIntersection){
+        shiftIntersection(portBeginX, portBeginY, portEndX, portEndY, wallIntersection, 0);
+    }
+
+    public void shiftIntersection( double portBeginX, double portBeginY, double portEndX, double portEndY, Point wallIntersection, double minGabToWall) {
+        // point within the port gab
+        // get closer corner of port
+        if (getDistanceByCoordinates(portBeginX, portBeginY, wallIntersection.getX(), wallIntersection.getY()) <
+                getDistanceByCoordinates(portEndX, portEndY, wallIntersection.getX(), wallIntersection.getY())){
+            // closer to the begin of the port
+            wallIntersection.setLocation(portBeginX, portBeginY);
+        }else {
+            // closer to the end of the port
+            wallIntersection.setLocation(portEndX, portEndY);
+        }
+        if (minGabToWall != 0) shiftIntersectionSub(portBeginX, portBeginY, portEndX, portEndY, wallIntersection, minGabToWall);
+    }
+
+    void shiftIntersectionSub( double portBeginX, double portBeginY, double portEndX, double portEndY, Point wallIntersection, double minGabToWall) {
+        if( almostEqual(portBeginX, portEndX) ) { // port along y side
+            if( val1LowerOrAlmostEqual(portBeginY, portEndY)) {
+                wallIntersection.setLocation(wallIntersection.getX(), wallIntersection.getY() + minGabToWall);
+            } else {
+                wallIntersection.setLocation(wallIntersection.getX(), wallIntersection.getY() - minGabToWall);
+            }
+        } else { // port along x side/aches
+            if( val1LowerOrAlmostEqual(portBeginX, portEndX)) {
+                wallIntersection.setLocation(wallIntersection.getX() + minGabToWall, wallIntersection.getY());
+            } else {
+                wallIntersection.setLocation(wallIntersection.getX() - minGabToWall, wallIntersection.getY());
+            }
+        }
+    }
 }
 
