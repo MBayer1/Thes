@@ -102,7 +102,7 @@ public class Pedestrian extends Entity implements IPedestrian {
         this.pedestrianCrossingTime.reset();
 
         this.currentSpeed = this.getPreferredSpeed();
-        this.minGapForPedestrian = 50; //cm
+        this.minGapForPedestrian = 5; //cm
     }
 
     /**

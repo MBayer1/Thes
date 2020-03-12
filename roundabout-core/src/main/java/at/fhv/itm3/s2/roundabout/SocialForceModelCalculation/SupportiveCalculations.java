@@ -97,21 +97,9 @@ public class SupportiveCalculations {
 
     public boolean almostEqual(double dVal1, double dVal2, double SFM_DegreeOfAccuracy)
     {
-        return (GetRoundValue(Math.abs(dVal1-dVal2), SFM_DegreeOfAccuracy) < SFM_DegreeOfAccuracy);
+        return (Math.round(Math.abs(dVal1-dVal2)) < SFM_DegreeOfAccuracy);
 
     }
-
-    public double GetRoundValue(double dValue){
-        return GetRoundValue(dValue, 10e-8);
-    }
-
-    public double GetRoundValue(double dValue, double SFM_DegreeOfAccuracy){
-
-        double dDegreeOfAccuracy = SFM_DegreeOfAccuracy;
-
-        return Math.round(dValue * SFM_DegreeOfAccuracy) / SFM_DegreeOfAccuracy;
-    }
-
 
     public Point getLinesIntersectionByCoordinates(	     PedestrianStreetSectionPort port,
                                                          double dLineStartX2, double dLineStartY2,
@@ -141,6 +129,7 @@ public class SupportiveCalculations {
                                             double dLineEndX2, double dLineEndY2)
     {
         double dReturnX, dReturnY;
+
         if (almostEqual(dLineStartX1, dLineStartX2) && almostEqual(dLineStartY1, dLineStartY2) &&
                 almostEqual(dLineEndX1, dLineEndX2) && almostEqual(dLineEndY1, dLineEndY2)) {
             // exactly the same line
@@ -150,10 +139,10 @@ public class SupportiveCalculations {
         // linear equation: y=m*x+d -> note spacial case: parallel to y-axis -> y(x) = const, always
         // 1. set linear equation in linear equation -> m1*x+d1 = m2*x+d2  -> x = (d2-d1)/(m1-m2)
         double dSlope1 = (dLineEndY1 - dLineStartY1) / (dLineEndX1 - dLineStartX1);			// m1
-        if(Double.isInfinite(dSlope1)) return false;
+        //if(Double.isInfinite(dSlope1)) return false;
         double dYIntercept1 = dLineEndY1 - (dLineEndX1 * dSlope1);							// d1
         double dSlope2 = (dLineEndY2 - dLineStartY2) / (dLineEndX2 - dLineStartX2);			// m2
-        if(Double.isInfinite(dSlope2)) return false;
+        //if(Double.isInfinite(dSlope2)) return false;
         double dYIntercept2 = dLineEndY2 - (dLineEndX2 * dSlope2);							// d2
 
         // check if parallel to y-axis
@@ -171,8 +160,16 @@ public class SupportiveCalculations {
             return false;
         }
 
-        dReturnX = (dYIntercept2 - dYIntercept1) / (dSlope1 - dSlope2);
-        dReturnY = dReturnX * dSlope1 + dYIntercept1;
+        if(Double.isInfinite(dSlope1)) {
+            dReturnX = dLineEndX1;
+            dReturnY = dReturnX * dSlope2 + dYIntercept2;
+        } else if(Double.isInfinite(dSlope2)) {
+            dReturnX = dLineEndX2;
+            dReturnY = dReturnX * dSlope1 + dYIntercept1;
+        } else {
+            dReturnX = (dYIntercept2 - dYIntercept1) / (dSlope1 - dSlope2);
+            dReturnY = dReturnX * dSlope1 + dYIntercept1;
+        }
 
         returnIntersection.set(dReturnX, dReturnY);
 
@@ -231,7 +228,7 @@ public class SupportiveCalculations {
 
     public void shiftIntersection (PedestrianStreetSectionPort port, Point intersection, double minGabToWall) {
         shiftIntersection(port.getBeginOfStreetPort().getX(), port.getBeginOfStreetPort().getY(),
-                port.getEndOfStreetPort().getX(), port.getEndOfStreetPort().getY(), intersection);
+                port.getEndOfStreetPort().getX(), port.getEndOfStreetPort().getY(), intersection, minGabToWall);
     }
 
     public void shiftIntersection( double portBeginX, double portBeginY, double portEndX, double portEndY, Point wallIntersection){
