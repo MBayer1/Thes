@@ -43,7 +43,8 @@ public class Pedestrian extends Entity implements IPedestrian {
     private Double currentSpeed;
     private Double walkedDistance;
     private double timeRelatedParameterValueNForSpeedCalculation;
-    Point currentNextGlobalAim;
+    private Point currentNextGlobalAim;
+    private Point exitPointOnPort;
     SupportiveCalculations calc = new SupportiveCalculations();
 
     public Pedestrian(Model model, String name, boolean showInTrace, Point currentGlobalPosition, IPedestrianBehaviour pedestrianBehaviour, IPedestrianRoute  route){
@@ -72,6 +73,7 @@ public class Pedestrian extends Entity implements IPedestrian {
             this.nextSection = retrieveNextRouteSection();
             this.sectionAfterNextSection = retrieveNextRouteSection();
             this.currentNextGlobalAim = null;
+            this.exitPointOnPort = null;
         } else {
             throw new IllegalArgumentException("Route should not be null.");
         }
@@ -200,6 +202,14 @@ public class Pedestrian extends Entity implements IPedestrian {
             throw new IllegalArgumentException("there is no global position set");
         }
         this.currentGlobalPosition = currentGlobalPosition;
+    }
+
+    public void setExitPointOnPort (Point exitPointOnPort) {
+        this.exitPointOnPort = exitPointOnPort;
+    }
+
+    public Point getExitPointOnPort () {
+        return this.exitPointOnPort;
     }
 
     public void setCurrentGlobalPosition() {
@@ -423,16 +433,60 @@ public class Pedestrian extends Entity implements IPedestrian {
     }
 
     public boolean checkExitPortIsReached(double x, double y){
-        Point pos = new Point();
+        Point pos = null;
         pos.setLocation(x, y);
         return checkExitPortIsReached(pos);
     }
 
-    public boolean checkExitPortIsReached(){
+    public Point transferToNextPortPos () {
+        PedestrianStreetSectionPort exitPort = currentSection.getExitPort();
+        PedestrianStreetSectionPort enterPort = nextSection.getEnterPort();
+        double high = 0;
+        Point pos = null;
+
+        // exit Port along x axis
+        if ( calc.almostEqual(exitPort.getBeginOfStreetPort().getX(), exitPort.getEndOfStreetPort().getX())) {
+            //start lower value than end
+            if( calc.val1LowerOrAlmostEqual(enterPort.getBeginOfStreetPort().getY(), enterPort.getEndOfStreetPort().getY())) {
+                high = exitPointOnPort.getY() - enterPort.getBeginOfStreetPort().getY();
+                pos = new Point( (int) enterPort.getBeginOfStreetPort().getX() , (int) (enterPort.getBeginOfStreetPort().getY() + high) );
+            } else {// end lower value than start
+                high = exitPointOnPort.getY() - enterPort.getEndOfStreetPort().getY();
+                pos = new Point( (int) enterPort.getEndOfStreetPort().getX() , (int) (enterPort.getEndOfStreetPort().getY() + high) );
+            }
+        } else { // exit Port along y axis
+            if( calc.val1LowerOrAlmostEqual(enterPort.getBeginOfStreetPort().getX(), enterPort.getEndOfStreetPort().getX())) {
+                high = exitPointOnPort.getX() - enterPort.getBeginOfStreetPort().getX();
+                pos = new Point( (int) (enterPort.getBeginOfStreetPort().getX() + high) , (int) enterPort.getBeginOfStreetPort().getY() );
+            } else {// end lower value than start
+                high = exitPointOnPort.getX() - enterPort.getEndOfStreetPort().getX();
+                pos = new Point( (int) (enterPort.getEndOfStreetPort().getX() + high) , (int) enterPort.getEndOfStreetPort().getY() );
+            }
+        }
+        return pos;
+    }
+
+    public boolean checkGlobalGoalIsReached(){
         if ( currentGlobalPosition == null ) {
             throw new IllegalArgumentException(" no pedestrianPosition passed.");
         }
-        return checkExitPortIsReached(currentGlobalPosition);
+
+        if (currentSection.getStreetSection() instanceof PedestrianStreetSection ) {
+            throw new IllegalArgumentException(" Section not instance of PedestrianStreetSection");
+        }
+
+        Point globalCoord = ((PedestrianStreetSection) currentSection.getStreetSection()).getGlobalCoordinateOfSectionOrigin();
+
+        Point localPos = new Point( (int) (currentGlobalPosition.getX() - globalCoord.getX()),
+                                    (int) (currentGlobalPosition.getY() - globalCoord.getY()));
+        return checkExitPortIsReached(localPos);
+    }
+
+    public boolean checkExitPortIsReached(){
+        if ( exitPointOnPort == null ) {
+            throw new IllegalArgumentException(" no pedestrianPosition passed.");
+        }
+        return checkExitPortIsReached(exitPointOnPort);
     }
 
     public boolean checkExitPortIsReached(Point pedestrianPosition){
@@ -525,7 +579,7 @@ public class Pedestrian extends Entity implements IPedestrian {
 
     public void updateWalkedDistance( ){
         this.walkedDistance += calc.getDistanceByCoordinates(currentGlobalPosition.getX(), currentGlobalPosition.getY(),
-                getGlobalNextSubGoal().getX(), getGlobalNextSubGoal().getY());;
+                getGlobalNextSubGoal().getX(), getGlobalNextSubGoal().getY());
     }
 
     public Double getWalkedDistance() {
@@ -534,8 +588,24 @@ public class Pedestrian extends Entity implements IPedestrian {
 
     public void setCurrentNextGlobalAim() {
         // set end of street section/exit point as aim
+    }
 
+    public Point getGlobalCoordinatesOfCurrentSection(){
+        return ((PedestrianStreetSection)(((PedestrianStreetSectionAndPortPair)(currentSection.getStreetSection())).getStreetSection())).getGlobalCoordinateOfSectionOrigin();
+    }
 
+    public void moveOneSectionForward(Point newLocalPos) {
+        ((PedestrianStreet) currentSection.getStreetSection()).removePedestrian(this);
+        ((PedestrianStreet) nextSection.getStreetSection()).addPedestrian(this, newLocalPos);
+
+        currentSection = nextSection;
+        nextSection = sectionAfterNextSection;
+        sectionAfterNextSection = retrieveNextRouteSection();
+
+        Point globalCoordinateOfSectionOrigin = getGlobalCoordinatesOfCurrentSection();
+        setCurrentGlobalPosition(new Point (
+                (int) (newLocalPos.getX() + globalCoordinateOfSectionOrigin.getX()),
+                (int) (newLocalPos.getY() + globalCoordinateOfSectionOrigin.getY())));
     }
 
     public void setCurrentNextGlobalAim(Point currentNextGlobalAim) {

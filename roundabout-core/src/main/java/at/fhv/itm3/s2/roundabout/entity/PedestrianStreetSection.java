@@ -215,6 +215,8 @@ public class PedestrianStreetSection extends PedestrianStreet {
             throw new IllegalArgumentException("pedestrian not instance of pedestrian.");
         }
 
+
+
         iPedestrian.enterPedestrianArea();
         if (this.getPedestrianConsumerType() == PedestrianConsumerType.PEDESTRIAN_CROSSING) {
             iPedestrian.enterPedestrianCrossing();

@@ -85,15 +85,17 @@ public class PedestrianReachedAimEvent extends Event<Pedestrian> {
         }
 
         if( pedestrian.getCurrentNextGlobalAim() == null) {
-            // set as first aim the exit point of the street section
-            pedestrian.setCurrentNextGlobalAim( pedestrian.getClosestExitPointOfCurrentSection());
+            setNewGoal(pedestrian, forces);
+            timeToDestination = pedestrian.getTimeToNextGlobalSubGoalByCoordinates(pedestrian.getCurrentNextGlobalAim());
         }
 
-        if(pedestrian.checkExitPortIsReached()){
-            // aim is reached -> update data
-            pedestrian.updateWalkedDistance();
-            pedestrian.setCurrentGlobalPosition();
-            pedestrian.setLastUpdateTime(roundaboutSimulationModel.getCurrentTime());
+        pedestrian.updateWalkedDistance();
+        pedestrian.setCurrentGlobalPosition();
+        pedestrian.setLastUpdateTime(roundaboutSimulationModel.getCurrentTime());
+
+        if (pedestrian.checkGlobalGoalIsReached()) {
+            // aim is reached
+
             // set to next section
             if ( !(currentSection instanceof PedestrianStreet) ){
                 throw new IllegalArgumentException( "Street not instance of PedestrianStreet.");
@@ -108,55 +110,64 @@ public class PedestrianReachedAimEvent extends Event<Pedestrian> {
                 throw new IllegalArgumentException( "Street not instance of PedestrianStreet.");
             }
 
+            boolean freeToGo = true;
             // when the next section is a pedestrian crossing and does have a crossing light the light stage has to be checked
             if( nextStreetSection.getPedestrianConsumerType().equals(PedestrianConsumerType.PEDESTRIAN_CROSSING)){
                 // solely on a crossing can be a traffic light. -> check in Parser
                 if( nextStreetSection.isTrafficLightActive() ){
                     if( !nextStreetSection.isTrafficLightFreeToGo()) {
                         pedestrian.setCurrentSpeed(0.0);
+                        freeToGo = false;
                     } else pedestrian.setCurrentSpeed(pedestrian.getPreferredSpeed());
                     //nextStreetSection.handleJamTrafficLight();
                 }
             }
 
-            timeToDestination = pedestrian.getTimeToNextGlobalSubGoalByCoordinates(pedestrian.getCurrentNextGlobalAim());
-
-            // destination of the current street section is reached move to next section
-
-
-
-        } else {
-            for (IPedestrian otherPedestrian : ((PedestrianStreet)pedestrian.getCurrentSection().getStreetSection()).getPedestrianQueue()){
-                if(otherPedestrian.equals(pedestrian)) continue;
-
-                if (! (otherPedestrian instanceof Pedestrian )) {
-                    throw new IllegalArgumentException( "Other pedestrian not instance of Pedestrian." );
-                }
-
-                // if an other pedestrian does already have a defined "current global aim" and
-                // does have an intersection with the current aim of the current pedestrian
-                // the "current global aim" of the current pedestrian is cut down to it.
-                // Otherwise the end of the section is the aim.
-                // Afterwards the time until this destination is reached is calculated.
-                if( ((Pedestrian)otherPedestrian).getCurrentNextGlobalAim() != null) {
-                    double goalX, goalY = goalX = 0.0;
-                    if(calc.checkLinesIntersectionByCoordinates(goalX, goalY,
-                            pedestrian.getCurrentGlobalPosition().getX(), pedestrian.getCurrentGlobalPosition().getY(),
-                            pedestrian.getCurrentGlobalPosition().getX() + forces.getX(), pedestrian.getCurrentGlobalPosition().getY() + forces.getY(),
-                            otherPedestrian.getCurrentGlobalPosition().getX(), otherPedestrian.getCurrentGlobalPosition().getY(),
-                            ((Pedestrian) otherPedestrian).getCurrentNextGlobalAim().getX(),((Pedestrian) otherPedestrian).getCurrentNextGlobalAim().getY())) {
-                        // there is a crossing
-                        // crossing - the size of the current pedestrian = new destination aim
-                        goalX -= pedestrian.getMinGapForPedestrian();
-                        goalY -= pedestrian.getMinGapForPedestrian();
-                        pedestrian.setCurrentNextGlobalAim(new Point ((int)goalX, (int)goalY));
-                    }
-                }
-                timeToDestination = pedestrian.getTimeToNextGlobalSubGoalByCoordinates(pedestrian.getCurrentNextGlobalAim());
+            if (pedestrian.checkExitPortIsReached() && freeToGo) {
+                // destination of the current street section is reached move to next section
+                Point transferPos = pedestrian.transferToNextPortPos();
+                pedestrian.moveOneSectionForward(transferPos);
+                setNewGoal(pedestrian, forces);
             }
+            timeToDestination = pedestrian.getTimeToNextGlobalSubGoalByCoordinates(pedestrian.getCurrentNextGlobalAim());
         }
 
         pedestrianEventFactory.createPedestrianReachedAimEvent(roundaboutSimulationModel).schedule(
                 pedestrian, new TimeSpan(timeToDestination, roundaboutSimulationModel.getModelTimeUnit()));
+    }
+
+    void setNewGoal( Pedestrian pedestrian, Vector2d forces ){
+        // set as first aim the exit point of the street section
+        pedestrian.setCurrentNextGlobalAim( pedestrian.getClosestExitPointOfCurrentSection());
+        pedestrian.setExitPointOnPort( pedestrian.getCurrentNextGlobalAim() );
+
+        for (IPedestrian otherPedestrian : ((PedestrianStreet)pedestrian.getCurrentSection().getStreetSection()).getPedestrianQueue()){
+            if(otherPedestrian.equals(pedestrian)) continue;
+
+            if (! (otherPedestrian instanceof Pedestrian )) {
+                throw new IllegalArgumentException( "Other pedestrian not instance of Pedestrian." );
+            }
+
+            // if an other pedestrian does already have a defined "current global aim" and
+            // does have an intersection with the current aim of the current pedestrian
+            // the "current global aim" of the current pedestrian is cut down to it.
+            // Otherwise the end of the section is the aim.
+            // Afterwards the time until this destination is reached is calculated.
+            if( ((Pedestrian)otherPedestrian).getCurrentNextGlobalAim() != null) {
+                double goalX, goalY = goalX = 0.0;
+                if(calc.checkLinesIntersectionByCoordinates(goalX, goalY,
+                        pedestrian.getCurrentGlobalPosition().getX(), pedestrian.getCurrentGlobalPosition().getY(),
+                        pedestrian.getCurrentGlobalPosition().getX() + forces.getX(), pedestrian.getCurrentGlobalPosition().getY() + forces.getY(),
+                        otherPedestrian.getCurrentGlobalPosition().getX(), otherPedestrian.getCurrentGlobalPosition().getY(),
+                        ((Pedestrian) otherPedestrian).getCurrentNextGlobalAim().getX(),((Pedestrian) otherPedestrian).getCurrentNextGlobalAim().getY())) {
+                    // there is a crossing
+                    // crossing - the size of the current pedestrian = new destination aim
+                    goalX -= pedestrian.getMinGapForPedestrian();
+                    goalY -= pedestrian.getMinGapForPedestrian();
+                    pedestrian.setCurrentNextGlobalAim(new Point ((int)goalX, (int)goalY));
+                }
+            }
+
+        }
     }
 }
