@@ -118,6 +118,7 @@ public class PedestrianGenerateEvent extends Event<PedestrianAbstractSource> {
             PedestrianController.addCarMapping(pedestrian.getCarDummy(), pedestrian);
             pedestrian.enterSystem();
             ((PedestrianStreetSection)currentSection).addPedestrian(pedestrian, entryPoint);
+            pedestrian.setPositionOnExitPort();
 
             // schedule next events
             final double traverseTime = pedestrian.getTimeToNextSubGoal();

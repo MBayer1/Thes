@@ -524,6 +524,10 @@ public class Pedestrian extends Entity implements IPedestrian {
         return false;
     }
 
+    public void setPositionOnExitPort() {
+        getPositionOnExitPort();
+    }
+
     public Point getPositionOnExitPort(){
         // if an orthogonal form Sink Port to Point match the intersection of the orthogonal is the enter point.
         // else check if it is above or beneath  - subtract pedestrian size
