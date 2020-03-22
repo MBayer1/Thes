@@ -581,6 +581,12 @@ public class ConfigParser {
                             // from is always current section
                             PedestrianConnectedStreetSections connector2 = new PedestrianConnectedStreetSections(
                                     pedestrianStreetSectionTo, streetSectionPortTo, pedestrianStreetSectionFrom, streetSectionPortFrom);
+
+                            if( track.getFromSectionType().equals(PedestrianConsumerType.PEDESTRIAN_SOURCE) ) {
+                                PedestrianSource pedestrianSource = resolvePedestrianSource(componentID1, track.getFromSectionId());
+                                connector2.setToSource( pedestrianSource );
+                            }
+
                             pedestrianStreetSectionTo.addPreviousStreetConnector(connector2);
 
                             connector = new PedestrianConnectedStreetSections(pedestrianStreetSectionFrom, streetSectionPortFrom,
@@ -589,7 +595,10 @@ public class ConfigParser {
                             connector = new PedestrianConnectedStreetSections(pedestrianStreetSectionFrom, streetSectionPortFrom,
                                     resolvePedestrianSink(componentID2, track.getToSectionId()), streetSectionPortTo);
                         }
-                        pedestrianStreetSectionFrom.addNextStreetConnector(connector);
+
+                        if( !track.getFromSectionType().equals(PedestrianConsumerType.PEDESTRIAN_SOURCE) ) {
+                            pedestrianStreetSectionFrom.addNextStreetConnector(connector);
+                        }
 
                         if (checkForExistingPedestrianStreetSectionPair(pairs, pedestrianStreetSectionFrom,
                                 pedestrianStreetSectionTo)) {
@@ -610,7 +619,11 @@ public class ConfigParser {
                                                                 PedestrianStreet fromSection, PedestrianStreet toSection){
 
         for (PedestrianConnectedStreetSections pair : sectionPair){
-            if ((pair.getFromStreetSection().equals(fromSection) && pair.getToStreetSection().equals(toSection)) ) {
+            if (    ((fromSection == null && pair.getFromStreetSection() == null) ||
+                    ((fromSection != null && pair.getFromStreetSection() != null) && (pair.getFromStreetSection().equals(fromSection)) )) &&
+
+                    ( (toSection == null && pair.getToStreetSection() == null) ||
+                    ((toSection != null && pair.getToStreetSection() != null) && pair.getToStreetSection().equals(toSection)))) {
                 return  true;
             }
         }
@@ -876,6 +889,10 @@ public class ConfigParser {
 
     private PedestrianSink resolvePedestrianSink(String componentId, String sinkId) {
         return PEDESTRIAN_SINK_REGISTRY.containsKey(componentId) ? PEDESTRIAN_SINK_REGISTRY.get(componentId).get(sinkId) : null;
+    }
+
+    private PedestrianSource resolvePedestrianSource(String componentId, String sinkId) {
+        return PEDESTRIAN_SOURCE_REGISTRY.containsKey(componentId) ? PEDESTRIAN_SOURCE_REGISTRY.get(componentId).get(sinkId) : null;
     }
 
     private <K, V, R> R extractParameter(Function<K, V> supplier, Function<V, R> converter, K key)

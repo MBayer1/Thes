@@ -80,6 +80,7 @@ public class RepulsiveForceAgainstObstacles {
         }
 
         for ( PedestrianConnectedStreetSections connected : ((PedestrianStreetSection) section).getPreviousStreetConnector()) {
+            if (connected.getToStreetSection() == null) continue;
             if (connected.getToStreetSection().equals(currentSection)) {
                 if (connected.getFromStreetSection().equals(currentSection)) {
                     PedestrianStreetSectionPort port = connected.getPortOfFromStreetSection();

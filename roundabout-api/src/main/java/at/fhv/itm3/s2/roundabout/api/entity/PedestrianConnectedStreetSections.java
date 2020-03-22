@@ -8,6 +8,7 @@ public class PedestrianConnectedStreetSections {
 
     IConsumer toStreetSection;
     PedestrianStreetSectionPort portOfToStreetSection;
+    PedestrianAbstractSource toSource;
 
 
     public PedestrianConnectedStreetSections(IConsumer fromStreetSection,
@@ -19,6 +20,7 @@ public class PedestrianConnectedStreetSections {
         this.portOfFromStreetSection = portOfFromStreetSection;
         this.toStreetSection = toStreetSection;
         this.portOfToStreetSection = portOfToStreetSection;
+        this.toSource = null;
     };
 
     public IConsumer getFromStreetSection() {
@@ -28,6 +30,12 @@ public class PedestrianConnectedStreetSections {
     public IConsumer getToStreetSection() {
         return toStreetSection;
     }
+
+    public void setToSource( PedestrianAbstractSource toSource) {
+        this.toSource = toSource;
+    }
+
+    public PedestrianAbstractSource getToSource () { return this.toSource;}
 
     public PedestrianStreetSectionPort getPortOfFromStreetSection() {
         return portOfFromStreetSection;
