@@ -81,12 +81,13 @@ public class RepulsiveForceAgainstOtherPedestrians {
 
         while( !listOfStreetSectionsInRange.isEmpty() ){
             currentStreetSection = listOfStreetSectionsInRange.remove(listOfStreetSectionsInRange.size()-1);
-            List<PedestrianConnectedStreetSections>  previousConnector = ((PedestrianStreetSection)currentStreetSection).getPreviousStreetConnector();
+            List<PedestrianConnectedStreetSections> previousConnector = ((PedestrianStreetSection)currentStreetSection).getPreviousStreetConnector();
 
             for( PedestrianConnectedStreetSections previousStreetSectionPair : previousConnector ) {
                 if( previousStreetSectionPair.getFromStreetSection().equals(currentStreetSection) ) {
                     IConsumer previousSection = previousStreetSectionPair.getToStreetSection(); // from is always current section
 
+                    if (previousSection == null && previousStreetSectionPair.getToSource() != null) continue; // is a source
                     if( !(previousSection instanceof PedestrianStreetSection) ){
                         throw new IllegalArgumentException("Section is not an instance of PedestrianStreetSection");
                     }

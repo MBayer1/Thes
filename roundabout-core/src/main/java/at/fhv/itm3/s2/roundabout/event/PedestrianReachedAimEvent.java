@@ -90,7 +90,6 @@ public class PedestrianReachedAimEvent extends Event<Pedestrian> {
         }
 
         pedestrian.updateWalkedDistance();
-        pedestrian.setCurrentGlobalPosition();
         pedestrian.setLastUpdateTime(roundaboutSimulationModel.getCurrentTime());
 
         if (pedestrian.checkGlobalGoalIsReached()) {

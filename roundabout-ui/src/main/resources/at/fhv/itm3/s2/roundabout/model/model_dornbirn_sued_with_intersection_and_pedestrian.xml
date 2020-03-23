@@ -59,6 +59,8 @@
 
             <pedestrianConnectors>
                 <pedestrianConnector id="pco_1">
+                    <pedestrianTrack fromSectionId="pso1" fromSectionType="PEDESTRIAN_SOURCE" fromXPortPositionStart="0" fromYPortPositionStart="0" fromXPortPositionEnd="0" fromYPortPositionEnd="80"
+                                     toSectionId="ps1" toSectionType="PEDESTRIAN_STREET_SECTION" toXPortPositionStart="0" toYPortPositionStart="0" toXPortPositionEnd="0" toYPortPositionEnd="80"/>
                     <pedestrianTrack fromSectionId="ps1" fromSectionType="PEDESTRIAN_STREET_SECTION" fromXPortPositionStart="0" fromYPortPositionStart="0" fromXPortPositionEnd="0" fromYPortPositionEnd="80"
                                      toSectionId="psk1" toSectionType="PEDESTRIAN_SINK" toXPortPositionStart="0" toYPortPositionStart="0" toXPortPositionEnd="0" toYPortPositionEnd="0"/>
                 </pedestrianConnector>
@@ -75,6 +77,8 @@
                                      toSectionId="ps2" toSectionType="PEDESTRIAN_STREET_SECTION" toXPortPositionStart="0" toYPortPositionStart="10" toXPortPositionEnd="0" toYPortPositionEnd="50"/>
                 </pedestrianConnector>
                 <pedestrianConnector id="pco_4">
+                    <pedestrianTrack fromSectionId="pso2" fromSectionType="PEDESTRIAN_SOURCE" fromXPortPositionStart="0" fromYPortPositionStart="0" fromXPortPositionEnd="0" fromYPortPositionEnd="80"
+                                     toSectionId="ps2" toSectionType="PEDESTRIAN_STREET_SECTION"  toXPortPositionStart="50" toYPortPositionStart="0" toXPortPositionEnd="50" toYPortPositionEnd="80"/>
                     <pedestrianTrack fromSectionId="ps2" fromSectionType="PEDESTRIAN_STREET_SECTION" fromXPortPositionStart="50" fromYPortPositionStart="0" fromXPortPositionEnd="50" fromYPortPositionEnd="80"
                                      toSectionId="psk2" toSectionType="PEDESTRIAN_SINK"  toXPortPositionStart="0" toYPortPositionStart="0" toXPortPositionEnd="0" toYPortPositionEnd="0"/>
                 </pedestrianConnector>

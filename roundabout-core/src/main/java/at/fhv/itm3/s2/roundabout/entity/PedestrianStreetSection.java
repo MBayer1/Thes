@@ -355,7 +355,7 @@ public class PedestrianStreetSection extends PedestrianStreet {
         return null;
     }
 
-    public PedestrianConnectedStreetSections getConnectorByPreviouseSection (IConsumer section) {
+    public PedestrianConnectedStreetSections getConnectorByPreviousSection(IConsumer section) {
         for (PedestrianConnectedStreetSections pair : previousStreetConnector) {
             if(pair.getToStreetSection().equals(section)){
                 return pair;
