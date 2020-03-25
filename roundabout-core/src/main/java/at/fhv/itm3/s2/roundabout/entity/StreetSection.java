@@ -773,6 +773,6 @@ public class StreetSection extends Street {
      * @return width of pedestrian crossing {@Link double}.
      */
     public double getPedestrianCrossingWidth(){
-        return this.doesHavePedestrianCrossing() ? pedestrianCrossing.getLenghtForVehicleToPass() : 0.0;
+        return this.doesHavePedestrianCrossing() ? pedestrianCrossing.getLengthForVehicleToPass() : 0.0;
     }
 }
