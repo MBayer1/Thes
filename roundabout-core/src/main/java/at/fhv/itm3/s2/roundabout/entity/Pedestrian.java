@@ -47,12 +47,12 @@ public class Pedestrian extends Entity implements IPedestrian {
     private Point exitPointOnPort;
     SupportiveCalculations calc = new SupportiveCalculations();
 
-    public Pedestrian(Model model, String name, boolean showInTrace, Point currentGlobalPosition, IPedestrianBehaviour pedestrianBehaviour, IPedestrianRoute  route){
-        this(model, name, showInTrace, currentGlobalPosition, pedestrianBehaviour, route, 1.0);
+    public Pedestrian(Model model, String name, boolean showInTrace, Point currentGlobalPosition, IPedestrianBehaviour pedestrianBehaviour, IPedestrianRoute  route, int minGapForPedestrian){
+        this(model, name, showInTrace, currentGlobalPosition, pedestrianBehaviour, route, 1.0, minGapForPedestrian);
     }
 
     public Pedestrian(Model model, String name, boolean showInTrace, Point currentGlobalPosition, IPedestrianBehaviour pedestrianBehaviour,
-                      IPedestrianRoute route, double timeRelatedParameterValueNForSpeedCalculation)
+                      IPedestrianRoute route, double timeRelatedParameterValueNForSpeedCalculation, int minGapForPedestrian)
             throws IllegalArgumentException {
         super(model, "name", showInTrace);
 
@@ -104,7 +104,7 @@ public class Pedestrian extends Entity implements IPedestrian {
         this.pedestrianCrossingTime.reset();
 
         this.currentSpeed = this.getPreferredSpeed();
-        this.minGapForPedestrian = 5; //cm
+        this.minGapForPedestrian = minGapForPedestrian; //cm
     }
 
     /**

@@ -904,7 +904,7 @@ public class RoundaboutSimulationModel extends Model {
      * Random number stream to define the entry point
      * See {@link RoundaboutSimulationModel#init()} method for stream parameters.
      */
-    public double getRandomEntryPoint(double maxValue, double minValue) {
+    public double getRandomEntryPoint(double minValue, double maxValue) {
         return Math.max(Math.min(pedestrianEntryPoint.sample(),  maxValue), minValue);
 
     }
