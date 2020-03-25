@@ -219,24 +219,25 @@ public class Pedestrian extends Entity implements IPedestrian {
 
     public Point getClosestExitPointOfCurrentSection(){
         PedestrianStreetSection currentSection = (PedestrianStreetSection)this.getCurrentSection().getStreetSection();
-        for ( PedestrianConnectedStreetSections connectedStreetSections : currentSection.getNextStreetConnector()){
+        for ( PedestrianConnectedStreetSections connectedStreetSections : currentSection.getNextStreetConnector() ){
             if ( connectedStreetSections.getToStreetSection().equals(nextSection.getStreetSection()) ) {
-                PedestrianStreetSectionPort port = connectedStreetSections.getPortOfToStreetSection();
+                PedestrianStreetSectionPort localPort = connectedStreetSections.getPortOfFromStreetSection();
                 double onBorderX, onBorderY;
                 Point localPos = getCurrentLocalPosition();
-                if( calc.almostEqual(port.getBeginOfStreetPort().getX(), port.getEndOfStreetPort().getX()) ) { // port along y side
-                    onBorderX = 0; // Min of border
+                if( calc.almostEqual(localPort.getBeginOfStreetPort().getX(), localPort.getEndOfStreetPort().getX()) ) { // port along y side
+                    onBorderX = localPort.getBeginOfStreetPort().getX(); // Min of border
                     onBorderY = localPos.getY();
                 } else { // port along x side
                     onBorderX = localPos.getX();
-                    onBorderY = 0; // Min of border
+                    onBorderY = localPort.getBeginOfStreetPort().getY(); // Min of border
                 }
 
-                Point intersection = calc.getLinesIntersectionByCoordinates( port, localPos.getX(), localPos.getY(), onBorderX, onBorderY);
+                Point intersection = calc.getLinesIntersectionByCoordinates( localPort, localPos.getX(), localPos.getY(), onBorderX, onBorderY);
 
-                if ( !calc.checkWallIntersectionWithinPort( port, intersection ) )
-                    calc.shiftIntersection( port, intersection, getMinGapForPedestrian());
-
+                if ( intersection == null || !calc.checkWallIntersectionWithinPort( localPort, intersection ) ) {
+                    if ( intersection == null) intersection = localPos;
+                    calc.shiftIntersection(localPort, intersection, getMinGapForPedestrian());
+                }
 
                 return intersection;
             }

@@ -119,7 +119,8 @@ public class SupportiveCalculations {
                 dLineStartX2, dLineStartY2, dLineEndX2, dLineEndY2)){
             return new Point((int)returnIntersection.getX(), (int)returnIntersection.getY());
         }
-        throw new IllegalArgumentException("Two lines do not have any intersection");
+        return null;
+        //throw new IllegalArgumentException("Two lines do not have any intersection");
     }
 
     public boolean getLinesIntersectionByCoordinates(	Vector2d returnIntersection,
