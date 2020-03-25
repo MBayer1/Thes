@@ -21,7 +21,7 @@ public class PedestrianConnectedStreetSections {
         this.toStreetSection = toStreetSection;
         this.portOfToStreetSection = portOfToStreetSection;
         this.toSource = null;
-    };
+    }
 
     public IConsumer getFromStreetSection() {
         return fromStreetSection;

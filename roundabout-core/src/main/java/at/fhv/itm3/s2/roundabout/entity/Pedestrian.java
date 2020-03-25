@@ -30,7 +30,7 @@ public class Pedestrian extends Entity implements IPedestrian {
     private final StopWatch pedestrianCrossingStopWatch;
     private final Count pedestrianCrossingCounter;
     private final Tally pedestrianCrossingTime;
-    private final int minGapForPedestrian; // TODO
+    private final int minGapForPedestrian;
     private double currentTimeSpendInSystem;
 
     private double lastUpdateTime;
