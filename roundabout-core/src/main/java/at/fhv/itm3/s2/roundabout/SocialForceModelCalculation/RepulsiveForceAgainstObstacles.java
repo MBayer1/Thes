@@ -57,7 +57,7 @@ public class RepulsiveForceAgainstObstacles {
         Integer sectionCenterX = (int) currentSection.getGlobalCoordinateOfSectionOrigin().getX();
         Integer sectionCenterY = (int) currentSection.getGlobalCoordinateOfSectionOrigin().getY();
 
-        // person positions - border intersections
+        // person positions - border intersections = global coordinates
         Point wallIntersection1 = new Point(sectionCenterX, pedestrianY);
         Point wallIntersection2 = new Point(pedestrianX,  sectionCenterY + (int) currentSection.getLengthY());
         Point wallIntersection3 = new Point(sectionCenterX + (int) currentSection.getLengthX(), pedestrianY);
@@ -67,15 +67,20 @@ public class RepulsiveForceAgainstObstacles {
         for ( PedestrianConnectedStreetSections connected : ((PedestrianStreetSection) section).getNextStreetConnector()) {
             if (connected.getFromStreetSection().equals(currentSection)) {
                 PedestrianStreetSectionPort localPort = connected.getPortOfFromStreetSection();
+                PedestrianStreetSectionPort globalPort = new PedestrianStreetSectionPort(
+                        (int) (localPort.getBeginOfStreetPort().getX() + sectionCenterX),
+                        (int) (localPort.getBeginOfStreetPort().getY() + sectionCenterY),
+                        (int) (localPort.getEndOfStreetPort().getX() + sectionCenterX),
+                        (int) (localPort.getEndOfStreetPort().getY() + sectionCenterY));
 
-                if ( calculations.checkWallIntersectionWithinPort( localPort, wallIntersection1 ) )
-                    calculations.shiftIntersection( localPort, wallIntersection1, pedestrian.getMinGapForPedestrian());
-                if ( calculations.checkWallIntersectionWithinPort( localPort, wallIntersection2 ) )
-                    calculations.shiftIntersection( localPort, wallIntersection2, pedestrian.getMinGapForPedestrian());
-                if ( calculations.checkWallIntersectionWithinPort( localPort, wallIntersection3 ) )
-                    calculations.shiftIntersection( localPort, wallIntersection3, pedestrian.getMinGapForPedestrian());
-                if ( calculations.checkWallIntersectionWithinPort( localPort, wallIntersection4 ) )
-                    calculations.shiftIntersection( localPort, wallIntersection4, pedestrian.getMinGapForPedestrian());
+                if ( calculations.checkWallIntersectionWithinPort( globalPort, wallIntersection1 ) )
+                    calculations.shiftIntersection( globalPort, wallIntersection1);
+                if ( calculations.checkWallIntersectionWithinPort( globalPort, wallIntersection2) )
+                    calculations.shiftIntersection( globalPort, wallIntersection2);
+                if ( calculations.checkWallIntersectionWithinPort( globalPort, wallIntersection3) )
+                    calculations.shiftIntersection( globalPort, wallIntersection3);
+                if ( calculations.checkWallIntersectionWithinPort( globalPort, wallIntersection4) )
+                    calculations.shiftIntersection( globalPort, wallIntersection4);
             }
         }
 

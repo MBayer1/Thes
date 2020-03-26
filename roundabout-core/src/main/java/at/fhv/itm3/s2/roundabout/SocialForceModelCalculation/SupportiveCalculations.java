@@ -202,6 +202,7 @@ public class SupportiveCalculations {
 
     public boolean checkWallIntersectionWithinPort (double portBeginX, double portBeginY, double portEndX, double portEndY, Point wallIntersection) {
         if ( almostEqual(portBeginX, portEndX)) {
+            if (! almostEqual(portBeginX, wallIntersection.getX())) return false; // intersection has to be on the right wall
             if (    (val1Bigger(portBeginY, wallIntersection.getY()) &&
                     val1Lower(portEndY, wallIntersection.getY()) )
                     ||
@@ -210,7 +211,8 @@ public class SupportiveCalculations {
                     ) {
                 return true;
             }
-        } else {//calculations.almostEqual(portBeginY, portEndY)
+        } else { //if(almostEqual(portBeginY, portEndY)) {
+            if (! almostEqual(portBeginY, wallIntersection.getY())) return false; // intersection has to be on the right wall
             if (    (val1Bigger(portBeginX, wallIntersection.getX()) &&
                     val1Lower(portEndX, wallIntersection.getX()) )
                     ||
