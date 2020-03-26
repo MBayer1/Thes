@@ -66,16 +66,16 @@ public class RepulsiveForceAgainstObstacles {
         // except it is within an port gab, then it will take enter or exit port depending which is closer.
         for ( PedestrianConnectedStreetSections connected : ((PedestrianStreetSection) section).getNextStreetConnector()) {
             if (connected.getFromStreetSection().equals(currentSection)) {
-                PedestrianStreetSectionPort port = connected.getPortOfFromStreetSection();
+                PedestrianStreetSectionPort localPort = connected.getPortOfFromStreetSection();
 
-                if ( !calculations.checkWallIntersectionWithinPort( port, wallIntersection1 ) )
-                    calculations.shiftIntersection( port, wallIntersection1, pedestrian.getMinGapForPedestrian());
-                if ( !calculations.checkWallIntersectionWithinPort( port, wallIntersection2 ) )
-                    calculations.shiftIntersection( port, wallIntersection2, pedestrian.getMinGapForPedestrian());
-                if ( !calculations.checkWallIntersectionWithinPort( port, wallIntersection3 ) )
-                    calculations.shiftIntersection( port, wallIntersection3, pedestrian.getMinGapForPedestrian());
-                if ( !calculations.checkWallIntersectionWithinPort( port, wallIntersection4 ) )
-                    calculations.shiftIntersection( port, wallIntersection4, pedestrian.getMinGapForPedestrian());
+                if ( calculations.checkWallIntersectionWithinPort( localPort, wallIntersection1 ) )
+                    calculations.shiftIntersection( localPort, wallIntersection1, pedestrian.getMinGapForPedestrian());
+                if ( calculations.checkWallIntersectionWithinPort( localPort, wallIntersection2 ) )
+                    calculations.shiftIntersection( localPort, wallIntersection2, pedestrian.getMinGapForPedestrian());
+                if ( calculations.checkWallIntersectionWithinPort( localPort, wallIntersection3 ) )
+                    calculations.shiftIntersection( localPort, wallIntersection3, pedestrian.getMinGapForPedestrian());
+                if ( calculations.checkWallIntersectionWithinPort( localPort, wallIntersection4 ) )
+                    calculations.shiftIntersection( localPort, wallIntersection4, pedestrian.getMinGapForPedestrian());
             }
         }
 

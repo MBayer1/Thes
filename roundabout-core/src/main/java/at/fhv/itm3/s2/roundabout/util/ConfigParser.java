@@ -810,7 +810,7 @@ public class ConfigParser {
         for ( Map.Entry<String, Map<String, PedestrianSource>> sourceRegistry : getPedestrianSourceRegistry().entrySet() ) {
             for ( Map.Entry <String, PedestrianSource> startSource : sourceRegistry.getValue().entrySet() ) {
                 if ( startSource.getValue().getConnectedStreet() instanceof  PedestrianStreetSection) {
-                    return (PedestrianStreetSection) startSource.getValue().getConnectedStreet() ;
+                    return startSource.getValue().getConnectedStreet();
                 }
                 else throw new IllegalArgumentException("Street not instance of PedestrianStreetSection.");
             }
@@ -832,6 +832,7 @@ public class ConfigParser {
             map.forEach((sourceId, source)->{
                 PedestrianStreetSection entrySection = source.getConnectedStreet();
                 Point globalCooEntrySection = source.getConnectedStreet().getGlobalCoordinateOfSectionOrigin();
+                Point sourceGlobalCooEntrySection = new Point();
                 PedestrianConnectedStreetSections connectorPair = entrySection.getPreviousStreetConnectorToSource();
                 PedestrianStreetSectionPort port = connectorPair.getPortOfFromStreetSection();
 
@@ -842,16 +843,16 @@ public class ConfigParser {
                             (port.getBeginOfStreetPort().getX() < port.getEndOfStreetPort().getX() ))
                  ){
                     //start is origin
-                    globalCooEntrySection.setLocation(
+                    sourceGlobalCooEntrySection.setLocation(
                             globalCooEntrySection.getX() + port.getBeginOfStreetPort().getX(),
                             globalCooEntrySection.getY() + port.getBeginOfStreetPort().getY());
                 } else {
                     // end is origin
-                    globalCooEntrySection.setLocation(
+                    sourceGlobalCooEntrySection.setLocation(
                             globalCooEntrySection.getX() + port.getEndOfStreetPort().getX(),
                             globalCooEntrySection.getY() + port.getEndOfStreetPort().getY());
                 }
-                source.setGlobalCoordinate(globalCooEntrySection);
+                source.setGlobalCoordinate(sourceGlobalCooEntrySection);
             });
         });
     }
