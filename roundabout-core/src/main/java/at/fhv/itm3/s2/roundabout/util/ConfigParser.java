@@ -832,8 +832,8 @@ public class ConfigParser {
             map.forEach((sourceId, source)->{
                 PedestrianStreetSection entrySection = source.getConnectedStreet();
                 Point globalCooEntrySection = source.getConnectedStreet().getGlobalCoordinateOfSectionOrigin();
-                PedestrianConnectedStreetSections connectorPair = (entrySection.getPreviousStreetConnector()).get(0);
-                PedestrianStreetSectionPort port = connectorPair.getPortOfToStreetSection();
+                PedestrianConnectedStreetSections connectorPair = entrySection.getPreviousStreetConnectorToSource();
+                PedestrianStreetSectionPort port = connectorPair.getPortOfFromStreetSection();
 
                 if( (calc.almostEqual( port.getBeginOfStreetPort().getX(), port.getEndOfStreetPort().getX()) &&
                         (port.getBeginOfStreetPort().getY() < port.getEndOfStreetPort().getY() ))

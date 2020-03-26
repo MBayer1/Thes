@@ -384,6 +384,15 @@ public class PedestrianStreetSection extends PedestrianStreet {
         return previousStreetConnector;
     }
 
+    public PedestrianConnectedStreetSections getPreviousStreetConnectorToSource() {
+        for (PedestrianConnectedStreetSections connector : previousStreetConnector) {
+            if(connector.getToSource() != null) {
+                return connector;
+            }
+        }
+        throw new IllegalStateException("there is no previous source.");
+    }
+
     /**
      * {@inheritDoc}
      */
