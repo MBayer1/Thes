@@ -234,7 +234,7 @@ public class Pedestrian extends Entity implements IPedestrian {
 
                 Point intersection = calc.getLinesIntersectionByCoordinates( localPort, localPos.getX(), localPos.getY(), onBorderX, onBorderY);
 
-                if ( intersection == null || !calc.checkWallIntersectionWithinPort( localPort, intersection ) ) {
+                if ( intersection == null || calc.checkWallIntersectionWithinPort( localPort, intersection ) ) {
                     if ( intersection == null) intersection = localPos;
                     calc.shiftIntersection(localPort, intersection, getMinGapForPedestrian());
                 }

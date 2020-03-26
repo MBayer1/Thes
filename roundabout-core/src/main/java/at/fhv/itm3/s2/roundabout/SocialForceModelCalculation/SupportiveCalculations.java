@@ -72,11 +72,11 @@ public class SupportiveCalculations {
     }
 
     public boolean val1Lower(double dVal1, double dVal2, double SFM_DegreeOfAccuracy) {
-        return ((dVal1 < dVal1) || almostEqual(dVal1,dVal2, SFM_DegreeOfAccuracy));
+        return ((dVal1 < dVal2) || almostEqual(dVal1,dVal2, SFM_DegreeOfAccuracy));
     }
 
     public boolean val1Bigger(double dVal1, double dVal2, double SFM_DegreeOfAccuracy) {
-        return ((dVal1 > dVal1) || almostEqual(dVal1,dVal2, SFM_DegreeOfAccuracy));
+        return ((dVal1 > dVal2) || almostEqual(dVal1,dVal2, SFM_DegreeOfAccuracy));
     }
 
     public boolean val1LowerOrAlmostEqual(double dVal1, double dVal2){
@@ -88,11 +88,11 @@ public class SupportiveCalculations {
     }
 
     public boolean val1LowerOrAlmostEqual(double dVal1, double dVal2, double SFM_DegreeOfAccuracy) {
-        return ((dVal1 < dVal1) || almostEqual(dVal1,dVal2, SFM_DegreeOfAccuracy));
+        return ((dVal1 < dVal2) || almostEqual(dVal1,dVal2, SFM_DegreeOfAccuracy));
     }
 
     public boolean val1BiggerOrAlmostEqual(double dVal1, double dVal2, double SFM_DegreeOfAccuracy) {
-        return ((dVal1 > dVal1) || almostEqual(dVal1,dVal2, SFM_DegreeOfAccuracy));
+        return ((dVal1 > dVal2) || almostEqual(dVal1,dVal2, SFM_DegreeOfAccuracy));
     }
 
     public boolean almostEqual(double dVal1, double dVal2, double SFM_DegreeOfAccuracy)
