@@ -142,8 +142,8 @@ public class RoundaboutCar implements ICar {
             throw new IllegalStateException("Sections needs to be instance of StreetSection.");
         }
     }
-
     /**
+
      * {@inheritDoc}
      */
     @Override

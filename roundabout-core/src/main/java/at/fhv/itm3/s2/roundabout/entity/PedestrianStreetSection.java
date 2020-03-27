@@ -384,6 +384,15 @@ public class PedestrianStreetSection extends PedestrianStreet {
         return previousStreetConnector;
     }
 
+    public PedestrianConnectedStreetSections getPreviousStreetConnectorToSource() {
+        for (PedestrianConnectedStreetSections connector : previousStreetConnector) {
+            if(connector.getToSource() != null) {
+                return connector;
+            }
+        }
+        throw new IllegalStateException("there is no previous source.");
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -412,10 +421,10 @@ public class PedestrianStreetSection extends PedestrianStreet {
         }
         SupportiveCalculations calculations = new SupportiveCalculations();
 
-        if(     calculations.val1BiggerOrAlmostEqual( ((Pedestrian) iPedestrian).getCurrentGlobalPosition().getX(), getGlobalCoordinateOfSectionOrigin().getX() ) &&
-                calculations.val1LowerOrAlmostEqual( ((Pedestrian) iPedestrian).getCurrentGlobalPosition().getX(), getGlobalCoordinateOfSectionOrigin().getX() + getLengthX()) &&
-                calculations.val1BiggerOrAlmostEqual( ((Pedestrian) iPedestrian).getCurrentGlobalPosition().getY(), getGlobalCoordinateOfSectionOrigin().getY() ) &&
-                calculations.val1LowerOrAlmostEqual( ((Pedestrian) iPedestrian).getCurrentGlobalPosition().getY(), getGlobalCoordinateOfSectionOrigin().getY() + getLengthY())
+        if(     calculations.val1BiggerOrAlmostEqual( iPedestrian.getCurrentGlobalPosition().getX(), getGlobalCoordinateOfSectionOrigin().getX() ) &&
+                calculations.val1LowerOrAlmostEqual( iPedestrian.getCurrentGlobalPosition().getX(), getGlobalCoordinateOfSectionOrigin().getX() + getLengthX()) &&
+                calculations.val1BiggerOrAlmostEqual( iPedestrian.getCurrentGlobalPosition().getY(), getGlobalCoordinateOfSectionOrigin().getY() ) &&
+                calculations.val1LowerOrAlmostEqual( iPedestrian.getCurrentGlobalPosition().getY(), getGlobalCoordinateOfSectionOrigin().getY() + getLengthY())
                 ) return true;
 
         return false;

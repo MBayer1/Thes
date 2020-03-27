@@ -72,11 +72,11 @@ public class SupportiveCalculations {
     }
 
     public boolean val1Lower(double dVal1, double dVal2, double SFM_DegreeOfAccuracy) {
-        return ((dVal1 < dVal1) || almostEqual(dVal1,dVal2, SFM_DegreeOfAccuracy));
+        return ((dVal1 < dVal2) || almostEqual(dVal1,dVal2, SFM_DegreeOfAccuracy));
     }
 
     public boolean val1Bigger(double dVal1, double dVal2, double SFM_DegreeOfAccuracy) {
-        return ((dVal1 > dVal1) || almostEqual(dVal1,dVal2, SFM_DegreeOfAccuracy));
+        return ((dVal1 > dVal2) || almostEqual(dVal1,dVal2, SFM_DegreeOfAccuracy));
     }
 
     public boolean val1LowerOrAlmostEqual(double dVal1, double dVal2){
@@ -88,11 +88,11 @@ public class SupportiveCalculations {
     }
 
     public boolean val1LowerOrAlmostEqual(double dVal1, double dVal2, double SFM_DegreeOfAccuracy) {
-        return ((dVal1 < dVal1) || almostEqual(dVal1,dVal2, SFM_DegreeOfAccuracy));
+        return ((dVal1 < dVal2) || almostEqual(dVal1,dVal2, SFM_DegreeOfAccuracy));
     }
 
     public boolean val1BiggerOrAlmostEqual(double dVal1, double dVal2, double SFM_DegreeOfAccuracy) {
-        return ((dVal1 > dVal1) || almostEqual(dVal1,dVal2, SFM_DegreeOfAccuracy));
+        return ((dVal1 > dVal2) || almostEqual(dVal1,dVal2, SFM_DegreeOfAccuracy));
     }
 
     public boolean almostEqual(double dVal1, double dVal2, double SFM_DegreeOfAccuracy)
@@ -119,7 +119,8 @@ public class SupportiveCalculations {
                 dLineStartX2, dLineStartY2, dLineEndX2, dLineEndY2)){
             return new Point((int)returnIntersection.getX(), (int)returnIntersection.getY());
         }
-        throw new IllegalArgumentException("Two lines do not have any intersection");
+        return null;
+        //throw new IllegalArgumentException("Two lines do not have any intersection");
     }
 
     public boolean getLinesIntersectionByCoordinates(	Vector2d returnIntersection,
@@ -201,6 +202,7 @@ public class SupportiveCalculations {
 
     public boolean checkWallIntersectionWithinPort (double portBeginX, double portBeginY, double portEndX, double portEndY, Point wallIntersection) {
         if ( almostEqual(portBeginX, portEndX)) {
+            if (! almostEqual(portBeginX, wallIntersection.getX())) return false; // intersection has to be on the right wall
             if (    (val1Bigger(portBeginY, wallIntersection.getY()) &&
                     val1Lower(portEndY, wallIntersection.getY()) )
                     ||
@@ -209,7 +211,8 @@ public class SupportiveCalculations {
                     ) {
                 return true;
             }
-        } else {//calculations.almostEqual(portBeginY, portEndY)
+        } else { //if(almostEqual(portBeginY, portEndY)) {
+            if (! almostEqual(portBeginY, wallIntersection.getY())) return false; // intersection has to be on the right wall
             if (    (val1Bigger(portBeginX, wallIntersection.getX()) &&
                     val1Lower(portEndX, wallIntersection.getX()) )
                     ||

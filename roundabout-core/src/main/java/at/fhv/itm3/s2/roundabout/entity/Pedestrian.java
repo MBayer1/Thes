@@ -30,7 +30,7 @@ public class Pedestrian extends Entity implements IPedestrian {
     private final StopWatch pedestrianCrossingStopWatch;
     private final Count pedestrianCrossingCounter;
     private final Tally pedestrianCrossingTime;
-    private final int minGapForPedestrian; // TODO
+    private final int minGapForPedestrian;
     private double currentTimeSpendInSystem;
 
     private double lastUpdateTime;
@@ -47,12 +47,12 @@ public class Pedestrian extends Entity implements IPedestrian {
     private Point exitPointOnPort;
     SupportiveCalculations calc = new SupportiveCalculations();
 
-    public Pedestrian(Model model, String name, boolean showInTrace, Point currentGlobalPosition, IPedestrianBehaviour pedestrianBehaviour, IPedestrianRoute  route){
-        this(model, name, showInTrace, currentGlobalPosition, pedestrianBehaviour, route, 1.0);
+    public Pedestrian(Model model, String name, boolean showInTrace, Point currentGlobalPosition, IPedestrianBehaviour pedestrianBehaviour, IPedestrianRoute  route, int minGapForPedestrian){
+        this(model, name, showInTrace, currentGlobalPosition, pedestrianBehaviour, route, 1.0, minGapForPedestrian);
     }
 
     public Pedestrian(Model model, String name, boolean showInTrace, Point currentGlobalPosition, IPedestrianBehaviour pedestrianBehaviour,
-                      IPedestrianRoute route, double timeRelatedParameterValueNForSpeedCalculation)
+                      IPedestrianRoute route, double timeRelatedParameterValueNForSpeedCalculation, int minGapForPedestrian)
             throws IllegalArgumentException {
         super(model, "name", showInTrace);
 
@@ -104,7 +104,7 @@ public class Pedestrian extends Entity implements IPedestrian {
         this.pedestrianCrossingTime.reset();
 
         this.currentSpeed = this.getPreferredSpeed();
-        this.minGapForPedestrian = 5; //cm
+        this.minGapForPedestrian = minGapForPedestrian; //cm
     }
 
     /**
@@ -219,24 +219,25 @@ public class Pedestrian extends Entity implements IPedestrian {
 
     public Point getClosestExitPointOfCurrentSection(){
         PedestrianStreetSection currentSection = (PedestrianStreetSection)this.getCurrentSection().getStreetSection();
-        for ( PedestrianConnectedStreetSections connectedStreetSections : currentSection.getNextStreetConnector()){
+        for ( PedestrianConnectedStreetSections connectedStreetSections : currentSection.getNextStreetConnector() ){
             if ( connectedStreetSections.getToStreetSection().equals(nextSection.getStreetSection()) ) {
-                PedestrianStreetSectionPort port = connectedStreetSections.getPortOfToStreetSection();
+                PedestrianStreetSectionPort localPort = connectedStreetSections.getPortOfFromStreetSection();
                 double onBorderX, onBorderY;
                 Point localPos = getCurrentLocalPosition();
-                if( calc.almostEqual(port.getBeginOfStreetPort().getX(), port.getEndOfStreetPort().getX()) ) { // port along y side
-                    onBorderX = 0; // Min of border
+                if( calc.almostEqual(localPort.getBeginOfStreetPort().getX(), localPort.getEndOfStreetPort().getX()) ) { // port along y side
+                    onBorderX = localPort.getBeginOfStreetPort().getX(); // Min of border
                     onBorderY = localPos.getY();
                 } else { // port along x side
                     onBorderX = localPos.getX();
-                    onBorderY = 0; // Min of border
+                    onBorderY = localPort.getBeginOfStreetPort().getY(); // Min of border
                 }
 
-                Point intersection = calc.getLinesIntersectionByCoordinates( port, localPos.getX(), localPos.getY(), onBorderX, onBorderY);
+                Point intersection = calc.getLinesIntersectionByCoordinates( localPort, localPos.getX(), localPos.getY(), onBorderX, onBorderY);
 
-                if ( !calc.checkWallIntersectionWithinPort( port, intersection ) )
-                    calc.shiftIntersection( port, intersection, getMinGapForPedestrian());
-
+                if ( intersection == null || !calc.checkWallIntersectionWithinPort( localPort, intersection ) ) {
+                    if ( intersection == null) intersection = localPos;
+                    calc.shiftIntersection(localPort, intersection, getMinGapForPedestrian());
+                }
 
                 return intersection;
             }

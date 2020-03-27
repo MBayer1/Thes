@@ -747,7 +747,7 @@ public class StreetSection extends Street {
     }
 
     /**
-     * Returns pedestrian crossing {@link PedestrianStreet} entry width (heigh x)
+     * Returns pedestrian crossing {@link PedestrianStreet} entry width (height x)
      *
      * @return int.
      */
@@ -773,6 +773,6 @@ public class StreetSection extends Street {
      * @return width of pedestrian crossing {@Link double}.
      */
     public double getPedestrianCrossingWidth(){
-        return this.doesHavePedestrianCrossing() ? this.getPedestrianCrossing().getPedestrianCrossing().getLengthY() : 0.0;
+        return this.doesHavePedestrianCrossing() ? pedestrianCrossing.getLengthForVehicleToPass() : 0.0;
     }
 }

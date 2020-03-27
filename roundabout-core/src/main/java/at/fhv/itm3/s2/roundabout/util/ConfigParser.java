@@ -7,6 +7,7 @@ import at.fhv.itm14.trafsim.model.entities.intersection.FixedCirculationControll
 import at.fhv.itm14.trafsim.model.entities.intersection.Intersection;
 import at.fhv.itm14.trafsim.model.entities.intersection.IntersectionConnection;
 import at.fhv.itm14.trafsim.model.entities.intersection.IntersectionPhase;
+import at.fhv.itm3.s2.roundabout.SocialForceModelCalculation.SupportiveCalculations;
 import at.fhv.itm3.s2.roundabout.api.entity.*;
 import at.fhv.itm3.s2.roundabout.controller.IntersectionController;
 import at.fhv.itm3.s2.roundabout.controller.PedestrianRouteController;
@@ -90,6 +91,7 @@ public class ConfigParser {
     private static final Map<IConsumer , at.fhv.itm3.s2.roundabout.entity.StreetNeighbour> STREET_NEIGHBOURS_REGISTRY = new HashMap<>(); //needed for Gui
 
     private static final double DEFAULT_ROUTE_RATIO = 0.0;
+    private static SupportiveCalculations calc = new SupportiveCalculations();
 
     private static final Comparator<Track> TRACK_COMPARATOR = Comparator.comparingLong(Track::getOrder);
     private static final Function<Connector, List<Track>> SORTED_TRACK_EXTRACTOR =
@@ -393,7 +395,7 @@ public class ConfigParser {
             return sources.getSource().stream().collect(toMap(
                     Source::getId,
                     so -> {
-                        final PedestrianStreet street = resolvePedestrianSection(scopeComponentId, so.getSectionId());
+                        final PedestrianStreetSection street = resolvePedestrianSection(scopeComponentId, so.getSectionId());
                         final PedestrianSource source = new PedestrianSource(so.getId(), so.getGeneratorExpectation(),
                                 model, so.getId(), false, street);
                         if (!PEDESTRIAN_SOURCE_REGISTRY.containsKey(scopeComponentId)) {
@@ -808,7 +810,7 @@ public class ConfigParser {
         for ( Map.Entry<String, Map<String, PedestrianSource>> sourceRegistry : getPedestrianSourceRegistry().entrySet() ) {
             for ( Map.Entry <String, PedestrianSource> startSource : sourceRegistry.getValue().entrySet() ) {
                 if ( startSource.getValue().getConnectedStreet() instanceof  PedestrianStreetSection) {
-                    return (PedestrianStreetSection) startSource.getValue().getConnectedStreet() ;
+                    return startSource.getValue().getConnectedStreet();
                 }
                 else throw new IllegalArgumentException("Street not instance of PedestrianStreetSection.");
             }
@@ -821,6 +823,38 @@ public class ConfigParser {
         PedestrianStreetSection currentSection = getAStartForGlobalCoordinates();
         currentSection.setGlobalCoordinateOfSectionOrigin(new Point(0,0));
         deepSearchGlobalCoordinates(currentSection);
+
+        initGlobalSource();
+    }
+
+    private void initGlobalSource() {
+        PEDESTRIAN_SOURCE_REGISTRY.forEach((componentId, map) -> {
+            map.forEach((sourceId, source)->{
+                PedestrianStreetSection entrySection = source.getConnectedStreet();
+                Point globalCooEntrySection = source.getConnectedStreet().getGlobalCoordinateOfSectionOrigin();
+                Point sourceGlobalCooEntrySection = new Point();
+                PedestrianConnectedStreetSections connectorPair = entrySection.getPreviousStreetConnectorToSource();
+                PedestrianStreetSectionPort port = connectorPair.getPortOfFromStreetSection();
+
+                if( (calc.almostEqual( port.getBeginOfStreetPort().getX(), port.getEndOfStreetPort().getX()) &&
+                        (port.getBeginOfStreetPort().getY() < port.getEndOfStreetPort().getY() ))
+                 ||
+                    (calc.almostEqual( port.getBeginOfStreetPort().getY(), port.getEndOfStreetPort().getY()) &&
+                            (port.getBeginOfStreetPort().getX() < port.getEndOfStreetPort().getX() ))
+                 ){
+                    //start is origin
+                    sourceGlobalCooEntrySection.setLocation(
+                            globalCooEntrySection.getX() + port.getBeginOfStreetPort().getX(),
+                            globalCooEntrySection.getY() + port.getBeginOfStreetPort().getY());
+                } else {
+                    // end is origin
+                    sourceGlobalCooEntrySection.setLocation(
+                            globalCooEntrySection.getX() + port.getEndOfStreetPort().getX(),
+                            globalCooEntrySection.getY() + port.getEndOfStreetPort().getY());
+                }
+                source.setGlobalCoordinate(sourceGlobalCooEntrySection);
+            });
+        });
     }
 
     private void deepSearchGlobalCoordinates (PedestrianStreetSection currentSection) {

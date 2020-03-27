@@ -12,23 +12,25 @@ import at.fhv.itm3.s2.roundabout.model.RoundaboutSimulationModel;
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeSpan;
 
+import java.awt.*;
 import java.util.UUID;
 
 public class PedestrianSource extends PedestrianAbstractSource {
 
-    private PedestrianStreet connectedStreet;
+    private PedestrianStreetSection connectedStreet;
     private RoundaboutSimulationModel model;
     protected PedestrianEventFactory pedestrianEventFactory;
     private double generateRatio;
+    private Point globalCoordinate;
 
 
-    public PedestrianSource(Model model, String description, boolean showInTrace, PedestrianStreet connectedStreet) {
+    public PedestrianSource(Model model, String description, boolean showInTrace, PedestrianStreetSection connectedStreet) {
         this(UUID.randomUUID().toString(), null, model, description, showInTrace, connectedStreet);
     }
 
     public PedestrianSource(String id, Double generatorExpectation,
                             Model model, String description,
-                            boolean showInTrace, PedestrianStreet connectedStreet) {
+                            boolean showInTrace, PedestrianStreetSection connectedStreet) {
         super(id, generatorExpectation, model, description, showInTrace);
         this.connectedStreet = connectedStreet;
         this.pedestrianEventFactory = PedestrianEventFactory.getInstance();
@@ -45,7 +47,7 @@ public class PedestrianSource extends PedestrianAbstractSource {
         event.schedule(this, new TimeSpan(afterModelTimeUnits));
     }
 
-    public PedestrianStreet getConnectedStreet() {
+    public PedestrianStreetSection getConnectedStreet() {
         return connectedStreet;
     }
 
@@ -55,6 +57,12 @@ public class PedestrianSource extends PedestrianAbstractSource {
 
     public void addGenerateRatio(Double ratio) {
         this.generateRatio += ratio;
+    }
+
+    public void setGlobalCoordinate (Point globalCoordinate) { this.globalCoordinate = globalCoordinate; }
+
+    public Point getGlobalCoordinate() {
+        return globalCoordinate;
     }
 
     /**
