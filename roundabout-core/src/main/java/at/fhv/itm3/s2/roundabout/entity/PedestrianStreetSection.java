@@ -215,14 +215,11 @@ public class PedestrianStreetSection extends PedestrianStreet {
             throw new IllegalArgumentException("pedestrian not instance of pedestrian.");
         }
 
-
-
         iPedestrian.enterPedestrianArea();
         if (this.getPedestrianConsumerType() == PedestrianConsumerType.PEDESTRIAN_CROSSING) {
             iPedestrian.enterPedestrianCrossing();
-        } else
-        if (this.getPedestrianConsumerType() == PedestrianConsumerType.PEDESTRIAN_STREET_SECTION) {
-            if (((Pedestrian)iPedestrian).isPedestrianCrossingStopWatchActive()) {
+        } else if (this.getPedestrianConsumerType() == PedestrianConsumerType.PEDESTRIAN_STREET_SECTION) {
+            if (((Pedestrian) iPedestrian).isPedestrianCrossingStopWatchActive()) {
                 iPedestrian.leavePedestrianCrossing();
             }
         }
@@ -234,7 +231,7 @@ public class PedestrianStreetSection extends PedestrianStreet {
         Car car = PedestrianController.getCar(iPedestrian);
         IConsumer consumer = iPedestrian.getDestination().getStreetSection();
         if (consumer instanceof PedestrianStreet) {
-            ((PedestrianStreet)consumer).carDelivered(null, car, true);
+            ((PedestrianStreet) consumer).carDelivered(null, car, true);
         }
         pedestrianObserver.notifyObservers(iPedestrian);
     }

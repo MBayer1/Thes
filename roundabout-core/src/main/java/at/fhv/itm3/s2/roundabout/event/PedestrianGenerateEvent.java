@@ -81,13 +81,14 @@ public class PedestrianGenerateEvent extends Event<PedestrianAbstractSource> {
         }
         Point global = ((PedestrianSource)source).getGlobalCoordinate();
 
+        try {
         if ( currentSection instanceof PedestrianStreetSection ) {
-            if( ((PedestrianStreetSection) currentSection).getNextStreetConnector() == null) {
+            if (((PedestrianStreetSection) currentSection).getNextStreetConnector() == null) {
                 throw new IllegalArgumentException("There are no connected streets");
             }
 
             PedestrianConnectedStreetSections connectorPair = (((PedestrianStreetSection) currentSection).getPreviousStreetConnector()).get(0);
-            if( connectorPair == null) {
+            if (connectorPair == null) {
                 throw new IllegalArgumentException("There is no entry port into system on this Source.");
             }
 
@@ -98,10 +99,10 @@ public class PedestrianGenerateEvent extends Event<PedestrianAbstractSource> {
 
 
             Point globalEntryPoint = new Point();
-            if( calc.almostEqual(end.getX(), start.getX()) ){
+            if (calc.almostEqual(end.getX(), start.getX())) {
                 double entryY = roundaboutSimulationModel.getRandomEntryPoint(
-                                                                    Math.min(end.getY(), start.getY()) + minGapForPedestrian,
-                                                                    Math.max(end.getY(), start.getY()) - minGapForPedestrian);
+                        Math.min(end.getY(), start.getY()) + minGapForPedestrian,
+                        Math.max(end.getY(), start.getY()) - minGapForPedestrian);
                 globalEntryPoint.setLocation(start.getX() + global.getX(), entryY + global.getY());
 
             } else {
@@ -122,7 +123,7 @@ public class PedestrianGenerateEvent extends Event<PedestrianAbstractSource> {
             final Pedestrian pedestrian = new Pedestrian(roundaboutSimulationModel, name, showInTrace, globalEntryPoint, behaviour, route, minGapForPedestrian);
             PedestrianController.addCarMapping(pedestrian.getCarDummy(), pedestrian);
             pedestrian.enterSystem();
-            ((PedestrianStreetSection)currentSection).addPedestrian(pedestrian, globalEntryPoint);
+            ((PedestrianStreetSection) currentSection).addPedestrian(pedestrian, globalEntryPoint);
 
             // schedule next events
             final PedestrianReachedAimEvent pedestrianReachedAimEvent = pedestrianEventFactory.createPedestrianReachedAimEvent(roundaboutSimulationModel);
@@ -140,8 +141,12 @@ public class PedestrianGenerateEvent extends Event<PedestrianAbstractSource> {
             final double actualTimeUntilPedestrianArrival = Math.max(shiftedTimeUntilPedestrianArrival, minTimeBetweenPedestrianArrivals);
 
             pedestrianGenerateEvent.schedule(source, new TimeSpan(actualTimeUntilPedestrianArrival, roundaboutSimulationModel.getModelTimeUnit()));
+
         } else {
             throw new IllegalStateException("CurrentSection should be of type PedestrianStreet");
+        }
+        } catch (Exception e) {
+            double da ;
         }
     }
 }
