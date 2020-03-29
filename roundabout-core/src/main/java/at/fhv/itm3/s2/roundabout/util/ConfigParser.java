@@ -820,6 +820,7 @@ public class ConfigParser {
 
     private void initGlobalCoordinates(){
         // start at any source
+        if (PEDESTRIAN_SOURCE_REGISTRY.isEmpty()) return;
         PedestrianStreetSection currentSection = getAStartForGlobalCoordinates();
         currentSection.setGlobalCoordinateOfSectionOrigin(new Point(0,0));
         deepSearchGlobalCoordinates(currentSection);

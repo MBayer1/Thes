@@ -16,6 +16,27 @@
         <parameter name="EXPECTED_TRUCK_LENGTH" value="16.5"/>
         <parameter name="CAR_RATIO_PER_TOTAL_VEHICLE" value="0.9"/>
         <parameter name="JAM_INDICATOR_IN_SECONDS" value="10"/>
+
+        <!--Parameter for pedestrians-->
+        <parameter name="MIN_TIME_BETWEEN_PEDESTRIAN_ARRIVALS" value="2"/>
+        <parameter name="MAX_TIME_BETWEEN_PEDESTRIAN_ARRIVALS" value="2"/>
+        <parameter name="MEAN_TIME_BETWEEN_PEDESTRIAN_ARRIVALS" value="2"/>
+        <parameter name="MIN_DISTANCE_FACTOR_BETWEEN_PEDESTRIAN" value="2"/>
+        <parameter name="MAX_DISTANCE_FACTOR_BETWEEN_PEDESTRIAN" value="2"/>
+        <parameter name="MIN_PEDESTRIAN_GROUP_SIZE" value="2"/>
+        <parameter name="MAX_PEDESTRIAN_GROUP_SIZE" value="30"/>   //persons
+        <parameter name="MIN_PEDESTRIAN_STREET_LENGTH" value="20"/>  //in cm
+        <parameter name="MIN_PEDESTRIAN_STREET_WIDTH" value="20"/>   //in cm
+
+        <parameter name="SFM_DEGREE_OF_ACCURACY" value="10e-8"/>
+
+        <parameter name="MIN_PEDESTRIAN_RELAXING_TIME" value="1.7"/>
+        <parameter name="MAX_PEDESTRIAN_RELAXING_TIME" value="2.7"/>
+        <parameter name="EXPECTED_PEDESTRIAN_RELAXING_TIME" value="2.2"/>
+        <parameter name="MIN_PEDESTRIAN_PREFERRED_SPEED" value="1.08"/>
+        <parameter name="MAX_PEDESTRIAN_PREFERRED_SPEED" value="1.6"/>
+        <parameter name="EXPECTED_PEDESTRIAN_PREFERRED_SPEED" value="1.34"/>
+
     </parameters>
     <components>
         <component id="ro1" type="ROUNDABOUT" name="Kreisverkehr Dornbirn Süd">

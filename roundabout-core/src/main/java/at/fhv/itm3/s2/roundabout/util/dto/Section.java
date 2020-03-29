@@ -33,6 +33,15 @@ public class Section implements IDTO {
     }
 
     @XmlAttribute
+    public Double getLength() {
+        return lengthX;
+    }
+
+    public void setLength(Double lengthX) {
+        this.lengthX = lengthX;
+    }
+
+    @XmlAttribute
     public Double getLengthX() {
         return lengthX;
     }
