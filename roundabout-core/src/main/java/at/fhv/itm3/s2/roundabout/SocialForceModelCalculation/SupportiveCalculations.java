@@ -104,8 +104,8 @@ public class SupportiveCalculations {
     public Point getLinesIntersectionByCoordinates(	     PedestrianStreetSectionPort port,
                                                          double dLineStartX2, double dLineStartY2,
                                                          double dLineEndX2, double dLineEndY2) {
-        return getLinesIntersectionByCoordinates( port.getGlobalBeginOfStreetPort().getX(), port.getGlobalBeginOfStreetPort().getY(),
-                port.getGlobalEndOfStreetPort().getX(), port.getGlobalEndOfStreetPort().getY(),
+        return getLinesIntersectionByCoordinates( port.getLocalBginOfStreetPort().getX(), port.getLocalBginOfStreetPort().getY(),
+                port.getLocalEndOfStreetPort().getX(), port.getLocalEndOfStreetPort().getY(),
                 dLineStartX2, dLineStartY2, dLineEndX2, dLineEndY2);
     }
 
@@ -195,8 +195,8 @@ public class SupportiveCalculations {
     }
 
     public boolean checkWallIntersectionWithinPort (PedestrianStreetSectionPort port, Point intersection) {
-        return checkWallIntersectionWithinPort(port.getGlobalBeginOfStreetPort().getX(), port.getGlobalBeginOfStreetPort().getY(),
-                port.getGlobalEndOfStreetPort().getX(), port.getGlobalEndOfStreetPort().getY(), intersection);
+        return checkWallIntersectionWithinPort(port.getLocalBginOfStreetPort().getX(), port.getLocalBginOfStreetPort().getY(),
+                port.getLocalEndOfStreetPort().getX(), port.getLocalEndOfStreetPort().getY(), intersection);
     }
 
 
@@ -230,8 +230,8 @@ public class SupportiveCalculations {
     }
 
     public void shiftIntersection (PedestrianStreetSectionPort port, Point intersection, double minGabToWall) {
-        shiftIntersection(port.getGlobalBeginOfStreetPort().getX(), port.getGlobalBeginOfStreetPort().getY(),
-                port.getGlobalEndOfStreetPort().getX(), port.getGlobalEndOfStreetPort().getY(), intersection, minGabToWall);
+        shiftIntersection(port.getLocalBginOfStreetPort().getX(), port.getLocalBginOfStreetPort().getY(),
+                port.getLocalEndOfStreetPort().getX(), port.getLocalEndOfStreetPort().getY(), intersection, minGabToWall);
     }
 
     public void shiftIntersection( double portBeginX, double portBeginY, double portEndX, double portEndY, Point wallIntersection){

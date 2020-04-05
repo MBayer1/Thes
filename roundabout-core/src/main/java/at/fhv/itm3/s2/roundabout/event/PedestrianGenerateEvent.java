@@ -91,10 +91,10 @@ public class PedestrianGenerateEvent extends Event<PedestrianAbstractSource> {
                 throw new IllegalArgumentException("There is no entry port into system on this Source.");
             }
 
-            Point start = connectorPair.getPortOfFromStreetSection().getGlobalBeginOfStreetPort();
-            Point end = connectorPair.getPortOfFromStreetSection().getGlobalEndOfStreetPort();
-            connectorPair.getPortOfToStreetSection().getGlobalBeginOfStreetPort();
-            connectorPair.getPortOfToStreetSection().getGlobalEndOfStreetPort();
+            Point start = connectorPair.getPortOfFromStreetSection().getLocalBginOfStreetPort();
+            Point end = connectorPair.getPortOfFromStreetSection().getLocalEndOfStreetPort();
+            connectorPair.getPortOfToStreetSection().getLocalBginOfStreetPort();
+            connectorPair.getPortOfToStreetSection().getLocalEndOfStreetPort();
 
 
             Point globalEntryPoint = new Point();

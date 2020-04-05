@@ -785,7 +785,6 @@ public class ConfigParser {
                 });
             }
         });
-
         return ROUTE_REGISTRY;
     }
 
@@ -850,21 +849,21 @@ public class ConfigParser {
                 PedestrianConnectedStreetSections connectorPair = entrySection.getPreviousStreetConnectorToSource();
                 PedestrianStreetSectionPort port = connectorPair.getPortOfFromStreetSection();
 
-                if( (calc.almostEqual( port.getGlobalBeginOfStreetPort().getX(), port.getGlobalEndOfStreetPort().getX()) &&
-                        (port.getGlobalBeginOfStreetPort().getY() < port.getGlobalEndOfStreetPort().getY() ))
+                if( (calc.almostEqual( port.getLocalBginOfStreetPort().getX(), port.getLocalEndOfStreetPort().getX()) &&
+                        (port.getLocalBginOfStreetPort().getY() < port.getLocalEndOfStreetPort().getY() ))
                  ||
-                    (calc.almostEqual( port.getGlobalBeginOfStreetPort().getY(), port.getGlobalEndOfStreetPort().getY()) &&
-                            (port.getGlobalBeginOfStreetPort().getX() < port.getGlobalEndOfStreetPort().getX() ))
+                    (calc.almostEqual( port.getLocalBginOfStreetPort().getY(), port.getLocalEndOfStreetPort().getY()) &&
+                            (port.getLocalBginOfStreetPort().getX() < port.getLocalEndOfStreetPort().getX() ))
                  ){
                     //start is origin
                     sourceGlobalCooEntrySection.setLocation(
-                            globalCooEntrySection.getX() + port.getGlobalBeginOfStreetPort().getX(),
-                            globalCooEntrySection.getY() + port.getGlobalBeginOfStreetPort().getY());
+                            globalCooEntrySection.getX() + port.getLocalBginOfStreetPort().getX(),
+                            globalCooEntrySection.getY() + port.getLocalBginOfStreetPort().getY());
                 } else {
                     // end is origin
                     sourceGlobalCooEntrySection.setLocation(
-                            globalCooEntrySection.getX() + port.getGlobalEndOfStreetPort().getX(),
-                            globalCooEntrySection.getY() + port.getGlobalEndOfStreetPort().getY());
+                            globalCooEntrySection.getX() + port.getLocalEndOfStreetPort().getX(),
+                            globalCooEntrySection.getY() + port.getLocalEndOfStreetPort().getY());
                 }
                 source.setGlobalCoordinate(sourceGlobalCooEntrySection);
             });
@@ -882,9 +881,9 @@ public class ConfigParser {
 
             if( ((PedestrianStreetSection)toStreetSection).getGlobalCoordinateOfSectionOrigin() == null ) {
                 addGlobalCoordinates(   currentSection,
-                                        connector.getPortOfFromStreetSection().getGlobalBeginOfStreetPort(),
+                                        connector.getPortOfFromStreetSection().getLocalBginOfStreetPort(),
                                         (PedestrianStreetSection)toStreetSection,
-                                        connector.getPortOfToStreetSection().getGlobalBeginOfStreetPort());
+                                        connector.getPortOfToStreetSection().getLocalBginOfStreetPort());
 
                 deepSearchGlobalCoordinates( (PedestrianStreetSection)toStreetSection );
             }

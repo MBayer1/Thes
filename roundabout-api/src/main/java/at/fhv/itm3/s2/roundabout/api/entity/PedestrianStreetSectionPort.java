@@ -18,11 +18,11 @@ public class PedestrianStreetSectionPort implements Serializable{
         this.endOfStreetPort = endOfStreetPort;
     }
 
-    public Point getGlobalBeginOfStreetPort() {
+    public Point getLocalBginOfStreetPort() {
         return beginOfStreetPort;
     }
 
-    public Point getGlobalEndOfStreetPort() {
+    public Point getLocalEndOfStreetPort() {
         return endOfStreetPort;
     }
 
