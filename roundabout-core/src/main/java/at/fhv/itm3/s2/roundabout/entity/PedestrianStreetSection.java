@@ -224,15 +224,6 @@ public class PedestrianStreetSection extends PedestrianStreet {
             }
         }
 
-        // call carDelivered events for last section, so the car position
-        // of the current car (that has just left the last section successfully
-        // can be removed (saves memory)
-        // caution! that requires to call traverseToNextSection before calling this method
-        Car car = PedestrianController.getCar(iPedestrian);
-        IConsumer consumer = iPedestrian.getDestination().getStreetSection();
-        if (consumer instanceof PedestrianStreet) {
-            ((PedestrianStreet) consumer).carDelivered(null, car, true);
-        }
         pedestrianObserver.notifyObservers(iPedestrian);
     }
 

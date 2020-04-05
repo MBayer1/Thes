@@ -3,6 +3,7 @@ package at.fhv.itm3.s2.roundabout.api.entity;
 import at.fhv.itm14.trafsim.model.entities.IConsumer;
 
 import java.awt.*;
+import java.io.*;
 
 public class PedestrianStreetSectionAndPortPair {
     // Information in cm

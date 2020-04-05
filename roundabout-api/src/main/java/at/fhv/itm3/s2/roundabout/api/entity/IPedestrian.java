@@ -34,9 +34,10 @@ public interface IPedestrian {
     /**
      * checks if the the next subgoal {@link Point} is reached
      *
+     * @param localPedestrianPosition Local pos to compare to the local destianitno
      * @return true when subgoal is reached, otherwise false
      */
-    boolean checkExitPortIsReached();
+    boolean checkExitPortIsReached(Point localPedestrianPosition);
 
 
     /**

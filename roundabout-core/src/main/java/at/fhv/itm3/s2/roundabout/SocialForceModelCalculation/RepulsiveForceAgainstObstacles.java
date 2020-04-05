@@ -68,10 +68,10 @@ public class RepulsiveForceAgainstObstacles {
             if (connected.getFromStreetSection().equals(currentSection)) {
                 PedestrianStreetSectionPort localPort = connected.getPortOfFromStreetSection();
                 PedestrianStreetSectionPort globalPort = new PedestrianStreetSectionPort(
-                        (int) (localPort.getBeginOfStreetPort().getX() + sectionCenterX),
-                        (int) (localPort.getBeginOfStreetPort().getY() + sectionCenterY),
-                        (int) (localPort.getEndOfStreetPort().getX() + sectionCenterX),
-                        (int) (localPort.getEndOfStreetPort().getY() + sectionCenterY));
+                        (int) (localPort.getGlobalBeginOfStreetPort().getX() + sectionCenterX),
+                        (int) (localPort.getGlobalBeginOfStreetPort().getY() + sectionCenterY),
+                        (int) (localPort.getGlobalEndOfStreetPort().getX() + sectionCenterX),
+                        (int) (localPort.getGlobalEndOfStreetPort().getY() + sectionCenterY));
 
                 if ( calculations.checkWallIntersectionWithinPort( globalPort, wallIntersection1 ) )
                     calculations.shiftIntersection( globalPort, wallIntersection1);

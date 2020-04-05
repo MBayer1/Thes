@@ -16,15 +16,15 @@ public class AccelerationForceToTarget {
         Vector2d currentPositionVector = new Vector2d(pedestrian.getCurrentGlobalPosition().getX(), pedestrian.getCurrentGlobalPosition().getY());
 
 
-        if (pedestrian.getCurrentSection().getStreetSection() instanceof PedestrianStreetSection) {
-
+        if (! (pedestrian.getCurrentSection().getStreetSection() instanceof PedestrianStreetSection)) {
+            throw new IllegalStateException("Section not instance of PedestrianStreetSection.");
         }
 
         PedestrianStreetSection section = (PedestrianStreetSection)pedestrian.getCurrentSection().getStreetSection();
 
         //nextDestinationVector = nextDestinationVector - currentPositionVector
-        Point subGoal = pedestrian.getNextSubGoal(); // local coordinates
-        Vector2d preferredSpeedVector = calculations.getVector( pedestrian.getCurrentGlobalPosition().getX(), pedestrian.getCurrentGlobalPosition().getY(),
+        Point subGoal = pedestrian.getNextSubGoal(); // local coordinates without any obstacle etc. = exit-point of  section
+        Vector2d preferredSpeedVector = calculations.getVector( currentPositionVector.getX(), currentPositionVector.getY(),
                                                         subGoal.getX() + section.getGlobalCoordinateOfSectionOrigin().getX(),
                                                         subGoal.getY() + section.getGlobalCoordinateOfSectionOrigin().getY());
 

@@ -94,9 +94,14 @@ public class PedestrianSink extends PedestrianAbstractSink {
         // needed for adaption to the trafsim framework
         addCar(CarController.getICar(PedestrianController.getCar(iPedestrian)));
 
-
         pedestrianObserver.notifyObservers(iPedestrian);
         incrementLeftPedestrianCounter();
+
+        // call carDelivered events for last section, so the car position
+        // of the current car (that has just left the last section successfully
+        // can be removed (saves memory)
+        // caution! that requires to call traverseToNextSection before calling this method
+        this.carDelivered(null, ((Pedestrian) iPedestrian).getCarDummy(), true);
     }
 
     public void updateStats(IPedestrian pedestrian) {

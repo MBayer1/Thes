@@ -89,7 +89,7 @@ public class PedestrianReachedAimEvent extends Event<Pedestrian> {
             timeToDestination = pedestrian.getTimeToNextGlobalSubGoalByCoordinates(pedestrian.getCurrentNextGlobalAim());
         }
 
-        pedestrian.updateWalkedDistance();
+        pedestrian.updateWalkedDistance(); // adding distance before it is walked at it will reach its destination.
         pedestrian.setLastUpdateTime(roundaboutSimulationModel.getCurrentTime());
 
         if (pedestrian.checkGlobalGoalIsReached()) {
@@ -122,7 +122,7 @@ public class PedestrianReachedAimEvent extends Event<Pedestrian> {
                 }
             }
 
-            if (pedestrian.checkExitPortIsReached() && freeToGo) {
+            if (freeToGo) {
                 // destination of the current street section is reached move to next section
                 Point transferPos = pedestrian.transferToNextPortPos();
                 pedestrian.moveOneSectionForward(transferPos);
@@ -137,7 +137,7 @@ public class PedestrianReachedAimEvent extends Event<Pedestrian> {
 
     void setNewGoal( Pedestrian pedestrian, Vector2d forces ){
         // set as first aim the exit point of the street section
-        pedestrian.setCurrentNextGlobalAim( pedestrian.getClosestExitPointOfCurrentSection());
+        pedestrian.setCurrentNextGlobalAim();
         pedestrian.setExitPointOnPort( pedestrian.getCurrentNextGlobalAim() );
 
         for (IPedestrian otherPedestrian : ((PedestrianStreet)pedestrian.getCurrentSection().getStreetSection()).getPedestrianQueue()){

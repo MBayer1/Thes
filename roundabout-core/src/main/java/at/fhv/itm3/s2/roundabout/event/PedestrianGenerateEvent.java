@@ -81,7 +81,6 @@ public class PedestrianGenerateEvent extends Event<PedestrianAbstractSource> {
         }
         Point global = ((PedestrianSource)source).getGlobalCoordinate();
 
-        try {
         if ( currentSection instanceof PedestrianStreetSection ) {
             if (((PedestrianStreetSection) currentSection).getNextStreetConnector() == null) {
                 throw new IllegalArgumentException("There are no connected streets");
@@ -92,10 +91,10 @@ public class PedestrianGenerateEvent extends Event<PedestrianAbstractSource> {
                 throw new IllegalArgumentException("There is no entry port into system on this Source.");
             }
 
-            Point start = connectorPair.getPortOfFromStreetSection().getBeginOfStreetPort();
-            Point end = connectorPair.getPortOfFromStreetSection().getEndOfStreetPort();
-            connectorPair.getPortOfToStreetSection().getBeginOfStreetPort();
-            connectorPair.getPortOfToStreetSection().getEndOfStreetPort();
+            Point start = connectorPair.getPortOfFromStreetSection().getGlobalBeginOfStreetPort();
+            Point end = connectorPair.getPortOfFromStreetSection().getGlobalEndOfStreetPort();
+            connectorPair.getPortOfToStreetSection().getGlobalBeginOfStreetPort();
+            connectorPair.getPortOfToStreetSection().getGlobalEndOfStreetPort();
 
 
             Point globalEntryPoint = new Point();
@@ -124,6 +123,7 @@ public class PedestrianGenerateEvent extends Event<PedestrianAbstractSource> {
             PedestrianController.addCarMapping(pedestrian.getCarDummy(), pedestrian);
             pedestrian.enterSystem();
             ((PedestrianStreetSection) currentSection).addPedestrian(pedestrian, globalEntryPoint);
+            pedestrian.setCurrentLocalPosition();
 
             // schedule next events
             final PedestrianReachedAimEvent pedestrianReachedAimEvent = pedestrianEventFactory.createPedestrianReachedAimEvent(roundaboutSimulationModel);
@@ -144,9 +144,6 @@ public class PedestrianGenerateEvent extends Event<PedestrianAbstractSource> {
 
         } else {
             throw new IllegalStateException("CurrentSection should be of type PedestrianStreet");
-        }
-        } catch (Exception e) {
-            double da ;
         }
     }
 }

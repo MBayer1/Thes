@@ -21,7 +21,6 @@ import at.fhv.itm3.s2.roundabout.util.dto.Component;
 import at.fhv.itm3.s2.roundabout.util.dto.StreetNeighbour;
 import desmoj.core.simulator.Experiment;
 import desmoj.core.simulator.Model;
-import sun.awt.image.ImageWatched;
 
 import javax.xml.bind.JAXB;
 import java.io.File;
@@ -33,6 +32,7 @@ import java.util.stream.Collectors;
 
 import java.awt.*;
 
+import static java.util.stream.Collectors.partitioningBy;
 import static java.util.stream.Collectors.toMap;
 
 public class ConfigParser {
@@ -799,6 +799,19 @@ public class ConfigParser {
 
                     final List<PedestrianStreetSectionAndPortPair> route = new LinkedList<>();
                     route.add(connectedStreet);
+                    // first entry is needed here since sink might be listed before the matching source entry
+                    // Note: only one source per street section
+                    String firstSectionId = ((PedestrianStreet) route.get(0).getStreetSection()).getId();
+                    for (PedestrianConnector connector : component.getPedestrianConnectors().getPedestrianConnector()) {
+                        for (PedestrianTrack track : connector.getPedestrianTrack()) {
+                            if (track.getFromSectionType().equals(PedestrianConsumerType.PEDESTRIAN_SOURCE) && // source is not listed in route
+                                    track.getToSectionId().equals(firstSectionId)) {
+                                PedestrianStreetSectionPort enterPort = new PedestrianStreetSectionPort(track.getToXPortPositionStart(),
+                                        track.getToYPortPositionStart(), track.getToXPortPositionEnd(), track.getToYPortPositionEnd());
+                                route.get(0).setEnterPort(enterPort);
+                            }
+                        }
+                    }
                     doPedestrianDepthFirstSearch(source, route, component, modelConfig);
                 });
             }
@@ -837,21 +850,21 @@ public class ConfigParser {
                 PedestrianConnectedStreetSections connectorPair = entrySection.getPreviousStreetConnectorToSource();
                 PedestrianStreetSectionPort port = connectorPair.getPortOfFromStreetSection();
 
-                if( (calc.almostEqual( port.getBeginOfStreetPort().getX(), port.getEndOfStreetPort().getX()) &&
-                        (port.getBeginOfStreetPort().getY() < port.getEndOfStreetPort().getY() ))
+                if( (calc.almostEqual( port.getGlobalBeginOfStreetPort().getX(), port.getGlobalEndOfStreetPort().getX()) &&
+                        (port.getGlobalBeginOfStreetPort().getY() < port.getGlobalEndOfStreetPort().getY() ))
                  ||
-                    (calc.almostEqual( port.getBeginOfStreetPort().getY(), port.getEndOfStreetPort().getY()) &&
-                            (port.getBeginOfStreetPort().getX() < port.getEndOfStreetPort().getX() ))
+                    (calc.almostEqual( port.getGlobalBeginOfStreetPort().getY(), port.getGlobalEndOfStreetPort().getY()) &&
+                            (port.getGlobalBeginOfStreetPort().getX() < port.getGlobalEndOfStreetPort().getX() ))
                  ){
                     //start is origin
                     sourceGlobalCooEntrySection.setLocation(
-                            globalCooEntrySection.getX() + port.getBeginOfStreetPort().getX(),
-                            globalCooEntrySection.getY() + port.getBeginOfStreetPort().getY());
+                            globalCooEntrySection.getX() + port.getGlobalBeginOfStreetPort().getX(),
+                            globalCooEntrySection.getY() + port.getGlobalBeginOfStreetPort().getY());
                 } else {
                     // end is origin
                     sourceGlobalCooEntrySection.setLocation(
-                            globalCooEntrySection.getX() + port.getEndOfStreetPort().getX(),
-                            globalCooEntrySection.getY() + port.getEndOfStreetPort().getY());
+                            globalCooEntrySection.getX() + port.getGlobalEndOfStreetPort().getX(),
+                            globalCooEntrySection.getY() + port.getGlobalEndOfStreetPort().getY());
                 }
                 source.setGlobalCoordinate(sourceGlobalCooEntrySection);
             });
@@ -869,9 +882,9 @@ public class ConfigParser {
 
             if( ((PedestrianStreetSection)toStreetSection).getGlobalCoordinateOfSectionOrigin() == null ) {
                 addGlobalCoordinates(   currentSection,
-                                        connector.getPortOfFromStreetSection().getBeginOfStreetPort(),
+                                        connector.getPortOfFromStreetSection().getGlobalBeginOfStreetPort(),
                                         (PedestrianStreetSection)toStreetSection,
-                                        connector.getPortOfToStreetSection().getBeginOfStreetPort());
+                                        connector.getPortOfToStreetSection().getGlobalBeginOfStreetPort());
 
                 deepSearchGlobalCoordinates( (PedestrianStreetSection)toStreetSection );
             }
@@ -1042,33 +1055,41 @@ public class ConfigParser {
             Component component,
             ModelConfig modelConfig
     ) {
-        final IConsumer lastConsumer = routeSections.get(routeSections.size() - 1).getStreetSection();
+        IConsumer lastConsumer = routeSections.get(routeSections.size() - 1).getStreetSection();
         if (!(lastConsumer instanceof PedestrianStreet)) {
             throw new IllegalArgumentException("Only instances of PedestrianStreet class may be included in root.");
         }
-        final String currentSectionId = ((PedestrianStreet) lastConsumer).getId();
+        String currentSectionId = ((PedestrianStreet) lastConsumer).getId();
 
         // Check each connector.
         for (PedestrianConnector connector : component.getPedestrianConnectors().getPedestrianConnector()) {
             for (PedestrianTrack track : connector.getPedestrianTrack()) {
+                currentSectionId = ((PedestrianStreet) routeSections.get(routeSections.size() - 1).getStreetSection()).getId();
                 if (track.getFromSectionId().equals(currentSectionId)) {
-                    final PedestrianStreetSectionPort exitPortPrevious = new PedestrianStreetSectionPort(track.getFromXPortPositionStart(),
-                            track.getFromYPortPositionStart(), track.getFromXPortPositionEnd(), track.getFromYPortPositionEnd());
-                    routeSections.get(routeSections.size() - 1).setExitPort(exitPortPrevious);
-
                     final String toComponentId = track.getToComponentId() != null ? track.getToComponentId() : component.getId();
                     final String toSectionId = track.getToSectionId();
-
                     final PedestrianStreet toSection = resolvePedestrianStreet(toComponentId, toSectionId);
 
-                    if (!pedestrianStreetSectionAndPortPairListContain(routeSections, toSection)) {
 
+                    if (!pedestrianStreetSectionAndPortPairListContain(routeSections, toSection)) {
                         PedestrianStreetSectionPort enterPortToSection = new PedestrianStreetSectionPort(track.getToXPortPositionStart(),
                                 track.getToYPortPositionStart(), track.getToXPortPositionEnd(), track.getToYPortPositionEnd());
-
                         PedestrianStreetSectionAndPortPair routInfo = new PedestrianStreetSectionAndPortPair(resolvePedestrianStreet(toComponentId, toSectionId), enterPortToSection);
 
-                        final List<PedestrianStreetSectionAndPortPair> newRouteSections = new LinkedList<>(routeSections);
+                        List<PedestrianStreetSectionAndPortPair> newRouteSections = new LinkedList<>();
+                        for ( PedestrianStreetSectionAndPortPair pair : routeSections ) {
+                            try {
+                                //Deep Copy
+                                newRouteSections.add(new PedestrianStreetSectionAndPortPair(pair.getStreetSection()));
+                                newRouteSections.get(newRouteSections.size()-1).setEnterPort(pair.getEnterPort() != null ? pair.getEnterPort().deepCopy() : null);
+                                newRouteSections.get(newRouteSections.size()-1).setExitPort(pair.getExitPort() != null ? pair.getExitPort().deepCopy() : null);
+                            } catch ( Exception e) {
+                                throw new IllegalStateException("Deep Copy not possible.");
+                            }
+                        }
+                        PedestrianStreetSectionPort exitPortFromSection = new PedestrianStreetSectionPort(track.getFromXPortPositionStart(),
+                                track.getFromYPortPositionStart(), track.getFromXPortPositionEnd(), track.getFromYPortPositionEnd());
+                        newRouteSections.get(newRouteSections.size() - 1).setExitPort(exitPortFromSection);
                         newRouteSections.add(routInfo);
 
                         if (toSection instanceof PedestrianSink) {
@@ -1112,23 +1133,22 @@ public class ConfigParser {
 
                     if (fromComponentId.equals(component.getId()) && fromSectionId.equals(currentSectionId)) {
 
-                        PedestrianStreetSectionPort exitPortToSection = new PedestrianStreetSectionPort(track.getFromXPortPositionStart(),
-                                track.getFromYPortPositionStart(), track.getFromXPortPositionEnd(), track.getFromYPortPositionEnd());
-                        routeSections.get(routeSections.size() - 1).setExitPort(exitPortToSection);
-
                         for (Component localComponent : modelConfig.getComponents().getComponent()) {
                             final String toComponentId = track.getToComponentId();
                             final String toSectionId = track.getToSectionId();
 
                             if (toComponentId.equals(localComponent.getId())) {
-                                final PedestrianStreet toSection = resolvePedestrianSection(toComponentId, toSectionId);
+                                PedestrianStreet toSection = resolvePedestrianSection(toComponentId, toSectionId);
 
                                 PedestrianStreetSectionPort enterPortToSection = new PedestrianStreetSectionPort(track.getToXPortPositionStart(),
                                         track.getToYPortPositionStart(), track.getToXPortPositionEnd(), track.getToYPortPositionEnd());
 
                                 PedestrianStreetSectionAndPortPair routInfo = new PedestrianStreetSectionAndPortPair(resolvePedestrianStreet(toComponentId,toSectionId), enterPortToSection);
 
-                                final List<PedestrianStreetSectionAndPortPair> newRouteSections = new LinkedList<>(routeSections);
+                                List<PedestrianStreetSectionAndPortPair> newRouteSections = new LinkedList<>(routeSections);
+                                PedestrianStreetSectionPort exitPortToSection = new PedestrianStreetSectionPort(track.getFromXPortPositionStart(),
+                                        track.getFromYPortPositionStart(), track.getFromXPortPositionEnd(), track.getFromYPortPositionEnd());
+                                routeSections.get(routeSections.size() - 1).setExitPort(exitPortToSection);
                                 newRouteSections.add(routInfo);
 
                                 doPedestrianDepthFirstSearch(source, newRouteSections, localComponent, modelConfig);
