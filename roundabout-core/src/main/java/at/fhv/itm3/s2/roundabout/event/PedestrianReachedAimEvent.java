@@ -91,10 +91,10 @@ public class PedestrianReachedAimEvent extends Event<Pedestrian> {
 
         pedestrian.updateWalkedDistance(); // adding distance before it is walked at it will reach its destination.
         pedestrian.setLastUpdateTime(roundaboutSimulationModel.getCurrentTime());
+        pedestrian.setCurrentGlobalPosition(pedestrian.getCurrentNextGlobalAim());
 
-        if (pedestrian.checkGlobalGoalIsReached()) {
-            // aim is reached
-
+        if ( pedestrian.checkExitPortIsReached() &&
+             pedestrian.checkGlobalGoalIsReached()) {
             // set to next section
             if ( !(currentSection instanceof PedestrianStreet) ){
                 throw new IllegalArgumentException( "Street not instance of PedestrianStreet.");

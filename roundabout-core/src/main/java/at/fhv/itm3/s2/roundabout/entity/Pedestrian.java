@@ -444,12 +444,6 @@ public class Pedestrian extends Entity implements IPedestrian {
         return part1 + part2;
     }
 
-    public boolean checkExitPortIsReached(double x, double y) {
-        Point pos = new Point();
-        pos.setLocation(x, y);
-        return checkExitPortIsReached(pos);
-    }
-
     public Point transferToNextPortPos() {
         PedestrianStreetSectionPort exitPort = currentSection.getExitPort();
         PedestrianStreetSectionPort enterPort = nextSection.getEnterPort();
@@ -487,26 +481,37 @@ public class Pedestrian extends Entity implements IPedestrian {
             throw new IllegalArgumentException(" Section not instance of PedestrianStreetSection");
         }
 
-        Point globalCoord = ((PedestrianStreetSection) currentSection.getStreetSection()).getGlobalCoordinateOfSectionOrigin();
+        double distance = calc.getDistanceByCoordinates(currentNextGlobalAim.getX(), currentNextGlobalAim.getY(),
+                currentGlobalPosition.getX(), currentGlobalPosition.getY());
 
-        Point localPos = new Point((int) (currentGlobalPosition.getX() - globalCoord.getX()),
-                (int) (currentGlobalPosition.getY() - globalCoord.getY()));
-        return checkExitPortIsReached(localPos);
+        return calc.almostEqual(distance, 0);
     }
 
 
+    public boolean checkExitPortIsReached(){
+        return checkExitPortIsReached(currentLocalPosition);
+    }
+
+    public boolean checkExitPortIsReached(double x, double y) {
+        Point pos = new Point();
+        pos.setLocation(x, y);
+        return checkExitPortIsReached(pos);
+    }
+
     public boolean checkExitPortIsReached(Point localPedestrianPosition) {
+        // do not check for min gab as this is considered at getGlobalPositionOnExitPort()
+
         // Port is along y axis
         if (calc.almostEqual(currentSection.getExitPort().getLocalBginOfStreetPort().getX(), currentSection.getExitPort().getLocalEndOfStreetPort().getX())) {
             if (localPedestrianPosition == null) {
                 throw new IllegalArgumentException(" no pedestrianPosition passed.");
             }
 
-            if (((calc.val1LowerOrAlmostEqual((currentSection.getExitPort().getLocalBginOfStreetPort().getY()), localPedestrianPosition.getY(), 10e-1) &&
+            if (( ( calc.val1LowerOrAlmostEqual((currentSection.getExitPort().getLocalBginOfStreetPort().getY()), localPedestrianPosition.getY(), 10e-1) &&
                     calc.val1BiggerOrAlmostEqual((currentSection.getExitPort().getLocalEndOfStreetPort().getY()), localPedestrianPosition.getY(), 10e-1))
                     ||
                     calc.val1LowerOrAlmostEqual((currentSection.getExitPort().getLocalEndOfStreetPort().getY()), localPedestrianPosition.getY(), 10e-1) &&
-                            calc.val1BiggerOrAlmostEqual((currentSection.getExitPort().getLocalBginOfStreetPort().getY()), localPedestrianPosition.getY(), 10e-1))
+                    calc.val1BiggerOrAlmostEqual((currentSection.getExitPort().getLocalBginOfStreetPort().getY()), localPedestrianPosition.getY(), 10e-1))
 
                     &&
                     calc.almostEqual(currentSection.getExitPort().getLocalBginOfStreetPort().getX(), localPedestrianPosition.getX(), 1.0)
