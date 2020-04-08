@@ -11,11 +11,59 @@ public class SupportiveCalculations {
             return new Vector2d(endPointX-startPointX, endPointY-startPointY);
     }
 
-    public boolean checkLinesIntersectionByCoordinates(double intersectionX, double intersectionY,
-                                                     double lineStartX1, double lineStartY1,
-                                                     double lineEndX1, double lineEndY1,
-                                                     double lineStartX2, double lineStartY2,
-                                                     double lineEndX2, double lineEndY2
+    public Vector2d getUnitVector( Vector2d vector) {
+        return  getUnitVector(vector.getX(), vector.getY());
+    }
+
+    public Vector2d getUnitVector( double vectorX,	double vectorY)
+    {
+        double returnXTmp = vectorX / Math.sqrt(Math.pow(vectorX, 2) + Math.pow(vectorY, 2));
+        double returnYTmp = vectorY / Math.sqrt(Math.pow(vectorX, 2) + Math.pow(vectorY, 2));
+        return new Vector2d(returnXTmp, returnYTmp);
+    }
+
+    public boolean checkLinesIntersectionByCoordinates_WithinSegment(double intersectionX, double intersectionY,
+                                                                     Point lineStart1,
+                                                                     double lineEndX1, double lineEndY1,
+                                                                     Point lineStart2,
+                                                                     Point lineEnd2
+    ) {
+        return checkLinesIntersectionByCoordinates_WithinSegment(intersectionX, intersectionY,
+                lineStart1.getX(), lineStart1.getY(), lineEndX1, lineEndY1,
+                lineStart2.getX(), lineStart2.getY(), lineEnd2.getX(), lineEnd2.getY());
+
+    }
+
+    public boolean checkLinesIntersectionByCoordinates_WithinSegment(double intersectionX, double intersectionY,
+                                                                     Point lineStart1,
+                                                                     Point lineEnd1,
+                                                                     Point lineStart2,
+                                                                     Point lineEnd2
+    ) {
+        return checkLinesIntersectionByCoordinates_WithinSegment(intersectionX, intersectionY,
+                lineStart1.getX(), lineStart1.getY(), lineEnd1.getX(), lineEnd1.getY(),
+                lineStart2.getX(), lineStart2.getY(), lineEnd2.getX(), lineEnd2.getY());
+
+    }
+
+    public boolean checkLinesIntersectionByCoordinates_WithinSegment(double intersectionX, double intersectionY,
+                                                                     double lineStartX1, double lineStartY1,
+                                                                     double lineEndX1, double lineEndY1,
+                                                                     Point lineStart2,
+                                                                     Point lineEnd2
+    ) {
+        return checkLinesIntersectionByCoordinates_WithinSegment(intersectionX, intersectionY,
+                        lineStartX1, lineStartY1,
+                        lineEndX1, lineEndY1,
+                lineStart2.getX(), lineStart2.getY(), lineEnd2.getX(), lineEnd2.getY());
+
+    }
+
+    public boolean checkLinesIntersectionByCoordinates_WithinSegment(double intersectionX, double intersectionY,
+                                                                     double lineStartX1, double lineStartY1,
+                                                                     double lineEndX1, double lineEndY1,
+                                                                     double lineStartX2, double lineStartY2,
+                                                                     double lineEndX2, double lineEndY2
     ){
 
         if((lineStartX1 == lineStartX2) && (lineStartY1 == lineStartY2) &&

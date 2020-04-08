@@ -110,6 +110,7 @@ public class PedestrianGenerateEvent extends Event<PedestrianAbstractSource> {
                         Math.max(end.getX(), start.getX()));
                 globalEntryPoint.setLocation(start.getX() + global.getX(), entryX + global.getY());
             }
+
             final PedestrianBehaviour behaviour = new PedestrianBehaviour(
                     roundaboutSimulationModel.getRandomPedestrianPreferredSpeed(),
                     0.5,
@@ -123,7 +124,7 @@ public class PedestrianGenerateEvent extends Event<PedestrianAbstractSource> {
             PedestrianController.addCarMapping(pedestrian.getCarDummy(), pedestrian);
             pedestrian.enterSystem();
             ((PedestrianStreetSection) currentSection).addPedestrian(pedestrian, globalEntryPoint);
-            pedestrian.setCurrentLocalPosition();
+            pedestrian.setCurrentLocalPosition(); // do this after adding to street section
 
             // schedule next events
             final PedestrianReachedAimEvent pedestrianReachedAimEvent = pedestrianEventFactory.createPedestrianReachedAimEvent(roundaboutSimulationModel);

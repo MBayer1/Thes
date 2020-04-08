@@ -418,6 +418,10 @@ public class PedestrianStreetSection extends PedestrianStreet {
         return false;
     }
 
+    public void setPedestrianPosition(Pedestrian pedestrian, Point globalPos) {
+        pedestrianPositions.get(pedestrian).setLocation(globalPos);
+    }
+
     private Point calculateSocialForceVector() {
          return new Point(0,0   ); //TODO
     }

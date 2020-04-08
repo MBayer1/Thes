@@ -89,11 +89,14 @@ public class PedestrianReachedAimEvent extends Event<Pedestrian> {
             timeToDestination = pedestrian.getTimeToNextGlobalSubGoalByCoordinates(pedestrian.getCurrentNextGlobalAim());
         }
 
+        if (calc.almostEqual(pedestrian.getCurrentSpeed(), 0)) {
+            pedestrian.setCurrentSpeed(pedestrian.getPreferredSpeed()); // reset
+        }
+
         pedestrian.updateWalkedDistance(); // adding distance before it is walked at it will reach its destination.
         pedestrian.setLastUpdateTime(roundaboutSimulationModel.getCurrentTime());
-        pedestrian.setCurrentGlobalPosition(pedestrian.getCurrentNextGlobalAim());
 
-        if ( pedestrian.checkExitPortIsReached() &&
+        if ( pedestrian.checkExitPortIsReached() && // check if section will be changed
              pedestrian.checkGlobalGoalIsReached()) {
             // set to next section
             if ( !(currentSection instanceof PedestrianStreet) ){
@@ -131,6 +134,7 @@ public class PedestrianReachedAimEvent extends Event<Pedestrian> {
             timeToDestination = pedestrian.getTimeToNextGlobalSubGoalByCoordinates(pedestrian.getCurrentNextGlobalAim());
         }
 
+        pedestrian.setCurrentGlobalPosition(pedestrian.getCurrentNextGlobalAim());
         pedestrianEventFactory.createPedestrianReachedAimEvent(roundaboutSimulationModel).schedule(
                 pedestrian, new TimeSpan(timeToDestination, roundaboutSimulationModel.getModelTimeUnit()));
     }
@@ -139,8 +143,9 @@ public class PedestrianReachedAimEvent extends Event<Pedestrian> {
         // set as first aim the exit point of the street section
         pedestrian.setCurrentNextGlobalAim();
         pedestrian.setExitPointOnPort( pedestrian.getCurrentNextGlobalAim() );
+        PedestrianStreet section = ((PedestrianStreet)pedestrian.getCurrentSection().getStreetSection());
 
-        for (IPedestrian otherPedestrian : ((PedestrianStreet)pedestrian.getCurrentSection().getStreetSection()).getPedestrianQueue()){
+        for (IPedestrian otherPedestrian : section.getPedestrianQueue()){
             if(otherPedestrian.equals(pedestrian)) continue;
 
             if (! (otherPedestrian instanceof Pedestrian )) {
@@ -152,21 +157,99 @@ public class PedestrianReachedAimEvent extends Event<Pedestrian> {
             // the "current global aim" of the current pedestrian is cut down to it.
             // Otherwise the end of the section is the aim.
             // Afterwards the time until this destination is reached is calculated.
+            double minGab = pedestrian.getMinGapForPedestrian();
             if( ((Pedestrian)otherPedestrian).getCurrentNextGlobalAim() != null) {
-                double goalX, goalY = goalX = 0.0;
-                if(calc.checkLinesIntersectionByCoordinates(goalX, goalY,
-                        pedestrian.getCurrentGlobalPosition().getX(), pedestrian.getCurrentGlobalPosition().getY(),
+                Point curGlobPos = pedestrian.getCurrentGlobalPosition();
+                Point goal = checkAndSetAimWithinSection(forces, section, pedestrian);
+
+                if(calc.checkLinesIntersectionByCoordinates_WithinSegment(goal.getX(), goal.getY(),
+                        pedestrian.getCurrentGlobalPosition(),
                         pedestrian.getCurrentGlobalPosition().getX() + forces.getX(), pedestrian.getCurrentGlobalPosition().getY() + forces.getY(),
-                        otherPedestrian.getCurrentGlobalPosition().getX(), otherPedestrian.getCurrentGlobalPosition().getY(),
-                        ((Pedestrian) otherPedestrian).getCurrentNextGlobalAim().getX(),((Pedestrian) otherPedestrian).getCurrentNextGlobalAim().getY())) {
+                        otherPedestrian.getCurrentGlobalPosition(),
+                        ((Pedestrian) otherPedestrian).getCurrentNextGlobalAim())) {
                     // there is a crossing
                     // crossing - the size of the current pedestrian = new destination aim
-                    goalX -= pedestrian.getMinGapForPedestrian();
-                    goalY -= pedestrian.getMinGapForPedestrian();
-                    pedestrian.setCurrentNextGlobalAim(new Point ((int)goalX, (int)goalY));
+                    if (calc.getDistanceByCoordinates(goal.getX() - minGab, goal.getY() - minGab, curGlobPos.getX(), curGlobPos.getY() )
+                            < calc.getDistanceByCoordinates(goal.getX() + minGab, goal.getY() + minGab, curGlobPos.getX(), curGlobPos.getY() )) {
+                        goal.setLocation(goal.getX() - minGab, goal.getY() - minGab);
+                    } else {
+                        goal.setLocation(goal.getX() + minGab, goal.getY() + minGab);
+                    }
+                    pedestrian.setCurrentNextGlobalAim(goal);
                 }
             }
 
+        }
+    }
+
+    Point checkAndSetAimWithinSection(Vector2d forces, PedestrianStreet section, Pedestrian pedestrian) {
+        // this is needed to ensure every aim is within a street Section
+        //use circumference as max length. (2(a+b))
+        double circumference = (section.getLengthX() + section.getLengthY())*2;
+        forces.scale(circumference);
+
+        if (! (section instanceof PedestrianStreetSection)) {
+            throw new IllegalArgumentException ("Type mismatch.");
+        }
+
+        Point cornerLeftBottomGlobal = ((PedestrianStreetSection) section).getGlobalCoordinateOfSectionOrigin();
+        Point cornerLeftUpGlobal = new Point( (int)cornerLeftBottomGlobal.getX(), (int) (cornerLeftBottomGlobal.getY() +  section.getLengthY()));
+        Point cornerRightBottomGlobal = new Point( (int) (cornerLeftBottomGlobal.getX() +  section.getLengthX()), (int) cornerLeftBottomGlobal.getY());
+        Point cornerRightUpGlobal = new Point( (int) (cornerLeftBottomGlobal.getX() +  section.getLengthX()), (int) (cornerLeftBottomGlobal.getY() +  section.getLengthY()));
+
+        boolean withinSection = true;
+        double intersectionX, intersectionY = intersectionX = 0;
+        if(calc.checkLinesIntersectionByCoordinates_WithinSegment(
+                intersectionX, intersectionY,
+                pedestrian.getCurrentGlobalPosition(),
+                pedestrian.getCurrentGlobalPosition().getX() + forces.getX(), pedestrian.getCurrentGlobalPosition().getY() + forces.getY(),
+                cornerLeftBottomGlobal, cornerLeftUpGlobal
+                )){
+            withinSection = false;
+        } else
+        if(calc.checkLinesIntersectionByCoordinates_WithinSegment(
+                intersectionX, intersectionY,
+                pedestrian.getCurrentGlobalPosition(),
+                pedestrian.getCurrentGlobalPosition().getX() + forces.getX(), pedestrian.getCurrentGlobalPosition().getY() + forces.getY(),
+                cornerLeftBottomGlobal, cornerRightBottomGlobal
+        )){
+            withinSection = false;
+        } else
+        if(calc.checkLinesIntersectionByCoordinates_WithinSegment(
+                intersectionX, intersectionY,
+                pedestrian.getCurrentGlobalPosition(),
+                pedestrian.getCurrentGlobalPosition().getX() + forces.getX(), pedestrian.getCurrentGlobalPosition().getY() + forces.getY(),
+                cornerLeftUpGlobal, cornerRightUpGlobal
+        )){
+            withinSection = false;
+        } else
+        if(calc.checkLinesIntersectionByCoordinates_WithinSegment(
+                intersectionX, intersectionY,
+                pedestrian.getCurrentGlobalPosition(),
+                pedestrian.getCurrentGlobalPosition().getX() + forces.getX(), pedestrian.getCurrentGlobalPosition().getY() + forces.getY(),
+                cornerRightBottomGlobal, cornerRightUpGlobal
+        )){
+            withinSection = false;
+        }
+
+
+        if ( withinSection ) return pedestrian.getCurrentNextGlobalAim();
+
+        if( section.getPedestrianConsumerType().equals(PedestrianConsumerType.PEDESTRIAN_CROSSING)) {
+            // in this case it might be possible to cross over border
+
+
+
+        }
+
+        // overwrite wall intersection as new aim -> not crossing wall
+        double minGab = pedestrian.getMinGapForPedestrian();
+        Point curGlobPos = pedestrian.getCurrentGlobalPosition();
+        if (calc.getDistanceByCoordinates(intersectionX - minGab, intersectionX - minGab, curGlobPos.getX(), curGlobPos.getY() )
+                < calc.getDistanceByCoordinates(intersectionX + minGab, intersectionX + minGab, curGlobPos.getX(), curGlobPos.getY() )) {
+            return new Point((int) (intersectionX - minGab), (int)(intersectionY - minGab));
+        } else {
+            return new Point((int) (intersectionX + minGab), (int) (intersectionY + minGab ));
         }
     }
 }

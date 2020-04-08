@@ -201,16 +201,23 @@ public class Pedestrian extends Entity implements IPedestrian {
         }
         this.currentGlobalPosition = currentGlobalPosition;
         setCurrentLocalPosition();
-    }
 
-    public void setCurrentLocalPosition() { //  really needed?
         IConsumer section = getCurrentSection().getStreetSection();
         if (!(section instanceof PedestrianStreet)) {
             throw new IllegalArgumentException("Section not instance of PedestrianStreet.");
         }
-        Point globalOffset = ((PedestrianStreetSection) (getCurrentSection().getStreetSection())).getGlobalCoordinateOfSectionOrigin();
+        ((PedestrianStreetSection) (section)).setPedestrianPosition(this, currentGlobalPosition);
+    }
+
+    public void setCurrentLocalPosition() {
+        IConsumer section = getCurrentSection().getStreetSection();
+        if (!(section instanceof PedestrianStreet)) {
+            throw new IllegalArgumentException("Section not instance of PedestrianStreet.");
+        }
+        Point globalOffset = ((PedestrianStreetSection) (section)).getGlobalCoordinateOfSectionOrigin();
         Point localPos = new Point((int) (currentGlobalPosition.getX() - globalOffset.getX()),
                 (int) (currentGlobalPosition.getY() - globalOffset.getY()));
+
         this.currentLocalPosition = localPos;
     }
 
@@ -489,7 +496,7 @@ public class Pedestrian extends Entity implements IPedestrian {
 
 
     public boolean checkExitPortIsReached(){
-        return checkExitPortIsReached(currentLocalPosition);
+        return checkExitPortIsReached(this.currentLocalPosition);
     }
 
     public boolean checkExitPortIsReached(double x, double y) {
@@ -616,7 +623,7 @@ public class Pedestrian extends Entity implements IPedestrian {
 
 
     public Point getGlobalCoordinatesOfCurrentSection() {
-        return ((PedestrianStreetSection) (((PedestrianStreetSectionAndPortPair) (currentSection.getStreetSection())).getStreetSection())).getGlobalCoordinateOfSectionOrigin();
+        return ((PedestrianStreetSection) currentSection.getStreetSection()).getGlobalCoordinateOfSectionOrigin();
     }
 
     public void moveOneSectionForward(Point newLocalPos) {
