@@ -545,7 +545,6 @@ public class ConfigParser {
                             null
                     );
 
-
                     if (pedestrianStreetSection.getPedestrianConsumerType().equals(PedestrianConsumerType.PEDESTRIAN_CROSSING)) {
                         pedestrianStreetSection.setFlexiBorderAlongX(s.getFlexiBorderAlongX());
                     }

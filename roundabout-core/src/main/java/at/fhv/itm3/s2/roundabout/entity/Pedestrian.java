@@ -139,6 +139,8 @@ public class Pedestrian extends Entity implements IPedestrian {
     }
 
     public Point getGlobalNextSubGoal() {
+        return currentNextGlobalAim;
+        /*
         if (!(getCurrentSection().getStreetSection() instanceof PedestrianStreetSection)) {
             throw new IllegalArgumentException("Street section not instance of PedestrianStreetSection.");
         }
@@ -147,11 +149,8 @@ public class Pedestrian extends Entity implements IPedestrian {
         Point global = ((PedestrianStreetSection) getCurrentSection().getStreetSection()).getGlobalCoordinateOfSectionOrigin();
         Point globalGoal = new Point((int) (exitPoint.getX() + global.getX()),
                 (int) (exitPoint.getY() + global.getY()));
-        return globalGoal;
-    }
+        return globalGoal;*/
 
-    public void setGlobalNextSubGoal() {
-        this.getGlobalNextSubGoal();
     }
 
     /**
@@ -159,29 +158,36 @@ public class Pedestrian extends Entity implements IPedestrian {
      */
     @Override
     public double getTimeToNextSubGoal() {
-        Point goal = getNextSubGoal();
-        if (goal == null) return 0;
-        Point origin = ((PedestrianStreetSection) getCurrentSection().getStreetSection()).getGlobalCoordinateOfSectionOrigin();
-
-        return calc.getDistanceByCoordinates(goal.getX() + origin.getX(),
-                goal.getY() + origin.getY(),
+        if (currentNextGlobalAim == null) return 0;
+        return calc.getDistanceByCoordinates(currentNextGlobalAim.getX(),
+                currentNextGlobalAim.getY(),
                 currentGlobalPosition.getX(),
                 currentGlobalPosition.getY()) * getCurrentSpeed();
     }
 
-    public double getTimeToNextGlobalSubGoalByCoordinates(Point goal) {
-
-        if (goal == null) {
+    public double getTimeToNextGlobalSubGoalByCoordinates(Point goalLocal) {
+        if (goalLocal == null) {
             throw new IllegalArgumentException("No gaol defined.");
         }
 
         Point origin = ((PedestrianStreetSection) getCurrentSection().getStreetSection()).getGlobalCoordinateOfSectionOrigin();
 
-        return calc.getDistanceByCoordinates(goal.getX() + origin.getX(),
-                goal.getY() + origin.getY(),
+        return calc.getDistanceByCoordinates(goalLocal.getX() + origin.getX(),
+                goalLocal.getY() + origin.getY(),
                 currentGlobalPosition.getX(),
                 currentGlobalPosition.getY()) * calculatePreferredSpeed();
     }
+
+    public double getTimeToNextGlobalSubGoal() {
+        if (currentNextGlobalAim == null) {
+            throw new IllegalArgumentException("No gaol defined.");
+        }
+        return calc.getDistanceByCoordinates(currentNextGlobalAim.getX(),
+                currentNextGlobalAim.getY(),
+                currentGlobalPosition.getX(),
+                currentGlobalPosition.getY()) * calculatePreferredSpeed();
+    }
+
 
     /**
      * {@inheritDoc}

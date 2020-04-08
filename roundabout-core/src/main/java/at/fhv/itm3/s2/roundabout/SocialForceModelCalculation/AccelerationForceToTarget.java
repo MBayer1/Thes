@@ -23,7 +23,7 @@ public class AccelerationForceToTarget {
         PedestrianStreetSection section = (PedestrianStreetSection)pedestrian.getCurrentSection().getStreetSection();
 
         //nextDestinationVector = nextDestinationVector - currentPositionVector
-        Point subGoal = pedestrian.getNextSubGoal(); // local coordinates without any obstacle etc. = exit-point of  section
+        Point subGoal = pedestrian.getNextSubGoal(); // global  coordinates without any obstacle etc. = exit-point of  section -> always calc new since real aim is afterwards change so is current position
         Vector2d preferredSpeedVector = calculations.getVector( currentPositionVector.getX(), currentPositionVector.getY(),
                                                         subGoal.getX() + section.getGlobalCoordinateOfSectionOrigin().getX(),
                                                         subGoal.getY() + section.getGlobalCoordinateOfSectionOrigin().getY());
