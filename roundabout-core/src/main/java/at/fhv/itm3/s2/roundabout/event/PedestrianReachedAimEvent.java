@@ -196,6 +196,7 @@ public class PedestrianReachedAimEvent extends Event<Pedestrian> {
         Point cornerLeftUpGlobal = new Point( (int)cornerLeftBottomGlobal.getX(), (int) (cornerLeftBottomGlobal.getY() +  section.getLengthY()));
         Point cornerRightBottomGlobal = new Point( (int) (cornerLeftBottomGlobal.getX() +  section.getLengthX()), (int) cornerLeftBottomGlobal.getY());
         Point cornerRightUpGlobal = new Point( (int) (cornerLeftBottomGlobal.getX() +  section.getLengthX()), (int) (cornerLeftBottomGlobal.getY() +  section.getLengthY()));
+        int borderLineNr = 0;
 
         boolean withinSection = true;
         double intersectionX, intersectionY = intersectionX = 0;
@@ -206,6 +207,7 @@ public class PedestrianReachedAimEvent extends Event<Pedestrian> {
                 cornerLeftBottomGlobal, cornerLeftUpGlobal
                 )){
             withinSection = false;
+            borderLineNr = 1;
         } else
         if(calc.checkLinesIntersectionByCoordinates_WithinSegment(
                 intersectionX, intersectionY,
@@ -214,6 +216,7 @@ public class PedestrianReachedAimEvent extends Event<Pedestrian> {
                 cornerLeftBottomGlobal, cornerRightBottomGlobal
         )){
             withinSection = false;
+            borderLineNr = 2;
         } else
         if(calc.checkLinesIntersectionByCoordinates_WithinSegment(
                 intersectionX, intersectionY,
@@ -222,6 +225,7 @@ public class PedestrianReachedAimEvent extends Event<Pedestrian> {
                 cornerLeftUpGlobal, cornerRightUpGlobal
         )){
             withinSection = false;
+            borderLineNr = 3;
         } else
         if(calc.checkLinesIntersectionByCoordinates_WithinSegment(
                 intersectionX, intersectionY,
@@ -230,16 +234,22 @@ public class PedestrianReachedAimEvent extends Event<Pedestrian> {
                 cornerRightBottomGlobal, cornerRightUpGlobal
         )){
             withinSection = false;
+            borderLineNr = 4;
         }
 
 
         if ( withinSection ) return pedestrian.getCurrentNextGlobalAim();
 
         if( section.getPedestrianConsumerType().equals(PedestrianConsumerType.PEDESTRIAN_CROSSING)) {
+            boolean crossingAllowed = false;
             // in this case it might be possible to cross over border
+            if(((PedestrianStreetSection) section).getFlexiBorderAlongX() && borderLineNr == 2 && borderLineNr == 3){
+                crossingAllowed = true;
+            } else if (borderLineNr == 1 && borderLineNr == 4){
+                crossingAllowed = true;
+            }
 
-
-
+            if(crossingAllowed) return pedestrian.getCurrentGlobalPosition();
         }
 
         // overwrite wall intersection as new aim -> not crossing wall

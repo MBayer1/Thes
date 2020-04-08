@@ -546,6 +546,10 @@ public class ConfigParser {
                     );
 
 
+                    if (pedestrianStreetSection.getPedestrianConsumerType().equals(PedestrianConsumerType.PEDESTRIAN_CROSSING)) {
+                        pedestrianStreetSection.setFlexiBorderAlongX(s.getFlexiBorderAlongX());
+                    }
+
                     if (!PEDESTRIAN_SECTION_REGISTRY.containsKey(scopeComponentId)) {
                         PEDESTRIAN_SECTION_REGISTRY.put(scopeComponentId, new HashMap<>());
                     }

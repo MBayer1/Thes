@@ -24,6 +24,7 @@ public class PedestrianStreetSection extends PedestrianStreet {
     private final PedestrianConsumerType consumerType;
     private Point globalCoordinateOfSectionOrigin;
     private int minSizeOfPedestriansForTrafficLightTriggeredByJam = 10;
+    private boolean flexiBorderAlongX = true; // needed for type PedestrianCrossing
 
     // next two values are for the controlling of a traffic light [checking for jam/ needed for optimization]
     private double currentWaitingTime;
@@ -475,6 +476,11 @@ public class PedestrianStreetSection extends PedestrianStreet {
         return false;
     }
 
+    public void setFlexiBorderAlongX(boolean flexiBorderAlongX) {
+        this.flexiBorderAlongX = flexiBorderAlongX;
+    }
+
+    public boolean getFlexiBorderAlongX(){ return this.flexiBorderAlongX;}
 
     /**
      * {@inheritDoc}

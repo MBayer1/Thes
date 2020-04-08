@@ -52,7 +52,7 @@
                 <sink id="psk2"/>
             </sinks>
             <sections>
-                <section id="psc1" lengthX="500.0" lengthY="400.0" pedestrianSectionType="PEDESTRIAN_CROSSING"/>
+                <section id="psc1" lengthX="500.0" lengthY="400.0" pedestrianSectionType="PEDESTRIAN_CROSSING" flexiBorderAlongX="true"/>
                 <section id="ps1" lengthX="500.0" lengthY="800.0" pedestrianSectionType="PEDESTRIAN_STREET_SECTION"/>
                 <section id="ps2" lengthX="500.0" lengthY="800.0" pedestrianSectionType="PEDESTRIAN_STREET_SECTION"/> <!-- In cm-->
             </sections>
