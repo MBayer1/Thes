@@ -160,7 +160,7 @@ public class PedestrianReachedAimEvent extends Event<Pedestrian> {
         pedestrian.setCurrentNextGlobalAim();// set as first aim the exit point of the street section
         PedestrianStreet section = ((PedestrianStreet)pedestrian.getCurrentSection().getStreetSection());
         Point curGlobPos = pedestrian.getCurrentGlobalPosition();
-        Point goal = checkAndSetAimWithinSection(forces, section, pedestrian);
+        Point globalGoal = checkAndSetAimWithinSection(forces, section, pedestrian);
         double minGab = pedestrian.getMinGapForPedestrian();
 
         for (IPedestrian otherPedestrian : section.getPedestrianQueue()){ // check for intersections with other pedestrians
@@ -175,24 +175,43 @@ public class PedestrianReachedAimEvent extends Event<Pedestrian> {
             // Otherwise the end of the section is the aim.
             // Afterwards the time until this destination is reached is calculated.
             if( ((Pedestrian)otherPedestrian).getCurrentNextGlobalAim() != null) {
-                if(calc.checkLinesIntersectionByCoordinates_WithinSegment(goal,
+                if(calc.checkLinesIntersectionByCoordinates_WithinSegment(globalGoal,
                         pedestrian.getCurrentGlobalPosition(),
                         pedestrian.getCurrentGlobalPosition().getX() + forces.getX(), pedestrian.getCurrentGlobalPosition().getY() + forces.getY(),
                         otherPedestrian.getCurrentGlobalPosition(),
                         ((Pedestrian) otherPedestrian).getCurrentNextGlobalAim())) {
                     // there is a crossing
+                    if(!checkTimeOfIntersectionMatches(pedestrian, globalGoal, (Pedestrian)otherPedestrian)) continue;
+
                     // crossing - the size of the current pedestrian = new destination aim
-                    if (calc.getDistanceByCoordinates(goal.getX() - minGab, goal.getY() - minGab, curGlobPos.getX(), curGlobPos.getY() )
-                            < calc.getDistanceByCoordinates(goal.getX() + minGab, goal.getY() + minGab, curGlobPos.getX(), curGlobPos.getY() )) {
-                        goal.setLocation(goal.getX() - minGab, goal.getY() - minGab);
+                    if (calc.getDistanceByCoordinates(globalGoal.getX() - minGab, globalGoal.getY() - minGab, curGlobPos.getX(), curGlobPos.getY() )
+                            < calc.getDistanceByCoordinates(globalGoal.getX() + minGab, globalGoal.getY() + minGab, curGlobPos.getX(), curGlobPos.getY() )) {
+                        globalGoal.setLocation(globalGoal.getX() - minGab, globalGoal.getY() - minGab);
                     } else {
-                        goal.setLocation(goal.getX() + minGab, goal.getY() + minGab);
+                        globalGoal.setLocation(globalGoal.getX() + minGab, globalGoal.getY() + minGab);
                     }
-                    pedestrian.setCurrentNextGlobalAim(goal);
+                    pedestrian.setCurrentNextGlobalAim(globalGoal);
                 }
             }
 
         }
+    }
+
+    Boolean checkTimeOfIntersectionMatches(Pedestrian pedestrian, Point intersection, Pedestrian otherPedestrian){
+        // get from last update time to time to intersection and
+        // compare simulated time of both pedestrians when reaching intersection coordinates.
+
+        double pedestrianReachedIntersection = pedestrian.getLastUpdateTime() +
+                (calc.getDistanceByCoordinates(pedestrian.getCurrentGlobalPosition(), intersection)/pedestrian.getCurrentSpeed());
+        double otherPedestrianReachedIntersection = otherPedestrian.getLastUpdateTime() +
+                (calc.getDistanceByCoordinates(otherPedestrian.getCurrentGlobalPosition(), intersection)/otherPedestrian.getCurrentSpeed());
+
+        // convert distance min gab in to time min time gab
+        double tolerance = Math.max(otherPedestrian.getMinGapForPedestrian()/otherPedestrian.getCurrentSpeed(),
+                                    pedestrian.getMinGapForPedestrian()/pedestrian.getCurrentSpeed());
+
+        if ( calc.almostEqual(pedestrianReachedIntersection, otherPedestrianReachedIntersection, tolerance)) return true;
+        return false;
     }
 
     Point checkAndSetAimWithinSection(Vector2d forces, PedestrianStreet section, Pedestrian pedestrian) {
