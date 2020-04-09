@@ -210,7 +210,9 @@ public class PedestrianReachedAimEvent extends Event<Pedestrian> {
         double tolerance = Math.max(otherPedestrian.getMinGapForPedestrian()/otherPedestrian.getCurrentSpeed(),
                                     pedestrian.getMinGapForPedestrian()/pedestrian.getCurrentSpeed());
 
-        if ( calc.almostEqual(pedestrianReachedIntersection, otherPedestrianReachedIntersection, tolerance)) return true;
+        if ( calc.almostEqual(pedestrianReachedIntersection, otherPedestrianReachedIntersection, tolerance)) {
+            return true;
+        }
         return false;
     }
 

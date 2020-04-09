@@ -47,12 +47,12 @@ public class Pedestrian extends Entity implements IPedestrian {
     private Point currentNextGlobalAim;
     SupportiveCalculations calc = new SupportiveCalculations();
 
-    public Pedestrian(Model model, String name, boolean showInTrace, Point currentGlobalPosition, IPedestrianBehaviour pedestrianBehaviour, IPedestrianRoute route, int minGapForPedestrian) {
+    public Pedestrian(Model model, String name, boolean showInTrace, Point currentGlobalPosition, IPedestrianBehaviour pedestrianBehaviour, IPedestrianRoute route, double minGapForPedestrian) {
         this(model, name, showInTrace, currentGlobalPosition, pedestrianBehaviour, route, 1.0, minGapForPedestrian);
     }
 
     public Pedestrian(Model model, String name, boolean showInTrace, Point currentGlobalPosition, IPedestrianBehaviour pedestrianBehaviour,
-                      IPedestrianRoute route, double timeRelatedParameterValueNForSpeedCalculation, int minGapForPedestrian)
+                      IPedestrianRoute route, double timeRelatedParameterValueNForSpeedCalculation, double minGapForPedestrian)
             throws IllegalArgumentException {
         super(model, "name", showInTrace);
 
@@ -103,7 +103,8 @@ public class Pedestrian extends Entity implements IPedestrian {
         this.pedestrianCrossingTime.reset();
 
         this.currentSpeed = this.getPreferredSpeed();
-        this.minGapForPedestrian = minGapForPedestrian; //cm
+        // coordinates are always at center of pedestrian, min gab simulates als the radius of pedestrian
+        this.minGapForPedestrian = (int) Math.ceil(minGapForPedestrian); //m -> for verification reason by number full meter is precisely enough for now
     }
 
     /**

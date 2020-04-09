@@ -163,6 +163,12 @@ public class RoundaboutSimulationModel extends Model {
     private ContDistNormal pedestrianPreferredSpeed;
 
     /**
+     * Random number stream used to define gab between Pedestrians.
+     * See {@link RoundaboutSimulationModel#init()} method for stream parameters.
+     */
+    private ContDistNormal pedestrianGapToOtherPedestiranSpeed;
+
+    /**
      * Random number stream used to define gender
      * See {@link RoundaboutSimulationModel#init()} method for stream parameters.
      */
@@ -197,14 +203,14 @@ public class RoundaboutSimulationModel extends Model {
      * @param showInTrace flag to indicate if this model shall produce output to the trace file
      */
     public RoundaboutSimulationModel(
-        Model model,
-        String name,
-        boolean showInReport,
-        boolean showInTrace
+            Model model,
+            String name,
+            boolean showInReport,
+            boolean showInTrace
     ) {
         this(
-            model, name, showInReport, showInTrace,
-            DEFAULT_MIN_TIME_BETWEEN_CAR_ARRIVALS, DEFAULT_MAX_TIME_BETWEEN_CAR_ARRIVALS
+                model, name, showInReport, showInTrace,
+                DEFAULT_MIN_TIME_BETWEEN_CAR_ARRIVALS, DEFAULT_MAX_TIME_BETWEEN_CAR_ARRIVALS
         );
     }
 
@@ -217,24 +223,24 @@ public class RoundaboutSimulationModel extends Model {
      * @param showInTrace flag to indicate if this model shall produce output to the trace file
      */
     public RoundaboutSimulationModel(
-        Model model,
-        String name,
-        boolean showInReport,
-        boolean showInTrace,
-        double minTimeBetweenCarArrivals,
-        double maxTimeBetweenCarArrivals
+            Model model,
+            String name,
+            boolean showInReport,
+            boolean showInTrace,
+            double minTimeBetweenCarArrivals,
+            double maxTimeBetweenCarArrivals
     ) {
         this(
-            DEFAULT_SIMULATION_SEED, model, name, showInReport, showInTrace,
-            minTimeBetweenCarArrivals, maxTimeBetweenCarArrivals,
-            DEFAULT_MIN_DISTANCE_FACTOR_BETWEEN_CARS, DEFAULT_MAX_DISTANCE_FACTOR_BETWEEN_CARS,
-            DEFAULT_MAIN_ARRIVAL_RATE_FOR_ONE_WAY_STREETS,
-            DEFAULT_STANDARD_CAR_ACCELERATION_TIME,
-            DEFAULT_MIN_CAR_LENGTH, DEFAULT_MAX_CAR_LENGTH, DEFAULT_EXPECTED_CAR_LENGTH,
-            DEFAULT_MIN_TRUCK_LENGTH, DEFAULT_MAX_TRUCK_LENGTH, DEFAULT_EXPECTED_TRUCK_LENGTH,
-            DEFAULT_CAR_RATIO_PER_TOTAL_VEHICLE,
-            DEFAULT_JAM_INDICATOR_IN_SECONDS
-            );
+                DEFAULT_SIMULATION_SEED, model, name, showInReport, showInTrace,
+                minTimeBetweenCarArrivals, maxTimeBetweenCarArrivals,
+                DEFAULT_MIN_DISTANCE_FACTOR_BETWEEN_CARS, DEFAULT_MAX_DISTANCE_FACTOR_BETWEEN_CARS,
+                DEFAULT_MAIN_ARRIVAL_RATE_FOR_ONE_WAY_STREETS,
+                DEFAULT_STANDARD_CAR_ACCELERATION_TIME,
+                DEFAULT_MIN_CAR_LENGTH, DEFAULT_MAX_CAR_LENGTH, DEFAULT_EXPECTED_CAR_LENGTH,
+                DEFAULT_MIN_TRUCK_LENGTH, DEFAULT_MAX_TRUCK_LENGTH, DEFAULT_EXPECTED_TRUCK_LENGTH,
+                DEFAULT_CAR_RATIO_PER_TOTAL_VEHICLE,
+                DEFAULT_JAM_INDICATOR_IN_SECONDS
+        );
     }
 
     /**
@@ -268,23 +274,23 @@ public class RoundaboutSimulationModel extends Model {
             Double jamIndicatorInSeconds
     ) {
         this(
-            simulationSeed, model, name, showInReport, showInTrace, minTimeBetweenCarArrivals,
-            maxTimeBetweenCarArrivals, minDistanceFactorBetweenCars, maxDistanceFactorBetweenCars,
-            mainArrivalRateForOneWayStreets, standardCarAccelerationTime,
-            minCarLength, maxCarLength, expectedCarLength, minTruckLength, maxTruckLength,
-            expectedTruckLength, carRatioPerTotalVehicle, jamIndicatorInSeconds,
+                simulationSeed, model, name, showInReport, showInTrace, minTimeBetweenCarArrivals,
+                maxTimeBetweenCarArrivals, minDistanceFactorBetweenCars, maxDistanceFactorBetweenCars,
+                mainArrivalRateForOneWayStreets, standardCarAccelerationTime,
+                minCarLength, maxCarLength, expectedCarLength, minTruckLength, maxTruckLength,
+                expectedTruckLength, carRatioPerTotalVehicle, jamIndicatorInSeconds,
 
-            DEFAULT_MIN_DISTANCE_FACTOR_BETWEEN_PEDESTRIAN,
-            DEFAULT_MAX_DISTANCE_FACTOR_BETWEEN_PEDESTRIAN,
-            DEFAULT_MIN_TIME_BETWEEN_PEDESTRIAN_ARRIVALS,
-            DEFAULT_MAX_TIME_BETWEEN_PEDESTRIAN_ARRIVALS,
-            DEFAULT_MEAN_TIME_BETWEEN_PEDESTRIAN_ARRIVALS,
+                DEFAULT_MIN_DISTANCE_FACTOR_BETWEEN_PEDESTRIAN,
+                DEFAULT_MAX_DISTANCE_FACTOR_BETWEEN_PEDESTRIAN,
+                DEFAULT_MIN_TIME_BETWEEN_PEDESTRIAN_ARRIVALS,
+                DEFAULT_MAX_TIME_BETWEEN_PEDESTRIAN_ARRIVALS,
+                DEFAULT_MEAN_TIME_BETWEEN_PEDESTRIAN_ARRIVALS,
 
-            DEFAULT_MIN_PEDESTRIAN_GROUP_SIZE, DEFAULT_MAX_PEDESTRIAN_GROUP_SIZE,
-            DEFAULT_MIN_PEDESTRIAN_STREET_LENGTH, DEFAULT_MIN_PEDESTRIAN_STREET_WIDTH,
-            DEFAULT_SFM_DEGREE_OF_ACCURACY,
-            DEFAULT_MIN_PEDESTRIAN_RELAXING_TIME, DEFAULT_MAX_PEDESTRIAN_RELAXING_TIME, DEFAULT_EXPECTED_PEDESTRIAN_RELAXING_TIME,
-            DEFAULT_MIN_PEDESTRIAN_PREFERRED_SPEED, DEFAULT_MAX_PEDESTRIAN_PREFERRED_SPEED, DEFAULT_EXPECTED_PEDESTRIAN_PREFERRED_SPEED
+                DEFAULT_MIN_PEDESTRIAN_GROUP_SIZE, DEFAULT_MAX_PEDESTRIAN_GROUP_SIZE,
+                DEFAULT_MIN_PEDESTRIAN_STREET_LENGTH, DEFAULT_MIN_PEDESTRIAN_STREET_WIDTH,
+                DEFAULT_SFM_DEGREE_OF_ACCURACY,
+                DEFAULT_MIN_PEDESTRIAN_RELAXING_TIME, DEFAULT_MAX_PEDESTRIAN_RELAXING_TIME, DEFAULT_EXPECTED_PEDESTRIAN_RELAXING_TIME,
+                DEFAULT_MIN_PEDESTRIAN_PREFERRED_SPEED, DEFAULT_MAX_PEDESTRIAN_PREFERRED_SPEED, DEFAULT_EXPECTED_PEDESTRIAN_PREFERRED_SPEED
         );
     }
 
@@ -298,45 +304,45 @@ public class RoundaboutSimulationModel extends Model {
      * @param showInTrace flag to indicate if this model shall produce output to the trace file
      */
     public RoundaboutSimulationModel(
-        Long simulationSeed,
-        Model model,
-        String name,
-        boolean showInReport,
-        boolean showInTrace,
-        Double minTimeBetweenCarArrivals,
-        Double maxTimeBetweenCarArrivals,
-        Double minDistanceFactorBetweenCars,
-        Double maxDistanceFactorBetweenCars,
-        Double mainArrivalRateForOneWayStreets,
-        Double standardCarAccelerationTime,
-        Double minCarLength,
-        Double maxCarLength,
-        Double expectedCarLength,
-        Double minTruckLength,
-        Double maxTruckLength,
-        Double expectedTruckLength,
-        Double carRatioPerTotalVehicle,
-        Double jamIndicatorInSeconds,
+            Long simulationSeed,
+            Model model,
+            String name,
+            boolean showInReport,
+            boolean showInTrace,
+            Double minTimeBetweenCarArrivals,
+            Double maxTimeBetweenCarArrivals,
+            Double minDistanceFactorBetweenCars,
+            Double maxDistanceFactorBetweenCars,
+            Double mainArrivalRateForOneWayStreets,
+            Double standardCarAccelerationTime,
+            Double minCarLength,
+            Double maxCarLength,
+            Double expectedCarLength,
+            Double minTruckLength,
+            Double maxTruckLength,
+            Double expectedTruckLength,
+            Double carRatioPerTotalVehicle,
+            Double jamIndicatorInSeconds,
 
-        Double minDistanceFactorBetweenPedestrians,
-        Double maxDistanceFactorBetweenPedestrians,
-        Double minTimeBetweenPedestrianArrivals,
-        Double maxTimeBetweenPedestrianArrivals,
-        Double meanTimeBetweenPedestrianArrivals,
+            Double minDistanceFactorBetweenPedestrians,
+            Double maxDistanceFactorBetweenPedestrians,
+            Double minTimeBetweenPedestrianArrivals,
+            Double maxTimeBetweenPedestrianArrivals,
+            Double meanTimeBetweenPedestrianArrivals,
 
-        Long minPedestrianGroupSize,
-        Long maxPedestrianGroupSize,
-        Double minPedestrianStreetLength,
-        Double minPedestrianStreetWidth,
-        Double SFM_DegreeOfAccuracy,
+            Long minPedestrianGroupSize,
+            Long maxPedestrianGroupSize,
+            Double minPedestrianStreetLength,
+            Double minPedestrianStreetWidth,
+            Double SFM_DegreeOfAccuracy,
 
-        Double minPedestrianRelaxingTimeTauAlpha,
-        Double maxPedestrianRelaxingTimeTauAlpha,
-        Double expectedPedestrianRelaxingTimeTauAlpha,
-        Double minPedestrianPreferredSpeed,
-        Double maxPedestrianPreferredSpeed,
-        Double expectedPedestrianPreferredSpeed
-        ) {
+            Double minPedestrianRelaxingTimeTauAlpha,
+            Double maxPedestrianRelaxingTimeTauAlpha,
+            Double expectedPedestrianRelaxingTimeTauAlpha,
+            Double minPedestrianPreferredSpeed,
+            Double maxPedestrianPreferredSpeed,
+            Double expectedPedestrianPreferredSpeed
+    ) {
         super(model, name, showInReport, showInTrace);
 
         this.simulationSeed = simulationSeed;
@@ -409,32 +415,32 @@ public class RoundaboutSimulationModel extends Model {
         getExperiment().setSeedGenerator(simulationSeed);
 
         randomRouteRatioFactor = new ContDistUniform(
-            this,
-            "RandomRouteRatioFactor",
-            0,
-            1,
-            true,
-            false
+                this,
+                "RandomRouteRatioFactor",
+                0,
+                1,
+                true,
+                false
         );
         randomRouteRatioFactor.setSeed(simulationSeed);
 
         distanceFactorBetweenCars = new ContDistUniform(
-            this,
-            "DistanceFactorBetweenCarsStream",
-            minDistanceFactorBetweenCars,
-            maxDistanceFactorBetweenCars,
-            true,
-            false
+                this,
+                "DistanceFactorBetweenCarsStream",
+                minDistanceFactorBetweenCars,
+                maxDistanceFactorBetweenCars,
+                true,
+                false
         );
         distanceFactorBetweenCars.setSeed(simulationSeed);
 
         timeBetweenCarArrivals = new ContDistNormal(
-            this,
-            "TimeBetweenCarArrivalsStream",
+                this,
+                "TimeBetweenCarArrivalsStream",
                 getMeanTimeBetweenCarArrivals(),
                 getStdDeviationTimeBetweenCarArrivals(),
-            true,
-            false
+                true,
+                false
         );
         timeBetweenCarArrivals.setSeed(simulationSeed);
 
@@ -451,31 +457,31 @@ public class RoundaboutSimulationModel extends Model {
 
         // calculate the standard deviation (of skew normal distribution) for car length
         final StandardDeviation carLengthDeviation = StandardDeviation.calculate(
-            minCarLength, maxCarLength, expectedCarLength, VEHICLE_LENGTH_STEP_SIZE
+                minCarLength, maxCarLength, expectedCarLength, VEHICLE_LENGTH_STEP_SIZE
         );
         lengthOfCar = new ContDistNormal(
-            this,
-            "LengthOfCar",
-            expectedCarLength,
-            carLengthDeviation.getLeft(),
-            carLengthDeviation.getRight(),
-            true,
-            false
+                this,
+                "LengthOfCar",
+                expectedCarLength,
+                carLengthDeviation.getLeft(),
+                carLengthDeviation.getRight(),
+                true,
+                false
         );
         lengthOfCar.setSeed(simulationSeed);
 
         // calculate the standard deviation (of skew normal distribution) for truck length
         final StandardDeviation truckLengthDeviation = StandardDeviation.calculate(
-            minTruckLength, maxTruckLength, expectedTruckLength, VEHICLE_LENGTH_STEP_SIZE
+                minTruckLength, maxTruckLength, expectedTruckLength, VEHICLE_LENGTH_STEP_SIZE
         );
         lengthOfTruck = new ContDistNormal(
-            this,
-            "LengthOfTruck",
-            expectedTruckLength,
-            truckLengthDeviation.getLeft(),
-            truckLengthDeviation.getRight(),
-            true,
-            false
+                this,
+                "LengthOfTruck",
+                expectedTruckLength,
+                truckLengthDeviation.getLeft(),
+                truckLengthDeviation.getRight(),
+                true,
+                false
         );
         lengthOfTruck.setSeed(simulationSeed);
 
@@ -483,12 +489,12 @@ public class RoundaboutSimulationModel extends Model {
             throw new IllegalArgumentException("carRatioPerTotalVehicle must smaller or equals 1.");
         }
         typeOfVehicle = new ContDistUniform(
-            this,
-            "LengthOfVehicle",
-            0.0,
-            1.0,
-            true,
-            false
+                this,
+                "LengthOfVehicle",
+                0.0,
+                1.0,
+                true,
+                false
         );
         typeOfVehicle.setSeed(simulationSeed);
 
@@ -868,15 +874,14 @@ public class RoundaboutSimulationModel extends Model {
     }
 
     /**
-     * Random number to define the Gender
+     * Random number stream used to calculate a the min gab between two pedestrian.
      * See {@link RoundaboutSimulationModel#init()} method for stream parameters.
      */
-    public Gender getRandomPedestrianGender() {
-        int maxValue = Gender.values().length -1;
-        int minValue = 0;
-        long val = Math.round(Math.max(Math.min(pedestrianGender.sample(), maxValue), minValue));
-        return Gender.values()[(int)val];
+    public Double getRandomMinGabToPedestrian(double min, double max) {
+        return Math.max(Math.min(pedestrianGapToOtherPedestiranSpeed.sample(), max), min);
     }
+
+
 
     /**
      * Random number stream to define age range group
@@ -887,6 +892,17 @@ public class RoundaboutSimulationModel extends Model {
         int minValue = 0;
         double val = Math.round(Math.max(Math.min(pedestrianAgeRangeGroup.sample(),  maxValue), minValue));
         return AgeRangeGroup.values()[(int)val];
+    }
+
+    /**
+     * Random number to define the Gender
+     * See {@link RoundaboutSimulationModel#init()} method for stream parameters.
+     */
+    public Gender getRandomPedestrianGender() {
+        int maxValue = Gender.values().length -1;
+        int minValue = 0;
+        long val = Math.round(Math.max(Math.min(pedestrianGender.sample(), maxValue), minValue));
+        return Gender.values()[(int)val];
     }
 
     /**

@@ -20,7 +20,6 @@ public class PedestrianGenerateEvent extends Event<PedestrianAbstractSource> {
     Model model;
     String name;
     boolean showInTrace;
-    private final int minGapForPedestrian = 50; // in cm from center of pedestrian, todo adapt for different person sizes -> min max
 
     /**
      * A reference to the {@link RoundaboutSimulationModel} the {@link PedestrianReachedAimEvent} is part of.
@@ -97,6 +96,19 @@ public class PedestrianGenerateEvent extends Event<PedestrianAbstractSource> {
             connectorPair.getPortOfToStreetSection().getLocalEndOfStreetPort();
 
 
+            final PedestrianBehaviour behaviour = new PedestrianBehaviour(
+                    roundaboutSimulationModel.getRandomPedestrianPreferredSpeed(),
+                    0.5,
+                    0.8,
+                    1,
+                    1, //TODO
+                    roundaboutSimulationModel.getRandomPedestrianGender(),
+                    roundaboutSimulationModel.getRandomPedestrianPsychologicalNature(),
+                    roundaboutSimulationModel.getRandomPedestrianAgeGroupe());
+
+            double minGapForPedestrian = roundaboutSimulationModel
+                    .getRandomMinGabToPedestrian(behaviour.getMinDistanceToNextPedestrian(),behaviour.getMaxDistanceToNextPedestrian());
+
             Point globalEntryPoint = new Point();
             if (calc.almostEqual(end.getX(), start.getX())) {
                 double entryY = roundaboutSimulationModel.getRandomEntryPoint(
@@ -111,15 +123,7 @@ public class PedestrianGenerateEvent extends Event<PedestrianAbstractSource> {
                 globalEntryPoint.setLocation(start.getX() + global.getX(), entryX + global.getY());
             }
 
-            final PedestrianBehaviour behaviour = new PedestrianBehaviour(
-                    roundaboutSimulationModel.getRandomPedestrianPreferredSpeed(),
-                    0.5,
-                    0.5,
-                    1,
-                    1, //TODO
-                    roundaboutSimulationModel.getRandomPedestrianGender(),
-                    roundaboutSimulationModel.getRandomPedestrianPsychologicalNature(),
-                    roundaboutSimulationModel.getRandomPedestrianAgeGroupe());
+
             final Pedestrian pedestrian = new Pedestrian(roundaboutSimulationModel, name, showInTrace, globalEntryPoint, behaviour, route, minGapForPedestrian);
             PedestrianController.addCarMapping(pedestrian.getCarDummy(), pedestrian);
             pedestrian.enterSystem();
