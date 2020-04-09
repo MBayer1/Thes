@@ -23,7 +23,8 @@ public class PedestrianSink extends PedestrianAbstractSink {
     private double meanWaitingTimePerStop;
     private double meanStopCount;
     private double meanPedestrianAreaTime;
-
+    private double meanPedestrianQueueWaitingToEnterSystem; //pedestriansQueueTo
+    private double meanWaitingTimeBeforeEnteringSystem; //pedestriansQueueTo
 
     public PedestrianSink(Model owner, String name, boolean showInTrace) {
         this(UUID.randomUUID().toString(), owner, name, showInTrace);
@@ -37,6 +38,8 @@ public class PedestrianSink extends PedestrianAbstractSink {
         this.meanWaitingTimePerStop = 0;
         this.meanStopCount = 0;
         this.meanPedestrianAreaTime = 0;
+        this.meanWaitingTimeBeforeEnteringSystem = 0;
+        this.meanPedestrianQueueWaitingToEnterSystem = 0;
     }
 
 
@@ -83,9 +86,8 @@ public class PedestrianSink extends PedestrianAbstractSink {
 
         iPedestrian.leaveSystem();
         iPedestrian.leavePedestrianArea();
-        if (((Pedestrian)iPedestrian).isPedestrianCrossingStopWatchActive()) {
-            iPedestrian.leavePedestrianCrossing();
-        }
+        iPedestrian.leavePedestrianCrossing();
+
 
         incrementEnteredPedestrianCounter();
 
@@ -112,6 +114,12 @@ public class PedestrianSink extends PedestrianAbstractSink {
         meanWaitingTimePerStop = meanWaitingTimePerStop * dPreviousRate + pedestrian.getMeanWaitingTime()/ getNrOfEnteredPedestrians();
         meanStopCount = meanStopCount * dPreviousRate + pedestrian.getStopCount()/ getNrOfEnteredPedestrians();
         meanPedestrianAreaTime = meanPedestrianAreaTime * dPreviousRate + pedestrian.getMeanStreetAreaPassTime()/ getNrOfEnteredPedestrians();
+
+        if ( !(pedestrian instanceof Pedestrian)) {
+            throw new IllegalStateException("type mismatch");
+        }
+        meanWaitingTimeBeforeEnteringSystem = meanWaitingTimeBeforeEnteringSystem * dPreviousRate + ((Pedestrian) pedestrian).getMeanWaitingBeforeEnteringsTime() / getNrOfEnteredPedestrians();
+        meanPedestrianQueueWaitingToEnterSystem = meanPedestrianQueueWaitingToEnterSystem * dPreviousRate + ((Pedestrian) pedestrian).getWaitingBeforeEnteringCount() / getNrOfEnteredPedestrians();
     }
 
     public void addCar(ICar iCar) {

@@ -154,6 +154,8 @@ public class PedestrianReachedAimEvent extends Event<Pedestrian> {
 
         pedestrianEventFactory.createPedestrianReachedAimEvent(roundaboutSimulationModel).schedule(
                 pedestrian, new TimeSpan(timeToDestination, roundaboutSimulationModel.getModelTimeUnit()));
+
+        ((PedestrianStreetSection)currentSection).reCheckPedestrianCanEnterSection(); // after some movements recheck pedestrians in queue
     }
 
     void setNewGoal( Pedestrian pedestrian, Vector2d forces ){

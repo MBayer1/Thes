@@ -21,6 +21,7 @@ public class PedestrianGenerateEvent extends Event<PedestrianAbstractSource> {
     String name;
     boolean showInTrace;
 
+
     /**
      * A reference to the {@link RoundaboutSimulationModel} the {@link PedestrianReachedAimEvent} is part of.
      */
@@ -57,7 +58,8 @@ public class PedestrianGenerateEvent extends Event<PedestrianAbstractSource> {
         this.model = model;
         this.name = name;
         this.showInTrace = showInTrace;
-        routeController = PedestrianRouteController.getInstance(roundaboutSimulationModel);
+        this.routeController = PedestrianRouteController.getInstance(roundaboutSimulationModel);
+
     }
 
     /**
@@ -101,7 +103,7 @@ public class PedestrianGenerateEvent extends Event<PedestrianAbstractSource> {
                     0.5,
                     0.8,
                     1,
-                    1, //TODO
+                    1,
                     roundaboutSimulationModel.getRandomPedestrianGender(),
                     roundaboutSimulationModel.getRandomPedestrianPsychologicalNature(),
                     roundaboutSimulationModel.getRandomPedestrianAgeGroupe());
@@ -123,12 +125,13 @@ public class PedestrianGenerateEvent extends Event<PedestrianAbstractSource> {
                 globalEntryPoint.setLocation(start.getX() + global.getX(), entryX + global.getY());
             }
 
-
             final Pedestrian pedestrian = new Pedestrian(roundaboutSimulationModel, name, showInTrace, globalEntryPoint, behaviour, route, minGapForPedestrian);
             PedestrianController.addCarMapping(pedestrian.getCarDummy(), pedestrian);
-            pedestrian.enterSystem();
-            ((PedestrianStreetSection) currentSection).addPedestrian(pedestrian, globalEntryPoint);
-            pedestrian.setCurrentLocalPosition(); // do this after adding to street section
+            if (checkPedestrianCanEnterSystem(pedestrian, globalEntryPoint, (PedestrianStreetSection)currentSection)) {
+                pedestrian.enterSystem();
+                ((PedestrianStreetSection) currentSection).addPedestrian(pedestrian, globalEntryPoint);
+                pedestrian.setCurrentLocalPosition(); // do this after adding to street section
+            }
 
             // schedule next events
             final PedestrianReachedAimEvent pedestrianReachedAimEvent = pedestrianEventFactory.createPedestrianReachedAimEvent(roundaboutSimulationModel);
@@ -150,5 +153,13 @@ public class PedestrianGenerateEvent extends Event<PedestrianAbstractSource> {
         } else {
             throw new IllegalStateException("CurrentSection should be of type PedestrianStreet");
         }
+    }
+
+    private boolean checkPedestrianCanEnterSystem(Pedestrian pedestrian, Point globalEnterPoint, PedestrianStreetSection section) {
+        if (!section.checkPedestrianCanEnterSection(pedestrian, globalEnterPoint, section)) {
+            section.addPedestriansQueueToEnter(pedestrian, globalEnterPoint, section);
+            return false;
+        }
+        return true;
     }
 }

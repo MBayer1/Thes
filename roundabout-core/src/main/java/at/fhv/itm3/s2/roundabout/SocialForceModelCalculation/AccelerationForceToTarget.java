@@ -11,7 +11,6 @@ public class AccelerationForceToTarget {
     SupportiveCalculations calculations = new SupportiveCalculations();
 
     public Vector2d getAccelerationForceToTarget(RoundaboutSimulationModel model, Pedestrian pedestrian){
-
         Vector2d currentSpeedVector = new Vector2d(pedestrian.getCurrentSpeed(),0.0);
         Vector2d currentPositionVector = new Vector2d(pedestrian.getCurrentGlobalPosition().getX(), pedestrian.getCurrentGlobalPosition().getY());
 

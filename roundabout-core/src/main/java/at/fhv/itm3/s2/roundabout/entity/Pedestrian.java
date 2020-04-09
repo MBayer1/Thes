@@ -24,9 +24,9 @@ public class Pedestrian extends Entity implements IPedestrian {
     private final IPedestrianRoute route;
     private final IPedestrianBehaviour pedestrianBehaviour;
     private final Iterator<PedestrianStreetSectionAndPortPair> routeIterator;
-    private final StopWatch pedestrianStopWatch;
-    private final Count pedestrianCounter;
-    private final Tally pedestrianAreaTime;
+    private final StopWatch pedestrianStopWatch; // this was prepared for waiting areas
+    private final Count pedestrianCounter; // this was prepared for waiting areas
+    private final Tally pedestrianAreaTime; // this was prepared for waiting areas
     private final StopWatch pedestrianCrossingStopWatch;
     private final Count pedestrianCrossingCounter;
     private final Tally pedestrianCrossingTime;
@@ -36,6 +36,10 @@ public class Pedestrian extends Entity implements IPedestrian {
     private double lastUpdateTime;
     private Point currentGlobalPosition;
     private Point currentLocalPosition;
+
+    public final Count pedestriansQueueToEnterCounter;
+    public final Tally pedestriansQueueToEnterTime;
+    public final StopWatch pedestriansQueueToEnterTimeStopWatch;
 
     private PedestrianStreetSection lastSection;
     private PedestrianStreetSectionAndPortPair currentSection;
@@ -98,13 +102,18 @@ public class Pedestrian extends Entity implements IPedestrian {
 
         this.pedestrianCrossingStopWatch = new StopWatch(model);
         this.pedestrianCrossingCounter = new Count(model, "Roundabout counter", false, false);
-        this.pedestrianCounter.reset();
+        this.pedestrianCrossingCounter.reset();
         this.pedestrianCrossingTime = new Tally(model, "Roundabout time", false, false);
         this.pedestrianCrossingTime.reset();
 
         this.currentSpeed = this.getPreferredSpeed();
         // coordinates are always at center of pedestrian, min gab simulates als the radius of pedestrian
         this.minGapForPedestrian = (int) Math.ceil(minGapForPedestrian); //m -> for verification reason by number full meter is precisely enough for now
+
+        this.pedestriansQueueToEnterCounter = new Count(model, "Roundabout counter", false, false);
+        this.pedestriansQueueToEnterCounter.reset();
+        this.pedestriansQueueToEnterTime = new Tally(model, "Roundabout time", false, false);
+        this.pedestriansQueueToEnterTimeStopWatch = new StopWatch(model);
     }
 
     /**
@@ -345,14 +354,11 @@ public class Pedestrian extends Entity implements IPedestrian {
      */
     @Override
     public void leavePedestrianCrossing() {
-        double res = this.pedestrianCrossingStopWatch.stop();
-        this.pedestrianCrossingTime.update(new TimeSpan(res));
+        if (this.pedestrianCrossingStopWatch.isRunning()) {
+            double res = this.pedestrianCrossingStopWatch.stop();
+            this.pedestrianCrossingTime.update(new TimeSpan(res));
+        }
     }
-
-    public boolean isPedestrianCrossingStopWatchActive() {
-        return this.pedestrianCrossingStopWatch.isRunning();
-    }
-
 
     /**
      * {@inheritDoc}
@@ -415,6 +421,14 @@ public class Pedestrian extends Entity implements IPedestrian {
 
     public double getMeanWaitingTime() {
         return car.getMeanWaitingTime();
+    }
+
+    public double getWaitingBeforeEnteringCount() {
+        return this.pedestriansQueueToEnterCounter.getValue();
+    }
+
+    public double getMeanWaitingBeforeEnteringsTime() {
+        return this.pedestriansQueueToEnterTime.getObservations() <= 0L ? 0.0D : this.pedestriansQueueToEnterTime.getMean();
     }
 
     public long getStopCount() {
@@ -682,4 +696,5 @@ public class Pedestrian extends Entity implements IPedestrian {
     public int getMinGapForPedestrian() {
         return minGapForPedestrian;
     }
+
 }
