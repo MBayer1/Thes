@@ -542,6 +542,7 @@ public class ConfigParser {
                             s.getMinGreenPhaseDuration(),
                             s.getGreenPhaseDuration(),
                             s.getRedPhaseDuration(),
+                            s.getMinSizeOfPedestriansForTrafficLightTriggeredByJam(),
                             null
                     );
 

@@ -71,12 +71,19 @@ public class SupportiveCalculations {
             throw new IllegalArgumentException("Lines are identical.");
         }
 
-        //linear equation: y=m*x+d -> note special case: parallel to y-axis -> y(x) = const, always
-        //1. set linear equation in linear equation -> m1*x+d1 = m2*x+d2  -> x = (d2-d1)/(m1-m2)
-        double dSlope1 = (lineEndY1-lineStartY1)/(lineEndX1-lineStartX1);	//m1
+        //linear equation: y=m*x+d -> note special case: parallel to y-axis     -> y(x) = const, always
+        //1. set linear equation in linear equation -> m1*x+d1 = m2*x+d2        -> x = (d2-d1)/(m1-m2)
+        double dSlope1 = (lineEndY1-lineStartY1)/(lineEndX1-lineStartX1);	        //m1
         double dYIntercept1 = lineEndY1-(lineEndX1*dSlope1);						//d1
-        double dSlope2 = (lineEndY2-lineStartY2)/(lineEndX2-lineStartX2);	//m2
+        double dSlope2 = (lineEndY2-lineStartY2)/(lineEndX2-lineStartX2);	        //m2
         double dYIntercept2 = lineEndY2-(lineEndX2*dSlope2);						//d2
+
+        // both parallel y-axis
+        if( (Double.isInfinite(dSlope1) && Double.isInfinite(dSlope2)) ||
+             ( (Double.isInfinite(dSlope1) || Double.isInfinite(dSlope2)) &&
+              (almostEqual(dSlope1, 0) || almostEqual(dSlope2, 0)))) {
+            return false;
+        }
 
         //check if parallel to y-axis
         if (almostEqual(lineEndX1,lineStartX1)){
@@ -221,6 +228,12 @@ public class SupportiveCalculations {
         returnIntersection.set(dReturnX, dReturnY);
 
         return true;
+    }
+
+    public double getDistanceByCoordinates(    Point pos1,
+                                               Point pos2)
+    {
+        return getDistanceByCoordinates( pos1.getX(), pos1.getY(), pos2.getX(), pos2.getY(),0,0);
     }
 
     public double getDistanceByCoordinates(    double dPosX1, double dPosY1,

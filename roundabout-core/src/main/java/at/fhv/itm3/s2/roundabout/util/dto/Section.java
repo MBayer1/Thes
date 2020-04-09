@@ -14,7 +14,8 @@ public class Section implements IDTO {
     private Long minGreenPhaseDuration;
     private Long greenPhaseDuration;
     private Long redPhaseDuration;
-    private String pedestrianCrossingIDRef, pedestrianCrossingComponentIDRef; // TODO
+    private Long minSizeOfPedestriansForTrafficLightTriggeredByJam;
+    private String pedestrianCrossingIDRef, pedestrianCrossingComponentIDRef;
     private Integer pedestrianCrossingIDRefEnterHigh;
     private String pedestrianCrossingRefLinkedAtBegin;
     private Boolean flexiBorderAlongX;
@@ -92,6 +93,16 @@ public class Section implements IDTO {
 
     public void setMinGreenPhaseDuration(Long minGreenPhaseDuration) {
         this.minGreenPhaseDuration = minGreenPhaseDuration;
+    }
+
+
+    @XmlAttribute
+    public Long getMinSizeOfPedestriansForTrafficLightTriggeredByJam() {
+        return minSizeOfPedestriansForTrafficLightTriggeredByJam;
+    }
+
+    public void setMinSizeOfPedestriansForTrafficLightTriggeredByJam(Long minSizeOfPedestriansForTrafficLightTriggeredByJam) {
+        this.minSizeOfPedestriansForTrafficLightTriggeredByJam = minSizeOfPedestriansForTrafficLightTriggeredByJam;
     }
 
     @XmlAttribute

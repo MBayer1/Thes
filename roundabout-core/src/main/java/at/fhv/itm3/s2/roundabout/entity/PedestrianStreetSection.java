@@ -23,7 +23,7 @@ public class PedestrianStreetSection extends PedestrianStreet {
     private final double lengthY;
     private final PedestrianConsumerType consumerType;
     private Point globalCoordinateOfSectionOrigin;
-    private int minSizeOfPedestriansForTrafficLightTriggeredByJam = 10;
+    private Long minSizeOfPedestriansForTrafficLightTriggeredByJam;
     private boolean flexiBorderAlongX = true; // needed for type PedestrianCrossing
 
     // next two values are for the controlling of a traffic light [checking for jam/ needed for optimization]
@@ -76,7 +76,7 @@ public class PedestrianStreetSection extends PedestrianStreet {
     ) {
         this(
                 id, lengthX, lengthY, consumerType, model, modelDescription, showInTrace,
-                false, null, null, null, null
+                false, null, null, null, null, null
         );
     }
 
@@ -89,11 +89,13 @@ public class PedestrianStreetSection extends PedestrianStreet {
             boolean showInTrace,
             boolean trafficLightActive,
             Long greenPhaseDuration,
-            Long redPhaseDuration
+            Long redPhaseDuration,
+            Long minSizeOfPedestriansForTrafficLightTriggeredByJam
     ) {
         this(
                 UUID.randomUUID().toString(), lengthX, lengthY, consumerType, model, modelDescription, showInTrace,
-                trafficLightActive, null, greenPhaseDuration, redPhaseDuration,null
+                trafficLightActive, null, greenPhaseDuration, redPhaseDuration,
+                minSizeOfPedestriansForTrafficLightTriggeredByJam,                 null
         );
     }
 
@@ -109,6 +111,7 @@ public class PedestrianStreetSection extends PedestrianStreet {
             Long minGreenPhaseDuration,
             Long greenPhaseDuration,
             Long redPhaseDuration,
+            Long minSizeOfPedestriansForTrafficLightTriggeredByJam,
             Point globalCoordinateForCenter
     ) {
         super(
@@ -124,6 +127,7 @@ public class PedestrianStreetSection extends PedestrianStreet {
 
         this.lengthX = lengthX;
         this.lengthY = lengthY;
+        this.minSizeOfPedestriansForTrafficLightTriggeredByJam = minSizeOfPedestriansForTrafficLightTriggeredByJam;
 
         this.consumerType = consumerType;
 
@@ -238,7 +242,6 @@ public class PedestrianStreetSection extends PedestrianStreet {
             // for this the area in front of the crossing should be limited as an waiting in front of the crossing
 
             final boolean isActualGreenPhaseBiggerThanMin = (getRoundaboutModel().getCurrentTime() - getGreenPhaseStart()) > getMinGreenPhaseDurationOfTrafficLight();
-
             if( (getPedestrianQueue().size() >= minSizeOfPedestriansForTrafficLightTriggeredByJam) && isActualGreenPhaseBiggerThanMin) {
                 // trigger red
                 PedestrianEventFactory.getInstance().createToggleTrafficLightStateEvent(getRoundaboutModel()).schedule(
@@ -361,7 +364,7 @@ public class PedestrianStreetSection extends PedestrianStreet {
         this.nextStreetConnector.add(streetConnector);
     }
 
-    public int getMinSizeOfPedestriansForTrafficLightTriggeredByJam() {
+    public long getMinSizeOfPedestriansForTrafficLightTriggeredByJam() {
         return minSizeOfPedestriansForTrafficLightTriggeredByJam;
     }
 
