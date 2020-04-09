@@ -45,7 +45,6 @@ public class Pedestrian extends Entity implements IPedestrian {
     private Double walkedDistance;
     private double timeRelatedParameterValueNForSpeedCalculation;
     private Point currentNextGlobalAim;
-    private Point exitPointOnPort;
     SupportiveCalculations calc = new SupportiveCalculations();
 
     public Pedestrian(Model model, String name, boolean showInTrace, Point currentGlobalPosition, IPedestrianBehaviour pedestrianBehaviour, IPedestrianRoute route, int minGapForPedestrian) {
@@ -74,7 +73,6 @@ public class Pedestrian extends Entity implements IPedestrian {
             this.nextSection = retrieveNextRouteSection();
             this.sectionAfterNextSection = retrieveNextRouteSection();
             this.currentNextGlobalAim = null;
-            this.exitPointOnPort = null;
         } else {
             throw new IllegalArgumentException("Route should not be null.");
         }
@@ -225,14 +223,6 @@ public class Pedestrian extends Entity implements IPedestrian {
                 (int) (currentGlobalPosition.getY() - globalOffset.getY()));
 
         this.currentLocalPosition = localPos;
-    }
-
-    public void setExitPointOnPort(Point exitPointOnPort) {
-        this.exitPointOnPort = exitPointOnPort;
-    }
-
-    public Point getExitPointOnPort() {
-        return this.exitPointOnPort;
     }
 
     public Point getClosestExitPointOfCurrentSection() {
@@ -462,6 +452,7 @@ public class Pedestrian extends Entity implements IPedestrian {
         PedestrianStreetSectionPort enterPort = nextSection.getEnterPort();
         double high = 0;
         Point pos = null;
+        Point exitPointOnPort = getClosestExitPointOfCurrentSection();
 
         // exit Port along x axis
         if (calc.almostEqual(exitPort.getLocalBginOfStreetPort().getX(), exitPort.getLocalEndOfStreetPort().getX())) {

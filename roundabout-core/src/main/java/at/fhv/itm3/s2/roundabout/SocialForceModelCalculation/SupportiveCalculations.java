@@ -22,44 +22,44 @@ public class SupportiveCalculations {
         return new Vector2d(returnXTmp, returnYTmp);
     }
 
-    public boolean checkLinesIntersectionByCoordinates_WithinSegment(double intersectionX, double intersectionY,
+    public boolean checkLinesIntersectionByCoordinates_WithinSegment(Point intersection,
                                                                      Point lineStart1,
                                                                      double lineEndX1, double lineEndY1,
                                                                      Point lineStart2,
                                                                      Point lineEnd2
     ) {
-        return checkLinesIntersectionByCoordinates_WithinSegment(intersectionX, intersectionY,
+        return checkLinesIntersectionByCoordinates_WithinSegment(intersection,
                 lineStart1.getX(), lineStart1.getY(), lineEndX1, lineEndY1,
                 lineStart2.getX(), lineStart2.getY(), lineEnd2.getX(), lineEnd2.getY());
 
     }
 
-    public boolean checkLinesIntersectionByCoordinates_WithinSegment(double intersectionX, double intersectionY,
+    public boolean checkLinesIntersectionByCoordinates_WithinSegment(Point intersection,
                                                                      Point lineStart1,
                                                                      Point lineEnd1,
                                                                      Point lineStart2,
                                                                      Point lineEnd2
     ) {
-        return checkLinesIntersectionByCoordinates_WithinSegment(intersectionX, intersectionY,
+        return checkLinesIntersectionByCoordinates_WithinSegment(intersection,
                 lineStart1.getX(), lineStart1.getY(), lineEnd1.getX(), lineEnd1.getY(),
                 lineStart2.getX(), lineStart2.getY(), lineEnd2.getX(), lineEnd2.getY());
 
     }
 
-    public boolean checkLinesIntersectionByCoordinates_WithinSegment(double intersectionX, double intersectionY,
+    public boolean checkLinesIntersectionByCoordinates_WithinSegment(Point intersection,
                                                                      double lineStartX1, double lineStartY1,
                                                                      double lineEndX1, double lineEndY1,
                                                                      Point lineStart2,
                                                                      Point lineEnd2
     ) {
-        return checkLinesIntersectionByCoordinates_WithinSegment(intersectionX, intersectionY,
+        return checkLinesIntersectionByCoordinates_WithinSegment(intersection,
                         lineStartX1, lineStartY1,
                         lineEndX1, lineEndY1,
                 lineStart2.getX(), lineStart2.getY(), lineEnd2.getX(), lineEnd2.getY());
 
     }
 
-    public boolean checkLinesIntersectionByCoordinates_WithinSegment(double intersectionX, double intersectionY,
+    public boolean checkLinesIntersectionByCoordinates_WithinSegment(Point intersection,
                                                                      double lineStartX1, double lineStartY1,
                                                                      double lineEndX1, double lineEndY1,
                                                                      double lineStartX2, double lineStartY2,
@@ -80,12 +80,10 @@ public class SupportiveCalculations {
 
         //check if parallel to y-axis
         if (almostEqual(lineEndX1,lineStartX1)){
-            intersectionX = lineEndX1;
-            intersectionY = intersectionX* dSlope2 + dYIntercept2;
+            intersection.setLocation(lineEndX1, lineEndX1* dSlope2 + dYIntercept2);
         }
         if (almostEqual(lineEndX2,lineStartX2)){
-            intersectionX = lineEndX2;
-            intersectionY = intersectionX* dSlope1 + dYIntercept1;
+            intersection.setLocation(lineEndX2, lineEndX2* dSlope1 + dYIntercept1);
         }
 
         // if the slope is the same the lines are parallel and never cross another
@@ -93,14 +91,14 @@ public class SupportiveCalculations {
             return false;
         }
 
-        intersectionX = (dYIntercept2-dYIntercept1)/(dSlope1-dSlope2);
-        intersectionY = intersectionX* dSlope1 + dYIntercept1;
+        double tmpX = (dYIntercept2-dYIntercept1)/(dSlope1-dSlope2);
+        intersection.setLocation(tmpX, tmpX* dSlope1 + dYIntercept1);
 
         //Intersection have to be on the line segment
-        if((((intersectionX>=lineStartX1) && (intersectionX<=lineEndX1)) ||
-                ((intersectionX<=lineStartX1) && (intersectionX>=lineEndX1))) &&
-                (((intersectionX>=lineStartX2) && (intersectionX<=lineEndX2)) ||
-                        ((intersectionX<=lineStartX2) && (intersectionX>=lineEndX2)))){
+        if((((intersection.getX()>=lineStartX1) && (intersection.getX()<=lineEndX1)) ||
+                ((intersection.getX()<=lineStartX1) && (intersection.getX()>=lineEndX1))) &&
+                (((intersection.getX()>=lineStartX2) && (intersection.getX()<=lineEndX2)) ||
+                        ((intersection.getX()<=lineStartX2) && (intersection.getX()>=lineEndX2)))){
             return true;
         }
 
