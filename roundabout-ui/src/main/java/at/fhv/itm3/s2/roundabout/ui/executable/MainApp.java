@@ -2,6 +2,8 @@ package at.fhv.itm3.s2.roundabout.ui.executable;
 
 
 import at.fhv.itm3.s2.roundabout.controller.CarController;
+import at.fhv.itm3.s2.roundabout.entity.AccelarationFOrceTMp;
+import at.fhv.itm3.s2.roundabout.entity.Pedestrian;
 import at.fhv.itm3.s2.roundabout.ui.controllers.MainViewController;
 import at.fhv.itm3.s2.roundabout.ui.util.ViewLoader;
 import at.fhv.itm3.s2.roundabout.util.ConfigParser;
@@ -81,6 +83,10 @@ public class MainApp extends Application {
                 configParser.getSectionRegistry(),
                 configParser.getSinkRegistry()
             );
+
+            //TODO delete pedestrian
+            AccelarationFOrceTMp tmp = new AccelarationFOrceTMp();
+
 
             mainViewController.setStartRunnable(initExperimentRunnable(
                 experiment,

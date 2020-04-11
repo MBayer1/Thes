@@ -15,7 +15,6 @@ import desmoj.core.simulator.TimeSpan;
 import javafx.scene.shape.Circle;
 
 import java.awt.*;
-import java.awt.geom.Point2D;
 import java.util.*;
 import java.util.List;
 

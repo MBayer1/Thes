@@ -65,7 +65,7 @@ public class Pedestrian extends Entity implements IPedestrian {
         if (pedestrianBehaviour != null) {
             this.pedestrianBehaviour = pedestrianBehaviour;
         } else {
-            throw new IllegalArgumentException("Driver behaviour should not be null.");
+           throw new IllegalArgumentException("Driver behaviour should not be null.");
         }
 
         if (route != null) {
