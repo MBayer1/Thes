@@ -3,6 +3,7 @@ package at.fhv.itm3.s2.roundabout.ui.executable;
 
 import at.fhv.itm3.s2.roundabout.controller.CarController;
 import at.fhv.itm3.s2.roundabout.ui.controllers.MainViewController;
+import at.fhv.itm3.s2.roundabout.ui.pedestrianUi.pedestrianUIMain;
 import at.fhv.itm3.s2.roundabout.ui.util.ViewLoader;
 import at.fhv.itm3.s2.roundabout.util.ConfigParser;
 import at.fhv.itm3.s2.roundabout.util.dto.ModelConfig;
@@ -11,8 +12,11 @@ import desmoj.core.simulator.Model;
 import desmoj.core.simulator.SimClock;
 import desmoj.core.simulator.TimeInstant;
 import javafx.application.Application;
+import javafx.event.ActionEvent;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -71,6 +75,12 @@ public class MainApp extends Application {
 
             final ConfigParser configParser = new ConfigParser(PATH_TO_MODEL_FILE);
             final ModelConfig modelConfig = configParser.loadConfig();
+
+            pedestrianUIMain pedestrianUIMain = new pedestrianUIMain(0, 0, 1000, 600);
+            Scene scene = new Scene(pedestrianUIMain);
+
+            initStage.setScene(scene);
+            initStage.show();
 
             final Experiment experiment = new Experiment("Pedestrian experiment");
             experiment.setShowProgressBar(false);
