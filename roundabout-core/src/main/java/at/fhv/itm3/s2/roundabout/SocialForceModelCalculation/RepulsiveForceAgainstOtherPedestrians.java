@@ -1,6 +1,7 @@
 package at.fhv.itm3.s2.roundabout.SocialForceModelCalculation;
 
 import at.fhv.itm14.trafsim.model.entities.IConsumer;
+import at.fhv.itm3.s2.roundabout.api.PedestrianPoint;
 import at.fhv.itm3.s2.roundabout.api.entity.*;
 import at.fhv.itm3.s2.roundabout.entity.Pedestrian;
 import at.fhv.itm3.s2.roundabout.entity.PedestrianStreetSection;
@@ -22,7 +23,7 @@ public class RepulsiveForceAgainstOtherPedestrians {
 
     public Vector2d getRepulsiveForceAgainstAllOtherPedestrians(    RoundaboutSimulationModel model,
                                                                     Pedestrian pedestrian,
-                                                                    Point destination){
+                                                                    PedestrianPoint destination){
 
         Vector2d vacDestination = new Vector2d(destination.getX(), destination.getY());
         Vector2d sumForce = new Vector2d(0,0);
@@ -170,14 +171,14 @@ public class RepulsiveForceAgainstOtherPedestrians {
         }
 
         //vectorBetweenBothPedestrian
-        Point posBeta = pedestrianBeta.getCurrentGlobalPosition();
+        PedestrianPoint posBeta = pedestrianBeta.getCurrentGlobalPosition();
         Vector2d vectorBetweenBothPedestrian = calculations.getVector(
-                                pedestrianAlpha.getCurrentGlobalPosition().x, pedestrianAlpha.getCurrentGlobalPosition().y,
-                                posBeta.x, posBeta.y);
+                                pedestrianAlpha.getCurrentGlobalPosition().getX(), pedestrianAlpha.getCurrentGlobalPosition().getY(),
+                                posBeta.getX(), posBeta.getY());
 
         //preferredDirectionOfBeta = eBeta
         Vector2d vecPosBeta = new Vector2d(posBeta.getX(), posBeta.getY());
-        Point nextAimBeta = pedestrianBeta.getNextSubGoal();
+        PedestrianPoint nextAimBeta = pedestrianBeta.getNextSubGoal();
         Vector2d vecNextAimBeta = new Vector2d(nextAimBeta.getX(), nextAimBeta.getY());
 
         Vector2d preferredDirectionOfBeta = vecPosBeta;

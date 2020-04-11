@@ -5,9 +5,9 @@ import at.fhv.itm14.trafsim.model.entities.IConsumer;
 import at.fhv.itm14.trafsim.model.events.CarDepartureEvent;
 import at.fhv.itm14.trafsim.persistence.model.DTO;
 import at.fhv.itm3.s2.roundabout.SocialForceModelCalculation.SupportiveCalculations;
+import at.fhv.itm3.s2.roundabout.api.PedestrianPoint;
 import at.fhv.itm3.s2.roundabout.api.entity.*;
 import at.fhv.itm3.s2.roundabout.controller.IntersectionController;
-import at.fhv.itm3.s2.roundabout.controller.PedestrianController;
 import at.fhv.itm3.s2.roundabout.event.PedestrianEventFactory;
 import at.fhv.itm3.s2.roundabout.model.RoundaboutSimulationModel;
 import desmoj.core.simulator.Model;
@@ -15,6 +15,7 @@ import desmoj.core.simulator.TimeSpan;
 import javafx.scene.shape.Circle;
 
 import java.awt.*;
+import java.awt.geom.Point2D;
 import java.util.*;
 import java.util.List;
 
@@ -22,21 +23,24 @@ public class PedestrianStreetSection extends PedestrianStreet {
     private final double lengthX;
     private final double lengthY;
     private final PedestrianConsumerType consumerType;
-    private Point globalCoordinateOfSectionOrigin;
-    private int minSizeOfPedestriansForTrafficLightTriggeredByJam = 10;
+    private PedestrianPoint globalCoordinateOfSectionOrigin;
+    private Long minSizeOfPedestriansForTrafficLightTriggeredByJam;
+    private boolean flexiBorderAlongX = true; // needed for type PedestrianCrossing
+    SupportiveCalculations calculations = new SupportiveCalculations();
+
+    public LinkedList<PedestrianWaitingListElement> pedestriansQueueToEnter;
 
     // next two values are for the controlling of a traffic light [checking for jam/ needed for optimization]
     private double currentWaitingTime;
     private double currentTimeLastMovement;
 
     private LinkedList<IPedestrian> pedestrianQueue;
-    private Map<IPedestrian, Point> pedestrianPositions;
+    private Map<IPedestrian, PedestrianPoint> pedestrianPositions;
 
     private LinkedList<Circle> circularObsticals; //TODO include those obstacles in to calculations
     private LinkedList<Polygon> polygoneObstical; //TODO include those obstacles in to calculations
 
     private LinkedList<Street> vehicleStreetList;
-
 
     private List<PedestrianConnectedStreetSections> nextStreetConnector = new LinkedList<>();
     private List<PedestrianConnectedStreetSections> previousStreetConnector = new LinkedList<>();
@@ -75,7 +79,7 @@ public class PedestrianStreetSection extends PedestrianStreet {
     ) {
         this(
                 id, lengthX, lengthY, consumerType, model, modelDescription, showInTrace,
-                false, null, null, null, null
+                false, null, null, null, null, null
         );
     }
 
@@ -88,11 +92,13 @@ public class PedestrianStreetSection extends PedestrianStreet {
             boolean showInTrace,
             boolean trafficLightActive,
             Long greenPhaseDuration,
-            Long redPhaseDuration
+            Long redPhaseDuration,
+            Long minSizeOfPedestriansForTrafficLightTriggeredByJam
     ) {
         this(
                 UUID.randomUUID().toString(), lengthX, lengthY, consumerType, model, modelDescription, showInTrace,
-                trafficLightActive, null, greenPhaseDuration, redPhaseDuration,null
+                trafficLightActive, null, greenPhaseDuration, redPhaseDuration,
+                minSizeOfPedestriansForTrafficLightTriggeredByJam,                 null
         );
     }
 
@@ -108,7 +114,8 @@ public class PedestrianStreetSection extends PedestrianStreet {
             Long minGreenPhaseDuration,
             Long greenPhaseDuration,
             Long redPhaseDuration,
-            Point globalCoordinateForCenter
+            Long minSizeOfPedestriansForTrafficLightTriggeredByJam,
+            PedestrianPoint globalCoordinateForCenter
     ) {
         super(
                 id,
@@ -123,6 +130,7 @@ public class PedestrianStreetSection extends PedestrianStreet {
 
         this.lengthX = lengthX;
         this.lengthY = lengthY;
+        this.minSizeOfPedestriansForTrafficLightTriggeredByJam = minSizeOfPedestriansForTrafficLightTriggeredByJam;
 
         this.consumerType = consumerType;
 
@@ -135,6 +143,7 @@ public class PedestrianStreetSection extends PedestrianStreet {
         this.globalCoordinateOfSectionOrigin = globalCoordinateForCenter;
 
         this.vehicleStreetList = new LinkedList<>();
+        this.pedestriansQueueToEnter = new LinkedList<>();
 
         if(this.isTrafficLightActive() && !this.isTrafficLightTriggeredByJam()) {
            // RoundaboutEventFactory.getInstance().createToggleTrafficLightStateEvent(getRoundaboutModel()).schedule(
@@ -175,11 +184,11 @@ public class PedestrianStreetSection extends PedestrianStreet {
     public boolean isPedestrianCrossing() { return consumerType.equals(PedestrianConsumerType.PEDESTRIAN_CROSSING); }
 
 
-    public void setGlobalCoordinateOfSectionOrigin(Point globalCoordinateOfSectionOrigin) {
+    public void setGlobalCoordinateOfSectionOrigin(PedestrianPoint globalCoordinateOfSectionOrigin) {
         this.globalCoordinateOfSectionOrigin = globalCoordinateOfSectionOrigin;
     }
 
-    public Point getGlobalCoordinateOfSectionOrigin() {
+    public PedestrianPoint getGlobalCoordinateOfSectionOrigin() {
         return this.globalCoordinateOfSectionOrigin;
     }
 
@@ -198,7 +207,7 @@ public class PedestrianStreetSection extends PedestrianStreet {
      * {@inheritDoc}
      */
     @Override
-    public void addPedestrian(IPedestrian iPedestrian, Point position) {
+    public void addPedestrian(IPedestrian iPedestrian, PedestrianPoint position) {
         if (pedestrianQueue == null) {
             throw new IllegalStateException("pedestrianQueue in section cannot be null");
         }
@@ -219,20 +228,10 @@ public class PedestrianStreetSection extends PedestrianStreet {
         if (this.getPedestrianConsumerType() == PedestrianConsumerType.PEDESTRIAN_CROSSING) {
             iPedestrian.enterPedestrianCrossing();
         } else if (this.getPedestrianConsumerType() == PedestrianConsumerType.PEDESTRIAN_STREET_SECTION) {
-            if (((Pedestrian) iPedestrian).isPedestrianCrossingStopWatchActive()) {
-                iPedestrian.leavePedestrianCrossing();
-            }
+            iPedestrian.leavePedestrianCrossing();
+
         }
 
-        // call carDelivered events for last section, so the car position
-        // of the current car (that has just left the last section successfully
-        // can be removed (saves memory)
-        // caution! that requires to call traverseToNextSection before calling this method
-        Car car = PedestrianController.getCar(iPedestrian);
-        IConsumer consumer = iPedestrian.getDestination().getStreetSection();
-        if (consumer instanceof PedestrianStreet) {
-            ((PedestrianStreet) consumer).carDelivered(null, car, true);
-        }
         pedestrianObserver.notifyObservers(iPedestrian);
     }
 
@@ -246,7 +245,6 @@ public class PedestrianStreetSection extends PedestrianStreet {
             // for this the area in front of the crossing should be limited as an waiting in front of the crossing
 
             final boolean isActualGreenPhaseBiggerThanMin = (getRoundaboutModel().getCurrentTime() - getGreenPhaseStart()) > getMinGreenPhaseDurationOfTrafficLight();
-
             if( (getPedestrianQueue().size() >= minSizeOfPedestriansForTrafficLightTriggeredByJam) && isActualGreenPhaseBiggerThanMin) {
                 // trigger red
                 PedestrianEventFactory.getInstance().createToggleTrafficLightStateEvent(getRoundaboutModel()).schedule(
@@ -261,7 +259,7 @@ public class PedestrianStreetSection extends PedestrianStreet {
      * {@inheritDoc}
      */
     @Override
-    public void addCircularObstacle (double radius, Point midPoint){
+    public void addCircularObstacle (double radius, PedestrianPoint midPoint){
         //TODO
         return;
     }
@@ -270,7 +268,7 @@ public class PedestrianStreetSection extends PedestrianStreet {
      * {@inheritDoc}
      */
     @Override
-    public void addPolygonObstacle( List<Point> cornerPoints) {
+    public void addPolygonObstacle( List<PedestrianPoint> cornerPoints) {
         //TODO
         return;
     }
@@ -287,7 +285,7 @@ public class PedestrianStreetSection extends PedestrianStreet {
         return pedestrianQueue;
     }
 
-    public Map<IPedestrian, Point> getPedestrianPositions()
+    public Map<IPedestrian, PedestrianPoint> getPedestrianPositions()
             throws IllegalStateException {
         if (pedestrianPositions == null) {
             throw new IllegalStateException("pedestrianPositions in section cannot be null");
@@ -295,19 +293,6 @@ public class PedestrianStreetSection extends PedestrianStreet {
 
         return Collections.unmodifiableMap(pedestrianPositions);
      }
-
-    public Point getGlobalCoodrionatesOfPedestrian( IPedestrian pedestrian)
-        throws IllegalStateException {
-         if (this.globalCoordinateOfSectionOrigin == null) {
-             throw new IllegalStateException("There are no global references.");
-         }
-
-         Point position = pedestrianPositions.get(pedestrian).getLocation();
-         position.x += globalCoordinateOfSectionOrigin.x;
-         position.y += globalCoordinateOfSectionOrigin.y;
-
-         return position;
-    }
 
     /**
      * {@inheritDoc}
@@ -369,7 +354,7 @@ public class PedestrianStreetSection extends PedestrianStreet {
         this.nextStreetConnector.add(streetConnector);
     }
 
-    public int getMinSizeOfPedestriansForTrafficLightTriggeredByJam() {
+    public long getMinSizeOfPedestriansForTrafficLightTriggeredByJam() {
         return minSizeOfPedestriansForTrafficLightTriggeredByJam;
     }
 
@@ -402,7 +387,7 @@ public class PedestrianStreetSection extends PedestrianStreet {
      * {@inheritDoc}
      */
     @Override
-    public Point getPedestrianPosition(IPedestrian iPedestrian) {
+    public PedestrianPoint getPedestrianPosition(IPedestrian iPedestrian) {
 
         if (pedestrianPositions == null) {
             throw new IllegalStateException("pedestrianPositions in section cannot be null");
@@ -416,7 +401,6 @@ public class PedestrianStreetSection extends PedestrianStreet {
         if ( !(iPedestrian instanceof Pedestrian) ) {
             throw new IllegalStateException("Pedestrian is not instance of Pedestrian");
         }
-        SupportiveCalculations calculations = new SupportiveCalculations();
 
         if(     calculations.val1BiggerOrAlmostEqual( iPedestrian.getCurrentGlobalPosition().getX(), getGlobalCoordinateOfSectionOrigin().getX() ) &&
                 calculations.val1LowerOrAlmostEqual( iPedestrian.getCurrentGlobalPosition().getX(), getGlobalCoordinateOfSectionOrigin().getX() + getLengthX()) &&
@@ -427,12 +411,8 @@ public class PedestrianStreetSection extends PedestrianStreet {
         return false;
     }
 
-    private Point calculateSocialForceVector() {
-         return new Point(0,0   ); //TODO
-    }
-
-    private Point calculateNextPlanedPositonOfPedestrian(){
-        return new Point(0,0   ); //TODO
+    public void setPedestrianPosition(Pedestrian pedestrian, PedestrianPoint globalPos) {
+        pedestrianPositions.get(pedestrian).setLocation(globalPos);
     }
 
     private RoundaboutSimulationModel getRoundaboutModel() {
@@ -480,6 +460,60 @@ public class PedestrianStreetSection extends PedestrianStreet {
         return false;
     }
 
+    public void setFlexiBorderAlongX(boolean flexiBorderAlongX) {
+        this.flexiBorderAlongX = flexiBorderAlongX;
+    }
+
+    public boolean getFlexiBorderAlongX(){ return this.flexiBorderAlongX;}
+
+    public void addPedestriansQueueToEnter(Pedestrian pedestrian, PedestrianPoint globalEnterPoint, PedestrianStreetSection section){
+        if (!pedestrian.pedestriansQueueToEnterTimeStopWatch.isRunning()) {
+            pedestrian.pedestriansQueueToEnterCounter.update();
+            pedestrian.pedestriansQueueToEnterTimeStopWatch.start();
+        }
+        section.pedestriansQueueToEnter.add(new PedestrianWaitingListElement(pedestrian, globalEnterPoint, section));
+    }
+
+    public void reCheckPedestrianCanEnterSection() {
+        for ( PedestrianWaitingListElement pedestrianToEnter : pedestriansQueueToEnter) {
+            // due to list fifo is considered
+            if (!( pedestrianToEnter.getPedestrian() instanceof Pedestrian)){
+                throw new IllegalStateException("type mismatch");
+            }
+
+            if( checkPedestrianCanEnterSection(pedestrianToEnter)) {
+                pedestrianToEnter.getPedestrian().enterSystem();
+                this.addPedestrian(pedestrianToEnter.getPedestrian(), pedestrianToEnter.getGlobalEnterPoint());
+                ((Pedestrian) pedestrianToEnter.getPedestrian()).setCurrentLocalPosition(); // do this after adding to street section
+            }
+            pedestriansQueueToEnter.remove(pedestrianToEnter);
+            if (((Pedestrian)pedestrianToEnter.getPedestrian()).pedestriansQueueToEnterTimeStopWatch.isRunning()) {
+                double res = ((Pedestrian)pedestrianToEnter.getPedestrian()).pedestriansQueueToEnterTimeStopWatch.stop();
+                ((Pedestrian)pedestrianToEnter.getPedestrian()).pedestriansQueueToEnterTime.update(new TimeSpan(res));
+            }
+        }
+    }
+
+    public boolean checkPedestrianCanEnterSection (PedestrianWaitingListElement element) {
+        if (element.getPedestrian() instanceof Pedestrian && element.getSectionToMoveTo() instanceof PedestrianStreetSection){
+            return checkPedestrianCanEnterSection((Pedestrian) element.getPedestrian(), element.getGlobalEnterPoint(), (PedestrianStreetSection) element.getSectionToMoveTo());
+        }
+        throw new IllegalStateException( "type mismatch");
+    }
+
+    public boolean checkPedestrianCanEnterSection (Pedestrian pedestrian, PedestrianPoint globalEnterPoint, PedestrianStreetSection section) {
+        for ( IPedestrian otherPedestrian : pedestrianQueue) {
+            if (!(otherPedestrian instanceof Pedestrian )) {
+                throw new IllegalStateException("type mismatch");
+            }
+            double dist = calculations.getDistanceByCoordinates(pedestrian.getCurrentGlobalPosition(),  otherPedestrian.getCurrentGlobalPosition());
+            if (dist < Math.max(pedestrian.getMinGapForPedestrian(),((Pedestrian) otherPedestrian).getMinGapForPedestrian())) {
+                addPedestriansQueueToEnter(pedestrian, globalEnterPoint, section);
+                return false;
+            }
+        }
+        return true;
+    }
 
     /**
      * {@inheritDoc}

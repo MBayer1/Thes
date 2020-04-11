@@ -4,6 +4,7 @@ import at.fhv.itm14.trafsim.model.entities.Car;
 import at.fhv.itm14.trafsim.model.entities.IConsumer;
 import at.fhv.itm14.trafsim.model.events.CarDepartureEvent;
 import at.fhv.itm14.trafsim.persistence.model.DTO;
+import at.fhv.itm3.s2.roundabout.api.PedestrianPoint;
 import at.fhv.itm3.s2.roundabout.api.entity.*;
 import at.fhv.itm3.s2.roundabout.controller.CarController;
 import at.fhv.itm3.s2.roundabout.controller.PedestrianController;
@@ -23,7 +24,8 @@ public class PedestrianSink extends PedestrianAbstractSink {
     private double meanWaitingTimePerStop;
     private double meanStopCount;
     private double meanPedestrianAreaTime;
-
+    private double meanPedestrianQueueWaitingToEnterSystem; //pedestriansQueueTo
+    private double meanWaitingTimeBeforeEnteringSystem; //pedestriansQueueTo
 
     public PedestrianSink(Model owner, String name, boolean showInTrace) {
         this(UUID.randomUUID().toString(), owner, name, showInTrace);
@@ -37,6 +39,8 @@ public class PedestrianSink extends PedestrianAbstractSink {
         this.meanWaitingTimePerStop = 0;
         this.meanStopCount = 0;
         this.meanPedestrianAreaTime = 0;
+        this.meanWaitingTimeBeforeEnteringSystem = 0;
+        this.meanPedestrianQueueWaitingToEnterSystem = 0;
     }
 
 
@@ -72,20 +76,19 @@ public class PedestrianSink extends PedestrianAbstractSink {
 
 
     public void addPedestrian(IPedestrian iPedestrian){
-        addPedestrian(iPedestrian, new Point(0,0));
+        addPedestrian(iPedestrian, new PedestrianPoint(0,0));
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void addPedestrian(IPedestrian iPedestrian, Point position) {
+    public void addPedestrian(IPedestrian iPedestrian, PedestrianPoint position) {
 
         iPedestrian.leaveSystem();
         iPedestrian.leavePedestrianArea();
-        if (((Pedestrian)iPedestrian).isPedestrianCrossingStopWatchActive()) {
-            iPedestrian.leavePedestrianCrossing();
-        }
+        iPedestrian.leavePedestrianCrossing();
+
 
         incrementEnteredPedestrianCounter();
 
@@ -94,9 +97,14 @@ public class PedestrianSink extends PedestrianAbstractSink {
         // needed for adaption to the trafsim framework
         addCar(CarController.getICar(PedestrianController.getCar(iPedestrian)));
 
-
         pedestrianObserver.notifyObservers(iPedestrian);
         incrementLeftPedestrianCounter();
+
+        // call carDelivered events for last section, so the car position
+        // of the current car (that has just left the last section successfully
+        // can be removed (saves memory)
+        // caution! that requires to call traverseToNextSection before calling this method
+        this.carDelivered(null, ((Pedestrian) iPedestrian).getCarDummy(), true);
     }
 
     public void updateStats(IPedestrian pedestrian) {
@@ -107,6 +115,12 @@ public class PedestrianSink extends PedestrianAbstractSink {
         meanWaitingTimePerStop = meanWaitingTimePerStop * dPreviousRate + pedestrian.getMeanWaitingTime()/ getNrOfEnteredPedestrians();
         meanStopCount = meanStopCount * dPreviousRate + pedestrian.getStopCount()/ getNrOfEnteredPedestrians();
         meanPedestrianAreaTime = meanPedestrianAreaTime * dPreviousRate + pedestrian.getMeanStreetAreaPassTime()/ getNrOfEnteredPedestrians();
+
+        if ( !(pedestrian instanceof Pedestrian)) {
+            throw new IllegalStateException("type mismatch");
+        }
+        meanWaitingTimeBeforeEnteringSystem = meanWaitingTimeBeforeEnteringSystem * dPreviousRate + ((Pedestrian) pedestrian).getMeanWaitingBeforeEnteringsTime() / getNrOfEnteredPedestrians();
+        meanPedestrianQueueWaitingToEnterSystem = meanPedestrianQueueWaitingToEnterSystem * dPreviousRate + ((Pedestrian) pedestrian).getWaitingBeforeEnteringCount() / getNrOfEnteredPedestrians();
     }
 
     public void addCar(ICar iCar) {
@@ -130,7 +144,7 @@ public class PedestrianSink extends PedestrianAbstractSink {
      * {@inheritDoc}
      */
     @Override
-    public void addCircularObstacle (double radius, Point midPoint){
+    public void addCircularObstacle (double radius, PedestrianPoint midPoint){
         return;
     }
 
@@ -139,7 +153,7 @@ public class PedestrianSink extends PedestrianAbstractSink {
      * {@inheritDoc}
      */
     @Override
-    public void addPolygonObstacle( List<Point> cornerPoints) {
+    public void addPolygonObstacle( List<PedestrianPoint> cornerPoints) {
         return;
     }
 
@@ -153,7 +167,7 @@ public class PedestrianSink extends PedestrianAbstractSink {
     }
 
 
-    public Map<IPedestrian, Point> getPedestrianPositions()
+    public Map<IPedestrian, PedestrianPoint> getPedestrianPositions()
             throws IllegalStateException {
         return null;
     }
@@ -211,7 +225,7 @@ public class PedestrianSink extends PedestrianAbstractSink {
      * {@inheritDoc}
      */
     @Override
-    public Point getPedestrianPosition(IPedestrian iPedestrian) {
+    public PedestrianPoint getPedestrianPosition(IPedestrian iPedestrian) {
         return null;
     }
 

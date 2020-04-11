@@ -1,6 +1,7 @@
 package at.fhv.itm3.s2.roundabout.api.entity;
 
 import at.fhv.itm14.trafsim.model.entities.AbstractProSumer;
+import at.fhv.itm3.s2.roundabout.api.PedestrianPoint;
 import at.fhv.itm3.s2.roundabout.api.util.observable.ObserverType;
 import at.fhv.itm3.s2.roundabout.api.util.observable.RoundaboutObservable;
 import desmoj.core.simulator.Model;
@@ -203,7 +204,7 @@ public abstract class PedestrianStreet extends AbstractProSumer implements IPede
      * @param iPedestrian The pedestrian to add.
      * @param position location where pedestrians stands
      */
-    public abstract void addPedestrian(IPedestrian iPedestrian, Point position);
+    public abstract void addPedestrian(IPedestrian iPedestrian, PedestrianPoint position);
 
     /**
      * Adds a new circularly obstical on current {@link PedestrianStreet}
@@ -211,7 +212,7 @@ public abstract class PedestrianStreet extends AbstractProSumer implements IPede
      * @param radius radius of the circularly optical The pedestrian to add.
      * @param midPoint coordinates of the circle center
      */
-    public abstract void addCircularObstacle(double radius, Point midPoint);
+    public abstract void addCircularObstacle(double radius, PedestrianPoint midPoint);
 
 
     /**
@@ -219,7 +220,7 @@ public abstract class PedestrianStreet extends AbstractProSumer implements IPede
      *
      * @param cornerPoints list of corner coordinates of the obstical in the according Order to another.
      */
-    public abstract void addPolygonObstacle( List<Point> cornerPoints);
+    public abstract void addPolygonObstacle( List<PedestrianPoint> cornerPoints);
 
 
     /**
@@ -278,7 +279,7 @@ public abstract class PedestrianStreet extends AbstractProSumer implements IPede
      *
      * @return unmodifiable map of pedestrian positions.
      */
-    public abstract Point getPedestrianPosition (IPedestrian iPedestrian);
+    public abstract PedestrianPoint getPedestrianPosition (IPedestrian iPedestrian);
 
     /**
      * Returns if traffic light at end of the street is active or not.

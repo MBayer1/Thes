@@ -1,6 +1,7 @@
 package at.fhv.itm3.s2.roundabout.SocialForceModelCalculation;
 
 import at.fhv.itm14.trafsim.model.entities.IConsumer;
+import at.fhv.itm3.s2.roundabout.api.PedestrianPoint;
 import at.fhv.itm3.s2.roundabout.api.entity.PedestrianConsumerType;
 import at.fhv.itm3.s2.roundabout.api.entity.PedestrianStreetSectionPort;
 import at.fhv.itm3.s2.roundabout.entity.Pedestrian;
@@ -9,8 +10,6 @@ import at.fhv.itm3.s2.roundabout.api.entity.PedestrianConnectedStreetSections;
 import at.fhv.itm3.s2.roundabout.model.RoundaboutSimulationModel;
 
 import javax.vecmath.Vector2d;
-import java.awt.*;
-import java.awt.geom.Point2D;
 
 public class RepulsiveForceAgainstObstacles {
 
@@ -52,26 +51,26 @@ public class RepulsiveForceAgainstObstacles {
                                 |____________________|
                                         (xPerson/ yMin)
            */
-        Integer pedestrianX = (int) pedestrian.getCurrentGlobalPosition().getX();
-        Integer pedestrianY = (int) pedestrian.getCurrentGlobalPosition().getY();
-        Integer sectionCenterX = (int) currentSection.getGlobalCoordinateOfSectionOrigin().getX();
-        Integer sectionCenterY = (int) currentSection.getGlobalCoordinateOfSectionOrigin().getY();
+        double pedestrianX = pedestrian.getCurrentGlobalPosition().getX();
+        double pedestrianY = pedestrian.getCurrentGlobalPosition().getY();
+        double sectionCenterX = currentSection.getGlobalCoordinateOfSectionOrigin().getX();
+        double sectionCenterY = currentSection.getGlobalCoordinateOfSectionOrigin().getY();
 
         // person positions - border intersections = global coordinates
-        Point wallIntersection1 = new Point(sectionCenterX, pedestrianY);
-        Point wallIntersection2 = new Point(pedestrianX,  sectionCenterY + (int) currentSection.getLengthY());
-        Point wallIntersection3 = new Point(sectionCenterX + (int) currentSection.getLengthX(), pedestrianY);
-        Point wallIntersection4 = new Point(pedestrianX,  sectionCenterY);
+        PedestrianPoint wallIntersection1 = new PedestrianPoint(sectionCenterX, pedestrianY);
+        PedestrianPoint wallIntersection2 = new PedestrianPoint(pedestrianX,  sectionCenterY + currentSection.getLengthY());
+        PedestrianPoint wallIntersection3 = new PedestrianPoint(sectionCenterX + currentSection.getLengthX(), pedestrianY);
+        PedestrianPoint wallIntersection4 = new PedestrianPoint(pedestrianX,  sectionCenterY);
 
         // except it is within an port gab, then it will take enter or exit port depending which is closer.
         for ( PedestrianConnectedStreetSections connected : ((PedestrianStreetSection) section).getNextStreetConnector()) {
             if (connected.getFromStreetSection().equals(currentSection)) {
                 PedestrianStreetSectionPort localPort = connected.getPortOfFromStreetSection();
                 PedestrianStreetSectionPort globalPort = new PedestrianStreetSectionPort(
-                        (int) (localPort.getBeginOfStreetPort().getX() + sectionCenterX),
-                        (int) (localPort.getBeginOfStreetPort().getY() + sectionCenterY),
-                        (int) (localPort.getEndOfStreetPort().getX() + sectionCenterX),
-                        (int) (localPort.getEndOfStreetPort().getY() + sectionCenterY));
+                        localPort.getLocalBeginOfStreetPort().getX() + sectionCenterX,
+                        localPort.getLocalBeginOfStreetPort().getY() + sectionCenterY,
+                        localPort.getLocalEndOfStreetPort().getX() + sectionCenterX,
+                        localPort.getLocalEndOfStreetPort().getY() + sectionCenterY);
 
                 if ( calculations.checkWallIntersectionWithinPort( globalPort, wallIntersection1 ) )
                     calculations.shiftIntersection( globalPort, wallIntersection1);
@@ -111,8 +110,8 @@ public class RepulsiveForceAgainstObstacles {
     }
 
     void addForce ( Pedestrian pedestrian, Vector2d sumForce,
-                    Point wallIntersection1, Point wallIntersection2,
-                    Point wallIntersection3, Point wallIntersection4) {
+                    PedestrianPoint wallIntersection1, PedestrianPoint wallIntersection2,
+                    PedestrianPoint wallIntersection3, PedestrianPoint wallIntersection4) {
 
         IConsumer section = pedestrian.getCurrentSection().getStreetSection();
         if ( ! (section instanceof PedestrianStreetSection) ) {
@@ -121,10 +120,10 @@ public class RepulsiveForceAgainstObstacles {
         PedestrianStreetSection currentSection = (PedestrianStreetSection) section;
 
         // special case of crossings. walls can be attracted or repulsive force
-        Vector2d wallIntersection1force = getRepulsiveForceAgainstObstacleCalculation( pedestrian, new Point( (int) Math.round(wallIntersection1.getX()), (int) Math.round(wallIntersection1.getY())));
-        Vector2d wallIntersection2force = getRepulsiveForceAgainstObstacleCalculation( pedestrian, new Point( (int) Math.round(wallIntersection2.getX()), (int) Math.round(wallIntersection2.getY())));
-        Vector2d wallIntersection3force = getRepulsiveForceAgainstObstacleCalculation( pedestrian, new Point( (int) Math.round(wallIntersection3.getX()), (int) Math.round(wallIntersection3.getY())));
-        Vector2d wallIntersection4force = getRepulsiveForceAgainstObstacleCalculation( pedestrian, new Point( (int) Math.round(wallIntersection4.getX()), (int) Math.round(wallIntersection4.getY())));
+        Vector2d wallIntersection1force = getRepulsiveForceAgainstObstacleCalculation( pedestrian, new PedestrianPoint( Math.round(wallIntersection1.getX()), Math.round(wallIntersection1.getY())));
+        Vector2d wallIntersection2force = getRepulsiveForceAgainstObstacleCalculation( pedestrian, new PedestrianPoint( Math.round(wallIntersection2.getX()), Math.round(wallIntersection2.getY())));
+        Vector2d wallIntersection3force = getRepulsiveForceAgainstObstacleCalculation( pedestrian, new PedestrianPoint( Math.round(wallIntersection3.getX()), Math.round(wallIntersection3.getY())));
+        Vector2d wallIntersection4force = getRepulsiveForceAgainstObstacleCalculation( pedestrian, new PedestrianPoint( Math.round(wallIntersection4.getX()), Math.round(wallIntersection4.getY())));
 
         if ( checkAttractingForce( currentSection, pedestrian ) ) {// attracted force
             sumForce.sub(wallIntersection1force);
@@ -140,9 +139,9 @@ public class RepulsiveForceAgainstObstacles {
     }
 
     Vector2d getRepulsiveForceAgainstObstacle(   Pedestrian pedestrian,
-                                                 Point obstaclePosition) {
+                                                 PedestrianPoint obstaclePosition) {
         Double weightingFactor;
-        Point dest = pedestrian.getNextSubGoal();
+        PedestrianPoint dest = pedestrian.getNextSubGoal();
         Vector2d destination = new Vector2d( dest.getX(), dest.getY());
         Vector2d force = getRepulsiveForceAgainstObstacleCalculation( pedestrian, obstaclePosition);
 
@@ -162,13 +161,13 @@ public class RepulsiveForceAgainstObstacles {
     }
 
     Vector2d getRepulsiveForceAgainstObstacleCalculation(    Pedestrian pedestrian,
-                                                             Point obstaclePosition) {
+                                                             PedestrianPoint obstaclePosition) {
         if( !checkPedestrianInRange( pedestrian, obstaclePosition) ){
             return new Vector2d(0,0 );
         }
 
         // Distance vector
-        Vector2d vectorBetweenPedestrianAndObstacle = new Vector2d(pedestrian.getCurrentGlobalPosition().x, pedestrian.getCurrentGlobalPosition().y);
+        Vector2d vectorBetweenPedestrianAndObstacle = new Vector2d(pedestrian.getCurrentGlobalPosition().getX(), pedestrian.getCurrentGlobalPosition().getY());
         vectorBetweenPedestrianAndObstacle.sub(new Vector2d(obstaclePosition.getX(), obstaclePosition.getY()));
         Double distanceBetweenPedestrianAndObstacle = vectorBetweenPedestrianAndObstacle.length();
 
@@ -182,8 +181,8 @@ public class RepulsiveForceAgainstObstacles {
         return force;
     }
 
-    boolean checkPedestrianInRange( Pedestrian pedestrian, Point intersectionPos){
-        if ( calculations.almostEqual( Point2D.distance(   pedestrian.getCurrentGlobalPosition().getX(),
+    boolean checkPedestrianInRange( Pedestrian pedestrian, PedestrianPoint intersectionPos){
+        if ( calculations.almostEqual( calculations.getDistanceByCoordinates(   pedestrian.getCurrentGlobalPosition().getX(),
                 pedestrian.getCurrentGlobalPosition().getY(),
                 intersectionPos.getX(),
                 intersectionPos.getY()) ,

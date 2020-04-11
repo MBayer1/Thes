@@ -14,14 +14,15 @@ public class Section implements IDTO {
     private Long minGreenPhaseDuration;
     private Long greenPhaseDuration;
     private Long redPhaseDuration;
-    private String pedestrianCrossingIDRef, pedestrianCrossingComponentIDRef; // TODO
+    private Long minSizeOfPedestriansForTrafficLightTriggeredByJam;
+    private String pedestrianCrossingIDRef, pedestrianCrossingComponentIDRef;
     private Integer pedestrianCrossingIDRefEnterHigh;
     private String pedestrianCrossingRefLinkedAtBegin;
+    private Boolean flexiBorderAlongX;
 
     //pedestrian
     private PedestrianConsumerType pedestrianSectionType;
     private Integer pedestrianLength, pedestrianWidth;
-
 
     @XmlAttribute
     public String getId() {
@@ -76,7 +77,7 @@ public class Section implements IDTO {
     }
 
     @XmlAttribute
-    public  Long getGreenPhaseDuration() { return greenPhaseDuration; }
+    public Long getGreenPhaseDuration() { return greenPhaseDuration; }
 
     private void setGreenPhaseDuration(Long greenPhaseDuration) {this.greenPhaseDuration = greenPhaseDuration; }
 
@@ -92,6 +93,16 @@ public class Section implements IDTO {
 
     public void setMinGreenPhaseDuration(Long minGreenPhaseDuration) {
         this.minGreenPhaseDuration = minGreenPhaseDuration;
+    }
+
+
+    @XmlAttribute
+    public Long getMinSizeOfPedestriansForTrafficLightTriggeredByJam() {
+        return minSizeOfPedestriansForTrafficLightTriggeredByJam;
+    }
+
+    public void setMinSizeOfPedestriansForTrafficLightTriggeredByJam(Long minSizeOfPedestriansForTrafficLightTriggeredByJam) {
+        this.minSizeOfPedestriansForTrafficLightTriggeredByJam = minSizeOfPedestriansForTrafficLightTriggeredByJam;
     }
 
     @XmlAttribute
@@ -137,5 +148,15 @@ public class Section implements IDTO {
 
     public void setPedestrianSectionType(PedestrianConsumerType pedestrianSectionType) {
         this.pedestrianSectionType = pedestrianSectionType;
+    }
+
+    @XmlAttribute
+    public Boolean getFlexiBorderAlongX() {
+        if (flexiBorderAlongX.equals(true)) return true;
+        return false;
+    }
+
+    public void setFlexiBorderAlongX(Boolean flexiBorderAlongX) {
+        this.flexiBorderAlongX = flexiBorderAlongX;
     }
 }

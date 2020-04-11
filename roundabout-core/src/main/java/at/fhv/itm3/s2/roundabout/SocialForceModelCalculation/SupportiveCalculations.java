@@ -1,9 +1,9 @@
 package at.fhv.itm3.s2.roundabout.SocialForceModelCalculation;
 
+import at.fhv.itm3.s2.roundabout.api.PedestrianPoint;
 import at.fhv.itm3.s2.roundabout.api.entity.PedestrianStreetSectionPort;
 
 import javax.vecmath.Vector2d;
-import java.awt.*;
 
 public class SupportiveCalculations {
     
@@ -11,11 +11,59 @@ public class SupportiveCalculations {
             return new Vector2d(endPointX-startPointX, endPointY-startPointY);
     }
 
-    public boolean checkLinesIntersectionByCoordinates(double intersectionX, double intersectionY,
-                                                     double lineStartX1, double lineStartY1,
-                                                     double lineEndX1, double lineEndY1,
-                                                     double lineStartX2, double lineStartY2,
-                                                     double lineEndX2, double lineEndY2
+    public Vector2d getUnitVector( Vector2d vector) {
+        return  getUnitVector(vector.getX(), vector.getY());
+    }
+
+    public Vector2d getUnitVector( double vectorX,	double vectorY)
+    {
+        double returnXTmp = vectorX / Math.sqrt(Math.pow(vectorX, 2) + Math.pow(vectorY, 2));
+        double returnYTmp = vectorY / Math.sqrt(Math.pow(vectorX, 2) + Math.pow(vectorY, 2));
+        return new Vector2d(returnXTmp, returnYTmp);
+    }
+
+    public boolean checkLinesIntersectionByCoordinates_WithinSegment(PedestrianPoint intersection,
+                                                                     PedestrianPoint lineStart1,
+                                                                     double lineEndX1, double lineEndY1,
+                                                                     PedestrianPoint lineStart2,
+                                                                     PedestrianPoint lineEnd2
+    ) {
+        return checkLinesIntersectionByCoordinates_WithinSegment(intersection,
+                lineStart1.getX(), lineStart1.getY(), lineEndX1, lineEndY1,
+                lineStart2.getX(), lineStart2.getY(), lineEnd2.getX(), lineEnd2.getY());
+
+    }
+
+    public boolean checkLinesIntersectionByCoordinates_WithinSegment(PedestrianPoint intersection,
+                                                                     PedestrianPoint lineStart1,
+                                                                     PedestrianPoint lineEnd1,
+                                                                     PedestrianPoint lineStart2,
+                                                                     PedestrianPoint lineEnd2
+    ) {
+        return checkLinesIntersectionByCoordinates_WithinSegment(intersection,
+                lineStart1.getX(), lineStart1.getY(), lineEnd1.getX(), lineEnd1.getY(),
+                lineStart2.getX(), lineStart2.getY(), lineEnd2.getX(), lineEnd2.getY());
+
+    }
+
+    public boolean checkLinesIntersectionByCoordinates_WithinSegment(PedestrianPoint intersection,
+                                                                     double lineStartX1, double lineStartY1,
+                                                                     double lineEndX1, double lineEndY1,
+                                                                     PedestrianPoint lineStart2,
+                                                                     PedestrianPoint lineEnd2
+    ) {
+        return checkLinesIntersectionByCoordinates_WithinSegment(intersection,
+                        lineStartX1, lineStartY1,
+                        lineEndX1, lineEndY1,
+                lineStart2.getX(), lineStart2.getY(), lineEnd2.getX(), lineEnd2.getY());
+
+    }
+
+    public boolean checkLinesIntersectionByCoordinates_WithinSegment(PedestrianPoint intersection,
+                                                                     double lineStartX1, double lineStartY1,
+                                                                     double lineEndX1, double lineEndY1,
+                                                                     double lineStartX2, double lineStartY2,
+                                                                     double lineEndX2, double lineEndY2
     ){
 
         if((lineStartX1 == lineStartX2) && (lineStartY1 == lineStartY2) &&
@@ -23,21 +71,26 @@ public class SupportiveCalculations {
             throw new IllegalArgumentException("Lines are identical.");
         }
 
-        //linear equation: y=m*x+d -> note special case: parallel to y-axis -> y(x) = const, always
-        //1. set linear equation in linear equation -> m1*x+d1 = m2*x+d2  -> x = (d2-d1)/(m1-m2)
-        double dSlope1 = (lineEndY1-lineStartY1)/(lineEndX1-lineStartX1);	//m1
+        //linear equation: y=m*x+d -> note special case: parallel to y-axis     -> y(x) = const, always
+        //1. set linear equation in linear equation -> m1*x+d1 = m2*x+d2        -> x = (d2-d1)/(m1-m2)
+        double dSlope1 = (lineEndY1-lineStartY1)/(lineEndX1-lineStartX1);	        //m1
         double dYIntercept1 = lineEndY1-(lineEndX1*dSlope1);						//d1
-        double dSlope2 = (lineEndY2-lineStartY2)/(lineEndX2-lineStartX2);	//m2
+        double dSlope2 = (lineEndY2-lineStartY2)/(lineEndX2-lineStartX2);	        //m2
         double dYIntercept2 = lineEndY2-(lineEndX2*dSlope2);						//d2
+
+        // both parallel y-axis
+        if( (Double.isInfinite(dSlope1) && Double.isInfinite(dSlope2)) ||
+             ( (Double.isInfinite(dSlope1) || Double.isInfinite(dSlope2)) &&
+              (almostEqual(dSlope1, 0) || almostEqual(dSlope2, 0)))) {
+            return false;
+        }
 
         //check if parallel to y-axis
         if (almostEqual(lineEndX1,lineStartX1)){
-            intersectionX = lineEndX1;
-            intersectionY = intersectionX* dSlope2 + dYIntercept2;
+            intersection.setLocation(lineEndX1, lineEndX1* dSlope2 + dYIntercept2);
         }
         if (almostEqual(lineEndX2,lineStartX2)){
-            intersectionX = lineEndX2;
-            intersectionY = intersectionX* dSlope1 + dYIntercept1;
+            intersection.setLocation(lineEndX2, lineEndX2* dSlope1 + dYIntercept1);
         }
 
         // if the slope is the same the lines are parallel and never cross another
@@ -45,14 +98,14 @@ public class SupportiveCalculations {
             return false;
         }
 
-        intersectionX = (dYIntercept2-dYIntercept1)/(dSlope1-dSlope2);
-        intersectionY = intersectionX* dSlope1 + dYIntercept1;
+        double tmpX = (dYIntercept2-dYIntercept1)/(dSlope1-dSlope2);
+        intersection.setLocation(tmpX, tmpX* dSlope1 + dYIntercept1);
 
         //Intersection have to be on the line segment
-        if((((intersectionX>=lineStartX1) && (intersectionX<=lineEndX1)) ||
-                ((intersectionX<=lineStartX1) && (intersectionX>=lineEndX1))) &&
-                (((intersectionX>=lineStartX2) && (intersectionX<=lineEndX2)) ||
-                        ((intersectionX<=lineStartX2) && (intersectionX>=lineEndX2)))){
+        if((((intersection.getX()>=lineStartX1) && (intersection.getX()<=lineEndX1)) ||
+                ((intersection.getX()<=lineStartX1) && (intersection.getX()>=lineEndX1))) &&
+                (((intersection.getX()>=lineStartX2) && (intersection.getX()<=lineEndX2)) ||
+                        ((intersection.getX()<=lineStartX2) && (intersection.getX()>=lineEndX2)))){
             return true;
         }
 
@@ -101,15 +154,15 @@ public class SupportiveCalculations {
 
     }
 
-    public Point getLinesIntersectionByCoordinates(	     PedestrianStreetSectionPort port,
+    public PedestrianPoint getLinesIntersectionByCoordinates(	     PedestrianStreetSectionPort port,
                                                          double dLineStartX2, double dLineStartY2,
                                                          double dLineEndX2, double dLineEndY2) {
-        return getLinesIntersectionByCoordinates( port.getBeginOfStreetPort().getX(), port.getBeginOfStreetPort().getY(),
-                port.getEndOfStreetPort().getX(), port.getEndOfStreetPort().getY(),
+        return getLinesIntersectionByCoordinates( port.getLocalBeginOfStreetPort().getX(), port.getLocalBeginOfStreetPort().getY(),
+                port.getLocalEndOfStreetPort().getX(), port.getLocalEndOfStreetPort().getY(),
                 dLineStartX2, dLineStartY2, dLineEndX2, dLineEndY2);
     }
 
-    public Point getLinesIntersectionByCoordinates(	     double dLineStartX1, double dLineStartY1,
+    public PedestrianPoint getLinesIntersectionByCoordinates(	     double dLineStartX1, double dLineStartY1,
                                                          double dLineEndX1, double dLineEndY1,
                                                          double dLineStartX2, double dLineStartY2,
                                                          double dLineEndX2, double dLineEndY2) {
@@ -117,7 +170,7 @@ public class SupportiveCalculations {
         if(getLinesIntersectionByCoordinates(	returnIntersection,
                 dLineStartX1, dLineStartY1, dLineEndX1, dLineEndY1,
                 dLineStartX2, dLineStartY2, dLineEndX2, dLineEndY2)){
-            return new Point((int)returnIntersection.getX(), (int)returnIntersection.getY());
+            return new PedestrianPoint(returnIntersection.getX(), returnIntersection.getY());
         }
         return null;
         //throw new IllegalArgumentException("Two lines do not have any intersection");
@@ -177,6 +230,12 @@ public class SupportiveCalculations {
         return true;
     }
 
+    public double getDistanceByCoordinates(    PedestrianPoint pos1,
+                                               PedestrianPoint pos2)
+    {
+        return getDistanceByCoordinates( pos1.getX(), pos1.getY(), pos2.getX(), pos2.getY(),0,0);
+    }
+
     public double getDistanceByCoordinates(    double dPosX1, double dPosY1,
                                         double dPosX2, double dPosY2)
     {
@@ -194,13 +253,13 @@ public class SupportiveCalculations {
         }
     }
 
-    public boolean checkWallIntersectionWithinPort (PedestrianStreetSectionPort port, Point intersection) {
-        return checkWallIntersectionWithinPort(port.getBeginOfStreetPort().getX(), port.getBeginOfStreetPort().getY(),
-                port.getEndOfStreetPort().getX(), port.getEndOfStreetPort().getY(), intersection);
+    public boolean checkWallIntersectionWithinPort (PedestrianStreetSectionPort port, PedestrianPoint intersection) {
+        return checkWallIntersectionWithinPort(port.getLocalBeginOfStreetPort().getX(), port.getLocalBeginOfStreetPort().getY(),
+                port.getLocalEndOfStreetPort().getX(), port.getLocalEndOfStreetPort().getY(), intersection);
     }
 
 
-    public boolean checkWallIntersectionWithinPort (double portBeginX, double portBeginY, double portEndX, double portEndY, Point wallIntersection) {
+    public boolean checkWallIntersectionWithinPort (double portBeginX, double portBeginY, double portEndX, double portEndY, PedestrianPoint wallIntersection) {
         if ( almostEqual(portBeginX, portEndX)) {
             if (! almostEqual(portBeginX, wallIntersection.getX())) return false; // intersection has to be on the right wall
             if (    (val1Bigger(portBeginY, wallIntersection.getY()) &&
@@ -225,21 +284,21 @@ public class SupportiveCalculations {
         return false;
     }
 
-    public void shiftIntersection (PedestrianStreetSectionPort port, Point intersection) {
+    public void shiftIntersection (PedestrianStreetSectionPort port, PedestrianPoint intersection) {
         shiftIntersection(port, intersection, 0);
     }
 
-    public void shiftIntersection (PedestrianStreetSectionPort port, Point intersection, double minGabToWall) {
-        shiftIntersection(port.getBeginOfStreetPort().getX(), port.getBeginOfStreetPort().getY(),
-                port.getEndOfStreetPort().getX(), port.getEndOfStreetPort().getY(), intersection, minGabToWall);
+    public void shiftIntersection (PedestrianStreetSectionPort port, PedestrianPoint intersection, double minGabToWall) {
+        shiftIntersection(port.getLocalBeginOfStreetPort().getX(), port.getLocalBeginOfStreetPort().getY(),
+                port.getLocalEndOfStreetPort().getX(), port.getLocalEndOfStreetPort().getY(), intersection, minGabToWall);
     }
 
-    public void shiftIntersection( double portBeginX, double portBeginY, double portEndX, double portEndY, Point wallIntersection){
+    public void shiftIntersection( double portBeginX, double portBeginY, double portEndX, double portEndY, PedestrianPoint wallIntersection){
         shiftIntersection(portBeginX, portBeginY, portEndX, portEndY, wallIntersection, 0);
     }
 
-    public void shiftIntersection( double portBeginX, double portBeginY, double portEndX, double portEndY, Point wallIntersection, double minGabToWall) {
-        // point within the port gab
+    public void shiftIntersection( double portBeginX, double portBeginY, double portEndX, double portEndY, PedestrianPoint wallIntersection, double minGabToWall) {
+        // PedestrianPoint within the port gab
         // get closer corner of port
         if (getDistanceByCoordinates(portBeginX, portBeginY, wallIntersection.getX(), wallIntersection.getY()) <
                 getDistanceByCoordinates(portEndX, portEndY, wallIntersection.getX(), wallIntersection.getY())){
@@ -252,7 +311,7 @@ public class SupportiveCalculations {
         if (minGabToWall != 0) shiftIntersectionSub(portBeginX, portBeginY, portEndX, portEndY, wallIntersection, minGabToWall);
     }
 
-    void shiftIntersectionSub( double portBeginX, double portBeginY, double portEndX, double portEndY, Point wallIntersection, double minGabToWall) {
+    void shiftIntersectionSub( double portBeginX, double portBeginY, double portEndX, double portEndY, PedestrianPoint wallIntersection, double minGabToWall) {
         if( almostEqual(portBeginX, portEndX) ) { // port along y side
             if( val1LowerOrAlmostEqual(portBeginY, portEndY)) {
                 wallIntersection.setLocation(wallIntersection.getX(), wallIntersection.getY() + minGabToWall);
