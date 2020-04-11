@@ -27,7 +27,7 @@ public class PedestrianStreetReferenceForVehicleStreet {
     public double getLengthForVehicleToPass() {
         for ( PedestrianConnectedStreetSections connectedStreetSections : pedestrianCrossing.getNextStreetConnector() ) {
             // just check whether the ports are along the x or y axis. this is the side the car is not crossing.
-            if ( almostEqual ( connectedStreetSections.getPortOfFromStreetSection().getLocalBginOfStreetPort().getX(),
+            if ( almostEqual ( connectedStreetSections.getPortOfFromStreetSection().getLocalBeginOfStreetPort().getX(),
                     connectedStreetSections.getPortOfFromStreetSection().getLocalEndOfStreetPort().getX())){
                 return pedestrianCrossing.getLengthY(); // port along y axis. and car has to traverse this length -> it enters along x axis
             }

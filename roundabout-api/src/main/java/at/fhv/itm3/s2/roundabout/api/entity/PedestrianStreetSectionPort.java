@@ -1,28 +1,30 @@
 package at.fhv.itm3.s2.roundabout.api.entity;
 
+import at.fhv.itm3.s2.roundabout.api.PedestrianPoint;
+
 import java.awt.*;
 import java.io.*;
 
 public class PedestrianStreetSectionPort implements Serializable{
     // Information in cm
-    Point beginOfStreetPort;
-    Point endOfStreetPort;
+    PedestrianPoint beginOfStreetPort;
+    PedestrianPoint endOfStreetPort;
 
 
-    public PedestrianStreetSectionPort(Integer startX, Integer startY, Integer endX, Integer endY){
-        this(new Point( startX, startY), new Point(endX, endY));
+    public PedestrianStreetSectionPort(double startX, double startY, double endX, double endY){
+        this(new PedestrianPoint( startX, startY), new PedestrianPoint(endX, endY));
     }
 
-    public PedestrianStreetSectionPort(Point beginOfStreetPort, Point endOfStreetPort){
+    public PedestrianStreetSectionPort(PedestrianPoint beginOfStreetPort, PedestrianPoint endOfStreetPort){
         this.beginOfStreetPort = beginOfStreetPort;
         this.endOfStreetPort = endOfStreetPort;
     }
 
-    public Point getLocalBginOfStreetPort() {
+    public PedestrianPoint getLocalBeginOfStreetPort() {
         return beginOfStreetPort;
     }
 
-    public Point getLocalEndOfStreetPort() {
+    public PedestrianPoint getLocalEndOfStreetPort() {
         return endOfStreetPort;
     }
 

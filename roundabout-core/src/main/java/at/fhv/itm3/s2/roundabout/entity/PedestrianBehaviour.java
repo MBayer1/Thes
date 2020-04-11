@@ -9,15 +9,19 @@ public class PedestrianBehaviour implements IPedestrianBehaviour {
 
     private double speed;
     private double minDistanceToNextPedestrian;
-    private double maxDistanceToNextPedestrian; // TODO
-    private double mergeFactor;
+    private double radiusOfPedestrian;
     private double accelerationFactor;
     private Gender gender;
     private PsychologicalNature psychologicalNature;
     private AgeRangeGroup ageRangeGroup;
 
 
-    public PedestrianBehaviour(double speed, double minDistanceToNextPedestrian, double maxDistanceToNextPedestrian, double mergeFactor, double accelerationFactor,
+    public PedestrianBehaviour(double speed, double minDistanceToNextPedestrian, double radiusOfPedestrian,
+                               Gender gender, PsychologicalNature psychologicalNature, AgeRangeGroup ageRangeGroup){
+        this(speed, minDistanceToNextPedestrian, radiusOfPedestrian, 1, gender, psychologicalNature, ageRangeGroup);
+    }
+
+    public PedestrianBehaviour(double speed, double minDistanceToNextPedestrian, double radiusOfPedestrian, double accelerationFactor,
                                Gender gender, PsychologicalNature psychologicalNature, AgeRangeGroup ageRangeGroup)
             throws IllegalArgumentException {
         setSpeed(speed);
@@ -25,8 +29,7 @@ public class PedestrianBehaviour implements IPedestrianBehaviour {
         setPsychologicalNature(psychologicalNature);
         setAgeRangeGroup(ageRangeGroup);
         this.minDistanceToNextPedestrian = minDistanceToNextPedestrian;
-        this.maxDistanceToNextPedestrian = maxDistanceToNextPedestrian;
-        this.mergeFactor = mergeFactor;
+        this.radiusOfPedestrian = radiusOfPedestrian;
         this.accelerationFactor = accelerationFactor;
     }
 
@@ -129,38 +132,22 @@ public class PedestrianBehaviour implements IPedestrianBehaviour {
         return minDistanceToNextPedestrian;
     }
 
+
+
     /**
      * {@inheritDoc}
      */
     @Override
-    public void setMinDistanceToNextPedestrian(double minDistanceToNextPedestrian)
-            throws IllegalArgumentException {
-        if (minDistanceToNextPedestrian > 0) {
-            this.minDistanceToNextPedestrian = minDistanceToNextPedestrian;
-        } else {
-            throw new IllegalArgumentException("Min distance must be positive");
-        }
+    public double getRadiusOfPedestrian(){
+        return radiusOfPedestrian;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public double getMaxDistanceToNextPedestrian() {
-        return maxDistanceToNextPedestrian;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void setMaxDistanceToNextPedestrian(double maxDistanceToNextPedestrian)
-            throws IllegalArgumentException {
-        if (maxDistanceToNextPedestrian > 0) {
-            this.maxDistanceToNextPedestrian = maxDistanceToNextPedestrian;
-        } else {
-            throw new IllegalArgumentException("Max distance must be positive");
-        }
+    public double calcGapForPedestrian() {
+        return minDistanceToNextPedestrian + radiusOfPedestrian;
     }
 }
 

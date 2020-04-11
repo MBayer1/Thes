@@ -8,6 +8,7 @@ import at.fhv.itm14.trafsim.model.entities.intersection.Intersection;
 import at.fhv.itm14.trafsim.model.entities.intersection.IntersectionConnection;
 import at.fhv.itm14.trafsim.model.entities.intersection.IntersectionPhase;
 import at.fhv.itm3.s2.roundabout.SocialForceModelCalculation.SupportiveCalculations;
+import at.fhv.itm3.s2.roundabout.api.PedestrianPoint;
 import at.fhv.itm3.s2.roundabout.api.entity.*;
 import at.fhv.itm3.s2.roundabout.controller.IntersectionController;
 import at.fhv.itm3.s2.roundabout.controller.PedestrianRouteController;
@@ -65,9 +66,26 @@ public class ConfigParser {
     private static final String MIN_PEDESTRIAN_RELAXING_TIME = "MIN_PEDESTRIAN_RELAXING_TIME";
     private static final String MAX_PEDESTRIAN_RELAXING_TIME = "MAX_PEDESTRIAN_RELAXING_TIME";
     private static final String EXPECTED_PEDESTRIAN_RELAXING_TIME = "EXPECTED_PEDESTRIAN_RELAXING_TIME";
+    private static final String MIN_PEDESTRIAN_SIZE_RADIUS = "MIN_PEDESTRIAN_SIZE_RADIUS";
+    private static final String MAX_PEDESTRIAN_SIZE_RADIUS = "MAX_PEDESTRIAN_SIZE_RADIUS";
+    private static final String EXPECTED_PEDESTRIAN_SIZE_RADIUS = "EXPECTED_PEDESTRIAN_SIZE_RADIUS";
+    private static final String MIN_PEDESTRIAN_MIN_GAP = "MIN_PEDESTRIAN_MIN_GAP";
+    private static final String MAX_PEDESTRIAN_MIN_GAP = "MAX_PEDESTRIAN_MIN_GAP";
+    private static final String EXPECTED_PEDESTRIAN_MIN_GAP = "EXPECTED_PEDESTRIAN_MIN_GAP";
     private static final String MIN_PEDESTRIAN_PREFERRED_SPEED = "MIN_PEDESTRIAN_PREFERRED_SPEED";
     private static final String MAX_PEDESTRIAN_PREFERRED_SPEED = "MAX_PEDESTRIAN_PREFERRED_SPEED";
     private static final String EXPECTED_PEDESTRIAN_PREFERRED_SPEED = "EXPECTED_PEDESTRIAN_PREFERRED_SPEED";
+
+    private static final String MIN_PEDESTRIAN_GENDER = "MIN_PEDESTRIAN_GENDER";
+    private static final String MAX_PEDESTRIAN_GENDER = "MAX_PEDESTRIAN_GENDER";
+    private static final String EXPECTED_PEDESTRIAN_GENDER = "EXPECTED_PEDESTRIAN_GENDER";
+    private static final String MIN_PEDESTRIAN_AGE_RANGE_GROUP = "MIN_PEDESTRIAN_AGE_RANGE_GROUP";
+    private static final String MAX_PEDESTRIAN_AGE_RANGE_GROUP = "MAX_PEDESTRIAN_AGE_RANGE_GROUP";
+    private static final String EXPECTED_PEDESTRIAN_AGE_RANGE_GROUP = "EXPECTED_PEDESTRIAN_AGE_RANGE_GROUP";
+    private static final String MIN_PEDESTRIAN_PSYCHOLOGICAL_NATURE = "MIN_PEDESTRIAN_PSYCHOLOGICAL_NATURE";
+    private static final String MAX_PEDESTRIAN_PSYCHOLOGICAL_NATURE = "MAX_PEDESTRIAN_PSYCHOLOGICAL_NATURE";
+    private static final String EXPECTED_PEDESTRIAN_PSYCHOLOGICAL_NATURE = "EXPECTED_PEDESTRIAN_PSYCHOLOGICAL_NATURE";
+
 
     private static final String INTERSECTION_SIZE = "INTERSECTION_SIZE";
     private static final String INTERSECTION_SERVICE_DELAY = "INTERSECTION_SERVICE_DELAY";
@@ -154,6 +172,7 @@ public class ConfigParser {
             extractParameter(parameters::get, Double::valueOf, MEAN_TIME_BETWEEN_PEDESTRIAN_ARRIVALS),
             extractParameter(parameters::get, Double::valueOf, MIN_DISTANCE_FACTOR_BETWEEN_PEDESTRIAN),
             extractParameter(parameters::get, Double::valueOf, MAX_DISTANCE_FACTOR_BETWEEN_PEDESTRIAN),
+
             extractParameter(parameters::get, Long::valueOf, MIN_PEDESTRIAN_GROUP_SIZE),
             extractParameter(parameters::get, Long::valueOf, MAX_PEDESTRIAN_GROUP_SIZE),
             extractParameter(parameters::get, Double::valueOf, MIN_PEDESTRIAN_STREET_LENGTH),
@@ -163,11 +182,27 @@ public class ConfigParser {
             extractParameter(parameters::get, Double::valueOf, MIN_PEDESTRIAN_RELAXING_TIME),
             extractParameter(parameters::get, Double::valueOf, MAX_PEDESTRIAN_RELAXING_TIME),
             extractParameter(parameters::get, Double::valueOf, EXPECTED_PEDESTRIAN_RELAXING_TIME),
+            extractParameter(parameters::get, Double::valueOf, MIN_PEDESTRIAN_SIZE_RADIUS),
+            extractParameter(parameters::get, Double::valueOf, MAX_PEDESTRIAN_SIZE_RADIUS),
+            extractParameter(parameters::get, Double::valueOf, EXPECTED_PEDESTRIAN_SIZE_RADIUS),
+            extractParameter(parameters::get, Double::valueOf, MIN_PEDESTRIAN_MIN_GAP),
+            extractParameter(parameters::get, Double::valueOf, MAX_PEDESTRIAN_MIN_GAP),
+            extractParameter(parameters::get, Double::valueOf, EXPECTED_PEDESTRIAN_MIN_GAP),
             extractParameter(parameters::get, Double::valueOf, MIN_PEDESTRIAN_PREFERRED_SPEED),
             extractParameter(parameters::get, Double::valueOf, MAX_PEDESTRIAN_PREFERRED_SPEED),
-            extractParameter(parameters::get, Double::valueOf, EXPECTED_PEDESTRIAN_PREFERRED_SPEED)
+            extractParameter(parameters::get, Double::valueOf, EXPECTED_PEDESTRIAN_PREFERRED_SPEED),
 
+            extractParameter(parameters::get, Double::valueOf, MIN_PEDESTRIAN_GENDER),
+            extractParameter(parameters::get, Double::valueOf, MAX_PEDESTRIAN_GENDER),
+            extractParameter(parameters::get, Double::valueOf, EXPECTED_PEDESTRIAN_GENDER),
+            extractParameter(parameters::get, Double::valueOf, MIN_PEDESTRIAN_AGE_RANGE_GROUP),
+            extractParameter(parameters::get, Double::valueOf, MAX_PEDESTRIAN_AGE_RANGE_GROUP),
+            extractParameter(parameters::get, Double::valueOf, EXPECTED_PEDESTRIAN_AGE_RANGE_GROUP),
+            extractParameter(parameters::get, Double::valueOf, MIN_PEDESTRIAN_PSYCHOLOGICAL_NATURE),
+            extractParameter(parameters::get, Double::valueOf, MAX_PEDESTRIAN_PSYCHOLOGICAL_NATURE),
+            extractParameter(parameters::get, Double::valueOf, EXPECTED_PEDESTRIAN_PSYCHOLOGICAL_NATURE)
         );
+
         model.connectToExperiment(experiment);  // ! - Should be done before anything else.
 
         final IModelStructure modelStructure = new ModelStructure(model, parameters);
@@ -838,7 +873,7 @@ public class ConfigParser {
         // start at any source
         if (PEDESTRIAN_SOURCE_REGISTRY.isEmpty()) return;
         PedestrianStreetSection currentSection = getAStartForGlobalCoordinates();
-        currentSection.setGlobalCoordinateOfSectionOrigin(new Point(0,0));
+        currentSection.setGlobalCoordinateOfSectionOrigin(new PedestrianPoint(0,0));
         deepSearchGlobalCoordinates(currentSection);
 
         initGlobalSource();
@@ -848,21 +883,21 @@ public class ConfigParser {
         PEDESTRIAN_SOURCE_REGISTRY.forEach((componentId, map) -> {
             map.forEach((sourceId, source)->{
                 PedestrianStreetSection entrySection = source.getConnectedStreet();
-                Point globalCooEntrySection = source.getConnectedStreet().getGlobalCoordinateOfSectionOrigin();
-                Point sourceGlobalCooEntrySection = new Point();
+                PedestrianPoint globalCooEntrySection = source.getConnectedStreet().getGlobalCoordinateOfSectionOrigin();
+                PedestrianPoint sourceGlobalCooEntrySection = new PedestrianPoint();
                 PedestrianConnectedStreetSections connectorPair = entrySection.getPreviousStreetConnectorToSource();
                 PedestrianStreetSectionPort port = connectorPair.getPortOfFromStreetSection();
 
-                if( (calc.almostEqual( port.getLocalBginOfStreetPort().getX(), port.getLocalEndOfStreetPort().getX()) &&
-                        (port.getLocalBginOfStreetPort().getY() < port.getLocalEndOfStreetPort().getY() ))
+                if( (calc.almostEqual( port.getLocalBeginOfStreetPort().getX(), port.getLocalEndOfStreetPort().getX()) &&
+                        (port.getLocalBeginOfStreetPort().getY() < port.getLocalEndOfStreetPort().getY() ))
                  ||
-                    (calc.almostEqual( port.getLocalBginOfStreetPort().getY(), port.getLocalEndOfStreetPort().getY()) &&
-                            (port.getLocalBginOfStreetPort().getX() < port.getLocalEndOfStreetPort().getX() ))
+                    (calc.almostEqual( port.getLocalBeginOfStreetPort().getY(), port.getLocalEndOfStreetPort().getY()) &&
+                            (port.getLocalBeginOfStreetPort().getX() < port.getLocalEndOfStreetPort().getX() ))
                  ){
                     //start is origin
                     sourceGlobalCooEntrySection.setLocation(
-                            globalCooEntrySection.getX() + port.getLocalBginOfStreetPort().getX(),
-                            globalCooEntrySection.getY() + port.getLocalBginOfStreetPort().getY());
+                            globalCooEntrySection.getX() + port.getLocalBeginOfStreetPort().getX(),
+                            globalCooEntrySection.getY() + port.getLocalBeginOfStreetPort().getY());
                 } else {
                     // end is origin
                     sourceGlobalCooEntrySection.setLocation(
@@ -885,9 +920,9 @@ public class ConfigParser {
 
             if( ((PedestrianStreetSection)toStreetSection).getGlobalCoordinateOfSectionOrigin() == null ) {
                 addGlobalCoordinates(   currentSection,
-                                        connector.getPortOfFromStreetSection().getLocalBginOfStreetPort(),
+                                        connector.getPortOfFromStreetSection().getLocalBeginOfStreetPort(),
                                         (PedestrianStreetSection)toStreetSection,
-                                        connector.getPortOfToStreetSection().getLocalBginOfStreetPort());
+                                        connector.getPortOfToStreetSection().getLocalBeginOfStreetPort());
 
                 deepSearchGlobalCoordinates( (PedestrianStreetSection)toStreetSection );
             }
@@ -895,24 +930,24 @@ public class ConfigParser {
     }
 
     private void addGlobalCoordinates( PedestrianStreet previousSection,
-                                       Point localExitPort,
+                                       PedestrianPoint localExitPort,
                                        PedestrianStreet currentSection,
-                                       Point localEntryPort){
+                                       PedestrianPoint localEntryPort){
     // Setup Global Network Coordinates for Pedestrian Street Sections
     // global exit point - local entry point = global origin of entry street section
         if (!(currentSection instanceof PedestrianStreetSection)) {
             throw new IllegalArgumentException("Street not instance of PedestrianStreetSection.");
         }
 
-        Point globalOrigin = ((PedestrianStreetSection)previousSection).getGlobalCoordinateOfSectionOrigin();
-        Point globalExitPoint = new Point(  (int)(globalOrigin.getX()+ localExitPort.getX()),
-                                            (int)(globalOrigin.getY()+ localExitPort.getY()));
+        PedestrianPoint globalOrigin = ((PedestrianStreetSection)previousSection).getGlobalCoordinateOfSectionOrigin();
+        PedestrianPoint globalExitPoint = new PedestrianPoint( globalOrigin.getX()+ localExitPort.getX(),
+                                            globalOrigin.getY()+ localExitPort.getY());
 
         if (!(previousSection instanceof PedestrianStreetSection)) {
             throw new IllegalArgumentException("Street not instance of PedestrianStreetSection.");
         }
-        Point globalOriginCurrent = new Point(  (int) (globalExitPoint.getX() - localEntryPort.getX()),
-                                                (int) (globalExitPoint.getY() - localEntryPort.getY()));
+        PedestrianPoint globalOriginCurrent = new PedestrianPoint(  globalExitPoint.getX() - localEntryPort.getX(),
+                                                globalExitPoint.getY() - localEntryPort.getY());
         ((PedestrianStreetSection)currentSection).setGlobalCoordinateOfSectionOrigin(globalOriginCurrent);
     }
 

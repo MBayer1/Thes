@@ -1,15 +1,16 @@
 package at.fhv.itm3.s2.roundabout.api.entity;
 
+import at.fhv.itm3.s2.roundabout.api.PedestrianPoint;
 import sun.swing.SwingUtilities2;
 
 import java.awt.*;
 
 public class PedestrianWaitingListElement {
     IPedestrian pedestrian;
-    Point globalEnterPoint;
+    PedestrianPoint globalEnterPoint;
     PedestrianStreet sectionToMoveTo;
 
-    public PedestrianWaitingListElement(IPedestrian pedestrian, Point globalEnterPoint, PedestrianStreet sectionToMoveTo){
+    public PedestrianWaitingListElement(IPedestrian pedestrian, PedestrianPoint globalEnterPoint, PedestrianStreet sectionToMoveTo){
         this.pedestrian = pedestrian;
         this.globalEnterPoint = globalEnterPoint;
         this.sectionToMoveTo = sectionToMoveTo;
@@ -23,7 +24,7 @@ public class PedestrianWaitingListElement {
         return sectionToMoveTo;
     }
 
-    public Point getGlobalEnterPoint() {
+    public PedestrianPoint getGlobalEnterPoint() {
         return globalEnterPoint;
     }
 }

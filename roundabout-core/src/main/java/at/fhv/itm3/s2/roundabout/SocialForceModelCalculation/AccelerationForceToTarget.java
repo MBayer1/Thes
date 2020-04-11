@@ -1,5 +1,6 @@
 package at.fhv.itm3.s2.roundabout.SocialForceModelCalculation;
 
+import at.fhv.itm3.s2.roundabout.api.PedestrianPoint;
 import at.fhv.itm3.s2.roundabout.entity.Pedestrian;
 import at.fhv.itm3.s2.roundabout.entity.PedestrianStreetSection;
 import at.fhv.itm3.s2.roundabout.model.RoundaboutSimulationModel;
@@ -22,7 +23,7 @@ public class AccelerationForceToTarget {
         PedestrianStreetSection section = (PedestrianStreetSection)pedestrian.getCurrentSection().getStreetSection();
 
         //nextDestinationVector = nextDestinationVector - currentPositionVector
-        Point subGoal = pedestrian.getNextSubGoal(); // global  coordinates without any obstacle etc. = exit-point of  section -> always calc new since real aim is afterwards change so is current position
+        PedestrianPoint subGoal = pedestrian.getNextSubGoal(); // global  coordinates without any obstacle etc. = exit-point of  section -> always calc new since real aim is afterwards change so is current position
         Vector2d preferredSpeedVector = calculations.getVector( currentPositionVector.getX(), currentPositionVector.getY(),
                                                         subGoal.getX() + section.getGlobalCoordinateOfSectionOrigin().getX(),
                                                         subGoal.getY() + section.getGlobalCoordinateOfSectionOrigin().getY());

@@ -3,6 +3,7 @@ package at.fhv.itm3.s2.roundabout.entity;
 import at.fhv.itm14.trafsim.model.entities.Car;
 import at.fhv.itm14.trafsim.model.events.CarDepartureEvent;
 import at.fhv.itm14.trafsim.persistence.model.DTO;
+import at.fhv.itm3.s2.roundabout.api.PedestrianPoint;
 import at.fhv.itm3.s2.roundabout.api.entity.PedestrianAbstractSource;
 import at.fhv.itm3.s2.roundabout.api.entity.PedestrianStreet;
 import at.fhv.itm3.s2.roundabout.event.PedestrianEventFactory;
@@ -21,7 +22,7 @@ public class PedestrianSource extends PedestrianAbstractSource {
     private RoundaboutSimulationModel model;
     protected PedestrianEventFactory pedestrianEventFactory;
     private double generateRatio;
-    private Point globalCoordinate;
+    private PedestrianPoint globalCoordinate;
 
 
     public PedestrianSource(Model model, String description, boolean showInTrace, PedestrianStreetSection connectedStreet) {
@@ -59,9 +60,9 @@ public class PedestrianSource extends PedestrianAbstractSource {
         this.generateRatio += ratio;
     }
 
-    public void setGlobalCoordinate (Point globalCoordinate) { this.globalCoordinate = globalCoordinate; }
+    public void setGlobalCoordinate (PedestrianPoint globalCoordinate) { this.globalCoordinate = globalCoordinate; }
 
-    public Point getGlobalCoordinate() {
+    public PedestrianPoint getGlobalCoordinate() {
         return globalCoordinate;
     }
 

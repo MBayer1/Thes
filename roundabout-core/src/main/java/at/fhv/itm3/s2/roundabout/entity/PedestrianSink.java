@@ -4,6 +4,7 @@ import at.fhv.itm14.trafsim.model.entities.Car;
 import at.fhv.itm14.trafsim.model.entities.IConsumer;
 import at.fhv.itm14.trafsim.model.events.CarDepartureEvent;
 import at.fhv.itm14.trafsim.persistence.model.DTO;
+import at.fhv.itm3.s2.roundabout.api.PedestrianPoint;
 import at.fhv.itm3.s2.roundabout.api.entity.*;
 import at.fhv.itm3.s2.roundabout.controller.CarController;
 import at.fhv.itm3.s2.roundabout.controller.PedestrianController;
@@ -75,14 +76,14 @@ public class PedestrianSink extends PedestrianAbstractSink {
 
 
     public void addPedestrian(IPedestrian iPedestrian){
-        addPedestrian(iPedestrian, new Point(0,0));
+        addPedestrian(iPedestrian, new PedestrianPoint(0,0));
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void addPedestrian(IPedestrian iPedestrian, Point position) {
+    public void addPedestrian(IPedestrian iPedestrian, PedestrianPoint position) {
 
         iPedestrian.leaveSystem();
         iPedestrian.leavePedestrianArea();
@@ -143,7 +144,7 @@ public class PedestrianSink extends PedestrianAbstractSink {
      * {@inheritDoc}
      */
     @Override
-    public void addCircularObstacle (double radius, Point midPoint){
+    public void addCircularObstacle (double radius, PedestrianPoint midPoint){
         return;
     }
 
@@ -152,7 +153,7 @@ public class PedestrianSink extends PedestrianAbstractSink {
      * {@inheritDoc}
      */
     @Override
-    public void addPolygonObstacle( List<Point> cornerPoints) {
+    public void addPolygonObstacle( List<PedestrianPoint> cornerPoints) {
         return;
     }
 
@@ -166,7 +167,7 @@ public class PedestrianSink extends PedestrianAbstractSink {
     }
 
 
-    public Map<IPedestrian, Point> getPedestrianPositions()
+    public Map<IPedestrian, PedestrianPoint> getPedestrianPositions()
             throws IllegalStateException {
         return null;
     }
@@ -224,7 +225,7 @@ public class PedestrianSink extends PedestrianAbstractSink {
      * {@inheritDoc}
      */
     @Override
-    public Point getPedestrianPosition(IPedestrian iPedestrian) {
+    public PedestrianPoint getPedestrianPosition(IPedestrian iPedestrian) {
         return null;
     }
 

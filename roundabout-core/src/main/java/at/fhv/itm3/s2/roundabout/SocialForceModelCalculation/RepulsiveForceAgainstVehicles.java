@@ -1,6 +1,7 @@
 package at.fhv.itm3.s2.roundabout.SocialForceModelCalculation;
 
 import at.fhv.itm14.trafsim.model.entities.IConsumer;
+import at.fhv.itm3.s2.roundabout.api.PedestrianPoint;
 import at.fhv.itm3.s2.roundabout.api.entity.ICar;
 import at.fhv.itm3.s2.roundabout.api.entity.Street;
 import at.fhv.itm3.s2.roundabout.entity.Pedestrian;
@@ -37,8 +38,8 @@ public class RepulsiveForceAgainstVehicles {
                     ICar car = vehicleStreet.getFirstCar();
                     if( car instanceof RoundaboutCar) {
                         if( vehicleStreet instanceof StreetSection) {
-                            Point globalPositionOfVehicle = null;
-                            Point globalAimOfVehicle = null;
+                            PedestrianPoint globalPositionOfVehicle = null;
+                            PedestrianPoint globalAimOfVehicle = null;
 
                             getVehicleData(globalPositionOfVehicle, globalAimOfVehicle,
                                     (StreetSection)vehicleStreet, (PedestrianStreetSection)section,
@@ -74,11 +75,11 @@ public class RepulsiveForceAgainstVehicles {
         return sumForce;
     }
 
-    void getVehicleData(Point globalPositionOfVehicle, Point globalAimOfVehicle,
+    void getVehicleData(PedestrianPoint globalPositionOfVehicle, PedestrianPoint globalAimOfVehicle,
                         StreetSection vehicleStreet, PedestrianStreetSection section,
                         RoundaboutCar car) {
-        globalPositionOfVehicle = new Point();
-        globalAimOfVehicle = new Point();
+        globalPositionOfVehicle = new PedestrianPoint();
+        globalAimOfVehicle = new PedestrianPoint();
 
         double remainingLength = car.getRemainingLengthOfCurrentSection();
         //global position of vehicle
@@ -105,7 +106,7 @@ public class RepulsiveForceAgainstVehicles {
         globalAimOfVehicle.setLocation(tmpX, tmpY);
     }
 
-    boolean checkPedestrianInRangeFront( RoundaboutSimulationModel model, Pedestrian pedestrian, Point globalPositionOfVehicle){
+    boolean checkPedestrianInRangeFront( RoundaboutSimulationModel model, Pedestrian pedestrian, PedestrianPoint globalPositionOfVehicle){
         if ( calculations.almostEqual( Point2D.distance(   pedestrian.getCurrentGlobalPosition().getX(),
                 pedestrian.getCurrentGlobalPosition().getY(),
                 globalPositionOfVehicle.getX(),
@@ -116,7 +117,7 @@ public class RepulsiveForceAgainstVehicles {
         return false;
     }
 
-    boolean checkPedestrianInRangeBack( RoundaboutSimulationModel model, Pedestrian pedestrian, Point globalPositionOfVehicle){
+    boolean checkPedestrianInRangeBack( RoundaboutSimulationModel model, Pedestrian pedestrian, PedestrianPoint globalPositionOfVehicle){
         if ( calculations.almostEqual( Point2D.distance(   pedestrian.getCurrentGlobalPosition().getX(),
                 pedestrian.getCurrentGlobalPosition().getY(),
                 globalPositionOfVehicle.getX(),
@@ -127,12 +128,12 @@ public class RepulsiveForceAgainstVehicles {
         return false;
     }
 
-    public Vector2d calculateRepulsiveForceAgainstVehicles(Pedestrian pedestrian, Point globalPositionOfVehicle, Point globalAimOfVehicle) {
+    public Vector2d calculateRepulsiveForceAgainstVehicles(Pedestrian pedestrian, PedestrianPoint globalPositionOfVehicle, PedestrianPoint globalAimOfVehicle) {
         Vector2d vecPosOfVehicle = new Vector2d(globalPositionOfVehicle.getX(), globalPositionOfVehicle.getY());
 
         //vectorBetween both components
         Vector2d vectorBetweenBothPedestrian = calculations.getVector(
-                pedestrian.getCurrentGlobalPosition().x, pedestrian.getCurrentGlobalPosition().y,
+                pedestrian.getCurrentGlobalPosition().getX(), pedestrian.getCurrentGlobalPosition().getY(),
                 globalPositionOfVehicle.getX(), globalPositionOfVehicle.getY());
 
         //preferred direction of Vehicle

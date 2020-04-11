@@ -1,5 +1,7 @@
 package at.fhv.itm3.s2.roundabout.api.entity;
 
+import at.fhv.itm3.s2.roundabout.api.PedestrianPoint;
+
 import javax.vecmath.Vector2d;
 import java.awt.*;
 
@@ -24,24 +26,24 @@ public interface IPedestrian {
 
 
     /**
-     * Calculates the the next subgoal {@link Point} considered.
+     * Calculates the the next subgoal {@link PedestrianPoint} considered.
      *
      * @return the next subgoal.
      */
-    Point getNextSubGoal();
+    PedestrianPoint getNextSubGoal();
 
 
     /**
-     * checks if the the next subgoal {@link Point} is reached
+     * checks if the the next subgoal {@link PedestrianPoint} is reached
      *
-     * @param localPedestrianPosition Local pos to compare to the local destianitno
+     * @param localPedestrianPosition Local pos to compare to the local destination
      * @return true when subgoal is reached, otherwise false
      */
-    boolean checkExitPortIsReached(Point localPedestrianPosition);
+    boolean checkExitPortIsReached(PedestrianPoint localPedestrianPosition);
 
 
     /**
-     * Calculates the time the pedestrian needs to traverse to reach the next subgoal {@link Point}.
+     * Calculates the time the pedestrian needs to traverse to reach the next subgoal {@link PedestrianPoint}.
      *
      * @return the traverse time in model time units.
      */
@@ -53,7 +55,7 @@ public interface IPedestrian {
      *
      * @return the coordinates of the center of the pedestrian.
      */
-    Point getCurrentGlobalPosition();
+    PedestrianPoint getCurrentGlobalPosition();
 
 
     /**

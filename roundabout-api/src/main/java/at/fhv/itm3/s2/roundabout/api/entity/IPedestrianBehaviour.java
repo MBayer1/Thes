@@ -89,29 +89,19 @@ public interface IPedestrianBehaviour {
      */
     double getMinDistanceToNextPedestrian();
 
-    /**
-     * Sets preferred min distance to next pedestrian held by {@code this} driver.
-     *
-     * @param minDistanceToNextPedestrian value to be set.
-     * @throws IllegalArgumentException when given speed is not greater than 0.
-     */
-    void setMinDistanceToNextPedestrian(double minDistanceToNextPedestrian)
-            throws IllegalArgumentException;
 
     /**
-     * Returns preferred max distance to next pedestrian held by {@code this} driver.
+     * Returns size(radius) of pedestrian held by {@code this} driver.
      *
-     * @return the max distance to next pedestrian of the driver.
+     * @return size of pedestrian
      */
-    double getMaxDistanceToNextPedestrian();
+    double getRadiusOfPedestrian();
 
     /**
-     * Sets preferred max distance to next pedestrian held by {@code this} driver.
+     * Returns actual distance from middle point of pedestrian to another
      *
-     * @param maxDistanceToNextPedestrian value to be set.
-     * @throws IllegalArgumentException when given speed is not greater than 0.
+     * @return sum of pedestiran min gap to obstical and its size
      */
-    void setMaxDistanceToNextPedestrian(double maxDistanceToNextPedestrian)
-            throws IllegalArgumentException;
+    double calcGapForPedestrian();
 
 }
