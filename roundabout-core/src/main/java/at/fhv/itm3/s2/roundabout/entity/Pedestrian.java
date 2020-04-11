@@ -49,6 +49,8 @@ public class Pedestrian extends Entity implements IPedestrian {
     private Double walkedDistance;
     private double timeRelatedParameterValueNForSpeedCalculation;
     private PedestrianPoint currentNextGlobalAim;
+    private Vector2d previousSFMVector;
+
     SupportiveCalculations calc = new SupportiveCalculations();
 
     public Pedestrian(Model model, String name, boolean showInTrace, PedestrianPoint currentGlobalPosition, IPedestrianBehaviour pedestrianBehaviour, IPedestrianRoute route) {
@@ -113,6 +115,8 @@ public class Pedestrian extends Entity implements IPedestrian {
         this.pedestriansQueueToEnterCounter.reset();
         this.pedestriansQueueToEnterTime = new Tally(model, "Roundabout time", false, false);
         this.pedestriansQueueToEnterTimeStopWatch = new StopWatch(model);
+
+        this.previousSFMVector = new Vector2d(0,0);
     }
 
     /**
@@ -668,6 +672,14 @@ public class Pedestrian extends Entity implements IPedestrian {
 
     public Car getCarDummy() {
         return this.car;
+    }
+
+    public Vector2d getPreviousSFMVector() {
+        return previousSFMVector;
+    }
+
+    public void setPreviousSFMVector(Vector2d previousSFMVector) {
+        this.previousSFMVector = previousSFMVector;
     }
 
     /**

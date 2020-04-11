@@ -78,15 +78,15 @@ public class MainApp extends Application {
             experiment.setShowProgressBar(false);
             configParser.initRoundaboutStructure(modelConfig, experiment);
 
+            //TODO delete pedestrian
+            AccelarationFOrceTMp tmp = new AccelarationFOrceTMp();
+
+
             mainViewController.generateComponentStatContainers(
                 modelConfig.getComponents().getComponent(),
                 configParser.getSectionRegistry(),
                 configParser.getSinkRegistry()
             );
-
-            //TODO delete pedestrian
-            AccelarationFOrceTMp tmp = new AccelarationFOrceTMp();
-
 
             mainViewController.setStartRunnable(initExperimentRunnable(
                 experiment,

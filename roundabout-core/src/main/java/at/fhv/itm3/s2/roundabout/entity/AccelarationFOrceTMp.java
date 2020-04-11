@@ -15,16 +15,10 @@ public class AccelarationFOrceTMp {
     public void getAccelerationForceToTarget(){
         SupportiveCalculations calculations = new SupportiveCalculations();
 
-        Vector2d currentSpeedVector = new Vector2d(5,0);//pedestrian.getCurrentSpeed(),0.0);
+        Vector2d currentSpeedVector = new Vector2d(0,0);//pedestrian.getCurrentSpeed(),0.0);
         Vector2d currentPositionVector = new Vector2d(0,0);//pedestrian.getCurrentGlobalPosition().getX(), pedestrian.getCurrentGlobalPosition().getY());
 
-/*
-        if (! (pedestrian.getCurrentSection().getStreetSection() instanceof PedestrianStreetSection)) {
-            throw new IllegalStateException("Section not instance of PedestrianStreetSection.");
-        }
-
-        PedestrianStreetSection section = (PedestrianStreetSection)pedestrian.getCurrentSection().getStreetSection();
-*/
+/*        if (! (pedestrian.getCurrentSection().getStreetSection() instanceof PedestrianStreetSection)) {throw new IllegalStateException("Section not instance of PedestrianStreetSection.");}        PedestrianStreetSection section = (PedestrianStreetSection)pedestrian.getCurrentSection().getStreetSection();*/
 
             //nextDestinationVector = nextDestinationVector - currentPositionVector
             PedestrianPoint subGoal = new PedestrianPoint(10,10);//pedestrian.getNextSubGoal(); // global  coordinates without any obstacle etc. = exit-point of  section -> always calc new since real aim is afterwards change so is current position
