@@ -61,11 +61,11 @@ public class ForceTestTMP {
     }
 
     public Vector2d getForceAgainstPedestrian(){
-        Vector2d betaGlobalPos = new Vector2d(0,100);
+        Vector2d betaGlobalPos = new Vector2d(0,1100);
         Vector2d alphaGlobalPos = new Vector2d(0,0);
 
-        Vector2d betaGoal = new Vector2d(0,1100);
-        Vector2d alphaGoal = new Vector2d(0,100);
+        Vector2d betaGoal = new Vector2d(500,1100);
+        Vector2d alphaGoal = new Vector2d(500,0);
 
         Double sigma = 30.0; // in centimeter
         Double VAlphaBeta = 210.0; // (cm / s)^2
