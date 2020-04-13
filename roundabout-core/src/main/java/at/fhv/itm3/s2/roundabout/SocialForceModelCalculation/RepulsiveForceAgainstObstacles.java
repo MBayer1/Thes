@@ -29,6 +29,7 @@ public class RepulsiveForceAgainstObstacles {
         // Get all obstacles (non walls)
         // TODO for later extensions
 
+        sumForce = calculations.getUnitVector(sumForce); // the distance is defined  by traveled speed and aim.
         return sumForce;
     }
 

@@ -35,7 +35,8 @@ public class AccelerationForceToTarget {
         preferredSpeedVector.sub(currentSpeedVector);
         preferredSpeedVector.scale(1/model.getRandomPedestrianRelaxingTimeTauAlpha());
 
-        pedestrian.setPreviousSFMVector(preferredSpeedVector);
+
+        preferredSpeedVector = calculations.getUnitVector(preferredSpeedVector); // the distance is defined  by traveled speed and aim.
         return preferredSpeedVector;
     }
 }

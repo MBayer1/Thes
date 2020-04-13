@@ -72,6 +72,7 @@ public class RepulsiveForceAgainstVehicles {
             }
 
         }
+        sumForce = calculations.getUnitVector(sumForce); // the distance is defined  by traveled speed and aim.
         return sumForce;
     }
 

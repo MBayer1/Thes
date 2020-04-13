@@ -35,6 +35,7 @@ public class RepulsiveForceAgainstOtherPedestrians {
         GetAllPedestrianFromPreviousStreets( model, pedestrian, vacDestination, sumForce );
         GetAllPedestrianFromFollowingStreets ( model, pedestrian, vacDestination, sumForce );
 
+        sumForce = calculations.getUnitVector(sumForce); // the distance is defined  by traveled speed and aim.
         return sumForce;
     }
 
