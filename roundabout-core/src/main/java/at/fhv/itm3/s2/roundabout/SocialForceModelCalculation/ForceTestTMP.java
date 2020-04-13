@@ -61,28 +61,28 @@ public class ForceTestTMP {
     }
 
     public Vector2d getForceAgainstPedestrian(){
-        Vector2d betaGlobalPos = new Vector2d(0,10);
+        Vector2d betaGlobalPos = new Vector2d(0,100);
         Vector2d alphaGlobalPos = new Vector2d(0,0);
 
-        Vector2d betaGoal = new Vector2d(-10,0);
-        Vector2d alphaGoal = new Vector2d(10,10);
+        Vector2d betaGoal = new Vector2d(0,1100);
+        Vector2d alphaGoal = new Vector2d(0,100);
 
         Double sigma = 30.0; // in centimeter
         Double VAlphaBeta = 210.0; // (cm / s)^2
 
 
         //vectorBetweenBothPedestrian
-        Vector2d posBeta = betaGlobalPos;
+        Vector2d posBeta = new Vector2d(betaGlobalPos.getX(), betaGlobalPos.getY());
         Vector2d vectorBetweenBothPedestrian = new Vector2d(alphaGlobalPos.getX(), alphaGlobalPos.getY());
         vectorBetweenBothPedestrian.sub(betaGlobalPos);
 
         //preferredDirectionOfBeta = eBeta
-        Vector2d vecPosBeta = new Vector2d(posBeta.getX(), posBeta.getY());
+        Vector2d vecPosBeta = new Vector2d(betaGlobalPos.getX(), betaGlobalPos.getY());
         Vector2d nextAimBeta = betaGoal;
         Vector2d vecNextAimBeta = new Vector2d(nextAimBeta.getX(), nextAimBeta.getY());
 
-        Vector2d preferredDirectionOfBeta = vecPosBeta;
-        preferredDirectionOfBeta.sub(vecNextAimBeta);       // t is in the estimated future. when reaching destination (expected)
+        Vector2d preferredDirectionOfBeta = vecNextAimBeta;
+        preferredDirectionOfBeta.sub(vecPosBeta);
         Double nextAimBetaLength = preferredDirectionOfBeta.length();
         preferredDirectionOfBeta.scale(1/nextAimBetaLength);
 
@@ -90,9 +90,9 @@ public class ForceTestTMP {
         Double traveledPathWithinTOfBeta = nextAimBetaLength;
 
         //small half axis of the ellipse
-        Vector2d betaData = preferredDirectionOfBeta;
+        Vector2d betaData = new Vector2d(preferredDirectionOfBeta);
         betaData.scale(traveledPathWithinTOfBeta);
-        Vector2d nextDestinationVectorAlphaSubTravelPathBeta = vectorBetweenBothPedestrian;
+        Vector2d nextDestinationVectorAlphaSubTravelPathBeta = new Vector2d(vectorBetweenBothPedestrian);
         nextDestinationVectorAlphaSubTravelPathBeta.sub(betaData);
 
         Double smallHalfAxisOfEllipse = Math.sqrt(  Math.pow(vectorBetweenBothPedestrian.length() + nextDestinationVectorAlphaSubTravelPathBeta.length(),2)) -
@@ -100,11 +100,12 @@ public class ForceTestTMP {
 
         // Repulsive force against other pedestrians
         // V_alphaBeta(t0)* e^(-b/sigma)
-        Double exponent = smallHalfAxisOfEllipse/-2;  // is 2b --> and we need b
+        Double exponent = smallHalfAxisOfEllipse/(-2);  // is 2b --> and we need b
         exponent /= sigma;
         exponent = Math.exp(exponent);
         Double repulsiveForce = VAlphaBeta * exponent;
 
+        // - vecAlphaBeta * forcesAgainstBeta
         vectorBetweenBothPedestrian.scale(repulsiveForce);
         vectorBetweenBothPedestrian.negate();
 

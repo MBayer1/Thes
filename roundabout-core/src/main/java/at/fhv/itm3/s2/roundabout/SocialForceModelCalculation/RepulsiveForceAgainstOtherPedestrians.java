@@ -172,18 +172,15 @@ public class RepulsiveForceAgainstOtherPedestrians {
 
         //vectorBetweenBothPedestrian
         PedestrianPoint posBetaData = pedestrianBeta.getCurrentGlobalPosition();
-        Vector2d posBeta = new Vector2d(posBetaData.getX(), posBetaData.getY());
+        Vector2d vecPosBeta = new Vector2d(posBetaData.getX(), posBetaData.getY());
         PedestrianPoint posAlpha = pedestrianAlpha.getCurrentGlobalPosition();
         Vector2d vectorBetweenBothPedestrian = new Vector2d(posAlpha.getX(), posAlpha.getY());
-        vectorBetweenBothPedestrian.sub(posBeta);
+        vectorBetweenBothPedestrian.sub(vecPosBeta);
 
         //preferredDirectionOfBeta = eBeta
-        Vector2d vecPosBeta = new Vector2d(posBeta.getX(), posBeta.getY());
         PedestrianPoint nextAimBeta = pedestrianBeta.getNextSubGoal();
-        Vector2d vecNextAimBeta = new Vector2d(nextAimBeta.getX(), nextAimBeta.getY());
-
-        Vector2d preferredDirectionOfBeta = vecPosBeta;
-        preferredDirectionOfBeta.sub(vecNextAimBeta);       // t is in the estimated future. when reaching destination (expected)
+        Vector2d preferredDirectionOfBeta = new Vector2d(nextAimBeta.getX(), nextAimBeta.getY());
+        preferredDirectionOfBeta.sub(vecPosBeta);
         Double nextAimBetaLength = preferredDirectionOfBeta.length();
         preferredDirectionOfBeta.scale(1/nextAimBetaLength);
 
@@ -191,7 +188,7 @@ public class RepulsiveForceAgainstOtherPedestrians {
         Double traveledPathWithinTOfBeta = nextAimBetaLength;
 
         //small half axis of the ellipse
-        Vector2d betaData = preferredDirectionOfBeta;
+        Vector2d betaData = new Vector2d(preferredDirectionOfBeta);
         betaData.scale(traveledPathWithinTOfBeta);
         Vector2d nextDestinationVectorAlphaSubTravelPathBeta = vectorBetweenBothPedestrian;
         nextDestinationVectorAlphaSubTravelPathBeta.sub(betaData);
@@ -204,8 +201,12 @@ public class RepulsiveForceAgainstOtherPedestrians {
         Double exponent = smallHalfAxisOfEllipse/-2;  // is 2b --> and we need b
         exponent /= sigma;
         exponent = Math.exp(exponent);
+        if(exponent.isInfinite() || exponent.isNaN()) {
+            throw new IllegalStateException("Something went wrong by calculating forces against other pedestrians.");
+        }
         Double repulsiveForce = VAlphaBeta * exponent;
 
+        // - vecAlphaBeta * forcesAgainstBeta
         vectorBetweenBothPedestrian.scale(repulsiveForce);
         vectorBetweenBothPedestrian.negate();
 

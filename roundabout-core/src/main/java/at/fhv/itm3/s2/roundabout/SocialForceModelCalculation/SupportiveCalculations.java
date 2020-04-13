@@ -8,7 +8,7 @@ import javax.vecmath.Vector2d;
 public class SupportiveCalculations {
     
     public Vector2d getVector(double startPointX, double startPointY, double endPointX, double endPointY){
-            return new Vector2d(endPointX-startPointX, endPointY-startPointY);
+            return new Vector2d(endPointX-startPointX, endPointY-startPointY); // head -  tail
     }
 
     public Vector2d getUnitVector( Vector2d vector) {
