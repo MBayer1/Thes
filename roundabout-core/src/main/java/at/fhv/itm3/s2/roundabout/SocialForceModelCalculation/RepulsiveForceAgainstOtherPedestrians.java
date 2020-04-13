@@ -35,7 +35,6 @@ public class RepulsiveForceAgainstOtherPedestrians {
         GetAllPedestrianFromPreviousStreets( model, pedestrian, vacDestination, sumForce );
         GetAllPedestrianFromFollowingStreets ( model, pedestrian, vacDestination, sumForce );
 
-        sumForce = calculations.getUnitVector(sumForce); // the distance is defined  by traveled speed and aim.
         return sumForce;
     }
 
@@ -172,10 +171,11 @@ public class RepulsiveForceAgainstOtherPedestrians {
         }
 
         //vectorBetweenBothPedestrian
-        PedestrianPoint posBeta = pedestrianBeta.getCurrentGlobalPosition();
-        Vector2d vectorBetweenBothPedestrian = calculations.getVector(
-                                pedestrianAlpha.getCurrentGlobalPosition().getX(), pedestrianAlpha.getCurrentGlobalPosition().getY(),
-                                posBeta.getX(), posBeta.getY());
+        PedestrianPoint posBetaData = pedestrianBeta.getCurrentGlobalPosition();
+        Vector2d posBeta = new Vector2d(posBetaData.getX(), posBetaData.getY());
+        PedestrianPoint posAlpha = pedestrianAlpha.getCurrentGlobalPosition();
+        Vector2d vectorBetweenBothPedestrian = new Vector2d(posAlpha.getX(), posAlpha.getY());
+        vectorBetweenBothPedestrian.sub(posBeta);
 
         //preferredDirectionOfBeta = eBeta
         Vector2d vecPosBeta = new Vector2d(posBeta.getX(), posBeta.getY());

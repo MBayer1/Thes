@@ -1,4 +1,4 @@
-package at.fhv.itm3.s2.roundabout.entity;
+package at.fhv.itm3.s2.roundabout.SocialForceModelCalculation;
 
 import at.fhv.itm3.s2.roundabout.SocialForceModelCalculation.SupportiveCalculations;
 import at.fhv.itm3.s2.roundabout.api.PedestrianPoint;
@@ -64,7 +64,7 @@ public class ForceTestTMP {
         Vector2d betaGlobalPos = new Vector2d(0,10);
         Vector2d alphaGlobalPos = new Vector2d(0,0);
 
-        Vector2d betaGoal = new Vector2d(-10,-10);
+        Vector2d betaGoal = new Vector2d(-10,0);
         Vector2d alphaGoal = new Vector2d(10,10);
 
         Double sigma = 30.0; // in centimeter
@@ -73,9 +73,8 @@ public class ForceTestTMP {
 
         //vectorBetweenBothPedestrian
         Vector2d posBeta = betaGlobalPos;
-        Vector2d vectorBetweenBothPedestrian = calculations.getVector(
-                alphaGlobalPos.getX(), alphaGlobalPos.getY(),
-                posBeta.getX(), posBeta.getY());
+        Vector2d vectorBetweenBothPedestrian = new Vector2d(alphaGlobalPos.getX(), alphaGlobalPos.getY());
+        vectorBetweenBothPedestrian.sub(betaGlobalPos);
 
         //preferredDirectionOfBeta = eBeta
         Vector2d vecPosBeta = new Vector2d(posBeta.getX(), posBeta.getY());
