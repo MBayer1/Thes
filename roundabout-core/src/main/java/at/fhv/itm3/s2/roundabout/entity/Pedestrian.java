@@ -696,13 +696,13 @@ public class Pedestrian extends Entity implements IPedestrian {
         RepulsiveForceAgainstOtherPedestrians repulsiveForceAgainstOtherPedestrians = new RepulsiveForceAgainstOtherPedestrians();
 
         Vector2d tmp = accelerationForceToTarget.getAccelerationForceToTarget(getRoundaboutModel(), this);
-        //sumForce.add(tmp);
-        //tmp = repulsiveForceAgainstOtherPedestrians.getRepulsiveForceAgainstAllOtherPedestrians(getRoundaboutModel(), this, getNextSubGoal());
-        //sumForce.add(tmp);
-        //tmp = repulsiveForceAgainstVehicles.getRepulsiveForceAgainstVehicles(getRoundaboutModel(), this);
-        //sumForce.add(tmp); //todo
-        //tmp = repulsiveForceAgainstObstacles.getRepulsiveForceAgainstAllObstacles(getRoundaboutModel(), this);
-        //sumForce.add(tmp);
+        sumForce.add(tmp);
+        tmp = repulsiveForceAgainstOtherPedestrians.getRepulsiveForceAgainstAllOtherPedestrians(getRoundaboutModel(), this, getNextSubGoal());
+        sumForce.add(tmp);
+        tmp = repulsiveForceAgainstVehicles.getRepulsiveForceAgainstVehicles(getRoundaboutModel(), this);
+        sumForce.add(tmp);
+        tmp = repulsiveForceAgainstObstacles.getRepulsiveForceAgainstAllObstacles(getRoundaboutModel(), this);
+        sumForce.add(tmp);
 
         this.setPreviousSFMVector(sumForce);
         return sumForce;

@@ -120,10 +120,10 @@ public class RepulsiveForceAgainstObstacles {
         PedestrianStreetSection currentSection = (PedestrianStreetSection) section;
 
         // special case of crossings. walls can be attracted or repulsive force
-        Vector2d wallIntersection1force = getRepulsiveForceAgainstObstacleCalculation( pedestrian, new PedestrianPoint( Math.round(wallIntersection1.getX()), Math.round(wallIntersection1.getY())));
-        Vector2d wallIntersection2force = getRepulsiveForceAgainstObstacleCalculation( pedestrian, new PedestrianPoint( Math.round(wallIntersection2.getX()), Math.round(wallIntersection2.getY())));
-        Vector2d wallIntersection3force = getRepulsiveForceAgainstObstacleCalculation( pedestrian, new PedestrianPoint( Math.round(wallIntersection3.getX()), Math.round(wallIntersection3.getY())));
-        Vector2d wallIntersection4force = getRepulsiveForceAgainstObstacleCalculation( pedestrian, new PedestrianPoint( Math.round(wallIntersection4.getX()), Math.round(wallIntersection4.getY())));
+        Vector2d wallIntersection1force = getRepulsiveForceAgainstObstacle( pedestrian, new PedestrianPoint( wallIntersection1.getX(), wallIntersection1.getY()));
+        Vector2d wallIntersection2force = getRepulsiveForceAgainstObstacle( pedestrian, new PedestrianPoint( wallIntersection2.getX(), wallIntersection2.getY()));
+        Vector2d wallIntersection3force = getRepulsiveForceAgainstObstacle( pedestrian, new PedestrianPoint( wallIntersection3.getX(), wallIntersection3.getY()));
+        Vector2d wallIntersection4force = getRepulsiveForceAgainstObstacle( pedestrian, new PedestrianPoint( wallIntersection4.getX(), wallIntersection4.getY()));
 
         if ( checkAttractingForce( currentSection, pedestrian ) ) {// attracted force
             sumForce.sub(wallIntersection1force);
@@ -152,9 +152,10 @@ public class RepulsiveForceAgainstObstacles {
         // Check Field of View --> 170°
         if (calculations.val1BiggerOrAlmostEqual(destination.dot(force),  //A ⋅ B = ||A|| * ||B|| * cos θ
                 force.length() * Math.cos(model.pedestrianFieldOfViewDegree / 2))) {
-            weightingFactor = model.getPedestrianFieldOfViewWeakeningFactor;
+            // in field of view
+            weightingFactor = 1.0;
         } else {
-            weightingFactor = 0.0;
+            weightingFactor = model.getPedestrianFieldOfViewWeakeningFactor;
         }
         force.scale(weightingFactor);
         return force;
@@ -182,7 +183,7 @@ public class RepulsiveForceAgainstObstacles {
     }
 
     boolean checkPedestrianInRange( Pedestrian pedestrian, PedestrianPoint intersectionPos){
-        if ( calculations.almostEqual( calculations.getDistanceByCoordinates(   pedestrian.getCurrentGlobalPosition().getX(),
+        if ( calculations.val1LowerOrAlmostEqual( calculations.getDistanceByCoordinates(   pedestrian.getCurrentGlobalPosition().getX(),
                 pedestrian.getCurrentGlobalPosition().getY(),
                 intersectionPos.getX(),
                 intersectionPos.getY()) ,

@@ -2,6 +2,7 @@ package at.fhv.itm3.s2.roundabout.SocialForceModelCalculation;
 
 import at.fhv.itm3.s2.roundabout.SocialForceModelCalculation.SupportiveCalculations;
 import at.fhv.itm3.s2.roundabout.api.PedestrianPoint;
+import at.fhv.itm3.s2.roundabout.entity.Pedestrian;
 import at.fhv.itm3.s2.roundabout.model.RoundaboutSimulationModel;
 import com.sun.prism.paint.Gradient;
 import sun.nio.cs.ext.MacHebrew;
@@ -11,6 +12,8 @@ import javax.vecmath.Vector2d;
 public class ForceTestTMP {
 
     SupportiveCalculations calculations = new SupportiveCalculations();
+    final private Double R = 20.0; // cm
+    final private Double U0AlphaBeta = 1000.0; // (cm/s)^2
 
     public ForceTestTMP() {
         getAccelerationForceToTarget();
@@ -111,8 +114,80 @@ public class ForceTestTMP {
     }
 
     public Vector2d  getForceAgainstWallsObsticals(){
-        return new Vector2d(0,0);
+        PedestrianPoint pedestrianPos = new PedestrianPoint(1200,1000);
+        PedestrianPoint pedestrianGoal = new PedestrianPoint(1500,1000);
+        PedestrianPoint wallIntersection1 = new PedestrianPoint(0, 1000);
+        PedestrianPoint wallIntersection2 = new PedestrianPoint(1500,1000);
+        PedestrianPoint wallIntersection3 = new PedestrianPoint(1200,0);
+        PedestrianPoint wallIntersection4 = new PedestrianPoint(1200,1500);
+
+        Double weightingFactor;
+        PedestrianPoint dest = pedestrianGoal;//pedestrian.getNextSubGoal();
+        Vector2d destination = new Vector2d( dest.getX(), dest.getY());
+
+        Vector2d force1 = getRepulsiveForceAgainstObstacleCalculation( pedestrianGoal, pedestrianPos, wallIntersection1);
+        weightingFactor = checkFieldOfView(force1, destination);
+        force1.scale(weightingFactor);
+        Vector2d force2 = getRepulsiveForceAgainstObstacleCalculation( pedestrianGoal, pedestrianPos, wallIntersection2);
+        weightingFactor = checkFieldOfView(force2, destination);
+        force2.scale(weightingFactor);
+        Vector2d force3 = getRepulsiveForceAgainstObstacleCalculation( pedestrianGoal, pedestrianPos, wallIntersection3);
+        weightingFactor = checkFieldOfView(force3, destination);
+        force3.scale(weightingFactor);
+        Vector2d force4 = getRepulsiveForceAgainstObstacleCalculation( pedestrianGoal, pedestrianPos, wallIntersection4);
+        weightingFactor = checkFieldOfView(force4, destination);
+        force4.scale(weightingFactor);
+
+        Vector2d force = new Vector2d(0,0);
+        force.add(force1);
+        force.add(force2);
+        force.add(force3);
+        force.add(force4);
+        return force;
     }
+
+    double checkFieldOfView (Vector2d force, Vector2d destination) {
+        if (calculations.val1BiggerOrAlmostEqual(destination.dot(force),  //A ⋅ B = ||A|| * ||B|| * cos θ
+                force.length() * Math.cos(170/2))){//model.pedestrianFieldOfViewDegree / 2))) {
+            return 1;// model.getPedestrianFieldOfViewWeakeningFactor;
+        } else {
+            return  0.1;
+        }
+    }
+
+    Vector2d getRepulsiveForceAgainstObstacleCalculation(    PedestrianPoint goalPedestiran, PedestrianPoint posPedestrian, PedestrianPoint obstaclePosition) {
+        if( !checkPedestrianInRange( goalPedestiran, obstaclePosition) ){
+            return new Vector2d(0,0 );
+        }
+
+        // Distance vector
+        Vector2d vectorBetweenPedestrianAndObstacle = new Vector2d(posPedestrian.getX(), posPedestrian.getY());
+        vectorBetweenPedestrianAndObstacle.sub(new Vector2d(obstaclePosition.getX(), obstaclePosition.getY()));
+        Double distanceBetweenPedestrianAndObstacle = vectorBetweenPedestrianAndObstacle.length();
+
+        // Repulsive force
+        Double expo = (-1 * (distanceBetweenPedestrianAndObstacle/ R));
+        expo = Math.exp(expo);
+        Vector2d force = vectorBetweenPedestrianAndObstacle;
+
+        force.scale(U0AlphaBeta * expo);
+        force.negate();
+        return force;
+    }
+
+    boolean checkPedestrianInRange( PedestrianPoint goal, PedestrianPoint intersectionPos){
+        if ( calculations.val1LowerOrAlmostEqual( calculations.getDistanceByCoordinates(   goal.getX(),
+                goal.getY(),
+                intersectionPos.getX(),
+                intersectionPos.getY()) ,
+                800/*model.pedestrianFieldOfViewRadius*/)) {
+            return true;
+        }
+        return false;
+    }
+
+
+
     public Vector2d getForceAgainstVehicle(){
         return new Vector2d(0,0);
     }
