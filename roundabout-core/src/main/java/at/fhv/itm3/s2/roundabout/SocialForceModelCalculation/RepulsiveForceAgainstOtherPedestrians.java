@@ -185,12 +185,13 @@ public class RepulsiveForceAgainstOtherPedestrians {
         preferredDirectionOfBeta.scale(1/nextAimBetaLength);
 
         //Traveled path of the walker β within ∆t
-        Double traveledPathWithinTOfBeta = nextAimBetaLength;
+        Double traveledPathWithinTOfBeta = ((Pedestrian)pedestrianBeta).getWalkedDistance();
+        traveledPathWithinTOfBeta /= pedestrianBeta.getTimeSpentInSystem();
 
         //small half axis of the ellipse
         Vector2d betaData = new Vector2d(preferredDirectionOfBeta);
         betaData.scale(traveledPathWithinTOfBeta);
-        Vector2d nextDestinationVectorAlphaSubTravelPathBeta = vectorBetweenBothPedestrian;
+        Vector2d nextDestinationVectorAlphaSubTravelPathBeta = new Vector2d(vectorBetweenBothPedestrian);
         nextDestinationVectorAlphaSubTravelPathBeta.sub(betaData);
 
         Double smallHalfAxisOfEllipse = Math.sqrt(  Math.pow(vectorBetweenBothPedestrian.length() + nextDestinationVectorAlphaSubTravelPathBeta.length(),2)) -
@@ -207,6 +208,7 @@ public class RepulsiveForceAgainstOtherPedestrians {
         Double repulsiveForce = VAlphaBeta * exponent;
 
         // - vecAlphaBeta * forcesAgainstBeta
+        vectorBetweenBothPedestrian = calculations.getUnitVector(vectorBetweenBothPedestrian);
         vectorBetweenBothPedestrian.scale(repulsiveForce);
         vectorBetweenBothPedestrian.negate();
 

@@ -3,6 +3,8 @@ package at.fhv.itm3.s2.roundabout.SocialForceModelCalculation;
 import at.fhv.itm3.s2.roundabout.SocialForceModelCalculation.SupportiveCalculations;
 import at.fhv.itm3.s2.roundabout.api.PedestrianPoint;
 import at.fhv.itm3.s2.roundabout.model.RoundaboutSimulationModel;
+import com.sun.prism.paint.Gradient;
+import sun.nio.cs.ext.MacHebrew;
 
 import javax.vecmath.Vector2d;
 
@@ -61,33 +63,31 @@ public class ForceTestTMP {
     }
 
     public Vector2d getForceAgainstPedestrian(){
-        Vector2d betaGlobalPos = new Vector2d(0,1100);
+        Vector2d betaGlobalPos = new Vector2d(30,10);
         Vector2d alphaGlobalPos = new Vector2d(0,0);
 
-        Vector2d betaGoal = new Vector2d(500,1100);
+        Vector2d betaGoal = new Vector2d(50,100);
         Vector2d alphaGoal = new Vector2d(500,0);
 
         Double sigma = 30.0; // in centimeter
         Double VAlphaBeta = 210.0; // (cm / s)^2
 
-
         //vectorBetweenBothPedestrian
-        Vector2d posBeta = new Vector2d(betaGlobalPos.getX(), betaGlobalPos.getY());
         Vector2d vectorBetweenBothPedestrian = new Vector2d(alphaGlobalPos.getX(), alphaGlobalPos.getY());
         vectorBetweenBothPedestrian.sub(betaGlobalPos);
 
         //preferredDirectionOfBeta = eBeta
         Vector2d vecPosBeta = new Vector2d(betaGlobalPos.getX(), betaGlobalPos.getY());
-        Vector2d nextAimBeta = betaGoal;
-        Vector2d vecNextAimBeta = new Vector2d(nextAimBeta.getX(), nextAimBeta.getY());
+        Vector2d vecNextAimBeta = new Vector2d(betaGoal.getX(), betaGoal.getY());
 
-        Vector2d preferredDirectionOfBeta = vecNextAimBeta;
+        Vector2d preferredDirectionOfBeta = new Vector2d(vecNextAimBeta);
         preferredDirectionOfBeta.sub(vecPosBeta);
-        Double nextAimBetaLength = preferredDirectionOfBeta.length();
-        preferredDirectionOfBeta.scale(1/nextAimBetaLength);
+        preferredDirectionOfBeta.scale(1/preferredDirectionOfBeta.length());
 
         //Traveled path of the walker β within ∆t
-        Double traveledPathWithinTOfBeta = nextAimBetaLength;
+        double time = 0;
+        Double traveledPathWithinTOfBeta = 15000.; // waled distance
+        traveledPathWithinTOfBeta /= 300;//  time spend in system
 
         //small half axis of the ellipse
         Vector2d betaData = new Vector2d(preferredDirectionOfBeta);
@@ -105,10 +105,8 @@ public class ForceTestTMP {
         exponent = Math.exp(exponent);
         Double repulsiveForce = VAlphaBeta * exponent;
 
-        // - vecAlphaBeta * forcesAgainstBeta
-        vectorBetweenBothPedestrian.scale(repulsiveForce);
-        vectorBetweenBothPedestrian.negate();
-
+        vectorBetweenBothPedestrian = calculations.getUnitVector(vectorBetweenBothPedestrian);
+        vectorBetweenBothPedestrian.scale(repulsiveForce* (-1));
         return vectorBetweenBothPedestrian;
     }
 
