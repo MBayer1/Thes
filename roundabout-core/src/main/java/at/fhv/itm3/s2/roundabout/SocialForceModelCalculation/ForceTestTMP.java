@@ -115,7 +115,7 @@ public class ForceTestTMP {
 
     public Vector2d  getForceAgainstWallsObsticals(){
         PedestrianPoint pedestrianPos = new PedestrianPoint(1200,1000);
-        PedestrianPoint pedestrianGoal = new PedestrianPoint(1500,1000);
+        PedestrianPoint pedestrianGoal = new PedestrianPoint(1500,400);
         PedestrianPoint wallIntersection1 = new PedestrianPoint(0, 1000);
         PedestrianPoint wallIntersection2 = new PedestrianPoint(1500,1000);
         PedestrianPoint wallIntersection3 = new PedestrianPoint(1200,0);
@@ -147,6 +147,12 @@ public class ForceTestTMP {
     }
 
     double checkFieldOfView (Vector2d force, Vector2d destination) {
+        double a = destination.dot(force);
+        double as = force.length();
+        double asd = Math.cos(85);
+        double jasdd = Math.cos((170/2));
+        double da = force.length() * Math.cos(170/2);
+
         if (calculations.val1BiggerOrAlmostEqual(destination.dot(force),  //A ⋅ B = ||A|| * ||B|| * cos θ
                 force.length() * Math.cos(170/2))){//model.pedestrianFieldOfViewDegree / 2))) {
             return 1;// model.getPedestrianFieldOfViewWeakeningFactor;
