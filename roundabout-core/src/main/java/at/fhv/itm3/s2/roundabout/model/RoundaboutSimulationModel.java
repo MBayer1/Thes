@@ -967,7 +967,7 @@ public class RoundaboutSimulationModel extends Model {
     public Double getSFM_DegreeOfAccuracy () {return SFM_DegreeOfAccuracy;}
 
     /**
-     * Random number stream used to calculate a the preferred waling speed of an pedestrian.
+     * Random number stream used to calculate a the preferred walking speed of an pedestrian.
      * See {@link RoundaboutSimulationModel#init()} method for stream parameters.
      */
     public Double getRandomPedestrianPreferredSpeed() {

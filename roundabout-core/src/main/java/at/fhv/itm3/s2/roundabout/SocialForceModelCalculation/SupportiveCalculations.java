@@ -2,11 +2,20 @@ package at.fhv.itm3.s2.roundabout.SocialForceModelCalculation;
 
 import at.fhv.itm3.s2.roundabout.api.PedestrianPoint;
 import at.fhv.itm3.s2.roundabout.api.entity.PedestrianStreetSectionPort;
+import at.fhv.itm3.s2.roundabout.entity.Pedestrian;
 
 import javax.vecmath.Vector2d;
 
 public class SupportiveCalculations {
-    
+
+    public Vector2d getVector(Vector2d startPoint, Vector2d endPoint){
+        return getVector(startPoint.getX(), startPoint.getY(), endPoint.getX(), endPoint.getY());
+    }
+
+    public Vector2d getVector(PedestrianPoint startPoint, PedestrianPoint endPoint){
+        return getVector(startPoint.getX(), startPoint.getY(), endPoint.getX(), endPoint.getY());
+    }
+
     public Vector2d getVector(double startPointX, double startPointY, double endPointX, double endPointY){
             return new Vector2d(endPointX-startPointX, endPointY-startPointY); // head -  tail
     }

@@ -185,9 +185,7 @@ public class RepulsiveForceAgainstOtherPedestrians {
         preferredDirectionOfBeta.scale(1/nextAimBetaLength);
 
         //Traveled path of the walker β within ∆t
-        Double traveledPathWithinTOfBeta = ((Pedestrian)pedestrianBeta).getWalkedDistance();
-        traveledPathWithinTOfBeta /= pedestrianBeta.getTimeSpentInSystem();
-        double da = ((Pedestrian) pedestrianBeta).getPreferredSpeed() * pedestrianBeta.getTimeSpentInSystem();
+        Double traveledPathWithinTOfBeta = ((Pedestrian)pedestrianBeta).getCurrentSpeed(); // *1s -> path within one sec -> alternatively use 0,5 sec
 
         //small half axis of the ellipse
         Vector2d betaData = new Vector2d(preferredDirectionOfBeta);

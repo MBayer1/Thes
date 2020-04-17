@@ -2,14 +2,18 @@ package at.fhv.itm3.s2.roundabout.SocialForceModelCalculation;
 
 import at.fhv.itm3.s2.roundabout.api.PedestrianPoint;
 import at.fhv.itm3.s2.roundabout.entity.Pedestrian;
+import at.fhv.itm3.s2.roundabout.entity.RoundaboutCar;
+import at.fhv.itm3.s2.roundabout.model.RoundaboutSimulationModel;
 
 import javax.vecmath.Vector2d;
+import java.awt.geom.Point2D;
 
 public class ForceCalcTestEnvironment {
 
     SupportiveCalculations calculations = new SupportiveCalculations();
     final private Double R = 20.0; // cm
     final private Double U0AlphaBeta = 1000.0; // (cm/s)^2
+    Double pedestrianFieldOfViewRadius = 800.0;
 
     public ForceCalcTestEnvironment() {
         getAccelerationForceToTarget();
@@ -62,7 +66,7 @@ public class ForceCalcTestEnvironment {
     }
 
     public Vector2d getForceAgainstPedestrian(){
-        Vector2d betaGlobalPos = new Vector2d(30,10);
+        Vector2d betaGlobalPos = new Vector2d(10,5);
         Vector2d alphaGlobalPos = new Vector2d(0,0);
 
         Vector2d betaGoal = new Vector2d(50,100);
@@ -84,10 +88,10 @@ public class ForceCalcTestEnvironment {
         preferredDirectionOfBeta.scale(1/preferredDirectionOfBeta.length());
 
         //Traveled path of the walker β within ∆t
+        //(relative) step lengths of the pedestrians according to their current velocities
         double time = 0;
         double timeSpendInSystemBeta = 300;
         double waledDistanceBeta = 15000;
-        double preferedSpeedBeta = 1.4; //cm/s
         Double traveledPathWithinTOfBeta = waledDistanceBeta; // waled distance
         traveledPathWithinTOfBeta /= timeSpendInSystemBeta;//  time spend in system
 
@@ -189,9 +193,54 @@ public class ForceCalcTestEnvironment {
         return false;
     }
 
-
-
     public Vector2d getForceAgainstVehicle(){
-        return new Vector2d(0,0);
+        Vector2d sumForce = new Vector2d(0,0);
+        PedestrianPoint pedestrianGlobPos = new PedestrianPoint(0,100);
+        PedestrianPoint VehicleFront = new PedestrianPoint();
+        PedestrianPoint VeicleBack = new PedestrianPoint();
+        PedestrianPoint globalPositionOfVehicle = new PedestrianPoint(0,0);
+        PedestrianPoint globalAimOfVehicle = new PedestrianPoint(0,100);
+
+
+        // check if it is in range
+        if ( checkPedestrianInRangeFront(pedestrianGlobPos, VehicleFront) ){
+            sumForce.add(calculateRepulsiveForceAgainstVehicles( pedestrianGlobPos, globalPositionOfVehicle, globalAimOfVehicle));
+        }
+
+        // check if it is in range
+        if (checkPedestrianInRangeBack(pedestrianGlobPos, VeicleBack)) {
+            sumForce.add(calculateRepulsiveForceAgainstVehicles(pedestrianGlobPos, globalPositionOfVehicle, globalAimOfVehicle));
+        }
+
+        return sumForce;
+    }
+
+    boolean checkPedestrianInRangeFront(PedestrianPoint pedestriancurGlobPos, PedestrianPoint globalPositionOfVehicle){
+        if ( calculations.almostEqual( Point2D.distance(   pedestriancurGlobPos.getX(),
+                pedestriancurGlobPos.getY(),
+                globalPositionOfVehicle.getX(),
+                globalPositionOfVehicle.getY()),
+                pedestrianFieldOfViewRadius)) {
+            return true;
+        }
+        return false;
+    }
+
+    boolean checkPedestrianInRangeBack( PedestrianPoint pedestriancurGlobPos, PedestrianPoint globalPositionOfVehicle){
+        if ( calculations.almostEqual( Point2D.distance(   pedestriancurGlobPos.getX(),
+                pedestriancurGlobPos.getY(),
+                globalPositionOfVehicle.getX(),
+                globalPositionOfVehicle.getY()),
+                pedestrianFieldOfViewRadius/2)) {
+            return true;
+        }
+        return false;
+    }
+
+    public Vector2d calculateRepulsiveForceAgainstVehicles(PedestrianPoint pedestrianCurGlobPos,
+                                                           PedestrianPoint globalPositionOfVehicle,
+                                                           PedestrianPoint globalAimOfVehicle,
+                                                           ) {
+
     }
 }
