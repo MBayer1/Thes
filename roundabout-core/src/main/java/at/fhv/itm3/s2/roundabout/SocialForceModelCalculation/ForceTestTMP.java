@@ -1,11 +1,6 @@
 package at.fhv.itm3.s2.roundabout.SocialForceModelCalculation;
 
-import at.fhv.itm3.s2.roundabout.SocialForceModelCalculation.SupportiveCalculations;
 import at.fhv.itm3.s2.roundabout.api.PedestrianPoint;
-import at.fhv.itm3.s2.roundabout.entity.Pedestrian;
-import at.fhv.itm3.s2.roundabout.model.RoundaboutSimulationModel;
-import com.sun.prism.paint.Gradient;
-import sun.nio.cs.ext.MacHebrew;
 
 import javax.vecmath.Vector2d;
 
@@ -23,7 +18,7 @@ public class ForceTestTMP {
     public void getAccelerationForceToTarget(){
         Vector2d accelerationForce = ownVersionAccelerationForce();
         Vector2d forceAgainstPedestrian = getForceAgainstPedestrian();
-        Vector2d forceAgainstWallsObsticals = getForceAgainstWallsObsticals();
+        Vector2d forceAgainstWallsObsticals = getForceAgainstWallsObstacles();
         Vector2d forceAgainstVehicle = getForceAgainstVehicle();
     }
 
@@ -113,7 +108,7 @@ public class ForceTestTMP {
         return vectorBetweenBothPedestrian;
     }
 
-    public Vector2d  getForceAgainstWallsObsticals(){
+    public Vector2d getForceAgainstWallsObstacles(){
         PedestrianPoint pedestrianPos = new PedestrianPoint(1200,1000);
         PedestrianPoint pedestrianGoal = new PedestrianPoint(1500,400);
         PedestrianPoint wallIntersection1 = new PedestrianPoint(0, 1000);
@@ -147,10 +142,8 @@ public class ForceTestTMP {
     }
 
     double checkFieldOfView (Vector2d force, Vector2d destination) {
-        double a = destination.dot(force);
-        double as = force.length();
-        double asd = Math.cos(Math.toRadians(85));
-        double da = force.length() * Math.cos(Math.toRadians(170/2));
+        //force = new Vector2d(180,0);
+        //destination = new Vector2d(0,180);
 
         if (calculations.val1BiggerOrAlmostEqual(destination.dot(force),  //A ⋅ B = ||A|| * ||B|| * cos θ
                 force.length() * Math.cos(Math.toRadians(170/2)))){//model.pedestrianFieldOfViewDegree / 2))) {
