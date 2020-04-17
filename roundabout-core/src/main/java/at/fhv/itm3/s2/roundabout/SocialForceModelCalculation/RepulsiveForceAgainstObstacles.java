@@ -151,7 +151,7 @@ public class RepulsiveForceAgainstObstacles {
 
         // Check Field of View --> 170°
         if (calculations.val1BiggerOrAlmostEqual(destination.dot(force),  //A ⋅ B = ||A|| * ||B|| * cos θ
-                force.length() * Math.cos(model.pedestrianFieldOfViewDegree / 2))) {
+                force.length() * Math.cos(Math.toRadians(model.pedestrianFieldOfViewDegree / 2)))) {
             // in field of view
             weightingFactor = 1.0;
         } else {
