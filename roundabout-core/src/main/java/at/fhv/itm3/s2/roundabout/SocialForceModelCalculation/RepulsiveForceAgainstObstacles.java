@@ -72,14 +72,22 @@ public class RepulsiveForceAgainstObstacles {
                         localPort.getLocalEndOfStreetPort().getX() + sectionCenterX,
                         localPort.getLocalEndOfStreetPort().getY() + sectionCenterY);
 
-                if ( calculations.checkWallIntersectionWithinPort( globalPort, wallIntersection1 ) )
-                    calculations.shiftIntersection( globalPort, wallIntersection1);
+                if ( calculations.checkWallIntersectionWithinPort( globalPort, wallIntersection1 ) ) {
+                    calculations.shiftIntersection(globalPort, wallIntersection1);
+                } else if() {
+
+                }
+
+
                 if ( calculations.checkWallIntersectionWithinPort( globalPort, wallIntersection2) )
                     calculations.shiftIntersection( globalPort, wallIntersection2);
+
                 if ( calculations.checkWallIntersectionWithinPort( globalPort, wallIntersection3) )
                     calculations.shiftIntersection( globalPort, wallIntersection3);
+
                 if ( calculations.checkWallIntersectionWithinPort( globalPort, wallIntersection4) )
                     calculations.shiftIntersection( globalPort, wallIntersection4);
+
             }
         }
 

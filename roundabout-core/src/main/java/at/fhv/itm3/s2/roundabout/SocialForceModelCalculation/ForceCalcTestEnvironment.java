@@ -4,13 +4,13 @@ import at.fhv.itm3.s2.roundabout.api.PedestrianPoint;
 
 import javax.vecmath.Vector2d;
 
-public class ForceTestTMP {
+public class ForceCalcTestEnvironment {
 
     SupportiveCalculations calculations = new SupportiveCalculations();
     final private Double R = 20.0; // cm
     final private Double U0AlphaBeta = 1000.0; // (cm/s)^2
 
-    public ForceTestTMP() {
+    public ForceCalcTestEnvironment() {
         getAccelerationForceToTarget();
     }
 
