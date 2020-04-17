@@ -20,8 +20,6 @@ public class AccelerationForceToTarget {
             throw new IllegalStateException("Section not instance of PedestrianStreetSection.");
         }
 
-        PedestrianStreetSection section = (PedestrianStreetSection)pedestrian.getCurrentSection().getStreetSection();
-
         // e(t)
         PedestrianPoint subGoal = pedestrian.getNextSubGoal(); // global  coordinates without any obstacle etc. = exit-point of  section -> always calc new since real aim is afterwards change so is current position
         Vector2d preferredSpeedVector = new Vector2d(subGoal.getX(), subGoal.getY());

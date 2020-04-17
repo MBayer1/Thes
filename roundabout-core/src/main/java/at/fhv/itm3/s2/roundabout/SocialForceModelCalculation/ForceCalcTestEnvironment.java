@@ -1,6 +1,7 @@
 package at.fhv.itm3.s2.roundabout.SocialForceModelCalculation;
 
 import at.fhv.itm3.s2.roundabout.api.PedestrianPoint;
+import at.fhv.itm3.s2.roundabout.entity.Pedestrian;
 
 import javax.vecmath.Vector2d;
 
@@ -84,8 +85,12 @@ public class ForceCalcTestEnvironment {
 
         //Traveled path of the walker β within ∆t
         double time = 0;
-        Double traveledPathWithinTOfBeta = 15000.; // waled distance
-        traveledPathWithinTOfBeta /= 300;//  time spend in system
+        double timeSpendInSystemBeta = 300;
+        double waledDistanceBeta = 15000;
+        double preferedSpeedBeta = 1.4; //cm/s
+        Double traveledPathWithinTOfBeta = waledDistanceBeta; // waled distance
+        traveledPathWithinTOfBeta /= timeSpendInSystemBeta;//  time spend in system
+
 
         //small half axis of the ellipse
         Vector2d betaData = new Vector2d(preferredDirectionOfBeta);
