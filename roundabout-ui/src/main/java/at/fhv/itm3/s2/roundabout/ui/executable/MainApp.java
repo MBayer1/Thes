@@ -3,7 +3,8 @@ package at.fhv.itm3.s2.roundabout.ui.executable;
 
 import at.fhv.itm3.s2.roundabout.controller.CarController;
 import at.fhv.itm3.s2.roundabout.ui.controllers.MainViewController;
-import at.fhv.itm3.s2.roundabout.ui.pedestrianUi.pedestrianUIMain;
+import at.fhv.itm3.s2.roundabout.ui.pedestrianUi.PedestrianUIMain;
+import at.fhv.itm3.s2.roundabout.ui.pedestrianUi.PedestrianUIUtils;
 import at.fhv.itm3.s2.roundabout.ui.util.ViewLoader;
 import at.fhv.itm3.s2.roundabout.util.ConfigParser;
 import at.fhv.itm3.s2.roundabout.util.dto.ModelConfig;
@@ -12,11 +13,10 @@ import desmoj.core.simulator.Model;
 import desmoj.core.simulator.SimClock;
 import desmoj.core.simulator.TimeInstant;
 import javafx.application.Application;
-import javafx.event.ActionEvent;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.layout.StackPane;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -25,6 +25,8 @@ import java.lang.invoke.MethodHandles;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
+
+import static javafx.stage.Stage.*;
 
 /**
  * This is Utility class which starts the whole application.
@@ -76,15 +78,16 @@ public class MainApp extends Application {
             final ConfigParser configParser = new ConfigParser(PATH_TO_MODEL_FILE);
             final ModelConfig modelConfig = configParser.loadConfig();
 
-            pedestrianUIMain pedestrianUIMain = new pedestrianUIMain(0, 0, 1000, 600);
-            Scene scene = new Scene(pedestrianUIMain);
-
-            initStage.setScene(scene);
-            initStage.show();
-
             final Experiment experiment = new Experiment("Pedestrian experiment");
             experiment.setShowProgressBar(false);
             configParser.initRoundaboutStructure(modelConfig, experiment);
+
+            PedestrianUIMain pedestrianUIMain = new PedestrianUIMain(0, 0, 200, 600, configParser);
+
+            Scene scene = new Scene(pedestrianUIMain, PedestrianUIUtils.MAIN_WINDOW_WIDTH, PedestrianUIUtils.MAIN_WINDOW_HEIGHT);
+
+            initStage.setScene(scene);
+            initStage.show();
 
             mainViewController.generateComponentStatContainers(
                 modelConfig.getComponents().getComponent(),
