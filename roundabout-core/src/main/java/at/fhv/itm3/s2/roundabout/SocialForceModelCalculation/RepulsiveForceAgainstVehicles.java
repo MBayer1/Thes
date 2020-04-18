@@ -17,6 +17,9 @@ import java.awt.geom.Point2D;
 public class RepulsiveForceAgainstVehicles {
     final private Double sigma = 30.0; // in centimeter
     final private Double VAlphaBeta = 210.0; // (cm / s)^2
+    final private Double Av_RepulsivePotential = 1.29;
+    final private Double Bv_RepulsivePotential = 0.96;
+
     SupportiveCalculations calculations = new SupportiveCalculations();
 
     public Vector2d getRepulsiveForceAgainstVehicles( RoundaboutSimulationModel model,
@@ -38,16 +41,19 @@ public class RepulsiveForceAgainstVehicles {
                     ICar car = vehicleStreet.getFirstCar();
                     if( car instanceof RoundaboutCar) {
                         if( vehicleStreet instanceof StreetSection) {
-                            PedestrianPoint globalPositionOfVehicle = null;
+                            PedestrianPoint globalPositionOfVehicleFront = null;
+                            PedestrianPoint globalPositionOfVehicleBack = null;
                             PedestrianPoint globalAimOfVehicle = null;
 
-                            getVehicleData(globalPositionOfVehicle, globalAimOfVehicle,
+                            getVehicleData(globalPositionOfVehicleFront, globalPositionOfVehicleBack,
+                                    globalAimOfVehicle,
                                     (StreetSection)vehicleStreet, (PedestrianStreetSection)section,
                                     (RoundaboutCar) car);
 
                             // check if it is in range
-                            if ( checkPedestrianInRangeFront(model, pedestrian, globalPositionOfVehicle) ){
-                                sumForce.add(calculateRepulsiveForceAgainstVehicles( pedestrian, globalPositionOfVehicle, globalAimOfVehicle));
+                            if ( checkPedestrianInRangeFront(model, pedestrian, globalPositionOfVehicleFront, car.getLength()) ){
+                                sumForce.add(calculateRepulsiveForceAgainstVehicles( pedestrian,
+                                        globalPositionOfVehicleFront, globalPositionOfVehicleBack, globalAimOfVehicle, car));
                             }
 
                             // check also next street sections as they are after the crossing
@@ -55,13 +61,15 @@ public class RepulsiveForceAgainstVehicles {
                                 if (nextVehicleStreet instanceof Street) {
                                     if (((Street) nextVehicleStreet).getLastCar() != null) {
 
-                                        getVehicleData(globalPositionOfVehicle, globalAimOfVehicle,
+                                        getVehicleData(globalPositionOfVehicleFront, globalPositionOfVehicleBack,
+                                                globalAimOfVehicle,
                                                 (StreetSection)nextVehicleStreet, (PedestrianStreetSection)section,
                                                 (RoundaboutCar) vehicleStreet.getLastCar());
 
                                         // check if it is in range
-                                        if (checkPedestrianInRangeBack(model, pedestrian, globalPositionOfVehicle)) {
-                                            sumForce.add(calculateRepulsiveForceAgainstVehicles(pedestrian, globalPositionOfVehicle, globalAimOfVehicle));
+                                        if (checkPedestrianInRangeBack(model, pedestrian, globalPositionOfVehicleFront, car.getLength())) {
+                                            sumForce.add(calculateRepulsiveForceAgainstVehicles(pedestrian,
+                                                    globalPositionOfVehicleFront, globalPositionOfVehicleBack, globalAimOfVehicle, car));
                                         }
                                     }
                                 }
@@ -75,11 +83,11 @@ public class RepulsiveForceAgainstVehicles {
         return sumForce;
     }
 
-    void getVehicleData(PedestrianPoint globalPositionOfVehicle, PedestrianPoint globalAimOfVehicle,
+    void getVehicleData(PedestrianPoint globalPositionOfVehicleFront,
+                        PedestrianPoint globalPositionOfVehicleBack,
+                        PedestrianPoint globalAimOfVehicle,
                         StreetSection vehicleStreet, PedestrianStreetSection section,
                         RoundaboutCar car) {
-        globalPositionOfVehicle = new PedestrianPoint();
-        globalAimOfVehicle = new PedestrianPoint();
 
         double remainingLength = car.getRemainingLengthOfCurrentSection();
         //global position of vehicle
@@ -95,77 +103,91 @@ public class RepulsiveForceAgainstVehicles {
         } else {
             tmpX += remainingLength + crossingWidth;
         }
-        globalPositionOfVehicle.setLocation(tmpX, tmpY);
+        globalPositionOfVehicleFront.setLocation(tmpX, tmpY);
 
         // global destination of vehicle
         if ( vehicleStreet.getPedestrianCrossingEntryAtBeginning() ) {
             tmpX -= (int) Math.round(section.getLengthX() + car.getLength());
+            globalPositionOfVehicleBack.setLocation(tmpX, );
         } else {
             tmpX += (int) Math.round(section.getLengthX() + car.getLength());
         }
         globalAimOfVehicle.setLocation(tmpX, tmpY);
     }
 
-    boolean checkPedestrianInRangeFront( RoundaboutSimulationModel model, Pedestrian pedestrian, PedestrianPoint globalPositionOfVehicle){
+    boolean checkPedestrianInRangeFront( RoundaboutSimulationModel model, Pedestrian pedestrian, PedestrianPoint globalPositionOfVehicle, double vehicleLength){
         if ( calculations.almostEqual( Point2D.distance(   pedestrian.getCurrentGlobalPosition().getX(),
                 pedestrian.getCurrentGlobalPosition().getY(),
                 globalPositionOfVehicle.getX(),
                 globalPositionOfVehicle.getY()),
-                model.pedestrianFieldOfViewRadius)) {
+                model.pedestrianFieldOfViewRadius + vehicleLength/2)) {
             return true;
         }
         return false;
     }
 
-    boolean checkPedestrianInRangeBack( RoundaboutSimulationModel model, Pedestrian pedestrian, PedestrianPoint globalPositionOfVehicle){
+    boolean checkPedestrianInRangeBack( RoundaboutSimulationModel model, Pedestrian pedestrian, PedestrianPoint globalPositionOfVehicle, double vehicleLength){
         if ( calculations.almostEqual( Point2D.distance(   pedestrian.getCurrentGlobalPosition().getX(),
                 pedestrian.getCurrentGlobalPosition().getY(),
                 globalPositionOfVehicle.getX(),
                 globalPositionOfVehicle.getY()),
-                model.pedestrianFieldOfViewRadius/2)) {
+                (model.pedestrianFieldOfViewRadius/2)+vehicleLength/2)) {
             return true;
         }
         return false;
     }
 
-    public Vector2d calculateRepulsiveForceAgainstVehicles(Pedestrian pedestrian, PedestrianPoint globalPositionOfVehicle, PedestrianPoint globalAimOfVehicle) {
-        Vector2d vecPosOfVehicle = new Vector2d(globalPositionOfVehicle.getX(), globalPositionOfVehicle.getY());
-
-        //vectorBetween both components
-        Vector2d vectorBetweenBothPedestrian = calculations.getVector(
-                pedestrian.getCurrentGlobalPosition().getX(), pedestrian.getCurrentGlobalPosition().getY(),
-                globalPositionOfVehicle.getX(), globalPositionOfVehicle.getY());
-
-        //preferred direction of Vehicle
-        Vector2d vecNextAimVehicle = new Vector2d(globalAimOfVehicle.getX(), globalAimOfVehicle.getY());
-
-        Vector2d preferredDirectionOfVehicle = vecPosOfVehicle;
-        preferredDirectionOfVehicle.sub(vecNextAimVehicle);       // t is in the estimated future. when reaching destination (expected)
-        Double nextAimOfVehicleLength = preferredDirectionOfVehicle.length();
-        preferredDirectionOfVehicle.scale(1 / nextAimOfVehicleLength);
+    public Vector2d calculateRepulsiveForceAgainstVehicles(Pedestrian pedestrian, PedestrianPoint globalPositionOfVehicleFront,
+                                                           PedestrianPoint globalPositionOfVehicleBack,
+                                                           PedestrianPoint globalAimOfVehicle, RoundaboutCar car) {
+        Vector2d vecVehicleFront = new Vector2d(globalPositionOfVehicleFront.getX(), globalPositionOfVehicleFront.getY());
+        Vector2d vecVehicleBack = new Vector2d(globalPositionOfVehicleBack.getX(), globalPositionOfVehicleBack.getY());
+        Vector2d personPos = new Vector2d(pedestrian.getCurrentGlobalPosition().getX(), pedestrian.getCurrentGlobalPosition().getY());
+        Vector2d vecVehicleFrontAim = new Vector2d(globalAimOfVehicle.getX(), globalAimOfVehicle.getY());
 
         //Traveled path of the walker β within ∆t
-        Double traveledPathWithinTOfBeta = nextAimOfVehicleLength;
+        Double traveledPathWithinTOfBeta = car.getDriverBehaviour().getSpeed() / 3.6; // speed in km/h -> change to m/s := 1000/(60*60)
 
-        //small half axis of the ellipse
-        Vector2d vehicleData = preferredDirectionOfVehicle;
-        vehicleData.scale(traveledPathWithinTOfBeta);
-        Vector2d nextDestinationVectorAlphaSubTravelPathBeta = vectorBetweenBothPedestrian;
-        nextDestinationVectorAlphaSubTravelPathBeta.sub(vehicleData);
+        // preparation
+        Vector2d vecVehiclePosToAim = calculations.getVector(vecVehicleFront, vecVehicleFrontAim);
+        vecVehiclePosToAim.scale(traveledPathWithinTOfBeta);
+        vecVehicleBack.add(vecVehiclePosToAim);
+        vecVehicleFront.add(vecVehiclePosToAim);
 
-        Double smallHalfAxisOfEllipse = Math.sqrt((Math.pow(vectorBetweenBothPedestrian.length() + nextDestinationVectorAlphaSubTravelPathBeta.length(), 2)) -
-                Math.pow(traveledPathWithinTOfBeta, 2));
+        // calc 2b //small half axis of the ellipse
+        Vector2d part1 = new Vector2d(personPos);
+        part1.sub(vecVehicleBack);
+        Vector2d part2 = new Vector2d(personPos);
+        part2.sub(vecVehicleFront);
+        Vector2d part3 = new Vector2d(vecVehicleBack);
+        part3.sub(vecVehicleFront);
 
-        // Repulsive force against other pedestrians
-        // V_alphaBeta(t0)* e^(-b/sigma)
-        Double exponent = smallHalfAxisOfEllipse / -2;  // is 2b --> and we need b
-        exponent /= sigma;
+        double b = Math.pow((part1.length()+part2.length()),2) - Math.pow(part3.length(),2);
+        b = Math.sqrt(b);
+        // calc
+        b /= 2;
+
+        // exponent (-B*b)
+        double exponent = Bv_RepulsivePotential * (-1) * b;
         exponent = Math.exp(exponent);
-        Double repulsiveForce = VAlphaBeta * exponent;
 
-        vectorBetweenBothPedestrian.scale(repulsiveForce);
-        vectorBetweenBothPedestrian.negate();
+        // n_Vector
+        Vector2d n_vec = new Vector2d(0,0);
 
-        return vectorBetweenBothPedestrian;
+
+
+
+        //A*expo(-B*b)*n
+        n_vec.scale(exponent*Av_RepulsivePotential);
+
+        return n_vec;
+    }
+
+    private PedestrianPoint getNormVecAlongTangentOfElipse(){
+        //http://www.nabla.hr/Z_MemoHU-029.htm
+
+
+
+        return null;
     }
 }

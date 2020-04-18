@@ -49,6 +49,8 @@ public class Pedestrian extends Entity implements IPedestrian {
     private Double walkedDistance;
     private double timeRelatedParameterValueNForSpeedCalculation;
     private PedestrianPoint currentNextGlobalAim;
+    private Vector2d previousSFMVector;
+
     SupportiveCalculations calc = new SupportiveCalculations();
 
     public Pedestrian(Model model, String name, boolean showInTrace, PedestrianPoint currentGlobalPosition, IPedestrianBehaviour pedestrianBehaviour, IPedestrianRoute route) {
@@ -65,7 +67,7 @@ public class Pedestrian extends Entity implements IPedestrian {
         if (pedestrianBehaviour != null) {
             this.pedestrianBehaviour = pedestrianBehaviour;
         } else {
-            throw new IllegalArgumentException("Driver behaviour should not be null.");
+           throw new IllegalArgumentException("Driver behaviour should not be null.");
         }
 
         if (route != null) {
@@ -113,6 +115,8 @@ public class Pedestrian extends Entity implements IPedestrian {
         this.pedestriansQueueToEnterCounter.reset();
         this.pedestriansQueueToEnterTime = new Tally(model, "Roundabout time", false, false);
         this.pedestriansQueueToEnterTimeStopWatch = new StopWatch(model);
+
+        this.previousSFMVector = new Vector2d(0,0);
     }
 
     /**
@@ -670,6 +674,14 @@ public class Pedestrian extends Entity implements IPedestrian {
         return this.car;
     }
 
+    public Vector2d getPreviousSFMVector() {
+        return previousSFMVector;
+    }
+
+    public void setPreviousSFMVector(Vector2d previousSFMVector) {
+        this.previousSFMVector = previousSFMVector;
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -684,14 +696,15 @@ public class Pedestrian extends Entity implements IPedestrian {
         RepulsiveForceAgainstOtherPedestrians repulsiveForceAgainstOtherPedestrians = new RepulsiveForceAgainstOtherPedestrians();
 
         Vector2d tmp = accelerationForceToTarget.getAccelerationForceToTarget(getRoundaboutModel(), this);
-        //sumForce.add(tmp);
-        //tmp = repulsiveForceAgainstOtherPedestrians.getRepulsiveForceAgainstAllOtherPedestrians(getRoundaboutModel(), this, getNextSubGoal());
-        //sumForce.add(tmp);
-        //tmp = repulsiveForceAgainstVehicles.getRepulsiveForceAgainstVehicles(getRoundaboutModel(), this);
-        //sumForce.add(tmp); //todo
-        //tmp = repulsiveForceAgainstObstacles.getRepulsiveForceAgainstAllObstacles(getRoundaboutModel(), this);
-        //sumForce.add(tmp);
+        sumForce.add(tmp);
+        tmp = repulsiveForceAgainstOtherPedestrians.getRepulsiveForceAgainstAllOtherPedestrians(getRoundaboutModel(), this, getNextSubGoal());
+        sumForce.add(tmp);
+        tmp = repulsiveForceAgainstVehicles.getRepulsiveForceAgainstVehicles(getRoundaboutModel(), this);
+        sumForce.add(tmp);
+        tmp = repulsiveForceAgainstObstacles.getRepulsiveForceAgainstAllObstacles(getRoundaboutModel(), this);
+        sumForce.add(tmp);
 
+        this.setPreviousSFMVector(sumForce);
         return sumForce;
     }
 

@@ -6,13 +6,13 @@ import at.fhv.itm3.s2.roundabout.entity.PedestrianStreetSection;
 import at.fhv.itm3.s2.roundabout.model.RoundaboutSimulationModel;
 
 import javax.vecmath.Vector2d;
-import java.awt.*;
 
 public class AccelerationForceToTarget {
     SupportiveCalculations calculations = new SupportiveCalculations();
 
     public Vector2d getAccelerationForceToTarget(RoundaboutSimulationModel model, Pedestrian pedestrian){
-        Vector2d currentSpeedVector = new Vector2d(pedestrian.getCurrentSpeed(),0.0);
+        Vector2d currentSpeedVector = calculations.getUnitVector(pedestrian.getPreviousSFMVector());
+        currentSpeedVector.scale(pedestrian.getCurrentSpeed());
         Vector2d currentPositionVector = new Vector2d(pedestrian.getCurrentGlobalPosition().getX(), pedestrian.getCurrentGlobalPosition().getY());
 
 
@@ -20,18 +20,17 @@ public class AccelerationForceToTarget {
             throw new IllegalStateException("Section not instance of PedestrianStreetSection.");
         }
 
-        PedestrianStreetSection section = (PedestrianStreetSection)pedestrian.getCurrentSection().getStreetSection();
-
-        //nextDestinationVector = nextDestinationVector - currentPositionVector
+        // e(t)
         PedestrianPoint subGoal = pedestrian.getNextSubGoal(); // global  coordinates without any obstacle etc. = exit-point of  section -> always calc new since real aim is afterwards change so is current position
-        Vector2d preferredSpeedVector = calculations.getVector( currentPositionVector.getX(), currentPositionVector.getY(),
-                                                        subGoal.getX() + section.getGlobalCoordinateOfSectionOrigin().getX(),
-                                                        subGoal.getY() + section.getGlobalCoordinateOfSectionOrigin().getY());
-
+        Vector2d preferredSpeedVector = new Vector2d(subGoal.getX(), subGoal.getY());
+        preferredSpeedVector.sub(currentPositionVector);
         Double preferredSpeedValue = preferredSpeedVector.length();
         preferredSpeedVector.scale(1/preferredSpeedValue);
+
+        // preferredSpeed * e(t)
         preferredSpeedVector.scale(pedestrian.calculatePreferredSpeed()); //v_alpha * e_alpha(t)
 
+        // 1/tau (preferred speed - current speed)
         preferredSpeedVector.sub(currentSpeedVector);
         preferredSpeedVector.scale(1/model.getRandomPedestrianRelaxingTimeTauAlpha());
 
