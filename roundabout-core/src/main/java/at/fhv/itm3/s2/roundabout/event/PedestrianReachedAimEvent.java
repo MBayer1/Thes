@@ -73,6 +73,10 @@ public class PedestrianReachedAimEvent extends Event<Pedestrian> {
     public void eventRoutine(Pedestrian pedestrian) throws SuspendExecution {
         IConsumer currentSection = pedestrian.getCurrentSection().getStreetSection();
 
+        if(((PedestrianStreet)currentSection).getPedestrianConsumerType().equals(PedestrianConsumerType.PEDESTRIAN_SINK)) {
+            return;
+        }
+
         if (!(pedestrian instanceof Pedestrian)) {
             throw new IllegalArgumentException("Pedestrian not instance of Pedestrian.");
         }
@@ -148,7 +152,9 @@ public class PedestrianReachedAimEvent extends Event<Pedestrian> {
             // pedestrian did not move to next section yet
             pedestrian.updateWalkedDistance(); // adding distance before it is walked at it will reach its destination.
             pedestrian.setLastUpdateTime(roundaboutSimulationModel.getCurrentTime());
-            pedestrian.setCurrentGlobalPosition(pedestrian.getCurrentNextGlobalAim());
+            if(! (pedestrian.getCurrentSection().getStreetSection() instanceof  PedestrianSink)) {
+                pedestrian.setCurrentGlobalPosition(pedestrian.getCurrentNextGlobalAim());
+            }
             pedestrian.setCurrentNextGlobalAim(null); // redefine next goal in next round
         }
 
