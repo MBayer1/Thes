@@ -97,9 +97,9 @@ public class SupportiveCalculations {
 
         //check if parallel to y-axis
         if (almostEqual(lineEndX1, lineStartX1)) {
-            intersection.setLocation(lineEndX1, lineEndX2 * dSlope2 + dYIntercept2);
+            intersection.setLocation(lineEndX1, lineEndX1 * dSlope2 + dYIntercept2);
         } else if (almostEqual(lineEndX2, lineStartX2)) {
-            intersection.setLocation(lineEndX2, lineEndX1 * dSlope1 + dYIntercept1);
+            intersection.setLocation(lineEndX2, lineEndX2 * dSlope1 + dYIntercept1);
         } else{
 
             // if the slope is the same the lines are parallel and never cross another

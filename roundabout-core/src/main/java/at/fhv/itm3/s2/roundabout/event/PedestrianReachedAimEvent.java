@@ -297,6 +297,7 @@ public class PedestrianReachedAimEvent extends Event<Pedestrian> {
             if(crossingAllowed) return globalGoal;
         }
 
+        /*
         // overwrite wall intersection as new aim -> not crossing wall
         double minGab = pedestrian.getMinGapForPedestrian();
         if (calc.getDistanceByCoordinates(intersection.getX() - minGab, intersection.getX() - minGab, globalGoal.getX(), globalGoal.getY() )
@@ -304,6 +305,7 @@ public class PedestrianReachedAimEvent extends Event<Pedestrian> {
             return new PedestrianPoint( intersection.getX() - minGab, intersection.getY() - minGab);
         } else {
             return new PedestrianPoint( intersection.getX() + minGab, intersection.getY() + minGab );
-        }
+        }*/
+        return intersection;
     }
 }
