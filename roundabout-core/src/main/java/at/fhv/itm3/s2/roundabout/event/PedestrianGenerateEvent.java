@@ -1,9 +1,11 @@
 package at.fhv.itm3.s2.roundabout.event;
 
+import at.fhv.itm14.trafsim.model.entities.Car;
 import at.fhv.itm14.trafsim.model.entities.IConsumer;
 import at.fhv.itm3.s2.roundabout.SocialForceModelCalculation.SupportiveCalculations;
 import at.fhv.itm3.s2.roundabout.api.PedestrianPoint;
 import at.fhv.itm3.s2.roundabout.api.entity.*;
+import at.fhv.itm3.s2.roundabout.controller.CarController;
 import at.fhv.itm3.s2.roundabout.controller.PedestrianController;
 import at.fhv.itm3.s2.roundabout.controller.PedestrianRouteController;
 import at.fhv.itm3.s2.roundabout.controller.RouteController;
@@ -124,6 +126,8 @@ public class PedestrianGenerateEvent extends Event<PedestrianAbstractSource> {
 
             final Pedestrian pedestrian = new Pedestrian(roundaboutSimulationModel, name, showInTrace, globalEntryPoint, behaviour, route);
             PedestrianController.addCarMapping(pedestrian.getCarDummy(), pedestrian);
+            final Car car = new Car(roundaboutSimulationModel, "", false);
+            CarController.addCarMapping(car, (ICar)pedestrian.getCarDummy());
             if (checkPedestrianCanEnterSystem(pedestrian, globalEntryPoint, (PedestrianStreetSection)currentSection)) {
                 pedestrian.enterSystem();
                 ((PedestrianStreetSection) currentSection).addPedestrian(pedestrian, globalEntryPoint);

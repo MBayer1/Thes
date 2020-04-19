@@ -22,7 +22,8 @@
         <!--Parameter for pedestrians-->
         <parameter name="MIN_TIME_BETWEEN_PEDESTRIAN_ARRIVALS" value="3600"/>     <!-- 1 min-->
         <parameter name="MAX_TIME_BETWEEN_PEDESTRIAN_ARRIVALS" value="216000"/>   <!-- 1 h-->
-        <parameter name="MEAN_TIME_BETWEEN_PEDESTRIAN_ARRIVALS" value="108000"/>  <!-- 30 min-->
+        <!--        <parameter name="MEAN_TIME_BETWEEN_PEDESTRIAN_ARRIVALS" value="108000"/>  <!- 30 min-->
+        <parameter name="MEAN_TIME_BETWEEN_PEDESTRIAN_ARRIVALS" value="18000"/> <!--  5 min-->
         <parameter name="MIN_DISTANCE_FACTOR_BETWEEN_PEDESTRIAN" value="2"/>
         <parameter name="MAX_DISTANCE_FACTOR_BETWEEN_PEDESTRIAN" value="2"/>
         <parameter name="MIN_PEDESTRIAN_GROUP_SIZE" value="2"/>
