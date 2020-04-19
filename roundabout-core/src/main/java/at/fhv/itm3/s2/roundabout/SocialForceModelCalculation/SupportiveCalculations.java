@@ -75,42 +75,40 @@ public class SupportiveCalculations {
                                                                      double lineEndX1, double lineEndY1,
                                                                      double lineStartX2, double lineStartY2,
                                                                      double lineEndX2, double lineEndY2
-    ){
+    ) {
 
-        if((lineStartX1 == lineStartX2) && (lineStartY1 == lineStartY2) &&
-                (lineEndX1 == lineEndX2) && (lineEndY1 == lineEndY2)){
+        if ((lineStartX1 == lineStartX2) && (lineStartY1 == lineStartY2) &&
+                (lineEndX1 == lineEndX2) && (lineEndY1 == lineEndY2)) {
             throw new IllegalArgumentException("Lines are identical.");
         }
 
         //linear equation: y=m*x+d -> note special case: parallel to y-axis     -> y(x) = const, always
         //1. set linear equation in linear equation -> m1*x+d1 = m2*x+d2        -> x = (d2-d1)/(m1-m2)
-        double dSlope1 = (lineEndY1-lineStartY1)/(lineEndX1-lineStartX1);	        //m1
-        double dYIntercept1 = lineEndY1-(lineEndX1*dSlope1);						//d1
-        double dSlope2 = (lineEndY2-lineStartY2)/(lineEndX2-lineStartX2);	        //m2
-        double dYIntercept2 = lineEndY2-(lineEndX2*dSlope2);						//d2
+        double dSlope1 = (lineEndY1 - lineStartY1) / (lineEndX1 - lineStartX1);            //m1
+        double dYIntercept1 = lineEndY1 - (lineEndX1 * dSlope1);                        //d1
+        double dSlope2 = (lineEndY2 - lineStartY2) / (lineEndX2 - lineStartX2);            //m2
+        double dYIntercept2 = lineEndY2 - (lineEndX2 * dSlope2);                        //d2
 
-        // both parallel y-axis
-        if( (Double.isInfinite(dSlope1) && Double.isInfinite(dSlope2)) ||
-             ( (Double.isInfinite(dSlope1) || Double.isInfinite(dSlope2)) &&
-              (almostEqual(dSlope1, 0) || almostEqual(dSlope2, 0)))) {
+        // both parallel y-axis(inf) or both along x axis (0)
+        if ((Double.isInfinite(dSlope1) && Double.isInfinite(dSlope2)) ||
+                (almostEqual(dSlope1, 0) && almostEqual(dSlope2, 0))) {
             return false;
         }
 
         //check if parallel to y-axis
-        if (almostEqual(lineEndX1,lineStartX1)){
-            intersection.setLocation(lineEndX1, lineEndX1* dSlope2 + dYIntercept2);
-        }
-        if (almostEqual(lineEndX2,lineStartX2)){
-            intersection.setLocation(lineEndX2, lineEndX2* dSlope1 + dYIntercept1);
-        }
+        if (almostEqual(lineEndX1, lineStartX1)) {
+            intersection.setLocation(lineEndX1, lineEndX2 * dSlope2 + dYIntercept2);
+        } else if (almostEqual(lineEndX2, lineStartX2)) {
+            intersection.setLocation(lineEndX2, lineEndX1 * dSlope1 + dYIntercept1);
+        } else{
 
-        // if the slope is the same the lines are parallel and never cross another
-        if(almostEqual(dSlope1, dSlope2)){
-            return false;
+            // if the slope is the same the lines are parallel and never cross another
+            if (almostEqual(dSlope1, dSlope2)) {
+                return false;
+            }
+            double tmpX = (dYIntercept2 - dYIntercept1) / (dSlope1 - dSlope2);
+            intersection.setLocation(tmpX, tmpX * dSlope1 + dYIntercept1);
         }
-
-        double tmpX = (dYIntercept2-dYIntercept1)/(dSlope1-dSlope2);
-        intersection.setLocation(tmpX, tmpX* dSlope1 + dYIntercept1);
 
         //Intersection have to be on the line segment
         if((((intersection.getX()>=lineStartX1) && (intersection.getX()<=lineEndX1)) ||

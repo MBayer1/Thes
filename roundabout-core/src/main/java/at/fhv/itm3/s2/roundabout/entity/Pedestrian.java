@@ -605,7 +605,7 @@ public class Pedestrian extends Entity implements IPedestrian {
             } else {
                 //closer to end of exit Port
                 //now moving intersection into the port about the min Gap
-                if (globalBeginY < globalEndY ) {
+                if (globalBeginY > globalEndY ) {
                     pos.setLocation(globalEndX, globalEndY + minGapForPedestrian);
                 }else {
                     pos.setLocation(globalEndX, globalEndY - minGapForPedestrian);
@@ -625,17 +625,17 @@ public class Pedestrian extends Entity implements IPedestrian {
                 //closer to begin exit port
                 //now moving intersection into the port about the min Gap
                 if (globalBeginX < globalEndX ) {
-                    pos.setLocation(globalBeginX, globalBeginY + minGapForPedestrian);
+                    pos.setLocation(globalBeginX + minGapForPedestrian, globalBeginY);
                 }else {
-                    pos.setLocation(globalBeginX, globalBeginY - minGapForPedestrian);
+                    pos.setLocation(globalBeginX - minGapForPedestrian, globalBeginY );
                 }
             } else {
                 //closer to end of exit Port
                 //now moving intersection into the port about the min Gap
-                if (globalBeginX < globalEndX ) {
-                    pos.setLocation(globalEndX, globalEndY + minGapForPedestrian);
+                if (globalBeginX > globalEndX ) {
+                    pos.setLocation(globalEndX + minGapForPedestrian, globalEndY );
                 }else {
-                    pos.setLocation(globalEndX, globalEndY - minGapForPedestrian);
+                    pos.setLocation(globalEndX - minGapForPedestrian, globalEndY );
                 }
             }
         }

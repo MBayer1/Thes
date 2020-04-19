@@ -229,8 +229,8 @@ public class PedestrianReachedAimEvent extends Event<Pedestrian> {
 
         // change aim with consideration of social force since this is the path pedestrian is walking
         PedestrianPoint globalGoal = new PedestrianPoint(
-                (int)(pedestrian.getCurrentNextGlobalAim().getX() + uniVecForces.getX()),
-                (int)(pedestrian.getCurrentNextGlobalAim().getY() + uniVecForces.getY()));
+                pedestrian.getCurrentGlobalPosition().getX() + uniVecForces.getX(),
+                pedestrian.getCurrentGlobalPosition().getY() + uniVecForces.getY());
 
         if (! (section instanceof PedestrianStreetSection)) {
             throw new IllegalArgumentException ("Type mismatch.");
