@@ -73,7 +73,7 @@ public class SupportiveCalculations {
     public boolean checkLinesIntersectionByCoordinates_WithinSegment(PedestrianPoint intersection,
                                                                      double lineStartX1, double lineStartY1,
                                                                      double lineEndX1, double lineEndY1,
-                                                                     double lineStartX2, double lineStartY2,
+                                                                     double lineStartX2, double lineStartY2, //global
                                                                      double lineEndX2, double lineEndY2
     ) {
 
@@ -84,9 +84,9 @@ public class SupportiveCalculations {
 
         //linear equation: y=m*x+d -> note special case: parallel to y-axis     -> y(x) = const, always
         //1. set linear equation in linear equation -> m1*x+d1 = m2*x+d2        -> x = (d2-d1)/(m1-m2)
-        double dSlope1 = (lineEndY1 - lineStartY1) / (lineEndX1 - lineStartX1);            //m1
+        double dSlope1 = (lineEndY1 - lineStartY1) / (lineEndX1 - lineStartX1);         //m1
         double dYIntercept1 = lineEndY1 - (lineEndX1 * dSlope1);                        //d1
-        double dSlope2 = (lineEndY2 - lineStartY2) / (lineEndX2 - lineStartX2);            //m2
+        double dSlope2 = (lineEndY2 - lineStartY2) / (lineEndX2 - lineStartX2);         //m2
         double dYIntercept2 = lineEndY2 - (lineEndX2 * dSlope2);                        //d2
 
         // both parallel y-axis(inf) or both along x axis (0)
