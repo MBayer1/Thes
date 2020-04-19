@@ -676,10 +676,13 @@ public class Pedestrian extends Entity implements IPedestrian {
         nextSection = sectionAfterNextSection;
         sectionAfterNextSection = retrieveNextRouteSection();
 
-        PedestrianPoint globalCoordinateOfSectionOrigin = getGlobalCoordinatesOfCurrentSection();
-        setCurrentGlobalPosition(new PedestrianPoint(
-                newLocalPos.getX() + globalCoordinateOfSectionOrigin.getX(),
-                newLocalPos.getY() + globalCoordinateOfSectionOrigin.getY()));
+        if(((PedestrianStreetSection)currentSection.getStreetSection()).getPedestrianConsumerType().equals(PedestrianConsumerType.PEDESTRIAN_SINK)) {
+            PedestrianPoint globalCoordinateOfSectionOrigin = getGlobalCoordinatesOfCurrentSection();
+            setCurrentGlobalPosition(new PedestrianPoint(
+                    newLocalPos.getX() + globalCoordinateOfSectionOrigin.getX(),
+                    newLocalPos.getY() + globalCoordinateOfSectionOrigin.getY()));
+
+        }
     }
 
     public void setCurrentNextGlobalAim() {

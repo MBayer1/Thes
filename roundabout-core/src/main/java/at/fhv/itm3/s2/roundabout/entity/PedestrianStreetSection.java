@@ -193,6 +193,7 @@ public class PedestrianStreetSection extends PedestrianStreet {
     }
 
     public PedestrianPoint getGlobalCoordinateOfSectionOrigin() {
+
         return this.globalCoordinateOfSectionOrigin;
     }
 

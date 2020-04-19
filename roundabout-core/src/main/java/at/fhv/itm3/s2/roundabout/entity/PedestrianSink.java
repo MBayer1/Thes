@@ -84,18 +84,18 @@ public class PedestrianSink extends PedestrianAbstractSink {
      */
     @Override
     public void addPedestrian(IPedestrian iPedestrian, PedestrianPoint position) {
-
         iPedestrian.leaveSystem();
         iPedestrian.leavePedestrianArea();
         iPedestrian.leavePedestrianCrossing();
 
-
         incrementEnteredPedestrianCounter();
-
         updateStats(iPedestrian);
 
         // needed for adaption to the trafsim framework
-        addCar(CarController.getICar(PedestrianController.getCar(iPedestrian)));
+        if (! (iPedestrian instanceof Pedestrian)){
+            throw new IllegalStateException("Pedestrian not instance of Pedestrian.");
+        }
+        PedestrianController.removeCarMapping(((Pedestrian)iPedestrian).getCarDummy());
 
         pedestrianObserver.notifyObservers(iPedestrian);
         incrementLeftPedestrianCounter();
@@ -121,16 +121,6 @@ public class PedestrianSink extends PedestrianAbstractSink {
         }
         meanWaitingTimeBeforeEnteringSystem = meanWaitingTimeBeforeEnteringSystem * dPreviousRate + ((Pedestrian) pedestrian).getMeanWaitingBeforeEnteringsTime() / getNrOfEnteredPedestrians();
         meanPedestrianQueueWaitingToEnterSystem = meanPedestrianQueueWaitingToEnterSystem * dPreviousRate + ((Pedestrian) pedestrian).getWaitingBeforeEnteringCount() / getNrOfEnteredPedestrians();
-    }
-
-    public void addCar(ICar iCar) {
-        iCar.leaveSystem();
-        IConsumer consumer = iCar.getLastSection();
-        if (consumer instanceof Street) {
-            Car car = CarController.getCar(iCar);
-            ((Street)consumer).carDelivered(null, car, true);
-        }
-        CarController.removeCarMapping(iCar);
     }
 
     /**

@@ -126,8 +126,6 @@ public class PedestrianGenerateEvent extends Event<PedestrianAbstractSource> {
 
             final Pedestrian pedestrian = new Pedestrian(roundaboutSimulationModel, name, showInTrace, globalEntryPoint, behaviour, route);
             PedestrianController.addCarMapping(pedestrian.getCarDummy(), pedestrian);
-            final Car car = new Car(roundaboutSimulationModel, "", false);
-            CarController.addCarMapping(car, (ICar)pedestrian.getCarDummy());
             if (checkPedestrianCanEnterSystem(pedestrian, globalEntryPoint, (PedestrianStreetSection)currentSection)) {
                 pedestrian.enterSystem();
                 ((PedestrianStreetSection) currentSection).addPedestrian(pedestrian, globalEntryPoint);

@@ -158,7 +158,7 @@ public class PedestrianReachedAimEvent extends Event<Pedestrian> {
         Pedestrian pedestrianToEnter = null;
         if (((PedestrianStreetSection) currentSection).reCheckPedestrianCanEnterSection(pedestrianToEnter)) { // after some movements recheck pedestrians in queue
             pedestrianEventFactory.createPedestrianReachedAimEvent(roundaboutSimulationModel).schedule(
-                    pedestrianToEnter, new TimeSpan(10, roundaboutSimulationModel.getModelTimeUnit()));
+                    pedestrianToEnter, new TimeSpan(0, roundaboutSimulationModel.getModelTimeUnit()));
         }
     }
 
