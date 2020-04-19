@@ -127,7 +127,6 @@ public class PedestrianReachedAimEvent extends Event<Pedestrian> {
                     } else {
                         timeToDestination = pedestrian.getTimeToNextGlobalSubGoal();
                     }
-
                 }
             }
 
@@ -142,6 +141,7 @@ public class PedestrianReachedAimEvent extends Event<Pedestrian> {
 
         if(timeToDestination == 0 && !movedToNextSection && pedestrian.getCurrentSpeed()!= 0) {
             //danger of endlessly looping catch
+            pedestrian.checkExitPortIsReached();
             throw new IllegalStateException("pedestrian is theoretically moving, but already reached destination.");
         }
 
@@ -164,7 +164,6 @@ public class PedestrianReachedAimEvent extends Event<Pedestrian> {
         PedestrianStreet section = ((PedestrianStreet)pedestrian.getCurrentSection().getStreetSection());
         PedestrianPoint curGlobPos = pedestrian.getCurrentGlobalPosition();
         PedestrianPoint globalGoal = checkAndSetAimWithinSection(forces, section, pedestrian);
-
 
         for (IPedestrian otherPedestrian : section.getPedestrianQueue()){ // check for intersections with other pedestrians
             if(otherPedestrian.equals(pedestrian)) continue;

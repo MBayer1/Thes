@@ -12,6 +12,7 @@ import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeSpan;
 import desmoj.core.statistic.Count;
 import desmoj.core.statistic.Tally;
+import org.omg.CORBA.MARSHAL;
 
 import javax.vecmath.Vector2d;
 import java.util.Iterator;
@@ -526,41 +527,43 @@ public class Pedestrian extends Entity implements IPedestrian {
             throw new IllegalArgumentException(" no pedestrianPosition passed.");
         }
 
-        // Port is along y axis
-        if (calc.almostEqual(currentSection.getExitPort().getLocalBeginOfStreetPort().getX(),
-                currentSection.getExitPort().getLocalEndOfStreetPort().getX())) {
+        PedestrianPoint localBegin = currentSection.getExitPort().getLocalBeginOfStreetPort();
+        PedestrianPoint localEnd = currentSection.getExitPort().getLocalEndOfStreetPort();
 
-            boolean da1 = calc.val1LowerOrAlmostEqual((currentSection.getExitPort().getLocalBeginOfStreetPort().getY()), localPedestrianPosition.getY(), 10e-1);
-            boolean da2 = calc.val1BiggerOrAlmostEqual((currentSection.getExitPort().getLocalEndOfStreetPort().getY()), localPedestrianPosition.getY(), 10e-1);
+        // Port is along y axis
+        if (calc.almostEqual(localBegin.getX(),
+                localEnd.getX())) {
+            boolean da1 = calc.val1LowerOrAlmostEqual((localBegin.getY()), localPedestrianPosition.getY(), 10e-1);
+            boolean da2 = calc.val1BiggerOrAlmostEqual((localEnd.getY()), localPedestrianPosition.getY(), 10e-1);
             boolean da = da1 && da2;
 
-            boolean dd1 = calc.val1LowerOrAlmostEqual((currentSection.getExitPort().getLocalEndOfStreetPort().getY()), localPedestrianPosition.getY(), 10e-1);
-            boolean dd2 = calc.val1BiggerOrAlmostEqual((currentSection.getExitPort().getLocalBeginOfStreetPort().getY()), localPedestrianPosition.getY(), 10e-1);
+            boolean dd1 = calc.val1LowerOrAlmostEqual((localEnd.getY()), localPedestrianPosition.getY(), 10e-1);
+            boolean dd2 = calc.val1BiggerOrAlmostEqual((localBegin.getY()), localPedestrianPosition.getY(), 10e-1);
             boolean dd = dd1 && dd2;
 
-            boolean ddd = calc.almostEqual(currentSection.getExitPort().getLocalBeginOfStreetPort().getX(), localPedestrianPosition.getX(), 1.0);
+            boolean ddd = calc.almostEqual(localBegin.getX(), localPedestrianPosition.getX(), 1.0);
 
-            if (( ( calc.val1LowerOrAlmostEqual((currentSection.getExitPort().getLocalBeginOfStreetPort().getY()), localPedestrianPosition.getY(), 10e-1) &&
-                    calc.val1BiggerOrAlmostEqual((currentSection.getExitPort().getLocalEndOfStreetPort().getY()), localPedestrianPosition.getY(), 10e-1))
+            if (( ( calc.val1LowerOrAlmostEqual((localBegin.getY()), localPedestrianPosition.getY(), 10e-1) &&
+                    calc.val1BiggerOrAlmostEqual((localEnd.getY()), localPedestrianPosition.getY(), 10e-1))
                     ||
-                    calc.val1LowerOrAlmostEqual((currentSection.getExitPort().getLocalEndOfStreetPort().getY()), localPedestrianPosition.getY(), 10e-1) &&
-                    calc.val1BiggerOrAlmostEqual((currentSection.getExitPort().getLocalBeginOfStreetPort().getY()), localPedestrianPosition.getY(), 10e-1))
+                    calc.val1LowerOrAlmostEqual((localEnd.getY()), localPedestrianPosition.getY(), 10e-1) &&
+                    calc.val1BiggerOrAlmostEqual((localBegin.getY()), localPedestrianPosition.getY(), 10e-1))
 
                     &&
-                    calc.almostEqual(currentSection.getExitPort().getLocalBeginOfStreetPort().getX(), localPedestrianPosition.getX(), 1.0)
+                    calc.almostEqual(localBegin.getX(), localPedestrianPosition.getX(), 1.0)
                     ) {
                 return true;
             }
         } // Port is along x axis
         else {
-            if (((calc.val1LowerOrAlmostEqual((currentSection.getExitPort().getLocalBeginOfStreetPort().getX()), localPedestrianPosition.getX(), 10e-1) &&
-                    calc.val1BiggerOrAlmostEqual((currentSection.getExitPort().getLocalEndOfStreetPort().getX()), localPedestrianPosition.getX(), 10e-1))
+            if (((calc.val1LowerOrAlmostEqual((localBegin.getX()), localPedestrianPosition.getX(), 10e-1) &&
+                    calc.val1BiggerOrAlmostEqual((localEnd.getX()), localPedestrianPosition.getX(), 10e-1))
                     ||
-                    calc.val1LowerOrAlmostEqual((currentSection.getExitPort().getLocalEndOfStreetPort().getX()), localPedestrianPosition.getX(), 10e-1) &&
-                            calc.val1BiggerOrAlmostEqual((currentSection.getExitPort().getLocalBeginOfStreetPort().getX()), localPedestrianPosition.getX(), 10e-1))
+                    calc.val1LowerOrAlmostEqual((localEnd.getX()), localPedestrianPosition.getX(), 10e-1) &&
+                            calc.val1BiggerOrAlmostEqual((localBegin.getX()), localPedestrianPosition.getX(), 10e-1))
 
                     &&
-                    calc.almostEqual(currentSection.getExitPort().getLocalBeginOfStreetPort().getY(), localPedestrianPosition.getY(), 1.0)
+                    calc.almostEqual(localBegin.getY(), localPedestrianPosition.getY(), 1.0)
                     ) {
                 return true;
             }

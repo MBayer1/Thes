@@ -77,6 +77,10 @@ public class RepulsiveForceAgainstVehicles {
             }
 
         }
+
+        if(Double.isNaN(sumForce.getX()) || Double.isNaN(sumForce.getY()) ){
+            throw new IllegalStateException("Vector calculation  error: ForceAgainstVehicle.");
+        }
         return sumForce;
     }
 

@@ -153,6 +153,7 @@ public class PedestrianGenerateEvent extends Event<PedestrianAbstractSource> {
     }
 
     private boolean checkPedestrianCanEnterSystem(Pedestrian pedestrian, PedestrianPoint globalEnterPoint, PedestrianStreetSection section) {
+        section.reCheckPedestrianCanEnterSection();
         if (!section.checkPedestrianCanEnterSection(pedestrian, globalEnterPoint, section)) {
             section.addPedestriansQueueToEnter(pedestrian, globalEnterPoint, section);
             return false;

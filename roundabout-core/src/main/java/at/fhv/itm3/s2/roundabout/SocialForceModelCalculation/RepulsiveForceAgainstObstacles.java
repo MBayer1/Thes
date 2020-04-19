@@ -29,6 +29,10 @@ public class RepulsiveForceAgainstObstacles {
         // Get all obstacles (non walls)
         // TODO for later extensions
 
+        if(Double.isNaN(sumForce.getX()) || Double.isNaN(sumForce.getY()) ){
+            throw new IllegalStateException("Vector calculation  error: ForceAgainstObstacle.");
+        }
+
         return sumForce;
     }
 
