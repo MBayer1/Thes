@@ -382,7 +382,9 @@ public class Pedestrian extends Entity implements IPedestrian {
     @Override
     public void enterPedestrianArea() {
         this.pedestrianCounter.update();
-        //this.pedestrianStopWatch.start();
+        if(!this.pedestrianStopWatch.isRunning()) {
+            this.pedestrianStopWatch.start();
+        }
     }
 
     /**
@@ -390,8 +392,10 @@ public class Pedestrian extends Entity implements IPedestrian {
      */
     @Override
     public void leavePedestrianArea() {
-        double res = this.pedestrianStopWatch.stop();
-        this.pedestrianAreaTime.update(new TimeSpan(res));
+        if(pedestrianStopWatch.isRunning()) {
+            double res = this.pedestrianStopWatch.stop();
+            this.pedestrianAreaTime.update(new TimeSpan(res));
+        }
     }
 
     /**
