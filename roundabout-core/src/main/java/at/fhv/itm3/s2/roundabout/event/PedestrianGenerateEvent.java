@@ -128,12 +128,13 @@ public class PedestrianGenerateEvent extends Event<PedestrianAbstractSource> {
                 pedestrian.enterSystem();
                 ((PedestrianStreetSection) currentSection).addPedestrian(pedestrian, globalEntryPoint);
                 pedestrian.setCurrentLocalPosition(); // do this after adding to street section
+
+                // schedule next events
+                final PedestrianReachedAimEvent pedestrianReachedAimEvent = pedestrianEventFactory.createPedestrianReachedAimEvent(roundaboutSimulationModel);
+                pedestrianReachedAimEvent.schedule(pedestrian, new TimeSpan(0, roundaboutSimulationModel.getModelTimeUnit()));
             }
 
             // schedule next events
-            final PedestrianReachedAimEvent pedestrianReachedAimEvent = pedestrianEventFactory.createPedestrianReachedAimEvent(roundaboutSimulationModel);
-            pedestrianReachedAimEvent.schedule(pedestrian, new TimeSpan(0, roundaboutSimulationModel.getModelTimeUnit()));
-
             final PedestrianGenerateEvent pedestrianGenerateEvent = pedestrianEventFactory.createPedestrianGenerateEvent(roundaboutSimulationModel);
 
             final double minTimeBetweenPedestrianArrivals = roundaboutSimulationModel.getMinTimeBetweenPedestrianArrivals();
@@ -153,7 +154,11 @@ public class PedestrianGenerateEvent extends Event<PedestrianAbstractSource> {
     }
 
     private boolean checkPedestrianCanEnterSystem(Pedestrian pedestrian, PedestrianPoint globalEnterPoint, PedestrianStreetSection section) {
-        section.reCheckPedestrianCanEnterSection();
+        Pedestrian pedestrianToEnter = null;
+        if (section.reCheckPedestrianCanEnterSection(pedestrianToEnter)) { // after some movements recheck pedestrians in queue
+            pedestrianEventFactory.createPedestrianReachedAimEvent(roundaboutSimulationModel).schedule(
+                    pedestrianToEnter, new TimeSpan(0, roundaboutSimulationModel.getModelTimeUnit()));
+        }
         if (!section.checkPedestrianCanEnterSection(pedestrian, globalEnterPoint, section)) {
             section.addPedestriansQueueToEnter(pedestrian, globalEnterPoint, section);
             return false;

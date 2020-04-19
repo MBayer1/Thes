@@ -209,6 +209,9 @@ public class Pedestrian extends Entity implements IPedestrian {
     }
 
     public PedestrianPoint getCurrentLocalPosition() {
+        if (this.currentLocalPosition == null) {
+            setCurrentLocalPosition();
+        }
         return this.currentLocalPosition;
     }
 
@@ -513,6 +516,7 @@ public class Pedestrian extends Entity implements IPedestrian {
 
 
     public boolean checkExitPortIsReached(){
+        setCurrentLocalPosition();
         return checkExitPortIsReached(this.currentLocalPosition);
     }
 
@@ -676,7 +680,6 @@ public class Pedestrian extends Entity implements IPedestrian {
 
     public void setCurrentNextGlobalAim() {
         setCurrentNextGlobalAim( getClosestExitPointOfCurrentSectionGlobal());
-
     }
     public void setCurrentNextGlobalAim(PedestrianPoint currentNextGlobalAim) {
         this.currentNextGlobalAim = currentNextGlobalAim;

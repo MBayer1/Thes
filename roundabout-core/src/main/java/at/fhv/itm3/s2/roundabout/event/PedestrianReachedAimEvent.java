@@ -73,23 +73,23 @@ public class PedestrianReachedAimEvent extends Event<Pedestrian> {
     public void eventRoutine(Pedestrian pedestrian) throws SuspendExecution {
         IConsumer currentSection = pedestrian.getCurrentSection().getStreetSection();
 
-        if ( ! (pedestrian instanceof  Pedestrian) ) {
-            throw new IllegalArgumentException( "Pedestrian not instance of Pedestrian." );
+        if (!(pedestrian instanceof Pedestrian)) {
+            throw new IllegalArgumentException("Pedestrian not instance of Pedestrian.");
         }
 
         Vector2d forces = pedestrian.getSocialForceVector(); //set time when next update.
         double timeToDestination = 0.0;
 
         // since all sup-aims are within one street section it is enough to check all other pedestrian on the same section
-        if (! (pedestrian.getCurrentSection().getStreetSection() instanceof PedestrianStreet )) {
-            throw new IllegalArgumentException( "Street not instance of PedestrianStreet." );
+        if (!(pedestrian.getCurrentSection().getStreetSection() instanceof PedestrianStreet)) {
+            throw new IllegalArgumentException("Street not instance of PedestrianStreet.");
         }
 
         if (calc.almostEqual(pedestrian.getCurrentSpeed(), 0)) {
             pedestrian.setCurrentSpeed(pedestrian.getPreferredSpeed()); // reset
         }
 
-        if( pedestrian.getCurrentNextGlobalAim() == null) {
+        if (pedestrian.getCurrentNextGlobalAim() == null) {
             // consider intersection to other pedestrian etc.
             // -> not the clear goal on exit PedestrianPoint like it is considered in force toward aim
             // pedestrian newly arrived at current section
@@ -99,27 +99,27 @@ public class PedestrianReachedAimEvent extends Event<Pedestrian> {
 
         boolean movedToNextSection = false;
 
-        if ( pedestrian.checkExitPortIsReached() ) { // check if section will be changed
+        if (pedestrian.checkExitPortIsReached()) { // check if section will be changed
             // set to next section
-            if ( !(currentSection instanceof PedestrianStreet) ){
-                throw new IllegalArgumentException( "Street not instance of PedestrianStreet.");
+            if (!(currentSection instanceof PedestrianStreet)) {
+                throw new IllegalArgumentException("Street not instance of PedestrianStreet.");
             }
 
-            PedestrianStreet nextStreetSection = ((PedestrianStreet)(pedestrian.getNextSection().getStreetSection()));
-            if(nextStreetSection.getPedestrianConsumerType().equals(PedestrianConsumerType.PEDESTRIAN_SINK)) {
-                if ( !(nextStreetSection instanceof PedestrianSink) ){
-                    throw new IllegalArgumentException( "Street not instance of PedestrianSink.");
+            PedestrianStreet nextStreetSection = ((PedestrianStreet) (pedestrian.getNextSection().getStreetSection()));
+            if (nextStreetSection.getPedestrianConsumerType().equals(PedestrianConsumerType.PEDESTRIAN_SINK)) {
+                if (!(nextStreetSection instanceof PedestrianSink)) {
+                    throw new IllegalArgumentException("Street not instance of PedestrianSink.");
                 }
-            } else if ( !(nextStreetSection instanceof PedestrianStreet) ){
-                throw new IllegalArgumentException( "Street not instance of PedestrianStreet.");
+            } else if (!(nextStreetSection instanceof PedestrianStreet)) {
+                throw new IllegalArgumentException("Street not instance of PedestrianStreet.");
             }
 
             boolean freeToGo = true;
             // when the next section is a pedestrian crossing and does have a crossing light the light stage has to be checked
-            if( nextStreetSection.getPedestrianConsumerType().equals(PedestrianConsumerType.PEDESTRIAN_CROSSING)){
+            if (nextStreetSection.getPedestrianConsumerType().equals(PedestrianConsumerType.PEDESTRIAN_CROSSING)) {
                 // solely on a crossing can be a traffic light. -> check in Parser
-                if( nextStreetSection.isTrafficLightActive() ){
-                    if( !nextStreetSection.isTrafficLightFreeToGo()) {
+                if (nextStreetSection.isTrafficLightActive()) {
+                    if (!nextStreetSection.isTrafficLightFreeToGo()) {
                         pedestrian.setCurrentSpeed(0.0);
                         freeToGo = false;
                         timeToDestination = ((PedestrianStreet) currentSection).getRedPhaseDurationOfTrafficLight();
@@ -139,13 +139,12 @@ public class PedestrianReachedAimEvent extends Event<Pedestrian> {
             }
         }
 
-        if(timeToDestination == 0 && !movedToNextSection && pedestrian.getCurrentSpeed()!= 0) {
+        if (timeToDestination == 0 && !movedToNextSection && pedestrian.getCurrentSpeed() != 0) {
             //danger of endlessly looping catch
-            pedestrian.checkExitPortIsReached();
             throw new IllegalStateException("pedestrian is theoretically moving, but already reached destination.");
         }
 
-        if(pedestrian.getCurrentNextGlobalAim() != null ) {
+        if (pedestrian.getCurrentNextGlobalAim() != null) {
             // pedestrian did not move to next section yet
             pedestrian.updateWalkedDistance(); // adding distance before it is walked at it will reach its destination.
             pedestrian.setLastUpdateTime(roundaboutSimulationModel.getCurrentTime());
@@ -156,7 +155,11 @@ public class PedestrianReachedAimEvent extends Event<Pedestrian> {
         pedestrianEventFactory.createPedestrianReachedAimEvent(roundaboutSimulationModel).schedule(
                 pedestrian, new TimeSpan(timeToDestination, roundaboutSimulationModel.getModelTimeUnit()));
 
-        ((PedestrianStreetSection)currentSection).reCheckPedestrianCanEnterSection(); // after some movements recheck pedestrians in queue
+        Pedestrian pedestrianToEnter = null;
+        if (((PedestrianStreetSection) currentSection).reCheckPedestrianCanEnterSection(pedestrianToEnter)) { // after some movements recheck pedestrians in queue
+            pedestrianEventFactory.createPedestrianReachedAimEvent(roundaboutSimulationModel).schedule(
+                    pedestrianToEnter, new TimeSpan(0, roundaboutSimulationModel.getModelTimeUnit()));
+        }
     }
 
     void setNewGoal( Pedestrian pedestrian, Vector2d forces ){
