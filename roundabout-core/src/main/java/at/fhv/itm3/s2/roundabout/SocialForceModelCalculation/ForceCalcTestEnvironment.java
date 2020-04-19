@@ -239,8 +239,9 @@ public class ForceCalcTestEnvironment {
 
     public Vector2d calculateRepulsiveForceAgainstVehicles(PedestrianPoint pedestrianCurGlobPos,
                                                            PedestrianPoint globalPositionOfVehicle,
-                                                           PedestrianPoint globalAimOfVehicle,
+                                                           PedestrianPoint globalAimOfVehicle
                                                            ) {
+return null;
 
     }
 }

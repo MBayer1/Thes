@@ -775,4 +775,13 @@ public class StreetSection extends Street {
     public double getPedestrianCrossingWidth(){
         return this.doesHavePedestrianCrossing() ? pedestrianCrossing.getLengthForVehicleToPass() : 0.0;
     }
+
+    /**
+     * Returns true when car drives along y axis, false when it drives along x axis
+     *
+     * @return weather car drives along x or y axis {@Link boolean}.
+     */
+    public boolean checkCarDrivesAlongYAxis(){
+        return pedestrianCrossing.carDrivesAlongYAxis();
+    }
 }

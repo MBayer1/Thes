@@ -14,7 +14,6 @@ import desmoj.core.statistic.Count;
 import desmoj.core.statistic.Tally;
 
 import javax.vecmath.Vector2d;
-import java.awt.*;
 import java.util.Iterator;
 
 public class Pedestrian extends Entity implements IPedestrian {
@@ -238,7 +237,7 @@ public class Pedestrian extends Entity implements IPedestrian {
         this.currentLocalPosition = localPos;
     }
 
-    public PedestrianPoint getClosestExitPointOfCurrentSection() {
+    public PedestrianPoint getClosestExitPointOfCurrentSectionGlobal() {
         PedestrianStreetSection currentSection = (PedestrianStreetSection) this.getCurrentSection().getStreetSection();
         for (PedestrianConnectedStreetSections connectedStreetSections : currentSection.getNextStreetConnector()) {
             if (connectedStreetSections.getToStreetSection().equals(nextSection.getStreetSection())) {
@@ -260,6 +259,8 @@ public class Pedestrian extends Entity implements IPedestrian {
                     calc.shiftIntersection(localPort, intersection, getMinGapForPedestrian());
                 }
 
+                PedestrianPoint globalBase = currentSection.getGlobalCoordinateOfSectionOrigin();
+                intersection.setLocation(intersection.getX()+ globalBase.getX(),intersection.getY() + globalBase.getY());
                 return intersection;
             }
         }
@@ -470,7 +471,7 @@ public class Pedestrian extends Entity implements IPedestrian {
         PedestrianStreetSectionPort enterPort = nextSection.getEnterPort();
         double high = 0;
         PedestrianPoint pos = null;
-        PedestrianPoint exitPointOnPort = getClosestExitPointOfCurrentSection();
+        PedestrianPoint exitPointOnPort = getClosestExitPointOfCurrentSectionGlobal();
 
         // exit Port along x axis
         if (calc.almostEqual(exitPort.getLocalBeginOfStreetPort().getX(), exitPort.getLocalEndOfStreetPort().getX())) {
@@ -514,23 +515,30 @@ public class Pedestrian extends Entity implements IPedestrian {
         return checkExitPortIsReached(this.currentLocalPosition);
     }
 
-    public boolean checkExitPortIsReached( PedestrianPoint point){
-        return checkExitPortIsReached(point.getX(),  point.getY());
-    }
-
     public boolean checkExitPortIsReached(double x, double y) {
         PedestrianPoint pos = new PedestrianPoint(x, y);
         return checkExitPortIsReached(pos);
     }
 
-    public boolean checkExitPortIsReached(Point localPedestrianPosition) {
+    public boolean checkExitPortIsReached(PedestrianPoint localPedestrianPosition) {
         // do not check for min gab as this is considered at getGlobalPositionOnExitPort()
+        if (localPedestrianPosition == null) {
+            throw new IllegalArgumentException(" no pedestrianPosition passed.");
+        }
 
         // Port is along y axis
-        if (calc.almostEqual(currentSection.getExitPort().getLocalBeginOfStreetPort().getX(), currentSection.getExitPort().getLocalEndOfStreetPort().getX())) {
-            if (localPedestrianPosition == null) {
-                throw new IllegalArgumentException(" no pedestrianPosition passed.");
-            }
+        if (calc.almostEqual(currentSection.getExitPort().getLocalBeginOfStreetPort().getX(),
+                currentSection.getExitPort().getLocalEndOfStreetPort().getX())) {
+
+            boolean da1 = calc.val1LowerOrAlmostEqual((currentSection.getExitPort().getLocalBeginOfStreetPort().getY()), localPedestrianPosition.getY(), 10e-1);
+            boolean da2 = calc.val1BiggerOrAlmostEqual((currentSection.getExitPort().getLocalEndOfStreetPort().getY()), localPedestrianPosition.getY(), 10e-1);
+            boolean da = da1 && da2;
+
+            boolean dd1 = calc.val1LowerOrAlmostEqual((currentSection.getExitPort().getLocalEndOfStreetPort().getY()), localPedestrianPosition.getY(), 10e-1);
+            boolean dd2 = calc.val1BiggerOrAlmostEqual((currentSection.getExitPort().getLocalBeginOfStreetPort().getY()), localPedestrianPosition.getY(), 10e-1);
+            boolean dd = dd1 && dd2;
+
+            boolean ddd = calc.almostEqual(currentSection.getExitPort().getLocalBeginOfStreetPort().getX(), localPedestrianPosition.getX(), 1.0);
 
             if (( ( calc.val1LowerOrAlmostEqual((currentSection.getExitPort().getLocalBeginOfStreetPort().getY()), localPedestrianPosition.getY(), 10e-1) &&
                     calc.val1BiggerOrAlmostEqual((currentSection.getExitPort().getLocalEndOfStreetPort().getY()), localPedestrianPosition.getY(), 10e-1))
@@ -575,55 +583,60 @@ public class Pedestrian extends Entity implements IPedestrian {
         double globalBeginY = currentSection.getExitPort().getLocalBeginOfStreetPort().getY() + globalY;
         double globalEndX = currentSection.getExitPort().getLocalEndOfStreetPort().getX() + globalX;
         double globalEndY = currentSection.getExitPort().getLocalEndOfStreetPort().getY() + globalY;
+        double minGapForPedestrian = getMinGapForPedestrian();
 
         // Port is along y axis
        if (calc.almostEqual(globalBeginX,globalEndX)) {
-            if ( (globalBeginY < globalEndY && currentGlobalPosition.getY() >= globalBeginY + getMinGapForPedestrian() && currentGlobalPosition.getY() <= globalEndY - getMinGapForPedestrian() ) ||
-                 (globalBeginY > globalEndY && currentGlobalPosition.getY() >= globalEndY + getMinGapForPedestrian() && currentGlobalPosition.getY() <= globalBeginY - getMinGapForPedestrian() )   ) {
+            if ( (globalBeginY < globalEndY && currentGlobalPosition.getY() >= (globalBeginY + minGapForPedestrian) &&
+                    currentGlobalPosition.getY() <= (globalEndY - minGapForPedestrian) ) ||
+                 (globalBeginY > globalEndY && currentGlobalPosition.getY() >= (globalEndY + minGapForPedestrian) &&
+                         currentGlobalPosition.getY() <= (globalBeginY - minGapForPedestrian) )   ) {
                 //pedestrian high is withing port?
                 pos.setLocation(globalBeginX, currentGlobalPosition.getY());
             } else
             if (Math.abs(currentGlobalPosition.getY() - globalBeginY) < Math.abs(currentGlobalPosition.getY() - globalEndY)) { // check if it is closer to end or begin
                 //closer to begin exit port
-
-                //now moving intersection into the port about the min Gap. -> so take bigger distance since position of pedestrian is outside of port
-                if (Math.abs((globalBeginY - getMinGapForPedestrian()) - globalEndY) > Math.abs((globalBeginY + getMinGapForPedestrian()) - globalEndY))
-                    pos.setLocation(globalBeginX, globalBeginY - getMinGapForPedestrian());
-                else
-                    pos.setLocation(globalBeginX, globalBeginY + getMinGapForPedestrian());
+                //now moving intersection into the port about the min Gap
+                if (globalBeginY < globalEndY ) {
+                    pos.setLocation(globalBeginX, globalBeginY + minGapForPedestrian);
+                }else {
+                    pos.setLocation(globalBeginX, globalBeginY - minGapForPedestrian);
+                }
             } else {
                 //closer to end of exit Port
-
-                //now moving intersection into the port about the min Gap. -> so take bigger distance since position of pedestrian is outside of port
-                if (Math.abs((globalEndY - getMinGapForPedestrian()) - globalBeginY) > Math.abs((globalEndY + getMinGapForPedestrian()) - globalBeginY))
-                    pos.setLocation(globalEndX, globalEndY - getMinGapForPedestrian());
-                else
-                    pos.setLocation(globalEndX, globalEndY + getMinGapForPedestrian());
+                //now moving intersection into the port about the min Gap
+                if (globalBeginY < globalEndY ) {
+                    pos.setLocation(globalEndX, globalEndY + minGapForPedestrian);
+                }else {
+                    pos.setLocation(globalEndX, globalEndY - minGapForPedestrian);
+                }
             }
 
         } // Port is along x axis
         else {
-            if ( (globalBeginX < globalEndX && currentGlobalPosition.getX() >= globalBeginX + getMinGapForPedestrian() && currentGlobalPosition.getX() <= globalEndX - getMinGapForPedestrian() ) ||
-                    (globalBeginX > globalEndX && currentGlobalPosition.getX() >= globalEndX + getMinGapForPedestrian() && currentGlobalPosition.getX() <= globalBeginX - getMinGapForPedestrian() )   ) {
+            if ( (globalBeginX < globalEndX && currentGlobalPosition.getX() >= (globalBeginX + minGapForPedestrian) &&
+                    currentGlobalPosition.getX() <= (globalEndX - getMinGapForPedestrian()) ) ||
+                    (globalBeginX > globalEndX && currentGlobalPosition.getX() >= (globalEndX + minGapForPedestrian) &&
+                            currentGlobalPosition.getX() <= (globalBeginX - getMinGapForPedestrian()) )   ) {
                 //pedestrian high is withing port?
                 pos.setLocation(currentGlobalPosition.getX(), globalBeginY);
             } else
             if (Math.abs(currentGlobalPosition.getX() - globalBeginX) < Math.abs(currentGlobalPosition.getX() - globalEndX)) { // check if it is closer to end or begin
                 //closer to begin exit port
-
-                //now moving intersection into the port about the min Gap. -> so take bigger distance since position of pedestrian is outside of port
-                if (Math.abs((globalBeginX - getMinGapForPedestrian()) - globalEndX) > Math.abs((globalBeginX + getMinGapForPedestrian()) - globalEndX))
-                    pos.setLocation(globalBeginX - getMinGapForPedestrian(), globalBeginY);
-                else
-                    pos.setLocation(globalBeginX + getMinGapForPedestrian(), globalBeginY);
+                //now moving intersection into the port about the min Gap
+                if (globalBeginX < globalEndX ) {
+                    pos.setLocation(globalBeginX, globalBeginY + minGapForPedestrian);
+                }else {
+                    pos.setLocation(globalBeginX, globalBeginY - minGapForPedestrian);
+                }
             } else {
                 //closer to end of exit Port
-
-                //now moving intersection into the port about the min Gap. -> so take bigger distance since position of pedestrian is outside of port
-                if (Math.abs((globalEndX - getMinGapForPedestrian()) - globalBeginX) > Math.abs((globalEndX + getMinGapForPedestrian()) - globalBeginX))
-                    pos.setLocation(globalEndX - getMinGapForPedestrian(), globalEndY);
-                else
-                    pos.setLocation(globalEndX + getMinGapForPedestrian(), globalEndY);
+                //now moving intersection into the port about the min Gap
+                if (globalBeginX < globalEndX ) {
+                    pos.setLocation(globalEndX, globalEndY + minGapForPedestrian);
+                }else {
+                    pos.setLocation(globalEndX, globalEndY - minGapForPedestrian);
+                }
             }
         }
 
@@ -659,7 +672,7 @@ public class Pedestrian extends Entity implements IPedestrian {
     }
 
     public void setCurrentNextGlobalAim() {
-        setCurrentNextGlobalAim( getClosestExitPointOfCurrentSection());
+        setCurrentNextGlobalAim( getClosestExitPointOfCurrentSectionGlobal());
 
     }
     public void setCurrentNextGlobalAim(PedestrianPoint currentNextGlobalAim) {
@@ -697,13 +710,12 @@ public class Pedestrian extends Entity implements IPedestrian {
 
         Vector2d tmp = accelerationForceToTarget.getAccelerationForceToTarget(getRoundaboutModel(), this);
         sumForce.add(tmp);
-        tmp = repulsiveForceAgainstOtherPedestrians.getRepulsiveForceAgainstAllOtherPedestrians(getRoundaboutModel(), this, getNextSubGoal());
-        sumForce.add(tmp);
-        tmp = repulsiveForceAgainstVehicles.getRepulsiveForceAgainstVehicles(getRoundaboutModel(), this);
+        /*tmp = repulsiveForceAgainstOtherPedestrians.getRepulsiveForceAgainstAllOtherPedestrians(getRoundaboutModel(), this, getNextSubGoal());
         sumForce.add(tmp);
         tmp = repulsiveForceAgainstObstacles.getRepulsiveForceAgainstAllObstacles(getRoundaboutModel(), this);
         sumForce.add(tmp);
-
+        //tmp = repulsiveForceAgainstVehicles.getRepulsiveForceAgainstVehicles(getRoundaboutModel(), this);
+        //sumForce.add(tmp);*/
         this.setPreviousSFMVector(sumForce);
         return sumForce;
     }

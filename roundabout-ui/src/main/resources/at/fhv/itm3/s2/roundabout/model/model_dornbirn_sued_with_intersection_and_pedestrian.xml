@@ -38,8 +38,8 @@
         <parameter name="MIN_PEDESTRIAN_SIZE_RADIUS" value="0.5"/>
         <parameter name="MAX_PEDESTRIAN_SIZE_RADIUS" value="1.1"/>
         <parameter name="EXPECTED_PEDESTRIAN_SIZE_RADIUS" value="0.8"/>
-        <parameter name="MIN_PEDESTRIAN_MIN_GAP" value="1.0"/>
-        <parameter name="MAX_PEDESTRIAN_MIN_GAP" value="0.2"/>
+        <parameter name="MIN_PEDESTRIAN_MIN_GAP" value="0.2"/>
+        <parameter name="MAX_PEDESTRIAN_MIN_GAP" value="1.0"/>
         <parameter name="EXPECTED_PEDESTRIAN_MIN_GAP" value="0.5"/>
         <parameter name="MIN_PEDESTRIAN_PREFERRED_SPEED" value="1.08"/>
         <parameter name="MAX_PEDESTRIAN_PREFERRED_SPEED" value="1.6"/>
@@ -307,8 +307,8 @@
                 <section id="s5_t2" lengthX="106.36"/>
                 <section id="s5_t3" lengthX="106.36"/>
 
-                <section id="s6_t1" lengthX="110.45" pedestrianCrossingComponentIDRef="p1" pedestrianCrossingIDRef="psc1" pedestrianCrossingIDRefEnterHigh="20" pedestrianCrossingRefLinkedAtBegin="y" />
-                <section id="s6_t2" lengthX="110.45" pedestrianCrossingComponentIDRef="p1" pedestrianCrossingIDRef="psc1" pedestrianCrossingIDRefEnterHigh="40" pedestrianCrossingRefLinkedAtBegin="n" />
+                <section id="s6_t1" lengthX="110.45" pedestrianCrossingComponentIDRef="p1" pedestrianCrossingIDRef="psc1" pedestrianCrossingIDRefEnterHigh="200" pedestrianCrossingRefLinkedAtBegin="y" /> <!--entry high in cm-->
+                <section id="s6_t2" lengthX="110.45" pedestrianCrossingComponentIDRef="p1" pedestrianCrossingIDRef="psc1" pedestrianCrossingIDRefEnterHigh="400" pedestrianCrossingRefLinkedAtBegin="n" />
 
             </sections>
             <connectors>
