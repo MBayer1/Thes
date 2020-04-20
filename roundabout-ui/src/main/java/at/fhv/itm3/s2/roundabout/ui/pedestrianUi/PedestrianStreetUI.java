@@ -1,7 +1,13 @@
 package at.fhv.itm3.s2.roundabout.ui.pedestrianUi;
 
+import at.fhv.itm3.s2.roundabout.entity.PedestrianStreetSection;
+import javafx.scene.paint.Color;
+
 public class PedestrianStreetUI extends StreetSectionUI {
-    public PedestrianStreetUI(double x, double y, double width, double height) {
-        super(x, y, width, height);
+
+    private final static Color pedestrianStreetColor =  Color.RED;
+
+    public PedestrianStreetUI(PedestrianStreetSection pedestrianStreetSection) {
+        super(pedestrianStreetSection, pedestrianStreetColor);
     }
 }

@@ -1,6 +1,7 @@
 package at.fhv.itm3.s2.roundabout.ui.pedestrianUi;
 
 import at.fhv.itm3.s2.roundabout.api.PedestrianPoint;
+import at.fhv.itm3.s2.roundabout.entity.Pedestrian;
 import at.fhv.itm3.s2.roundabout.entity.PedestrianStreetSection;
 import at.fhv.itm3.s2.roundabout.util.ConfigParser;
 import javafx.beans.binding.Bindings;
@@ -12,9 +13,8 @@ import javafx.scene.transform.Scale;
 
 import java.awt.*;
 import java.io.Console;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
 
 public class PedestrianUIMain extends ScrollPane {
     private  int width;
@@ -26,7 +26,8 @@ public class PedestrianUIMain extends ScrollPane {
 
     private ConfigParser configParser = null;
 
-    private List<PedestrianStreetUI> streetUIList = new ArrayList<>();
+    private Map<String, StreetSectionUI> streetUIMap = new HashMap<String, StreetSectionUI>();
+    private Map<String, Map<String, PedestrianUI>> pedestrianMap = new HashMap<String, Map<String, PedestrianUI>>();
 
     Pane canvas = new Pane();
 
@@ -78,19 +79,37 @@ public class PedestrianUIMain extends ScrollPane {
 
     private void traverseStreets(Map<String, PedestrianStreetSection> pedestrianStreetCompoenent){
         for (PedestrianStreetSection pedestrianStreetSection : pedestrianStreetCompoenent.values()){
-            PedestrianPoint globalPedestrianStreetCoordinate =  pedestrianStreetSection.getGlobalCoordinateOfSectionOrigin();
-            double pedestrianStreetWidth = pedestrianStreetSection.getLengthX();
-            double pedestrianStreetHeight = pedestrianStreetSection.getLengthY();
+            pedestrianStreetSection.getPedestrianQueue();
 
-            PedestrianStreetUI pedestrianStreetUI = new PedestrianStreetUI(
-                    globalPedestrianStreetCoordinate.getX(), globalPedestrianStreetCoordinate.getY(), pedestrianStreetWidth, pedestrianStreetHeight);
+            StreetSectionUI streetSectionUI = null;
+            switch (pedestrianStreetSection.getPedestrianConsumerType()){
+                case PEDESTRIAN_STREET_SECTION:
+                    streetSectionUI = new PedestrianStreetUI(pedestrianStreetSection);
+                    break;
 
-            streetUIList.add(pedestrianStreetUI);
-            canvas.getChildren().add(pedestrianStreetUI);
+                case PEDESTRIAN_CROSSING:
+                    streetSectionUI = new PedestrianCrosswalkUI(pedestrianStreetSection);
+                    break;
+            }
+            pedestrianMap.put(pedestrianStreetSection.getId(), new HashMap<String, PedestrianUI>());
 
+            streetUIMap.put(pedestrianStreetSection.getId(), streetSectionUI);
+            canvas.getChildren().add(streetSectionUI);
         }
     }
 
+
+    public void addPedestrian(PedestrianStreetSection pedestrianStreetSection, Pedestrian pedestrian){
+        StreetSectionUI streetSectionUI = streetUIMap.get(pedestrianStreetSection.getId());
+
+
+        double globalPedestrianX = streetSectionUI.getX()
+        double globalPedestrianY = streetSectionUI.getY
+
+
+    }
+
+    public void updatePedestrian(){}
 
     private void centerCanvas(Pane nonCenteredCanvas){
         double w2 = nonCenteredCanvas.getBoundsInParent().getMaxX();

@@ -131,8 +131,8 @@ public class MainViewController extends JfxController {
 
     private void initButtonListeners() {
         btnStartSimulation.setOnAction(e -> {
-            IS_SIMULATION_RUNNING.set(true);
-            new DaemonThreadFactory().newThread(startRunnable).start();
+                IS_SIMULATION_RUNNING.set(true);
+                new DaemonThreadFactory().newThread(startRunnable).start();
         });
 
         btnGenReportSimulation.setOnAction(e -> {

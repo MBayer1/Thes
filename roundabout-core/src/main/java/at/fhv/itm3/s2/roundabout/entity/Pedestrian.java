@@ -687,7 +687,6 @@ public class Pedestrian extends Entity implements IPedestrian {
      */
     @Override
     public Vector2d getSocialForceVector() {
-
         getRoundaboutModel().getSFM_DegreeOfAccuracy();
         Vector2d sumForce = new Vector2d();
         AccelerationForceToTarget accelerationForceToTarget = new AccelerationForceToTarget();
@@ -697,12 +696,12 @@ public class Pedestrian extends Entity implements IPedestrian {
 
         Vector2d tmp = accelerationForceToTarget.getAccelerationForceToTarget(getRoundaboutModel(), this);
         sumForce.add(tmp);
-        tmp = repulsiveForceAgainstOtherPedestrians.getRepulsiveForceAgainstAllOtherPedestrians(getRoundaboutModel(), this, getNextSubGoal());
-        sumForce.add(tmp);
-        tmp = repulsiveForceAgainstVehicles.getRepulsiveForceAgainstVehicles(getRoundaboutModel(), this);
-        sumForce.add(tmp);
-        tmp = repulsiveForceAgainstObstacles.getRepulsiveForceAgainstAllObstacles(getRoundaboutModel(), this);
-        sumForce.add(tmp);
+        //tmp = repulsiveForceAgainstOtherPedestrians.getRepulsiveForceAgainstAllOtherPedestrians(getRoundaboutModel(), this, getNextSubGoal());
+        //sumForce.add(tmp);
+        //tmp = repulsiveForceAgainstVehicles.getRepulsiveForceAgainstVehicles(getRoundaboutModel(), this);
+        //sumForce.add(tmp);
+        //tmp = repulsiveForceAgainstObstacles.getRepulsiveForceAgainstAllObstacles(getRoundaboutModel(), this);
+        //sumForce.add(tmp);
 
         this.setPreviousSFMVector(sumForce);
         return sumForce;

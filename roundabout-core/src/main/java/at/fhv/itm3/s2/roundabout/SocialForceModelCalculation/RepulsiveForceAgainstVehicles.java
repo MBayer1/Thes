@@ -53,7 +53,7 @@ public class RepulsiveForceAgainstVehicles {
                             // check if it is in range
                             if ( checkPedestrianInRangeFront(model, pedestrian, globalPositionOfVehicleFront, car.getLength()) ){
                                 sumForce.add(calculateRepulsiveForceAgainstVehicles( pedestrian,
-                                        globalPositionOfVehicleFront, globalPositionOfVehicleBack, globalAimOfVehicle, car));
+                                        globalPositionOfVehicleFront, globalPositionOfVehicleBack, globalAimOfVehicle, (RoundaboutCar) car));
                             }
 
                             // check also next street sections as they are after the crossing
@@ -69,7 +69,7 @@ public class RepulsiveForceAgainstVehicles {
                                         // check if it is in range
                                         if (checkPedestrianInRangeBack(model, pedestrian, globalPositionOfVehicleFront, car.getLength())) {
                                             sumForce.add(calculateRepulsiveForceAgainstVehicles(pedestrian,
-                                                    globalPositionOfVehicleFront, globalPositionOfVehicleBack, globalAimOfVehicle, car));
+                                                    globalPositionOfVehicleFront, globalPositionOfVehicleBack, globalAimOfVehicle, (RoundaboutCar) car));
                                         }
                                     }
                                 }
@@ -108,7 +108,7 @@ public class RepulsiveForceAgainstVehicles {
         // global destination of vehicle
         if ( vehicleStreet.getPedestrianCrossingEntryAtBeginning() ) {
             tmpX -= (int) Math.round(section.getLengthX() + car.getLength());
-            globalPositionOfVehicleBack.setLocation(tmpX, );
+            //globalPositionOfVehicleBack.setLocation(tmpX, );
         } else {
             tmpX += (int) Math.round(section.getLengthX() + car.getLength());
         }
