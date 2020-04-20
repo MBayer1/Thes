@@ -43,7 +43,6 @@ public final class CarController {
         if (!carToICarMap.containsKey(car)) {
             throw new IllegalArgumentException("carToICarMap does not contain car");
         }
-
         return carToICarMap.get(car);
     }
 

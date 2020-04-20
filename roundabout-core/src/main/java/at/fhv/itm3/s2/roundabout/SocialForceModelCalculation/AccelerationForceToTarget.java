@@ -19,13 +19,17 @@ public class AccelerationForceToTarget {
         if (! (pedestrian.getCurrentSection().getStreetSection() instanceof PedestrianStreetSection)) {
             throw new IllegalStateException("Section not instance of PedestrianStreetSection.");
         }
+        PedestrianPoint subGoal = pedestrian.getNextSubGoal(); // global  coordinates without any obstacle etc. = exit-point of  section -> always calc new since real aim is afterwards change so is current position
 
         // e(t)
-        PedestrianPoint subGoal = pedestrian.getNextSubGoal(); // global  coordinates without any obstacle etc. = exit-point of  section -> always calc new since real aim is afterwards change so is current position
         Vector2d preferredSpeedVector = new Vector2d(subGoal.getX(), subGoal.getY());
         preferredSpeedVector.sub(currentPositionVector);
         Double preferredSpeedValue = preferredSpeedVector.length();
-        preferredSpeedVector.scale(1/preferredSpeedValue);
+        if (preferredSpeedValue != 0) {
+            preferredSpeedVector.scale(1 / preferredSpeedValue);
+        } else  {
+            double da;
+        }
 
         // preferredSpeed * e(t)
         preferredSpeedVector.scale(pedestrian.calculatePreferredSpeed()); //v_alpha * e_alpha(t)
@@ -33,6 +37,10 @@ public class AccelerationForceToTarget {
         // 1/tau (preferred speed - current speed)
         preferredSpeedVector.sub(currentSpeedVector);
         preferredSpeedVector.scale(1/model.getRandomPedestrianRelaxingTimeTauAlpha());
+
+        if(Double.isNaN(preferredSpeedVector.getX()) || Double.isNaN(preferredSpeedVector.getY()) ){
+            throw new IllegalStateException("Vector calculation  error: AccelerationForce.");
+        }
 
         return preferredSpeedVector;
     }

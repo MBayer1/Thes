@@ -35,6 +35,10 @@ public class RepulsiveForceAgainstOtherPedestrians {
         GetAllPedestrianFromPreviousStreets( model, pedestrian, vacDestination, sumForce );
         GetAllPedestrianFromFollowingStreets ( model, pedestrian, vacDestination, sumForce );
 
+        if(Double.isNaN(sumForce.getX()) || Double.isNaN(sumForce.getY()) ){
+            throw new IllegalStateException("Vector calculation  error: ForceAgainstOtherPedestrians.");
+        }
+
         return sumForce;
     }
 

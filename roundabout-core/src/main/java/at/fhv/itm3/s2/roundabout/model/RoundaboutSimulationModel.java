@@ -204,7 +204,7 @@ public class RoundaboutSimulationModel extends Model {
      * Random number stream used to define gab between Pedestrians.
      * See {@link RoundaboutSimulationModel#init()} method for stream parameters.
      */
-    private ContDistNormal pedestrianGapToOtherPedestiranSpeed;
+    private ContDistNormal pedestrianGapToOtherPedestrian;
 
     /**
      * Random number stream used to define gender
@@ -604,7 +604,7 @@ public class RoundaboutSimulationModel extends Model {
                 minPedestrianMinGap, maxPedestrianMinGap, expectedPedestrianMinGap, 0.1
         );
 
-        pedestrianGapToOtherPedestiranSpeed= new ContDistNormal(
+        pedestrianGapToOtherPedestrian = new ContDistNormal(
                 this,
                 "minGap",
                 2.2,
@@ -613,7 +613,7 @@ public class RoundaboutSimulationModel extends Model {
                 true,
                 false
         );
-        pedestrianGapToOtherPedestiranSpeed.setSeed(simulationSeed);
+        pedestrianGapToOtherPedestrian.setSeed(simulationSeed);
 
 
         // calculate the standard deviation (of skew normal distribution) for relaxing Time for walking pedestrian
@@ -996,7 +996,7 @@ public class RoundaboutSimulationModel extends Model {
      * See {@link RoundaboutSimulationModel#init()} method for stream parameters.
      */
     public Double getRandomMinGabToPedestrian() {
-        return Math.max(Math.min(pedestrianGapToOtherPedestiranSpeed.sample(), maxPedestrianMinGap), minPedestrianMinGap);
+        return Math.max(Math.min(pedestrianGapToOtherPedestrian.sample(), maxPedestrianMinGap), minPedestrianMinGap);
     }
 
     /**

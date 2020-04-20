@@ -26,8 +26,10 @@ public class SupportiveCalculations {
 
     public Vector2d getUnitVector( double vectorX,	double vectorY)
     {
-        double returnXTmp = vectorX / Math.sqrt(Math.pow(vectorX, 2) + Math.pow(vectorY, 2));
-        double returnYTmp = vectorY / Math.sqrt(Math.pow(vectorX, 2) + Math.pow(vectorY, 2));
+        double fraction = Math.sqrt(Math.pow(vectorX, 2) + Math.pow(vectorY, 2));
+        if (fraction == 0) return new Vector2d(0.,0.);
+        double returnXTmp = vectorX / fraction;
+        double returnYTmp = vectorY / fraction;
         return new Vector2d(returnXTmp, returnYTmp);
     }
 
@@ -71,44 +73,42 @@ public class SupportiveCalculations {
     public boolean checkLinesIntersectionByCoordinates_WithinSegment(PedestrianPoint intersection,
                                                                      double lineStartX1, double lineStartY1,
                                                                      double lineEndX1, double lineEndY1,
-                                                                     double lineStartX2, double lineStartY2,
+                                                                     double lineStartX2, double lineStartY2, //global
                                                                      double lineEndX2, double lineEndY2
-    ){
+    ) {
 
-        if((lineStartX1 == lineStartX2) && (lineStartY1 == lineStartY2) &&
-                (lineEndX1 == lineEndX2) && (lineEndY1 == lineEndY2)){
+        if ((lineStartX1 == lineStartX2) && (lineStartY1 == lineStartY2) &&
+                (lineEndX1 == lineEndX2) && (lineEndY1 == lineEndY2)) {
             throw new IllegalArgumentException("Lines are identical.");
         }
 
         //linear equation: y=m*x+d -> note special case: parallel to y-axis     -> y(x) = const, always
         //1. set linear equation in linear equation -> m1*x+d1 = m2*x+d2        -> x = (d2-d1)/(m1-m2)
-        double dSlope1 = (lineEndY1-lineStartY1)/(lineEndX1-lineStartX1);	        //m1
-        double dYIntercept1 = lineEndY1-(lineEndX1*dSlope1);						//d1
-        double dSlope2 = (lineEndY2-lineStartY2)/(lineEndX2-lineStartX2);	        //m2
-        double dYIntercept2 = lineEndY2-(lineEndX2*dSlope2);						//d2
+        double dSlope1 = (lineEndY1 - lineStartY1) / (lineEndX1 - lineStartX1);         //m1
+        double dYIntercept1 = lineEndY1 - (lineEndX1 * dSlope1);                        //d1
+        double dSlope2 = (lineEndY2 - lineStartY2) / (lineEndX2 - lineStartX2);         //m2
+        double dYIntercept2 = lineEndY2 - (lineEndX2 * dSlope2);                        //d2
 
-        // both parallel y-axis
-        if( (Double.isInfinite(dSlope1) && Double.isInfinite(dSlope2)) ||
-             ( (Double.isInfinite(dSlope1) || Double.isInfinite(dSlope2)) &&
-              (almostEqual(dSlope1, 0) || almostEqual(dSlope2, 0)))) {
+        // both parallel y-axis(inf) or both along x axis (0)
+        if ((Double.isInfinite(dSlope1) && Double.isInfinite(dSlope2)) ||
+                (almostEqual(dSlope1, 0) && almostEqual(dSlope2, 0))) {
             return false;
         }
 
         //check if parallel to y-axis
-        if (almostEqual(lineEndX1,lineStartX1)){
-            intersection.setLocation(lineEndX1, lineEndX1* dSlope2 + dYIntercept2);
-        }
-        if (almostEqual(lineEndX2,lineStartX2)){
-            intersection.setLocation(lineEndX2, lineEndX2* dSlope1 + dYIntercept1);
-        }
+        if (almostEqual(lineEndX1, lineStartX1)) {
+            intersection.setLocation(lineEndX1, lineEndX1 * dSlope2 + dYIntercept2);
+        } else if (almostEqual(lineEndX2, lineStartX2)) {
+            intersection.setLocation(lineEndX2, lineEndX2 * dSlope1 + dYIntercept1);
+        } else{
 
-        // if the slope is the same the lines are parallel and never cross another
-        if(almostEqual(dSlope1, dSlope2)){
-            return false;
+            // if the slope is the same the lines are parallel and never cross another
+            if (almostEqual(dSlope1, dSlope2)) {
+                return false;
+            }
+            double tmpX = (dYIntercept2 - dYIntercept1) / (dSlope1 - dSlope2);
+            intersection.setLocation(tmpX, tmpX * dSlope1 + dYIntercept1);
         }
-
-        double tmpX = (dYIntercept2-dYIntercept1)/(dSlope1-dSlope2);
-        intersection.setLocation(tmpX, tmpX* dSlope1 + dYIntercept1);
 
         //Intersection have to be on the line segment
         if((((intersection.getX()>=lineStartX1) && (intersection.getX()<=lineEndX1)) ||
@@ -172,13 +172,27 @@ public class SupportiveCalculations {
     }
 
     public PedestrianPoint getLinesIntersectionByCoordinates(	     double dLineStartX1, double dLineStartY1,
-                                                         double dLineEndX1, double dLineEndY1,
-                                                         double dLineStartX2, double dLineStartY2,
-                                                         double dLineEndX2, double dLineEndY2) {
+                                                                           double dLineEndX1, double dLineEndY1,
+                                                                           double dLineStartX2, double dLineStartY2,
+                                                                           double dLineEndX2, double dLineEndY2) {
         Vector2d returnIntersection = new Vector2d();
         if(getLinesIntersectionByCoordinates(	returnIntersection,
                 dLineStartX1, dLineStartY1, dLineEndX1, dLineEndY1,
                 dLineStartX2, dLineStartY2, dLineEndX2, dLineEndY2)){
+            return new PedestrianPoint(returnIntersection.getX(), returnIntersection.getY());
+        }
+        return null;
+        //throw new IllegalArgumentException("Two lines do not have any intersection");
+    }
+
+    public PedestrianPoint getLinesIntersectionByCoordinates(	     PedestrianPoint lineStart1,
+                                                                      PedestrianPoint lineEnd1,
+                                                                      PedestrianPoint lineStart2,
+                                                                      PedestrianPoint lineEnd2) {
+        Vector2d returnIntersection = new Vector2d();
+        if(getLinesIntersectionByCoordinates(	returnIntersection,
+                lineStart1.getX(), lineStart1.getY(), lineEnd1.getX(), lineEnd1.getY(),
+                lineStart2.getX(), lineStart2.getY(), lineEnd2.getX(), lineEnd2.getY())){
             return new PedestrianPoint(returnIntersection.getX(), returnIntersection.getY());
         }
         return null;
@@ -320,7 +334,7 @@ public class SupportiveCalculations {
         if (minGabToWall != 0) shiftIntersectionSub(portBeginX, portBeginY, portEndX, portEndY, wallIntersection, minGabToWall);
     }
 
-    void shiftIntersectionSub( double portBeginX, double portBeginY, double portEndX, double portEndY, PedestrianPoint wallIntersection, double minGabToWall) {
+    public void shiftIntersectionSub( double portBeginX, double portBeginY, double portEndX, double portEndY, PedestrianPoint wallIntersection, double minGabToWall) {
         if( almostEqual(portBeginX, portEndX) ) { // port along y side
             if( val1LowerOrAlmostEqual(portBeginY, portEndY)) {
                 wallIntersection.setLocation(wallIntersection.getX(), wallIntersection.getY() + minGabToWall);
@@ -333,6 +347,188 @@ public class SupportiveCalculations {
             } else {
                 wallIntersection.setLocation(wallIntersection.getX() - minGabToWall, wallIntersection.getY());
             }
+        }
+    }
+
+    public PedestrianPoint shiftPointToEllipse(Vector2d point, double semiaxesBig, double semiaxesSmall) {
+        //https://mathworld.wolfram.com/Ellipse-LineIntersection.html
+
+        /*              (x,y)      Point  from outside the ellipse
+                        Line running  then through center of ellipse
+                        a          Bigger SemiAxes
+                        b          SmallerSemiaxes
+
+                        fraction =  (a*b)/(sqrt(a^2 * y^2 + b^2 * x^2))
+
+                        x = +- fraction * x
+                        y = +- fraction * y
+
+        * */
+
+        double fraction = ((Math.pow(semiaxesBig,2) * Math.pow(point.getY(),2)) + ((Math.pow(semiaxesSmall,2) * Math.pow(point.getX(),2))));
+        fraction = Math.sqrt(fraction);
+        fraction = (semiaxesSmall*semiaxesBig)/fraction;
+
+        // Both intersections
+        double tmpX1 = fraction * point.getX();
+        double tmpY1 = fraction * point.getY();
+        double tmpX2 = tmpX1 * (-1);
+        double tmpY2 = tmpY1 * (-1);
+
+        if (getDistanceByCoordinates(point.getX(), point.getY(),tmpX1, tmpY1) <
+                getDistanceByCoordinates(point.getX(), point.getY(),tmpX2, tmpY2)){
+            return new PedestrianPoint(tmpX1, tmpY1);
+        }
+        return new PedestrianPoint(tmpX2, tmpY2);
+    }
+
+    public boolean checkPointOutsideEllipse(Vector2d center, PedestrianPoint point,
+                                            double semiaxesBig, double semiaxesSmaller){
+        //https://www.geeksforgeeks.org/check-if-a-point-is-inside-outside-or-on-the-ellipse/
+
+        //(x-h)^2/a^2 + (y-k)^2/b^2 <= 1
+
+        double h = center.getX();
+        double k = center.getY();
+        double x = point.getX();
+        double y = point.getY();
+        double a = semiaxesBig; // along x axis
+        double b = semiaxesSmaller; // along y axis
+
+        // checking the equation of
+        // ellipse with the given point
+        int p = ((int)Math.pow((x - h), 2) / (int)Math.pow(a, 2))
+                + ((int)Math.pow((y - k), 2) / (int)Math.pow(b, 2));
+
+
+        if (p> 1) {
+            //System.out.println("Outside");
+            return true;
+        }else if (p == 1) {
+            //System.out.println("On the ellipse");
+
+        }else {
+            //System.out.println("Inside");
+        }
+        return false;
+    }
+
+
+    double getAngleDiffBetweenTwoLinesFacingCharCenter(
+            PedestrianPoint pointOnEllipse,
+            PedestrianPoint foci1,
+            PedestrianPoint foci2){
+
+        Vector2d vec1 = getVector(pointOnEllipse, foci1);
+        Vector2d vec2 = getVector(pointOnEllipse, foci2);
+
+        double dAngle1 = getAngleInDegFromPosition(pointOnEllipse.getX(), pointOnEllipse.getY(), foci1.getX(), foci1.getY()); // we asume this angle as Startangle
+        double dAngle2 = getAngleInDegFromPosition(pointOnEllipse.getX(), pointOnEllipse.getY(), foci2.getX(), foci2.getY());
+
+        //verify
+        double ax = pointOnEllipse.getX();
+        double ay = pointOnEllipse.getY();
+        double bx1 = foci1.getX();
+        double by1 = foci1.getY();
+        double bx2 = foci2.getX();
+        double by2 = foci2.getY();
+        double angle1 = Math.atan2( ax*by1 - ay * bx1, ax*bx1 + ay * by1 );
+        double angle2 = Math.atan2( ax*by2 - ay * bx2, ax*bx2 + ay * by2 );
+
+        if(almostEqual(dAngle1, dAngle2)){
+            throw new IllegalStateException("Angle difference can not be calculated. Both angle basis have the same angle.");
+        }
+
+        double dAngle;
+        // get Angle Anticlockwise, started from Line1
+        if(dAngle1 <=  dAngle2) {
+            dAngle = dAngle2 - dAngle1; //Anticlockwise direction
+            //if (!((dAngle1 <= dAngleCompare) && (dAngleCompare <= dAngle2) )) dAngle = 360-dAngle;  // we have to take the clockwise angle
+
+        } else { //dAngle > dAngle2
+            dAngle = 360 - dAngle1 + dAngle2; //Anticlockwise direction
+            /*if(!((dAngleCompare < 360 && dAngleCompare > dAngle1) ||dAngle < dAngle2)){
+                dAngle = 360-dAngle;  // we have to take the clockwise angle
+            }*/
+        }
+
+        return dAngle;
+    }
+
+    Vector2d getVectorFromAngleInDegAndLength (double dAngle, double dLength){
+        double dVecX, dVecY;
+
+        double dAngleInRad = Math.toRadians(dAngle);
+        dVecX = Math.cos(dAngleInRad); // is univec
+        dVecY = Math.sin(dAngleInRad); // is univec
+
+        dVecX *= dLength;
+        dVecY *= dLength;
+
+        return new Vector2d(dVecX, dVecY);
+    }
+
+    int getQuadrantOfDegreeAngle( double dAngleInDeg )
+    {
+        while( dAngleInDeg < 0) dAngleInDeg += 360;
+        while( dAngleInDeg > 360) dAngleInDeg -= 360;
+
+        if( val1Lower( dAngleInDeg, 90)){ // first qadrant
+            return 1;
+        } else if ( val1Lower( dAngleInDeg, 180 ) && val1BiggerOrAlmostEqual( dAngleInDeg, 90) ) { // second quadrant
+            return 2;
+        } else if ( val1Lower( dAngleInDeg, 270 ) && val1BiggerOrAlmostEqual( dAngleInDeg, 180) ) { // third quadrant
+            return 3;
+        } else if ( val1Lower( dAngleInDeg, 360 ) && val1BiggerOrAlmostEqual( dAngleInDeg, 270) ) {	// fourth quadrant
+            return 4;
+        }
+        throw new IllegalStateException("Quadrant of angle could not be calculated.");
+    }
+
+    double getAngleInDegFromPosition(double dX, double dY, double dAxisCenterX, double dAxisCenterY)
+    {
+        double dAlpha, dHypotenuse, dOppositeSide;
+
+        // do not use almost equal! as long there is some sort of differentce is it fine
+        // (especially needed fo step 2b: TransPoint might not be fare frome center)
+        if(dX == dAxisCenterX && dY == dAxisCenterY) return 0.;
+
+        dHypotenuse = Math.sqrt(Math.pow(dX - dAxisCenterX, 2) + Math.pow(dY - dAxisCenterY, 2));
+        dOppositeSide = Math.abs(dY - dAxisCenterY);
+        dAlpha = dOppositeSide / dHypotenuse;
+        dAlpha = Math.toDegrees(Math.asin(dAlpha));
+
+        dX = dX-dAxisCenterX;
+        dY = dY-dAxisCenterY;
+
+        if (val1LowerOrAlmostEqual(dX, 0) && dY > 0) {  // second quadrant
+            if (almostEqual(dAlpha, 0))
+                return 90.0;
+            else if (almostEqual(dAlpha, Math.PI))
+                return 180.0;
+            else
+                return 180 - dAlpha;
+        } else if (val1LowerOrAlmostEqual(dX, 0) && val1LowerOrAlmostEqual(dY, 0)) {  // third quadrant
+            if (almostEqual(dAlpha, 0))
+                return 180.0;
+            else if (almostEqual(dAlpha, Math.PI))
+                return 270.0;
+            else
+                return 180 + dAlpha;
+        } else if (val1BiggerOrAlmostEqual(dX, 0) && dY < 0) {  // forth quadrant
+            if (almostEqual(dAlpha, 0))
+                return 270.0;
+            else if (almostEqual(dAlpha, Math.PI))
+                return 0.0;
+            else
+                return 360 - dAlpha;
+        } else {
+            if (almostEqual(dAlpha, 0))
+                return 0.0;
+            else if (almostEqual(dAlpha, Math.PI))
+                return 90.0;
+            else
+                return dAlpha;
         }
     }
 }

@@ -73,23 +73,27 @@ public class PedestrianReachedAimEvent extends Event<Pedestrian> {
     public void eventRoutine(Pedestrian pedestrian) throws SuspendExecution {
         IConsumer currentSection = pedestrian.getCurrentSection().getStreetSection();
 
-        if ( ! (pedestrian instanceof  Pedestrian) ) {
-            throw new IllegalArgumentException( "Pedestrian not instance of Pedestrian." );
+        if(((PedestrianStreet)currentSection).getPedestrianConsumerType().equals(PedestrianConsumerType.PEDESTRIAN_SINK)) {
+            return;
+        }
+
+        if (!(pedestrian instanceof Pedestrian)) {
+            throw new IllegalArgumentException("Pedestrian not instance of Pedestrian.");
         }
 
         Vector2d forces = pedestrian.getSocialForceVector(); //set time when next update.
         double timeToDestination = 0.0;
 
         // since all sup-aims are within one street section it is enough to check all other pedestrian on the same section
-        if (! (pedestrian.getCurrentSection().getStreetSection() instanceof PedestrianStreet )) {
-            throw new IllegalArgumentException( "Street not instance of PedestrianStreet." );
+        if (!(pedestrian.getCurrentSection().getStreetSection() instanceof PedestrianStreet)) {
+            throw new IllegalArgumentException("Street not instance of PedestrianStreet.");
         }
 
         if (calc.almostEqual(pedestrian.getCurrentSpeed(), 0)) {
             pedestrian.setCurrentSpeed(pedestrian.getPreferredSpeed()); // reset
         }
 
-        if( pedestrian.getCurrentNextGlobalAim() == null) {
+        if (pedestrian.getCurrentNextGlobalAim() == null) {
             // consider intersection to other pedestrian etc.
             // -> not the clear goal on exit PedestrianPoint like it is considered in force toward aim
             // pedestrian newly arrived at current section
@@ -99,27 +103,27 @@ public class PedestrianReachedAimEvent extends Event<Pedestrian> {
 
         boolean movedToNextSection = false;
 
-        if ( pedestrian.checkExitPortIsReached() ) { // check if section will be changed
+        if (pedestrian.checkExitPortIsReached()) { // check if section will be changed
             // set to next section
-            if ( !(currentSection instanceof PedestrianStreet) ){
-                throw new IllegalArgumentException( "Street not instance of PedestrianStreet.");
+            if (!(currentSection instanceof PedestrianStreet)) {
+                throw new IllegalArgumentException("Street not instance of PedestrianStreet.");
             }
 
-            PedestrianStreet nextStreetSection = ((PedestrianStreet)(pedestrian.getNextSection().getStreetSection()));
-            if(nextStreetSection.getPedestrianConsumerType().equals(PedestrianConsumerType.PEDESTRIAN_SINK)) {
-                if ( !(nextStreetSection instanceof PedestrianSink) ){
-                    throw new IllegalArgumentException( "Street not instance of PedestrianSink.");
+            PedestrianStreet nextStreetSection = ((PedestrianStreet) (pedestrian.getNextSection().getStreetSection()));
+            if (nextStreetSection.getPedestrianConsumerType().equals(PedestrianConsumerType.PEDESTRIAN_SINK)) {
+                if (!(nextStreetSection instanceof PedestrianSink)) {
+                    throw new IllegalArgumentException("Street not instance of PedestrianSink.");
                 }
-            } else if ( !(nextStreetSection instanceof PedestrianStreet) ){
-                throw new IllegalArgumentException( "Street not instance of PedestrianStreet.");
+            } else if (!(nextStreetSection instanceof PedestrianStreet)) {
+                throw new IllegalArgumentException("Street not instance of PedestrianStreet.");
             }
 
             boolean freeToGo = true;
             // when the next section is a pedestrian crossing and does have a crossing light the light stage has to be checked
-            if( nextStreetSection.getPedestrianConsumerType().equals(PedestrianConsumerType.PEDESTRIAN_CROSSING)){
+            if (nextStreetSection.getPedestrianConsumerType().equals(PedestrianConsumerType.PEDESTRIAN_CROSSING)) {
                 // solely on a crossing can be a traffic light. -> check in Parser
-                if( nextStreetSection.isTrafficLightActive() ){
-                    if( !nextStreetSection.isTrafficLightFreeToGo()) {
+                if (nextStreetSection.isTrafficLightActive()) {
+                    if (!nextStreetSection.isTrafficLightFreeToGo()) {
                         pedestrian.setCurrentSpeed(0.0);
                         freeToGo = false;
                         timeToDestination = ((PedestrianStreet) currentSection).getRedPhaseDurationOfTrafficLight();
@@ -127,7 +131,6 @@ public class PedestrianReachedAimEvent extends Event<Pedestrian> {
                     } else {
                         timeToDestination = pedestrian.getTimeToNextGlobalSubGoal();
                     }
-
                 }
             }
 
@@ -140,23 +143,29 @@ public class PedestrianReachedAimEvent extends Event<Pedestrian> {
             }
         }
 
-        if(timeToDestination == 0 && !movedToNextSection && pedestrian.getCurrentSpeed()!= 0) {
+        if (timeToDestination == 0 && !movedToNextSection && pedestrian.getCurrentSpeed() != 0) {
             //danger of endlessly looping catch
             throw new IllegalStateException("pedestrian is theoretically moving, but already reached destination.");
         }
 
-        if(pedestrian.getCurrentNextGlobalAim() != null ) {
+        if (pedestrian.getCurrentNextGlobalAim() != null) {
             // pedestrian did not move to next section yet
             pedestrian.updateWalkedDistance(); // adding distance before it is walked at it will reach its destination.
             pedestrian.setLastUpdateTime(roundaboutSimulationModel.getCurrentTime());
-            pedestrian.setCurrentGlobalPosition(pedestrian.getCurrentNextGlobalAim());
+            if(! (pedestrian.getCurrentSection().getStreetSection() instanceof  PedestrianSink)) {
+                pedestrian.setCurrentGlobalPosition(pedestrian.getCurrentNextGlobalAim());
+            }
             pedestrian.setCurrentNextGlobalAim(null); // redefine next goal in next round
         }
 
         pedestrianEventFactory.createPedestrianReachedAimEvent(roundaboutSimulationModel).schedule(
                 pedestrian, new TimeSpan(timeToDestination, roundaboutSimulationModel.getModelTimeUnit()));
 
-        ((PedestrianStreetSection)currentSection).reCheckPedestrianCanEnterSection(); // after some movements recheck pedestrians in queue
+        Pedestrian pedestrianToEnter = null;
+        if (((PedestrianStreetSection) currentSection).reCheckPedestrianCanEnterSection(pedestrianToEnter)) { // after some movements recheck pedestrians in queue
+            pedestrianEventFactory.createPedestrianReachedAimEvent(roundaboutSimulationModel).schedule(
+                    pedestrianToEnter, new TimeSpan(0, roundaboutSimulationModel.getModelTimeUnit()));
+        }
     }
 
     void setNewGoal( Pedestrian pedestrian, Vector2d forces ){
@@ -164,7 +173,6 @@ public class PedestrianReachedAimEvent extends Event<Pedestrian> {
         PedestrianStreet section = ((PedestrianStreet)pedestrian.getCurrentSection().getStreetSection());
         PedestrianPoint curGlobPos = pedestrian.getCurrentGlobalPosition();
         PedestrianPoint globalGoal = checkAndSetAimWithinSection(forces, section, pedestrian);
-
 
         for (IPedestrian otherPedestrian : section.getPedestrianQueue()){ // check for intersections with other pedestrians
             if(otherPedestrian.equals(pedestrian)) continue;
@@ -226,11 +234,12 @@ public class PedestrianReachedAimEvent extends Event<Pedestrian> {
         double distance = calc.getDistanceByCoordinates(pedestrian.getCurrentGlobalPosition(), pedestrian.getCurrentNextGlobalAim());
         Vector2d uniVecForces = calc.getUnitVector(forces);
         uniVecForces.scale(distance);
+        PedestrianPoint globPedPos = pedestrian.getCurrentGlobalPosition();
 
         // change aim with consideration of social force since this is the path pedestrian is walking
         PedestrianPoint globalGoal = new PedestrianPoint(
-                (int)(pedestrian.getCurrentNextGlobalAim().getX() + uniVecForces.getX()),
-                (int)(pedestrian.getCurrentNextGlobalAim().getY() + uniVecForces.getY()));
+                globPedPos.getX() + uniVecForces.getX(),
+                globPedPos.getY() + uniVecForces.getY());
 
         if (! (section instanceof PedestrianStreetSection)) {
             throw new IllegalArgumentException ("Type mismatch.");
@@ -241,49 +250,66 @@ public class PedestrianReachedAimEvent extends Event<Pedestrian> {
         PedestrianPoint cornerRightBottomGlobal = new PedestrianPoint( cornerLeftBottomGlobal.getX() +  section.getLengthX(), cornerLeftBottomGlobal.getY());
         PedestrianPoint cornerRightUpGlobal = new PedestrianPoint( cornerLeftBottomGlobal.getX() +  section.getLengthX(), cornerLeftBottomGlobal.getY() +  section.getLengthY());
         int borderLineNr = 0;
+        PedestrianPoint intersection = new PedestrianPoint(globalGoal.getX(), globalGoal.getY());
 
-        boolean withinSection = true;
-        PedestrianPoint intersection = new PedestrianPoint(0,0);
-        if(calc.checkLinesIntersectionByCoordinates_WithinSegment(
-                intersection,
-                pedestrian.getCurrentGlobalPosition(),
-                globalGoal,
-                cornerLeftBottomGlobal, cornerLeftUpGlobal
-                )){
-            withinSection = false;
-            borderLineNr = 1;
-        } else
-        if(calc.checkLinesIntersectionByCoordinates_WithinSegment(
-                intersection,
-                pedestrian.getCurrentGlobalPosition(),
-                globalGoal,
-                cornerLeftBottomGlobal, cornerRightBottomGlobal
-        )){
-            withinSection = false;
-            borderLineNr = 2;
-        } else
-        if(calc.checkLinesIntersectionByCoordinates_WithinSegment(
-                intersection,
-                pedestrian.getCurrentGlobalPosition(),
-                globalGoal,
-                cornerLeftUpGlobal, cornerRightUpGlobal
-        )){
-            withinSection = false;
-            borderLineNr = 3;
-        } else
-        if(calc.checkLinesIntersectionByCoordinates_WithinSegment(
-                intersection,
-                pedestrian.getCurrentGlobalPosition(),
-                globalGoal,
-                cornerRightBottomGlobal, cornerRightUpGlobal
-        )){
-            withinSection = false;
-            borderLineNr = 4;
+        if(! goalWithinSection(cornerLeftBottomGlobal, cornerRightUpGlobal, globalGoal)){
+            // not within section
+            boolean withinSection = true;
+            if( calc.checkLinesIntersectionByCoordinates_WithinSegment(
+                    intersection,
+                    globPedPos,
+                    globalGoal,
+                    cornerLeftBottomGlobal, cornerLeftUpGlobal
+                    )){
+                if( calc.getDistanceByCoordinates(globPedPos, intersection) >
+                        calc.getDistanceByCoordinates(globalGoal, intersection)) {
+                    withinSection = false;
+                    borderLineNr = 1;
+                }
+            }
+            if(withinSection &&
+                    calc.checkLinesIntersectionByCoordinates_WithinSegment(
+                    intersection,
+                    globPedPos,
+                    globalGoal,
+                    cornerLeftBottomGlobal, cornerRightBottomGlobal
+            )){
+                if( calc.getDistanceByCoordinates(globPedPos, intersection) >
+                        calc.getDistanceByCoordinates(globalGoal, intersection)) {
+                    withinSection = false;
+                    borderLineNr = 2;
+                }
+            }
+            if(withinSection &&
+                    calc.checkLinesIntersectionByCoordinates_WithinSegment(
+                    intersection,
+                    globPedPos,
+                    globalGoal,
+                    cornerLeftUpGlobal, cornerRightUpGlobal
+            )){
+                if( calc.getDistanceByCoordinates(globPedPos, intersection) >
+                        calc.getDistanceByCoordinates(globalGoal, intersection)) {
+                    withinSection = false;
+                    borderLineNr = 3;
+                }
+            }
+            if(withinSection &&
+                    calc.checkLinesIntersectionByCoordinates_WithinSegment(
+                    intersection,
+                    globPedPos,
+                    globalGoal,
+                    cornerRightBottomGlobal, cornerRightUpGlobal
+            )){
+                if( calc.getDistanceByCoordinates(globPedPos, intersection) >
+                        calc.getDistanceByCoordinates(globalGoal, intersection)) {
+                    withinSection = false;
+                    borderLineNr = 4;
+                }
+            }
+
+            pedestrian.setCurrentNextGlobalAim(intersection);
+            if ( withinSection ) return globalGoal;
         }
-
-
-        pedestrian.setCurrentNextGlobalAim(intersection);
-        if ( withinSection ) return globalGoal;
 
         if( section.getPedestrianConsumerType().equals(PedestrianConsumerType.PEDESTRIAN_CROSSING)) {
             boolean crossingAllowed = false;
@@ -297,6 +323,8 @@ public class PedestrianReachedAimEvent extends Event<Pedestrian> {
             if(crossingAllowed) return globalGoal;
         }
 
+
+        /*
         // overwrite wall intersection as new aim -> not crossing wall
         double minGab = pedestrian.getMinGapForPedestrian();
         if (calc.getDistanceByCoordinates(intersection.getX() - minGab, intersection.getX() - minGab, globalGoal.getX(), globalGoal.getY() )
@@ -304,6 +332,18 @@ public class PedestrianReachedAimEvent extends Event<Pedestrian> {
             return new PedestrianPoint( intersection.getX() - minGab, intersection.getY() - minGab);
         } else {
             return new PedestrianPoint( intersection.getX() + minGab, intersection.getY() + minGab );
-        }
+        }*/
+        return intersection;
+    }
+
+    public boolean goalWithinSection (PedestrianPoint cornerLeftBottomGlobal, PedestrianPoint cornerRightUpGlobal,
+                                      PedestrianPoint goal){
+        boolean checkX = calc.val1LowerOrAlmostEqual(cornerLeftBottomGlobal.getX(),goal.getX()) &&
+                calc.val1BiggerOrAlmostEqual(cornerRightUpGlobal.getX(), goal.getX());
+        boolean checkY= calc.val1LowerOrAlmostEqual(cornerLeftBottomGlobal.getY(),goal.getY()) &&
+                calc.val1BiggerOrAlmostEqual(cornerRightUpGlobal.getY(), goal.getY());
+
+        if(checkX && checkY) return true;
+        return false;
     }
 }

@@ -20,9 +20,10 @@
         <parameter name="JAM_INDICATOR_IN_SECONDS" value="10"/>
 
         <!--Parameter for pedestrians-->
-        <parameter name="MIN_TIME_BETWEEN_PEDESTRIAN_ARRIVALS" value="2"/>
-        <parameter name="MAX_TIME_BETWEEN_PEDESTRIAN_ARRIVALS" value="2"/>
-        <parameter name="MEAN_TIME_BETWEEN_PEDESTRIAN_ARRIVALS" value="2"/>
+        <parameter name="MIN_TIME_BETWEEN_PEDESTRIAN_ARRIVALS" value="3600"/>     <!-- 1 min-->
+        <parameter name="MAX_TIME_BETWEEN_PEDESTRIAN_ARRIVALS" value="216000"/>   <!-- 1 h-->
+        <!--        <parameter name="MEAN_TIME_BETWEEN_PEDESTRIAN_ARRIVALS" value="108000"/>  <!- 30 min-->
+        <parameter name="MEAN_TIME_BETWEEN_PEDESTRIAN_ARRIVALS" value="18000"/> <!--  5 min-->
         <parameter name="MIN_DISTANCE_FACTOR_BETWEEN_PEDESTRIAN" value="2"/>
         <parameter name="MAX_DISTANCE_FACTOR_BETWEEN_PEDESTRIAN" value="2"/>
         <parameter name="MIN_PEDESTRIAN_GROUP_SIZE" value="2"/>
@@ -38,8 +39,8 @@
         <parameter name="MIN_PEDESTRIAN_SIZE_RADIUS" value="0.5"/>
         <parameter name="MAX_PEDESTRIAN_SIZE_RADIUS" value="1.1"/>
         <parameter name="EXPECTED_PEDESTRIAN_SIZE_RADIUS" value="0.8"/>
-        <parameter name="MIN_PEDESTRIAN_MIN_GAP" value="1.0"/>
-        <parameter name="MAX_PEDESTRIAN_MIN_GAP" value="0.2"/>
+        <parameter name="MIN_PEDESTRIAN_MIN_GAP" value="0.2"/>
+        <parameter name="MAX_PEDESTRIAN_MIN_GAP" value="1.0"/>
         <parameter name="EXPECTED_PEDESTRIAN_MIN_GAP" value="0.5"/>
         <parameter name="MIN_PEDESTRIAN_PREFERRED_SPEED" value="1.08"/>
         <parameter name="MAX_PEDESTRIAN_PREFERRED_SPEED" value="1.6"/>
@@ -307,8 +308,8 @@
                 <section id="s5_t2" lengthX="106.36"/>
                 <section id="s5_t3" lengthX="106.36"/>
 
-                <section id="s6_t1" lengthX="110.45" pedestrianCrossingComponentIDRef="p1" pedestrianCrossingIDRef="psc1" pedestrianCrossingIDRefEnterHigh="20" pedestrianCrossingRefLinkedAtBegin="y" />
-                <section id="s6_t2" lengthX="110.45" pedestrianCrossingComponentIDRef="p1" pedestrianCrossingIDRef="psc1" pedestrianCrossingIDRefEnterHigh="40" pedestrianCrossingRefLinkedAtBegin="n" />
+                <section id="s6_t1" lengthX="110.45" pedestrianCrossingComponentIDRef="p1" pedestrianCrossingIDRef="psc1" pedestrianCrossingIDRefEnterHigh="200" pedestrianCrossingRefLinkedAtBegin="y" /> <!--entry high in cm-->
+                <section id="s6_t2" lengthX="110.45" pedestrianCrossingComponentIDRef="p1" pedestrianCrossingIDRef="psc1" pedestrianCrossingIDRefEnterHigh="400" pedestrianCrossingRefLinkedAtBegin="n" />
 
             </sections>
             <connectors>

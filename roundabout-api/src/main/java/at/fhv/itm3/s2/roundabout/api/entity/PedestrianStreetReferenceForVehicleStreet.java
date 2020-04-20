@@ -3,8 +3,8 @@ package at.fhv.itm3.s2.roundabout.api.entity;
 public class PedestrianStreetReferenceForVehicleStreet {
 
     private final PedestrianStreet pedestrianCrossing;
-    private final Integer highOfEntry;
-    private final Boolean linkedAtBegin;
+    private final Integer highOfEntry;// from start point of entry port in cm = center of street
+    private final Boolean linkedAtBegin; // closer to the origin 0
 
     public PedestrianStreetReferenceForVehicleStreet(PedestrianStreet pedestrianCrossing, int highOfEntry, boolean linkedAtBegin){
         this.pedestrianCrossing = pedestrianCrossing;
@@ -27,13 +27,25 @@ public class PedestrianStreetReferenceForVehicleStreet {
     public double getLengthForVehicleToPass() {
         for ( PedestrianConnectedStreetSections connectedStreetSections : pedestrianCrossing.getNextStreetConnector() ) {
             // just check whether the ports are along the x or y axis. this is the side the car is not crossing.
-            if ( almostEqual ( connectedStreetSections.getPortOfFromStreetSection().getLocalBeginOfStreetPort().getX(),
-                    connectedStreetSections.getPortOfFromStreetSection().getLocalEndOfStreetPort().getX())){
+            if ( carDrivesAlongYAxis(connectedStreetSections) ){
                 return pedestrianCrossing.getLengthY(); // port along y axis. and car has to traverse this length -> it enters along x axis
             }
             return pedestrianCrossing.getLengthX();
         }
         return  0.0;
+    }
+
+    public boolean  carDrivesAlongYAxis(){
+        for ( PedestrianConnectedStreetSections connectedStreetSections : pedestrianCrossing.getNextStreetConnector() ) {
+            return almostEqual(connectedStreetSections.getPortOfFromStreetSection().getLocalBeginOfStreetPort().getX(),
+                    connectedStreetSections.getPortOfFromStreetSection().getLocalEndOfStreetPort().getX());
+        }
+        return false;
+    }
+
+    public boolean  carDrivesAlongYAxis(PedestrianConnectedStreetSections connectedStreetSections ){
+        return almostEqual ( connectedStreetSections.getPortOfFromStreetSection().getLocalBeginOfStreetPort().getX(),
+                connectedStreetSections.getPortOfFromStreetSection().getLocalEndOfStreetPort().getX());
     }
 
     private boolean almostEqual (double dVal1, double dVal2) {

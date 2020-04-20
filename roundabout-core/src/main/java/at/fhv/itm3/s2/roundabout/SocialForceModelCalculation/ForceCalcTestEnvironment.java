@@ -241,6 +241,7 @@ public class ForceCalcTestEnvironment {
                                                            PedestrianPoint globalPositionOfVehicle,
                                                            PedestrianPoint globalAimOfVehicle
                                                            ) {
+return null;
 
         return null;
     }
