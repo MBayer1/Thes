@@ -55,6 +55,8 @@
         <parameter name="MIN_PEDESTRIAN_PSYCHOLOGICAL_NATURE" value="0"/>
         <parameter name="MAX_PEDESTRIAN_PSYCHOLOGICAL_NATURE" value="100"/>
         <parameter name="EXPECTED_PEDESTRIAN_PSYCHOLOGICAL_NATURE" value="30"/>
+        <parameter name="MAX_DISTANCE_FOR_WAITING_AREA" value="100"/>
+
 
     </parameters>
     <components>

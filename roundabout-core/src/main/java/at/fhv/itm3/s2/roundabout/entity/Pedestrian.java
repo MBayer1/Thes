@@ -12,15 +12,16 @@ import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeSpan;
 import desmoj.core.statistic.Count;
 import desmoj.core.statistic.Tally;
-import org.omg.CORBA.MARSHAL;
 
 import javax.vecmath.Vector2d;
+import java.sql.Timestamp;
 import java.util.Iterator;
 
 public class Pedestrian extends Entity implements IPedestrian {
 
     private final Car car; //keep existing structure as dummy for some specific function considered simulation
     private final Double preferredSpeed;
+    private Double currentPreferredSpeedToUse;
     private final Double maxPreferredSpeed;
     private final IPedestrianRoute route;
     private final IPedestrianBehaviour pedestrianBehaviour;
@@ -51,14 +52,18 @@ public class Pedestrian extends Entity implements IPedestrian {
     private PedestrianPoint currentNextGlobalAim;
     private Vector2d previousSFMVector;
 
+    private Double maxDistanceForWaitingArea;
+    private Double startOfWalking;
+    private Double futureEndOfWalking;
+
     SupportiveCalculations calc = new SupportiveCalculations();
 
-    public Pedestrian(Model model, String name, boolean showInTrace, PedestrianPoint currentGlobalPosition, IPedestrianBehaviour pedestrianBehaviour, IPedestrianRoute route) {
-        this(model, name, showInTrace, currentGlobalPosition, pedestrianBehaviour, route, 1.0);
+    public Pedestrian(Model model, String name, boolean showInTrace, PedestrianPoint currentGlobalPosition, IPedestrianBehaviour pedestrianBehaviour, IPedestrianRoute route, double maxDistanceForWaitingArea) {
+        this(model, name, showInTrace, currentGlobalPosition, pedestrianBehaviour, route, 1.0, maxDistanceForWaitingArea);
     }
 
     public Pedestrian(Model model, String name, boolean showInTrace, PedestrianPoint currentGlobalPosition, IPedestrianBehaviour pedestrianBehaviour,
-                      IPedestrianRoute route, double timeRelatedParameterValueNForSpeedCalculation)
+                      IPedestrianRoute route, double timeRelatedParameterValueNForSpeedCalculation, double maxDistanceForWaitingArea)
             throws IllegalArgumentException {
         super(model, "name", showInTrace);
 
@@ -90,6 +95,7 @@ public class Pedestrian extends Entity implements IPedestrian {
         double val1 = getRoundaboutModel().getRandomPedestrianPreferredSpeed();
         double val2 = getRoundaboutModel().getRandomPedestrianPreferredSpeed();
         this.preferredSpeed = Math.min(val1, val2);
+        this.currentPreferredSpeedToUse = new Double(this.preferredSpeed);
         this.maxPreferredSpeed = Math.max(val1, val2);
         this.walkedDistance = 0.0;
         this.timeRelatedParameterValueNForSpeedCalculation = timeRelatedParameterValueNForSpeedCalculation;
@@ -117,6 +123,8 @@ public class Pedestrian extends Entity implements IPedestrian {
         this.pedestriansQueueToEnterTimeStopWatch = new StopWatch(model);
 
         this.previousSFMVector = new Vector2d(0,0);
+
+        this.maxDistanceForWaitingArea = maxDistanceForWaitingArea;
     }
 
     /**
@@ -463,12 +471,20 @@ public class Pedestrian extends Entity implements IPedestrian {
         return this.preferredSpeed;
     }
 
+    public double getCurrentPreferredSpeedToUse() {
+        return this.currentPreferredSpeedToUse;
+    }
+
+    public void setCurrentPreferredSpeedToUse(double currentSpeed) {
+        this.currentPreferredSpeedToUse = currentSpeed;
+    }
+
     public double calculatePreferredSpeed() {
         double averageSpeed = getTimeSpentInSystem() == 0 ? 0 : walkedDistance / getTimeSpentInSystem();
-        double timeRelatedParameter = averageSpeed / preferredSpeed;
+        double timeRelatedParameter = averageSpeed / currentPreferredSpeedToUse;
         timeRelatedParameter = timeRelatedParameterValueNForSpeedCalculation - timeRelatedParameter;
 
-        double part1 = (1 - timeRelatedParameter) * preferredSpeed;
+        double part1 = (1 - timeRelatedParameter) * currentPreferredSpeedToUse;
         double part2 = timeRelatedParameter * maxPreferredSpeed;
 
         return part1 + part2;
@@ -502,6 +518,21 @@ public class Pedestrian extends Entity implements IPedestrian {
         }
         return pos;
     }
+
+    public boolean checkForWaitingArea() {
+        if ( !(nextSection.getStreetSection() instanceof PedestrianStreetSection)) {
+            throw new IllegalStateException("Section not  instance of PedestrianStreetSection.");
+        }
+
+        if (((PedestrianStreetSection)(nextSection.getStreetSection())).isTrafficLightActive()) {
+            if (!((PedestrianStreetSection)(nextSection.getStreetSection())).isTrafficLightFreeToGo()) {
+                double  distance = calc.getDistanceByCoordinates(currentGlobalPosition, getNextSubGoal());
+                if (distance < maxDistanceForWaitingArea) return true;
+            }
+        }
+        return false;
+    }
+
 
     public boolean checkGlobalGoalIsReached() {
         if (currentGlobalPosition == null) {
@@ -717,9 +748,10 @@ public class Pedestrian extends Entity implements IPedestrian {
         getRoundaboutModel().getSFM_DegreeOfAccuracy();
         Vector2d sumForce = new Vector2d();
         AccelerationForceToTarget accelerationForceToTarget = new AccelerationForceToTarget();
-        RepulsiveForceAgainstVehicles repulsiveForceAgainstVehicles = new RepulsiveForceAgainstVehicles();
-        RepulsiveForceAgainstObstacles repulsiveForceAgainstObstacles = new RepulsiveForceAgainstObstacles();
         RepulsiveForceAgainstOtherPedestrians repulsiveForceAgainstOtherPedestrians = new RepulsiveForceAgainstOtherPedestrians();
+        RepulsiveForceAgainstObstacles repulsiveForceAgainstObstacles = new RepulsiveForceAgainstObstacles();
+        RepulsiveForceAgainstVehicles repulsiveForceAgainstVehicles = new RepulsiveForceAgainstVehicles();
+
 
         Vector2d tmp = accelerationForceToTarget.getAccelerationForceToTarget(getRoundaboutModel(), this);
         sumForce.add(tmp);
@@ -736,5 +768,20 @@ public class Pedestrian extends Entity implements IPedestrian {
     public double getMinGapForPedestrian() {
         return pedestrianBehaviour.calcGapForPedestrian();
     }
+
+    public double getStartOfWalking(){
+        return startOfWalking;
+
+    }
+
+    public double getFutureEndOfWalking(){
+        return futureEndOfWalking;
+    }
+
+    public void setWalkingTimeStamps( double timeOfDestination ){
+        this.startOfWalking = getRoundaboutModel().getCurrentTime();
+        this.futureEndOfWalking = this.startOfWalking + timeOfDestination;
+    }
+
 
 }

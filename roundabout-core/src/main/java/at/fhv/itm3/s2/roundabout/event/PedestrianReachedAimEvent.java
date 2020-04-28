@@ -72,13 +72,29 @@ public class PedestrianReachedAimEvent extends Event<Pedestrian> {
     @Override
     public void eventRoutine(Pedestrian pedestrian) throws SuspendExecution {
         IConsumer currentSection = pedestrian.getCurrentSection().getStreetSection();
-
         if(((PedestrianStreet)currentSection).getPedestrianConsumerType().equals(PedestrianConsumerType.PEDESTRIAN_SINK)) {
             return;
         }
-
         if (!(pedestrian instanceof Pedestrian)) {
             throw new IllegalArgumentException("Pedestrian not instance of Pedestrian.");
+        }
+
+        // pedestrian reached new aim
+        if (pedestrian.getCurrentNextGlobalAim() != null) {
+            // pedestrian did not move to next section yet
+            pedestrian.updateWalkedDistance(); // adding distance before it is walked at it will reach its destination.
+            pedestrian.setLastUpdateTime(roundaboutSimulationModel.getCurrentTime());
+            if(! (pedestrian.getCurrentSection().getStreetSection() instanceof  PedestrianSink)) {
+                pedestrian.setCurrentGlobalPosition(pedestrian.getCurrentNextGlobalAim());
+            }
+            pedestrian.setCurrentNextGlobalAim(null); // redefine next goal in next round
+        }
+
+        // check for waiting are before crossing
+        if (pedestrian.checkForWaitingArea()){
+            pedestrian.setCurrentPreferredSpeedToUse(0);
+        } else if (calc.almostEqual(pedestrian.getCurrentPreferredSpeedToUse(), 0)) {
+            pedestrian.setCurrentPreferredSpeedToUse(pedestrian.getPreferredSpeed()); // reset
         }
 
         Vector2d forces = pedestrian.getSocialForceVector(); //set time when next update.
@@ -87,10 +103,6 @@ public class PedestrianReachedAimEvent extends Event<Pedestrian> {
         // since all sup-aims are within one street section it is enough to check all other pedestrian on the same section
         if (!(pedestrian.getCurrentSection().getStreetSection() instanceof PedestrianStreet)) {
             throw new IllegalArgumentException("Street not instance of PedestrianStreet.");
-        }
-
-        if (calc.almostEqual(pedestrian.getCurrentSpeed(), 0)) {
-            pedestrian.setCurrentSpeed(pedestrian.getPreferredSpeed()); // reset
         }
 
         if (pedestrian.getCurrentNextGlobalAim() == null) {
@@ -124,10 +136,9 @@ public class PedestrianReachedAimEvent extends Event<Pedestrian> {
                 // solely on a crossing can be a traffic light. -> check in Parser
                 if (nextStreetSection.isTrafficLightActive()) {
                     if (!nextStreetSection.isTrafficLightFreeToGo()) {
-                        pedestrian.setCurrentSpeed(0.0);
                         freeToGo = false;
-                        timeToDestination = ((PedestrianStreet) currentSection).getRedPhaseDurationOfTrafficLight();
-                        nextStreetSection.handleJamTrafficLight();
+                        timeToDestination = ((PedestrianStreet) currentSection).getRemainingRedPhase();
+                        //nextStreetSection.handleJamTrafficLight();
                     } else {
                         timeToDestination = pedestrian.getTimeToNextGlobalSubGoal();
                     }
@@ -138,7 +149,7 @@ public class PedestrianReachedAimEvent extends Event<Pedestrian> {
                 // destination of the current street section is reached move to next section
                 PedestrianPoint transferPos = pedestrian.transferToNextPortPos();
                 pedestrian.moveOneSectionForward(transferPos);
-                timeToDestination = 0; // define proper next aim next loop
+                timeToDestination = 0; // define proper next aim in next loop
                 movedToNextSection = true;
             }
         }
@@ -148,16 +159,10 @@ public class PedestrianReachedAimEvent extends Event<Pedestrian> {
             throw new IllegalStateException("pedestrian is theoretically moving, but already reached destination.");
         }
 
-        if (pedestrian.getCurrentNextGlobalAim() != null) {
-            // pedestrian did not move to next section yet
-            pedestrian.updateWalkedDistance(); // adding distance before it is walked at it will reach its destination.
-            pedestrian.setLastUpdateTime(roundaboutSimulationModel.getCurrentTime());
-            if(! (pedestrian.getCurrentSection().getStreetSection() instanceof  PedestrianSink)) {
-                pedestrian.setCurrentGlobalPosition(pedestrian.getCurrentNextGlobalAim());
-            }
-            pedestrian.setCurrentNextGlobalAim(null); // redefine next goal in next round
-        }
+        // set planed time of movement
+        pedestrian.setWalkingTimeStamps(timeToDestination);
 
+        // schedule next event
         pedestrianEventFactory.createPedestrianReachedAimEvent(roundaboutSimulationModel).schedule(
                 pedestrian, new TimeSpan(timeToDestination, roundaboutSimulationModel.getModelTimeUnit()));
 

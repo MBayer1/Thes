@@ -92,7 +92,7 @@ public abstract class Street extends AbstractProSumer implements ICarCountable {
         this.leftCarsCounter = 0;
         this.lostCarsCounter = 0;
 
-        this.trafficLight = new TrafficLight(trafficLightActive, minGreenPhaseDuration, greenPhaseDuration, redPhaseDuration);
+        this.trafficLight = new TrafficLight(trafficLightActive, minGreenPhaseDuration, greenPhaseDuration, redPhaseDuration, getModel());
         this.greenPhaseStart = 0.0;
 
         this.carObserver = new RoundaboutObservable();
@@ -397,5 +397,26 @@ public abstract class Street extends AbstractProSumer implements ICarCountable {
             case CAR_POSITION: carPositionObserver.addObserver(o); break;
             case TRAFFIC_LIGHT: trafficLightObserver.addObserver(o); break;
         }
+    }
+
+    /**
+     * Set TimeStamp of red phase of Traffic Light
+     */
+    public void setStartOfTrafficLightRedPhase(){
+        trafficLight.setRedPhaseStartTimeStamp();
+    }
+
+    /**
+     * Set TimeStamp of red phase of Traffic Light to 0 as reset -> for check by using "remaining duration of traffic light function"
+     */
+    public void resetStartOfTrafficLightRedPhase(){
+        trafficLight.resetRedPhaseStartTimeStamp();
+    }
+
+    /**
+     * return  the remaining red phase of  the traffic light
+     */
+    public double getRemainingRedPhase () {
+        return trafficLight.getRemainingRedPhase();
     }
 }
