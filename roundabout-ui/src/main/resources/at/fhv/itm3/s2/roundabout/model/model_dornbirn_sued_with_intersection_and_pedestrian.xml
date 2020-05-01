@@ -10,7 +10,7 @@
         <parameter name="MIN_TIME_BETWEEN_CAR_ARRIVALS" value="3.0"/>
         <parameter name="MAIN_ARRIVAL_RATE_FOR_ONE_WAY_STREETS" value="1.0"/>
         <parameter name="STANDARD_CAR_ACCELERATION_TIME" value="2"/>
-        <parameter name="MIN_CAR_LENGTH" value="3.0"/> //m
+        <parameter name="MIN_CAR_LENGTH" value="3.0"/> <!-- meter-->
         <parameter name="MAX_CAR_LENGTH" value="6.0"/>
         <parameter name="EXPECTED_CAR_LENGTH" value="4.5"/>
         <parameter name="MIN_TRUCK_LENGTH" value="6.0"/>
@@ -27,9 +27,9 @@
         <parameter name="MIN_DISTANCE_FACTOR_BETWEEN_PEDESTRIAN" value="2"/>
         <parameter name="MAX_DISTANCE_FACTOR_BETWEEN_PEDESTRIAN" value="2"/>
         <parameter name="MIN_PEDESTRIAN_GROUP_SIZE" value="2"/>
-        <parameter name="MAX_PEDESTRIAN_GROUP_SIZE" value="30"/>   //persons
-        <parameter name="MIN_PEDESTRIAN_STREET_LENGTH" value="20"/>  //in cm
-        <parameter name="MIN_PEDESTRIAN_STREET_WIDTH" value="20"/>   //in cm
+        <parameter name="MAX_PEDESTRIAN_GROUP_SIZE" value="30"/>   <!-- persons-->
+        <parameter name="MIN_PEDESTRIAN_STREET_LENGTH" value="20"/>  <!-- cm-->
+        <parameter name="MIN_PEDESTRIAN_STREET_WIDTH" value="20"/>   <!-- cm-->
 
         <parameter name="SFM_DEGREE_OF_ACCURACY" value="10e-8"/>
 

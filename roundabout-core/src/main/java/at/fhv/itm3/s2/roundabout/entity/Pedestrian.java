@@ -159,17 +159,6 @@ public class Pedestrian extends Entity implements IPedestrian {
 
     public PedestrianPoint getGlobalNextSubGoal() {
         return currentNextGlobalAim;
-        /*
-        if (!(getCurrentSection().getStreetSection() instanceof PedestrianStreetSection)) {
-            throw new IllegalArgumentException("Street section not instance of PedestrianStreetSection.");
-        }
-
-        PedestrianPoint exitPoint = getGlobalPositionOnExitPort();
-        PedestrianPoint global = ((PedestrianStreetSection) getCurrentSection().getStreetSection()).getGlobalCoordinateOfSectionOrigin();
-        PedestrianPoint globalGoal = new PedestrianPoint((int) (exitPoint.getX() + global.getX()),
-                (int) (exitPoint.getY() + global.getY()));
-        return globalGoal;*/
-
     }
 
     /**
@@ -177,27 +166,6 @@ public class Pedestrian extends Entity implements IPedestrian {
      */
     @Override
     public double getTimeToNextSubGoal() {
-        if (currentNextGlobalAim == null) return 0;
-        return calc.getDistanceByCoordinates(currentNextGlobalAim.getX(),
-                currentNextGlobalAim.getY(),
-                currentGlobalPosition.getX(),
-                currentGlobalPosition.getY()) * getCurrentSpeed();
-    }
-
-    public double getTimeToNextGlobalSubGoalByCoordinates(PedestrianPoint goalLocal) {
-        if (goalLocal == null) {
-            throw new IllegalArgumentException("No gaol defined.");
-        }
-
-        PedestrianPoint origin = ((PedestrianStreetSection) getCurrentSection().getStreetSection()).getGlobalCoordinateOfSectionOrigin();
-
-        return calc.getDistanceByCoordinates(goalLocal.getX() + origin.getX(),
-                goalLocal.getY() + origin.getY(),
-                currentGlobalPosition.getX(),
-                currentGlobalPosition.getY()) * calculatePreferredSpeed();
-    }
-
-    public double getTimeToNextGlobalSubGoal() {
         if (currentNextGlobalAim == null) {
             throw new IllegalArgumentException("No gaol defined.");
         }
@@ -252,7 +220,6 @@ public class Pedestrian extends Entity implements IPedestrian {
         PedestrianPoint globalOffset = ((PedestrianStreetSection) (section)).getGlobalCoordinateOfSectionOrigin();
         PedestrianPoint localPos = new PedestrianPoint(currentGlobalPosition.getX() - globalOffset.getX(),
                 currentGlobalPosition.getY() - globalOffset.getY());
-
         this.currentLocalPosition = localPos;
     }
 
@@ -540,31 +507,9 @@ public class Pedestrian extends Entity implements IPedestrian {
         return false;
     }
 
-
-    public boolean checkGlobalGoalIsReached() {
-        if (currentGlobalPosition == null) {
-            throw new IllegalArgumentException(" no pedestrianPosition passed.");
-        }
-
-        if (!(currentSection.getStreetSection() instanceof PedestrianStreetSection)) {
-            throw new IllegalArgumentException(" Section not instance of PedestrianStreetSection");
-        }
-
-        double distance = calc.getDistanceByCoordinates(currentNextGlobalAim.getX(), currentNextGlobalAim.getY(),
-                currentGlobalPosition.getX(), currentGlobalPosition.getY());
-
-        return calc.almostEqual(distance, 0);
-    }
-
-
     public boolean checkExitPortIsReached(){
         setCurrentLocalPosition();
         return checkExitPortIsReached(this.currentLocalPosition);
-    }
-
-    public boolean checkExitPortIsReached(double x, double y) {
-        PedestrianPoint pos = new PedestrianPoint(x, y);
-        return checkExitPortIsReached(pos);
     }
 
     public boolean checkExitPortIsReached(PedestrianPoint localPedestrianPosition) {
@@ -615,10 +560,6 @@ public class Pedestrian extends Entity implements IPedestrian {
             }
         }
         return false;
-    }
-
-    public void setPositionOnExitPort() {
-        getGlobalPositionOnExitPort();
     }
 
     public PedestrianPoint getGlobalPositionOnExitPort() {

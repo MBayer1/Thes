@@ -749,7 +749,7 @@ public class StreetSection extends Street {
      *
      * @return int.
      */
-    public int getPedestrianCrossingEntryHigh(){
+    public double getPedestrianCrossingEntryHigh(){
         return pedestrianCrossing.getHighOfEntry();
     }
 

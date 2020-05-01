@@ -3,8 +3,8 @@ package at.fhv.itm3.s2.roundabout.api;
 import java.io.Serializable;
 
 public class PedestrianPoint implements Serializable{
-    double x;
-    double y;
+    double x; //cm
+    double y; //cm
 
     public PedestrianPoint () {
         setX(0);

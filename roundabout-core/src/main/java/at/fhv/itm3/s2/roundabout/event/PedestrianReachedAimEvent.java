@@ -110,7 +110,7 @@ public class PedestrianReachedAimEvent extends Event<Pedestrian> {
             // -> not the clear goal on exit PedestrianPoint like it is considered in force toward aim
             // pedestrian newly arrived at current section
             pedestrian.setNewGoal(forces);
-            timeToDestination = pedestrian.getTimeToNextGlobalSubGoal();
+            timeToDestination = pedestrian.getTimeToNextSubGoal();
         }
 
         boolean movedToNextSection = false;
@@ -140,7 +140,7 @@ public class PedestrianReachedAimEvent extends Event<Pedestrian> {
                         timeToDestination = ((PedestrianStreet) currentSection).getRemainingRedPhase();
                         //nextStreetSection.handleJamTrafficLight();
                     } else {
-                        timeToDestination = pedestrian.getTimeToNextGlobalSubGoal();
+                        timeToDestination = pedestrian.getTimeToNextSubGoal();
                     }
                 }
             }
