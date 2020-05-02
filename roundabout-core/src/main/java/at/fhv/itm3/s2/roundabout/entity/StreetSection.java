@@ -377,10 +377,17 @@ public class StreetSection extends Street {
 
 
         // when there is a pedestrian crossing at the end of the street and it does have a traffic light it has to be red to leave section
-        if( pedestrianCrossing != null && pedestrianCrossing.getPedestrianCrossing().getPedestrianConsumerType().equals(PedestrianConsumerType.PEDESTRIAN_CROSSING) &&
+        if( pedestrianCrossing != null && pedestrianCrossing.getPedestrianCrossing().getPedestrianConsumerType().equals(PedestrianConsumerType.PEDESTRIAN_CROSSING)){
+            // check weather the traffic pedestrian traffic light is free to go for  pedestrian = car can not cross pedestrian crossing
+            if(
             pedestrianCrossing.getPedestrianCrossing().isTrafficLightActive() &&
-            pedestrianCrossing.getPedestrianCrossing().isTrafficLightFreeToGo() ){
-            return false;
+            pedestrianCrossing.getPedestrianCrossing().isTrafficLightFreeToGo() ) {
+                return false;
+            }
+            // when is a non pedestrian traffic for controlling check pedestrian iin on pedestrian crossing.
+            if(!pedestrianCrossing.getPedestrianCrossing().getPedestrianQueue().isEmpty()){
+                return false;
+            }
         }
 
         if (isTrafficLightActive() && !isTrafficLightFreeToGo()) {
@@ -742,7 +749,7 @@ public class StreetSection extends Street {
      *
      * @return int.
      */
-    public int getPedestrianCrossingEntryHigh(){
+    public double getPedestrianCrossingEntryHigh(){
         return pedestrianCrossing.getHighOfEntry();
     }
 
@@ -784,4 +791,6 @@ public class StreetSection extends Street {
     public boolean checkCarDrivesAlongYAxis(){
         return pedestrianCrossing.carDrivesAlongYAxis();
     }
+
+
 }

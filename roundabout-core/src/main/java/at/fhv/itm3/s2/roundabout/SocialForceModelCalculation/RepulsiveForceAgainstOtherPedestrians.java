@@ -157,6 +157,11 @@ public class RepulsiveForceAgainstOtherPedestrians {
     }
 
     boolean checkPedestrianInRange( RoundaboutSimulationModel model, Pedestrian pedestrian, Pedestrian pedestrianBeta){
+        // check also time todo
+        // if other pedestrian reached aim jet it might be rescheduled but in this case solely the current pos has to be considered
+
+
+
         if ( calculations.almostEqual( Point2D.distance(   pedestrian.getCurrentGlobalPosition().getX(),
                                                            pedestrian.getCurrentGlobalPosition().getY(),
                                                            pedestrianBeta.getCurrentGlobalPosition().getX(),

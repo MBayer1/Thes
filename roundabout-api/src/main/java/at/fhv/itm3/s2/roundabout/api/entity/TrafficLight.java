@@ -1,5 +1,7 @@
 package at.fhv.itm3.s2.roundabout.api.entity;
 
+import desmoj.core.simulator.Model;
+
 public class TrafficLight {
     private Boolean active;
     private Boolean isFreeToGo;
@@ -7,26 +9,31 @@ public class TrafficLight {
     private Long minGreenPhaseDuration;
     private Long greenPhaseDuration;
     private Long redPhaseDuration;
+    private Double redPhaseStartTimeStamp;
+    Model model;
 
-    public TrafficLight(Boolean active, Boolean isTrafficJam, Long minGreenPhaseDuration, Long redPhaseDuration) {
-        this(active, true, minGreenPhaseDuration, null, redPhaseDuration);
+
+    public TrafficLight(Boolean active, Boolean isTrafficJam, Long minGreenPhaseDuration, Long redPhaseDuration, Model model) {
+        this(active, true, minGreenPhaseDuration, null, redPhaseDuration, model);
     }
 
     public TrafficLight(
             Boolean active,
             Long greenPhaseDuration,
-            Long redPhaseDuration
+            Long redPhaseDuration,
+            Model model
     ) {
-        this(active, true, null, greenPhaseDuration, redPhaseDuration);
+        this(active, true, null, greenPhaseDuration, redPhaseDuration, model);
     }
 
     public TrafficLight(
             Boolean active,
             Long minGreenPhaseDuration,
             Long greenPhaseDuration,
-            Long redPhaseDuration
+            Long redPhaseDuration,
+            Model model
     ) {
-        this(active, true, minGreenPhaseDuration, greenPhaseDuration, redPhaseDuration);
+        this(active, true, minGreenPhaseDuration, greenPhaseDuration, redPhaseDuration, model);
     }
 
 
@@ -35,7 +42,8 @@ public class TrafficLight {
             Boolean isFreeToGo,
             Long minGreenPhaseDuration,
             Long greenPhaseDuration,
-            Long redPhaseDuration
+            Long redPhaseDuration,
+            Model model
     ) {
 
         this.active = active;
@@ -54,6 +62,9 @@ public class TrafficLight {
         this.minGreenPhaseDuration = minGreenPhaseDuration;
         this.greenPhaseDuration = greenPhaseDuration;
         this.redPhaseDuration = redPhaseDuration;
+
+        this.redPhaseStartTimeStamp = 0.;
+        this.model = model;
     }
 
     public boolean isActive() {
@@ -86,5 +97,26 @@ public class TrafficLight {
 
     public double getMinGreenPhaseDuration() {
         return minGreenPhaseDuration != null ? minGreenPhaseDuration : 0;
+    }
+
+    public double getRemainingRedPhase () {
+        if (this.redPhaseStartTimeStamp.equals(0)) {
+            throw new IllegalStateException("Traffic light is not red or does not use TimeStamp");
+        }
+        if(isActive() && !isFreeToGo){
+            //red Phase
+            double end = this.model.currentModel().getExperiment().getSimClock().getTime().getTimeAsDouble(
+                    this.model.currentModel().getExperiment().getReferenceUnit());
+            return (redPhaseDuration - (end-this.redPhaseStartTimeStamp));
+        }
+        return 0.;
+    }
+
+    public void setRedPhaseStartTimeStamp() {
+        this.redPhaseStartTimeStamp = this.model.currentModel().presentTime().getTimeAsDouble();
+    }
+
+    public void resetRedPhaseStartTimeStamp() {
+        this.redPhaseStartTimeStamp = 0.;
     }
 }

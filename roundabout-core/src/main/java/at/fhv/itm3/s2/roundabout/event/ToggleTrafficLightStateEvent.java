@@ -57,12 +57,13 @@ public class ToggleTrafficLightStateEvent extends Event<Street> {
             if( !donorStreet.isTrafficLightFreeToGo()) {
                 donorStreet.setGreenPhaseStart(getModel().getExperiment().getSimClock().getTime().getTimeAsDouble());
                 RoundaboutEventFactory.getInstance().createToggleTrafficLightStateEvent(roundaboutSimulationModel).
-                        schedule(donorStreet, new TimeSpan(donorStreet.getRedPhaseDurationOfTrafficLight(), roundaboutSimulationModel.getModelTimeUnit()));
+                        schedule(donorStreet, new TimeSpan(donorStreet.getGreenPhaseDurationOfTrafficLight(), roundaboutSimulationModel.getModelTimeUnit()));
             }
         } else {
             // cyclic traffic light
             if (donorStreet.isTrafficLightFreeToGo()) {
                 // triggered to green
+                donorStreet.resetStartOfTrafficLightRedPhase();
                 roundaboutEventFactory.createToggleTrafficLightStateEvent(roundaboutSimulationModel).schedule(
                         donorStreet,
                         new TimeSpan(
@@ -71,6 +72,7 @@ public class ToggleTrafficLightStateEvent extends Event<Street> {
                         )
                 );
             } else {
+                donorStreet.setStartOfTrafficLightRedPhase();
                 roundaboutEventFactory.createToggleTrafficLightStateEvent(roundaboutSimulationModel).schedule(
                         donorStreet,
                         new TimeSpan(

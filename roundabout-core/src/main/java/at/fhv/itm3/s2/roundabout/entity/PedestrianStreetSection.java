@@ -13,7 +13,6 @@ import at.fhv.itm3.s2.roundabout.model.RoundaboutSimulationModel;
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeSpan;
 import javafx.scene.shape.Circle;
-import org.apache.logging.log4j.spi.CopyOnWrite;
 
 import java.awt.*;
 import java.util.*;

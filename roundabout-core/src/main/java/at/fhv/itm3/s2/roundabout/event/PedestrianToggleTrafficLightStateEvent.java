@@ -1,8 +1,6 @@
 package at.fhv.itm3.s2.roundabout.event;
 
 import at.fhv.itm3.s2.roundabout.api.entity.PedestrianStreet;
-import at.fhv.itm3.s2.roundabout.api.entity.Street;
-import at.fhv.itm3.s2.roundabout.entity.Pedestrian;
 import at.fhv.itm3.s2.roundabout.model.RoundaboutSimulationModel;
 import co.paralleluniverse.fibers.SuspendExecution;
 import desmoj.core.simulator.Event;
@@ -53,6 +51,7 @@ public class PedestrianToggleTrafficLightStateEvent extends Event<PedestrianStre
         // cyclic traffic light
         if (donorStreet.isTrafficLightFreeToGo()) {
             // triggered to green
+            donorStreet.resetStartOfTrafficLightRedPhase();
             pedestrianEventFactory.createToggleTrafficLightStateEvent(roundaboutSimulationModel).schedule(
                     donorStreet,
                     new TimeSpan(
@@ -61,6 +60,7 @@ public class PedestrianToggleTrafficLightStateEvent extends Event<PedestrianStre
                     )
             );
         } else {
+            donorStreet.setStartOfTrafficLightRedPhase();
             pedestrianEventFactory.createToggleTrafficLightStateEvent(roundaboutSimulationModel).schedule(
                     donorStreet,
                     new TimeSpan(

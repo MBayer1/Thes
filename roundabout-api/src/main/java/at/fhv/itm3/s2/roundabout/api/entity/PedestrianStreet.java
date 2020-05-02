@@ -90,7 +90,7 @@ public abstract class PedestrianStreet extends AbstractProSumer implements IPede
         this.leftPedestriansCounter = 0;
         this.lostPedestriansCounter = 0;
 
-        this.trafficLight = new TrafficLight(trafficLightActive, minGreenPhaseDuration, greenPhaseDuration, redPhaseDuration);
+        this.trafficLight = new TrafficLight(trafficLightActive, minGreenPhaseDuration, greenPhaseDuration, redPhaseDuration, this.getModel());
         this.greenPhaseStart = 0.0;
 
         this.pedestrianObserver = new RoundaboutObservable();
@@ -377,5 +377,26 @@ public abstract class PedestrianStreet extends AbstractProSumer implements IPede
             case CAR_POSITION: pedestrianPositionObserver.addObserver(o); break;
             case TRAFFIC_LIGHT: trafficLightObserver.addObserver(o); break;
         }
+    }
+
+    /**
+     * Set TimeStamp of red phase of Traffic Light
+     */
+    public void setStartOfTrafficLightRedPhase(){
+        trafficLight.setRedPhaseStartTimeStamp();
+    }
+
+    /**
+     * Set TimeStamp of red phase of Traffic Light to 0 as reset -> for check by using "remaining duration of traffic light function"
+     */
+    public void resetStartOfTrafficLightRedPhase(){
+        trafficLight.resetRedPhaseStartTimeStamp();
+    }
+
+    /**
+     * return  the remaining red phase of  the traffic light
+     */
+    public double getRemainingRedPhase () {
+        return trafficLight.getRemainingRedPhase();
     }
 }

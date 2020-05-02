@@ -3,16 +3,16 @@ package at.fhv.itm3.s2.roundabout.api.entity;
 public class PedestrianStreetReferenceForVehicleStreet {
 
     private final PedestrianStreet pedestrianCrossing;
-    private final Integer highOfEntry;// from start point of entry port in cm = center of street
+    private final Double highOfEntry;// from start point of entry port in cm = center of street
     private final Boolean linkedAtBegin; // closer to the origin 0
 
-    public PedestrianStreetReferenceForVehicleStreet(PedestrianStreet pedestrianCrossing, int highOfEntry, boolean linkedAtBegin){
+    public PedestrianStreetReferenceForVehicleStreet(PedestrianStreet pedestrianCrossing, double highOfEntry, boolean linkedAtBegin){
         this.pedestrianCrossing = pedestrianCrossing;
         this.highOfEntry = highOfEntry;
         this.linkedAtBegin = linkedAtBegin;
     }
 
-    public int getHighOfEntry() {
+    public double getHighOfEntry() {
         return highOfEntry;
     }
 

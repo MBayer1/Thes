@@ -9,11 +9,11 @@ import desmoj.core.dist.ContDistUniform;
 import desmoj.core.simulator.Model;
 
 import java.util.concurrent.TimeUnit;
+import java.util.function.DoubleUnaryOperator;
 
 public class RoundaboutSimulationModel extends Model {
 
     private static final long DEFAULT_SIMULATION_SEED = 1L;
-
 
     // Vehicle
     private static final Double DEFAULT_MIN_TIME_BETWEEN_CAR_ARRIVALS = 3.5;
@@ -66,6 +66,8 @@ public class RoundaboutSimulationModel extends Model {
     private static final Double DEFAULT_MIN_PEDESTRIAN_PSYCHOLOGICAL_NATURE = 0.0;
     private static final Double DEFAULT_MAX_PEDESTRIAN_PSYCHOLOGICAL_NATURE = 100.0;
     private static final Double DEFAULT_EXPECTED_PEDESTRIAN_PSYCHOLOGICAL_NATURE = 4.0+13.0+13.0;
+
+    private static final Double DEFAULT_MAX_DISTANCE_FOR_WAITING_AREA = 10.0;
 
     private final Long simulationSeed;
 
@@ -120,6 +122,7 @@ public class RoundaboutSimulationModel extends Model {
     private final Double minPedestrianPsychologicalNature;
     private final Double maxPedestrianPsychologicalNature;
     private final Double expectedPedestrianPsychologicalNature;
+    private final Double maxDistanceForWaitingArea;
 
 
     //Simulation
@@ -333,7 +336,8 @@ public class RoundaboutSimulationModel extends Model {
                 DEFAULT_MIN_PEDESTRIAN_PREFERRED_SPEED, DEFAULT_MAX_PEDESTRIAN_PREFERRED_SPEED, DEFAULT_EXPECTED_PEDESTRIAN_PREFERRED_SPEED,
                 DEFAULT_MIN_PEDESTRIAN_GENDER, DEFAULT_MAX_PEDESTRIAN_GENDER, DEFAULT_EXPECTED_PEDESTRIAN_GENDER,
                 DEFAULT_MIN_PEDESTRIAN_AGE_RANGE_GROUP, DEFAULT_MAX_PEDESTRIAN_AGE_RANGE_GROUP, DEFAULT_EXPECTED_PEDESTRIAN_AGE_RANGE_GROUP,
-                DEFAULT_MIN_PEDESTRIAN_PSYCHOLOGICAL_NATURE, DEFAULT_MAX_PEDESTRIAN_PSYCHOLOGICAL_NATURE, DEFAULT_EXPECTED_PEDESTRIAN_PSYCHOLOGICAL_NATURE
+                DEFAULT_MIN_PEDESTRIAN_PSYCHOLOGICAL_NATURE, DEFAULT_MAX_PEDESTRIAN_PSYCHOLOGICAL_NATURE, DEFAULT_EXPECTED_PEDESTRIAN_PSYCHOLOGICAL_NATURE,
+                DEFAULT_MAX_DISTANCE_FOR_WAITING_AREA
         );
     }
 
@@ -401,7 +405,8 @@ public class RoundaboutSimulationModel extends Model {
             Double expectedPedestrianAgeRangeGroup,
             Double minPedestrianPsychologicalNature,
             Double maxPedestrianPsychologicalNature,
-            Double expectedPedestrianPsychologicalNature
+            Double expectedPedestrianPsychologicalNature,
+            Double maxDistanceForWaitingArea
     ) {
         super(model, name, showInReport, showInTrace);
 
@@ -456,6 +461,7 @@ public class RoundaboutSimulationModel extends Model {
         this.minPedestrianPsychologicalNature = minPedestrianPsychologicalNature;
         this.maxPedestrianPsychologicalNature = maxPedestrianPsychologicalNature;
         this.expectedPedestrianPsychologicalNature = expectedPedestrianPsychologicalNature;
+        this.maxDistanceForWaitingArea = maxDistanceForWaitingArea;
     }
 
     /**
@@ -1039,5 +1045,14 @@ public class RoundaboutSimulationModel extends Model {
     public double getRandomEntryPoint(double minValue, double maxValue) {
         return Math.max(Math.min(pedestrianEntryPoint.sample(),  maxValue), minValue);
 
+    }
+
+
+    /**
+     * Define Max Range for Waiting Area
+     * See {@link RoundaboutSimulationModel#init()}.
+     */
+    public double getMaxDistanceForWaitingArea(){
+        return this.maxDistanceForWaitingArea;
     }
 }

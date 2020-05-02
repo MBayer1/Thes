@@ -124,7 +124,7 @@ public class PedestrianGenerateEvent extends Event<PedestrianAbstractSource> {
                 globalEntryPoint.setLocation(start.getX() + global.getX(), entryX + global.getY());
             }
 
-            final Pedestrian pedestrian = new Pedestrian(roundaboutSimulationModel, name, showInTrace, globalEntryPoint, behaviour, route);
+            final Pedestrian pedestrian = new Pedestrian(roundaboutSimulationModel, name, showInTrace, globalEntryPoint, behaviour, route, roundaboutSimulationModel.getMaxDistanceForWaitingArea());
             PedestrianController.addCarMapping(pedestrian.getCarDummy(), pedestrian);
             if (checkPedestrianCanEnterSystem(pedestrian, globalEntryPoint, (PedestrianStreetSection)currentSection)) {
                 pedestrian.enterSystem();
@@ -146,7 +146,8 @@ public class PedestrianGenerateEvent extends Event<PedestrianAbstractSource> {
             final double generatorExpectationShift = source.getGeneratorExpectation() - meanTimeBetweenPedestrianArrivals;
 
             final double shiftedTimeUntilPedestrianArrival = randomTimeUntilPedestrianArrival + generatorExpectationShift;
-            final double actualTimeUntilPedestrianArrival = Math.max(shiftedTimeUntilPedestrianArrival, minTimeBetweenPedestrianArrivals);
+            final double actualTimeUntilPedestrianArrival = Math.max(shiftedTimeUntilPedestrianArrival, Math.min(minTimeBetweenPedestrianArrivals,1)); // 1 time unit, in this case 1sec
+
 
             pedestrianGenerateEvent.schedule(source, new TimeSpan(actualTimeUntilPedestrianArrival, roundaboutSimulationModel.getModelTimeUnit()));
 
