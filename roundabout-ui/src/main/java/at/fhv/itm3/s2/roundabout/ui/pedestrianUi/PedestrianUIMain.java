@@ -103,8 +103,8 @@ public class PedestrianUIMain extends ScrollPane {
         StreetSectionUI streetSectionUI = streetUIMap.get(pedestrianStreetSection.getId());
 
 
-        double globalPedestrianX = streetSectionUI.getX()
-        double globalPedestrianY = streetSectionUI.getY
+//        double globalPedestrianX = streetSectionUI.getX()
+//        double globalPedestrianY = streetSectionUI.getY
 
 
     }
