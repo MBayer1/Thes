@@ -79,7 +79,7 @@ public class PedestrianReachedAimEvent extends Event<Pedestrian> {
             throw new IllegalArgumentException("Pedestrian not instance of Pedestrian.");
         }
 
-        // pedestrian reached new aim
+        // pedestrian reached new partial-aim
         if (pedestrian.getCurrentNextGlobalAim() != null) {
             // pedestrian did not move to next section yet
             pedestrian.updateWalkedDistance(); // adding distance before it is walked at it will reach its destination.

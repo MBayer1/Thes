@@ -242,13 +242,17 @@ public class ForceCalcTestEnvironment {
                                                            PedestrianPoint globalPositionOfVehicle,
                                                            PedestrianPoint globalAimOfVehicle
                                                            ) {
-        /*
+
         final Double Av_RepulsivePotential = 1.29;
         final Double Bv_RepulsivePotential = 0.96;
+        PedestrianPoint globalPositionOfVehicleFront = new PedestrianPoint(10,0);
+        PedestrianPoint globalPositionOfVehicleBack = new PedestrianPoint(15,0);
+        PedestrianPoint pedestriangetCurrentGlobalPosition = new PedestrianPoint(0,0);
+
         double carSpeed = 50.; //km/h
         Vector2d vecVehicleFront = new Vector2d(globalPositionOfVehicleFront.getX(), globalPositionOfVehicleFront.getY());
         Vector2d vecVehicleBack = new Vector2d(globalPositionOfVehicleBack.getX(), globalPositionOfVehicleBack.getY());
-        Vector2d personPos = new Vector2d(pedestrian.getCurrentGlobalPosition().getX(), pedestrian.getCurrentGlobalPosition().getY());
+        Vector2d personPos = new Vector2d(pedestriangetCurrentGlobalPosition.getX(), pedestriangetCurrentGlobalPosition.getY());
 
         //Traveled path of the walker β within ∆t
         Double traveledPathWithinTOfBeta = carSpeed; //car.getDriverBehaviour().getSpeed() / 3.6; // speed in km/h -> change to m/s := 1000/(60*60)
@@ -276,14 +280,12 @@ public class ForceCalcTestEnvironment {
         exponent = Math.exp(exponent);
 
         // n_Vector
-        Vector2d n_vec = getNormVexAlongTangentOfEllipse(pedestrian.getCurrentGlobalPosition(), vehicleFrontFuture, globalPositionOfVehicleBack);
+        Vector2d n_vec = getNormVexAlongTangentOfEllipse(pedestriangetCurrentGlobalPosition, vehicleFrontFuture, globalPositionOfVehicleBack);
 
         //A*expo(-B*b)*n
         n_vec.scale(exponent*Av_RepulsivePotential);
 
         return n_vec;
-        */
-        return null;
     }
 
     private Vector2d getNormVexAlongTangentOfEllipse(PedestrianPoint globalPedestrianAlphaPoint,
