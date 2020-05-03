@@ -131,17 +131,14 @@ public class PedestrianReachedAimEvent extends Event<Pedestrian> {
             }
 
             boolean freeToGo = true;
-            // when the next section is a pedestrian crossing and does have a crossing light the light stage has to be checked
-            if (nextStreetSection.getPedestrianConsumerType().equals(PedestrianConsumerType.PEDESTRIAN_CROSSING)) {
-                // solely on a crossing can be a traffic light. -> check in Parser
-                if (nextStreetSection.isTrafficLightActive()) {
-                    if (!nextStreetSection.isTrafficLightFreeToGo()) {
-                        freeToGo = false;
-                        timeToDestination = ((PedestrianStreet) currentSection).getRemainingRedPhase();
-                        //nextStreetSection.handleJamTrafficLight();
-                    } else {
-                        timeToDestination = pedestrian.getTimeToNextSubGoal();
-                    }
+            // solely on a crossing can be a traffic light. -> check in Parser
+            if (nextStreetSection.isTrafficLightActive()) {
+                if (!nextStreetSection.isTrafficLightFreeToGo()) {
+                    freeToGo = false;
+                    timeToDestination = ((PedestrianStreet) currentSection).getRemainingRedPhase();
+                    //nextStreetSection.handleJamTrafficLight();
+                } else {
+                    timeToDestination = pedestrian.getTimeToNextSubGoal();
                 }
             }
 

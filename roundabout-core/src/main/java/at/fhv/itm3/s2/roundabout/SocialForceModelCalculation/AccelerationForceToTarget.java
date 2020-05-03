@@ -27,13 +27,11 @@ public class AccelerationForceToTarget {
         Double preferredSpeedValue = preferredSpeedVector.length();
         if (preferredSpeedValue != 0) {
             preferredSpeedVector.scale(1 / preferredSpeedValue);
+            // preferredSpeed * e(t)
+            preferredSpeedVector.scale(pedestrian.calculatePreferredSpeed()); //v_alpha * e_alpha(t)
         } else  {
-            throw new IllegalStateException("Vector calculation  error: AccelerationForce.");
+            preferredSpeedVector.scale(0);
         }
-
-
-        // preferredSpeed * e(t)
-        preferredSpeedVector.scale(pedestrian.calculatePreferredSpeed()); //v_alpha * e_alpha(t)
 
         // 1/tau (preferred speed - current speed)
         preferredSpeedVector.sub(currentSpeedVector);

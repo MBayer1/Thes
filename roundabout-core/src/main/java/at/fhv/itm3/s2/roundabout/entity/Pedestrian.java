@@ -494,11 +494,8 @@ public class Pedestrian extends Entity implements IPedestrian {
     }
 
     public boolean checkForWaitingArea() {
-        if ( !(nextSection.getStreetSection() instanceof PedestrianStreetSection)) {
-            throw new IllegalStateException("Section not  instance of PedestrianStreetSection.");
-        }
-
-        if (((PedestrianStreetSection)(nextSection.getStreetSection())).isTrafficLightActive()) {
+        if ((nextSection.getStreetSection() instanceof PedestrianStreetSection) &&
+                ((PedestrianStreetSection)(nextSection.getStreetSection())).isTrafficLightActive()) {
             if (!((PedestrianStreetSection)(nextSection.getStreetSection())).isTrafficLightFreeToGo()) {
                 double  distance = calc.getDistanceByCoordinates(currentGlobalPosition, getNextSubGoal());
                 if (distance < maxDistanceForWaitingArea) return true;
