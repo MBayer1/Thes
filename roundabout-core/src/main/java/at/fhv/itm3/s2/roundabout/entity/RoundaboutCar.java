@@ -171,6 +171,10 @@ public class RoundaboutCar implements ICar {
         return length;
     }
 
+    public double getLengthInCM() {
+        return length*100;
+    }
+
     /**
      * {@inheritDoc}
      */
