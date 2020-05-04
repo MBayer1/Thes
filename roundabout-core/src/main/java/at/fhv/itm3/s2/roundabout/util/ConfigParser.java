@@ -7,7 +7,7 @@ import at.fhv.itm14.trafsim.model.entities.intersection.FixedCirculationControll
 import at.fhv.itm14.trafsim.model.entities.intersection.Intersection;
 import at.fhv.itm14.trafsim.model.entities.intersection.IntersectionConnection;
 import at.fhv.itm14.trafsim.model.entities.intersection.IntersectionPhase;
-import at.fhv.itm3.s2.roundabout.SocialForceModelCalculation.SupportiveCalculations;
+import at.fhv.itm3.s2.roundabout.PedestrianCalculations.SocialForceModelCalculation.SupportiveCalculations;
 import at.fhv.itm3.s2.roundabout.api.PedestrianPoint;
 import at.fhv.itm3.s2.roundabout.api.entity.*;
 import at.fhv.itm3.s2.roundabout.controller.IntersectionController;
@@ -30,8 +30,6 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-
-import java.awt.*;
 
 import static java.util.stream.Collectors.partitioningBy;
 import static java.util.stream.Collectors.toMap;

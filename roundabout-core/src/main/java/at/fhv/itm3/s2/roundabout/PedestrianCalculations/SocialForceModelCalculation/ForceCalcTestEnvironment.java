@@ -1,9 +1,6 @@
-package at.fhv.itm3.s2.roundabout.SocialForceModelCalculation;
+package at.fhv.itm3.s2.roundabout.PedestrianCalculations.SocialForceModelCalculation;
 
 import at.fhv.itm3.s2.roundabout.api.PedestrianPoint;
-import at.fhv.itm3.s2.roundabout.entity.Pedestrian;
-import at.fhv.itm3.s2.roundabout.entity.RoundaboutCar;
-import at.fhv.itm3.s2.roundabout.model.RoundaboutSimulationModel;
 
 import javax.vecmath.Vector2d;
 import java.awt.geom.Point2D;

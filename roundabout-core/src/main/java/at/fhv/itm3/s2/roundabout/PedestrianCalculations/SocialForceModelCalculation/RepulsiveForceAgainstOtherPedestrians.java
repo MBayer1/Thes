@@ -1,4 +1,4 @@
-package at.fhv.itm3.s2.roundabout.SocialForceModelCalculation;
+package at.fhv.itm3.s2.roundabout.PedestrianCalculations.SocialForceModelCalculation;
 
 import at.fhv.itm14.trafsim.model.entities.IConsumer;
 import at.fhv.itm3.s2.roundabout.api.PedestrianPoint;
@@ -8,7 +8,6 @@ import at.fhv.itm3.s2.roundabout.entity.PedestrianStreetSection;
 import at.fhv.itm3.s2.roundabout.model.RoundaboutSimulationModel;
 
 import javax.vecmath.Vector2d;
-import java.awt.*;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.LinkedList;

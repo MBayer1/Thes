@@ -2,7 +2,7 @@ package at.fhv.itm3.s2.roundabout.ui.executable;
 
 
 import at.fhv.itm3.s2.roundabout.controller.CarController;
-import at.fhv.itm3.s2.roundabout.SocialForceModelCalculation.ForceCalcTestEnvironment;
+import at.fhv.itm3.s2.roundabout.PedestrianCalculations.SocialForceModelCalculation.ForceCalcTestEnvironment;
 import at.fhv.itm3.s2.roundabout.ui.controllers.MainViewController;
 import at.fhv.itm3.s2.roundabout.ui.util.ViewLoader;
 import at.fhv.itm3.s2.roundabout.util.ConfigParser;

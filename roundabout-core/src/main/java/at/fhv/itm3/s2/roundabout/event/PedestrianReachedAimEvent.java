@@ -1,9 +1,8 @@
 package at.fhv.itm3.s2.roundabout.event;
 
 import at.fhv.itm14.trafsim.model.entities.IConsumer;
-import at.fhv.itm3.s2.roundabout.SocialForceModelCalculation.SupportiveCalculations;
+import at.fhv.itm3.s2.roundabout.PedestrianCalculations.SocialForceModelCalculation.SupportiveCalculations;
 import at.fhv.itm3.s2.roundabout.api.PedestrianPoint;
-import at.fhv.itm3.s2.roundabout.api.entity.IPedestrian;
 import at.fhv.itm3.s2.roundabout.api.entity.PedestrianConsumerType;
 import at.fhv.itm3.s2.roundabout.api.entity.PedestrianStreet;
 import at.fhv.itm3.s2.roundabout.entity.Pedestrian;
@@ -16,11 +15,11 @@ import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeSpan;
 
 import javax.vecmath.Vector2d;
-import java.awt.*;
 
 
 public class PedestrianReachedAimEvent extends Event<Pedestrian> {
     private SupportiveCalculations calc = new SupportiveCalculations();
+    private final Integer minTimeBetweenEventCall = 3; //sec = Simulation Time Unit
 
     /**
      * A reference to the {@link RoundaboutSimulationModel} the {@link PedestrianReachedAimEvent} is part of.
@@ -111,6 +110,9 @@ public class PedestrianReachedAimEvent extends Event<Pedestrian> {
             // pedestrian newly arrived at current section
             pedestrian.setNewGoal(forces);
             timeToDestination = pedestrian.getTimeToNextSubGoal();
+            // Event call delay must not be below minTimeBetweenEventCall
+            if (timeToDestination < minTimeBetweenEventCall) timeToDestination = minTimeBetweenEventCall;
+
         }
 
         boolean movedToNextSection = false;
@@ -139,6 +141,8 @@ public class PedestrianReachedAimEvent extends Event<Pedestrian> {
                     //nextStreetSection.handleJamTrafficLight();
                 } else {
                     timeToDestination = pedestrian.getTimeToNextSubGoal();
+                    // Event call delay must not be below minTimeBetweenEventCall
+                    if (timeToDestination < minTimeBetweenEventCall) timeToDestination = minTimeBetweenEventCall;
                 }
             }
 
@@ -155,6 +159,7 @@ public class PedestrianReachedAimEvent extends Event<Pedestrian> {
             //danger of endlessly looping catch
             throw new IllegalStateException("pedestrian is theoretically moving, but already reached destination.");
         }
+
 
         // set planed time of movement
         pedestrian.setWalkingTimeStamps(timeToDestination);

@@ -1,11 +1,9 @@
 package at.fhv.itm3.s2.roundabout.event;
 
-import at.fhv.itm14.trafsim.model.entities.Car;
 import at.fhv.itm14.trafsim.model.entities.IConsumer;
-import at.fhv.itm3.s2.roundabout.SocialForceModelCalculation.SupportiveCalculations;
+import at.fhv.itm3.s2.roundabout.PedestrianCalculations.SocialForceModelCalculation.SupportiveCalculations;
 import at.fhv.itm3.s2.roundabout.api.PedestrianPoint;
 import at.fhv.itm3.s2.roundabout.api.entity.*;
-import at.fhv.itm3.s2.roundabout.controller.CarController;
 import at.fhv.itm3.s2.roundabout.controller.PedestrianController;
 import at.fhv.itm3.s2.roundabout.controller.PedestrianRouteController;
 import at.fhv.itm3.s2.roundabout.controller.RouteController;
@@ -15,11 +13,10 @@ import desmoj.core.simulator.Event;
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeSpan;
 
-import java.awt.*;
-
 public class PedestrianGenerateEvent extends Event<PedestrianAbstractSource> {
 
     SupportiveCalculations calc = new SupportiveCalculations();
+    private final Integer minTimeBetweenEventCall = 3; //sec = Simulation Time Unit
     Model model;
     String name;
     boolean showInTrace;
@@ -146,8 +143,7 @@ public class PedestrianGenerateEvent extends Event<PedestrianAbstractSource> {
             final double generatorExpectationShift = source.getGeneratorExpectation() - meanTimeBetweenPedestrianArrivals;
 
             final double shiftedTimeUntilPedestrianArrival = randomTimeUntilPedestrianArrival + generatorExpectationShift;
-            final double actualTimeUntilPedestrianArrival = Math.max(shiftedTimeUntilPedestrianArrival, Math.max(minTimeBetweenPedestrianArrivals,1)); // 1 time unit, in this case 1sec
-
+            final double actualTimeUntilPedestrianArrival = Math.max(shiftedTimeUntilPedestrianArrival, Math.max(minTimeBetweenPedestrianArrivals, minTimeBetweenEventCall));
 
             pedestrianGenerateEvent.schedule(source, new TimeSpan(actualTimeUntilPedestrianArrival, roundaboutSimulationModel.getModelTimeUnit()));
 

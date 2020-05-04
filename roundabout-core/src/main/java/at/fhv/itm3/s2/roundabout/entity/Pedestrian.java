@@ -3,7 +3,7 @@ package at.fhv.itm3.s2.roundabout.entity;
 import at.fhv.itm14.trafsim.model.entities.Car;
 import at.fhv.itm14.trafsim.model.entities.IConsumer;
 import at.fhv.itm14.trafsim.statistics.StopWatch;
-import at.fhv.itm3.s2.roundabout.SocialForceModelCalculation.*;
+import at.fhv.itm3.s2.roundabout.PedestrianCalculations.SocialForceModelCalculation.*;
 import at.fhv.itm3.s2.roundabout.api.PedestrianPoint;
 import at.fhv.itm3.s2.roundabout.api.entity.*;
 import at.fhv.itm3.s2.roundabout.model.RoundaboutSimulationModel;
@@ -14,7 +14,6 @@ import desmoj.core.statistic.Count;
 import desmoj.core.statistic.Tally;
 
 import javax.vecmath.Vector2d;
-import java.sql.Timestamp;
 import java.util.Iterator;
 
 public class Pedestrian extends Entity implements IPedestrian {
