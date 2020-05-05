@@ -118,7 +118,7 @@ public class PedestrianGenerateEvent extends Event<PedestrianAbstractSource> {
                 double entryX = roundaboutSimulationModel.getRandomEntryPoint(
                         Math.min(end.getX(), start.getX()),
                         Math.max(end.getX(), start.getX()));
-                globalEntryPoint.setLocation(start.getX() + global.getX(), entryX + global.getY());
+                globalEntryPoint.setLocation(entryX + global.getX(), start.getY() + global.getY());
             }
 
             final Pedestrian pedestrian = new Pedestrian(roundaboutSimulationModel, name, showInTrace, globalEntryPoint, behaviour, route, roundaboutSimulationModel.getMaxDistanceForWaitingArea());

@@ -70,13 +70,29 @@ public class PedestrianReachedAimEvent extends Event<Pedestrian> {
      */
     @Override
     public void eventRoutine(Pedestrian pedestrian) throws SuspendExecution {
-        IConsumer currentSection = pedestrian.getCurrentSection().getStreetSection();
-        if(((PedestrianStreet)currentSection).getPedestrianConsumerType().equals(PedestrianConsumerType.PEDESTRIAN_SINK)) {
-            return;
-        }
         if (!(pedestrian instanceof Pedestrian)) {
             throw new IllegalArgumentException("Pedestrian not instance of Pedestrian.");
         }
+        // since all sup-aims are within one street section it is enough to check all other pedestrian on the same section
+        if (!(pedestrian.getCurrentSection().getStreetSection() instanceof PedestrianStreet)) {
+            throw new IllegalArgumentException("Street not instance of PedestrianStreet.");
+        }
+        IConsumer currentSection = pedestrian.getCurrentSection().getStreetSection();
+        if (!(currentSection instanceof PedestrianStreet)) {
+            throw new IllegalArgumentException("Street not instance of PedestrianStreet.");
+        }
+        if(((PedestrianStreet)currentSection).getPedestrianConsumerType().equals(PedestrianConsumerType.PEDESTRIAN_SINK)) {
+            return;
+        }
+
+        // check for waiting are before crossing
+        if (pedestrian.checkForWaitingArea()){
+            pedestrian.setCurrentPreferredSpeedToUse(0);
+        } else if (calc.almostEqual(pedestrian.getCurrentPreferredSpeedToUse(), 0)) {
+            pedestrian.setCurrentPreferredSpeedToUse(pedestrian.getPreferredSpeed()); // reset
+        }
+        Vector2d forces = pedestrian.getSocialForceVector(); //set time when next update.
+        double timeToDestination = 0.0;
 
         // pedestrian reached new partial-aim
         if (pedestrian.getCurrentNextGlobalAim() != null) {
@@ -89,19 +105,22 @@ public class PedestrianReachedAimEvent extends Event<Pedestrian> {
             pedestrian.setCurrentNextGlobalAim(null); // redefine next goal in next round
         }
 
-        // check for waiting are before crossing
-        if (pedestrian.checkForWaitingArea()){
-            pedestrian.setCurrentPreferredSpeedToUse(0);
-        } else if (calc.almostEqual(pedestrian.getCurrentPreferredSpeedToUse(), 0)) {
-            pedestrian.setCurrentPreferredSpeedToUse(pedestrian.getPreferredSpeed()); // reset
-        }
-
-        Vector2d forces = pedestrian.getSocialForceVector(); //set time when next update.
-        double timeToDestination = 0.0;
-
-        // since all sup-aims are within one street section it is enough to check all other pedestrian on the same section
-        if (!(pedestrian.getCurrentSection().getStreetSection() instanceof PedestrianStreet)) {
-            throw new IllegalArgumentException("Street not instance of PedestrianStreet.");
+        boolean movedToNextSection = false;
+        if (pedestrian.checkExitPortIsReached()) { // check if section will be changed
+            // move to next section
+            PedestrianStreet nextStreetSection = ((PedestrianStreet) (pedestrian.getNextSection().getStreetSection()));
+            // special case traffic light
+            if (nextStreetSection.isTrafficLightActive() && !nextStreetSection.isTrafficLightFreeToGo()) {
+                //not freeToGo
+                timeToDestination = ((PedestrianStreet) currentSection).getRemainingRedPhase();
+                //nextStreetSection.handleJamTrafficLight(); //  todo
+            } else {
+                // destination of the current street section is reached move to next section
+                PedestrianPoint transferPos = pedestrian.transferToNextPortPos();
+                pedestrian.moveOneSectionForward(transferPos);
+                timeToDestination = 0; // define proper next aim in next loop
+                movedToNextSection = true;
+            }
         }
 
         if (pedestrian.getCurrentNextGlobalAim() == null) {
@@ -112,54 +131,12 @@ public class PedestrianReachedAimEvent extends Event<Pedestrian> {
             timeToDestination = pedestrian.getTimeToNextSubGoal();
             // Event call delay must not be below minTimeBetweenEventCall
             if (timeToDestination < minTimeBetweenEventCall) timeToDestination = minTimeBetweenEventCall;
-
-        }
-
-        boolean movedToNextSection = false;
-
-        if (pedestrian.checkExitPortIsReached()) { // check if section will be changed
-            // set to next section
-            if (!(currentSection instanceof PedestrianStreet)) {
-                throw new IllegalArgumentException("Street not instance of PedestrianStreet.");
-            }
-
-            PedestrianStreet nextStreetSection = ((PedestrianStreet) (pedestrian.getNextSection().getStreetSection()));
-            if (nextStreetSection.getPedestrianConsumerType().equals(PedestrianConsumerType.PEDESTRIAN_SINK)) {
-                if (!(nextStreetSection instanceof PedestrianSink)) {
-                    throw new IllegalArgumentException("Street not instance of PedestrianSink.");
-                }
-            } else if (!(nextStreetSection instanceof PedestrianStreet)) {
-                throw new IllegalArgumentException("Street not instance of PedestrianStreet.");
-            }
-
-            boolean freeToGo = true;
-            // solely on a crossing can be a traffic light. -> check in Parser
-            if (nextStreetSection.isTrafficLightActive()) {
-                if (!nextStreetSection.isTrafficLightFreeToGo()) {
-                    freeToGo = false;
-                    timeToDestination = ((PedestrianStreet) currentSection).getRemainingRedPhase();
-                    //nextStreetSection.handleJamTrafficLight();
-                } else {
-                    timeToDestination = pedestrian.getTimeToNextSubGoal();
-                    // Event call delay must not be below minTimeBetweenEventCall
-                    if (timeToDestination < minTimeBetweenEventCall) timeToDestination = minTimeBetweenEventCall;
-                }
-            }
-
-            if (freeToGo) {
-                // destination of the current street section is reached move to next section
-                PedestrianPoint transferPos = pedestrian.transferToNextPortPos();
-                pedestrian.moveOneSectionForward(transferPos);
-                timeToDestination = 0; // define proper next aim in next loop
-                movedToNextSection = true;
-            }
         }
 
         if (timeToDestination == 0 && !movedToNextSection && pedestrian.getCurrentSpeed() != 0) {
             //danger of endlessly looping catch
             throw new IllegalStateException("pedestrian is theoretically moving, but already reached destination.");
         }
-
 
         // set planed time of movement
         pedestrian.setWalkingTimeStamps(timeToDestination);
