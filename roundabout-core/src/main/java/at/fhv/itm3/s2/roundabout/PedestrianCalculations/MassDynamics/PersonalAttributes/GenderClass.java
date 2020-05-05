@@ -2,7 +2,7 @@ package at.fhv.itm3.s2.roundabout.PedestrianCalculations.MassDynamics.PersonalAt
 
 public class GenderClass {
 
-    public GenderClass(){}
+    public GenderClass(double valueToDetermeClass){}
 
     public  double getProbability(){
         return 0;

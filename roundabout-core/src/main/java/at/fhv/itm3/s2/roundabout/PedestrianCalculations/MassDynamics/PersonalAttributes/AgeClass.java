@@ -2,7 +2,7 @@ package at.fhv.itm3.s2.roundabout.PedestrianCalculations.MassDynamics.PersonalAt
 
 public class AgeClass {
 
-    public AgeClass() {}
+    public AgeClass(double valueToDetermeClass) {}
 
     public double getProbability (double age){
         if( age < 16 ){

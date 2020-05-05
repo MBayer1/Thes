@@ -233,7 +233,7 @@ public class RoundaboutSimulationModel extends Model {
      */
     private ContDistUniform pedestrianEntryPoint;
 
-
+    public MassDynamic massDynamic; // needed for pedestiran massDynamic
 
     /**
      * Constructs a new RoundaboutSimulationModel
@@ -462,6 +462,8 @@ public class RoundaboutSimulationModel extends Model {
         this.maxPedestrianPsychologicalNature = maxPedestrianPsychologicalNature;
         this.expectedPedestrianPsychologicalNature = expectedPedestrianPsychologicalNature;
         this.maxDistanceForWaitingArea = maxDistanceForWaitingArea;
+
+        this.massDynamic = new MassDynamic(simulationSeed, model);
     }
 
     /**
@@ -1055,4 +1057,5 @@ public class RoundaboutSimulationModel extends Model {
     public double getMaxDistanceForWaitingArea(){
         return this.maxDistanceForWaitingArea;
     }
+
 }

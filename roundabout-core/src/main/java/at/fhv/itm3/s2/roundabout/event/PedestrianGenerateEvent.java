@@ -102,9 +102,10 @@ public class PedestrianGenerateEvent extends Event<PedestrianAbstractSource> {
                     roundaboutSimulationModel.getRandomPedestrianPreferredSpeed(),
                     roundaboutSimulationModel.getRandomMinGabToPedestrian(),
                     roundaboutSimulationModel.getRandomPedestrianSize_Radius(),
-                    roundaboutSimulationModel.getRandomPedestrianGender(),
-                    roundaboutSimulationModel.getRandomPedestrianPsychologicalNature(),
-                    roundaboutSimulationModel.getRandomPedestrianAgeGroupe());
+                    roundaboutSimulationModel.massDynamic.getRandomGenderClass(),
+                    roundaboutSimulationModel.massDynamic.getRandomPsychologicalClass(),
+                    roundaboutSimulationModel.massDynamic.getRandomAgeClass(),
+                    roundaboutSimulationModel.massDynamic.getRandomDangerSenseClass());
 
 
             PedestrianPoint globalEntryPoint = new PedestrianPoint();
