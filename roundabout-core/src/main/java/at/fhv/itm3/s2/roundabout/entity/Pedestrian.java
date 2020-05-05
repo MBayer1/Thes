@@ -178,7 +178,7 @@ public class Pedestrian extends Entity implements IPedestrian {
             // todo catch strange Time.
             String da = new String("ads");
         }
-        return Math.max(1, calcResult);
+        return calcResult;
     }
 
 
@@ -223,6 +223,11 @@ public class Pedestrian extends Entity implements IPedestrian {
     }
 
     public PedestrianPoint getClosestExitPointOfCurrentSectionGlobal() {
+        if(currentSection.getStreetSection() instanceof PedestrianSink){
+            // special case
+            throw new IllegalStateException("There is no next Goal as pedestrian left system.");
+        }
+
         PedestrianStreetSection currentSection = (PedestrianStreetSection) this.getCurrentSection().getStreetSection();
         for (PedestrianConnectedStreetSections connectedStreetSections : currentSection.getNextStreetConnector()) {
             if (connectedStreetSections.getToStreetSection().equals(nextSection.getStreetSection())) {

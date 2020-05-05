@@ -19,7 +19,7 @@ import javax.vecmath.Vector2d;
 
 public class PedestrianReachedAimEvent extends Event<Pedestrian> {
     private SupportiveCalculations calc = new SupportiveCalculations();
-    private final Integer minTimeBetweenEventCall = 3; //sec = Simulation Time Unit
+    private final Integer minTimeBetweenEventCall = 1; //sec = Simulation Time Unit
 
     /**
      * A reference to the {@link RoundaboutSimulationModel} the {@link PedestrianReachedAimEvent} is part of.
@@ -123,7 +123,8 @@ public class PedestrianReachedAimEvent extends Event<Pedestrian> {
             }
         }
 
-        if (pedestrian.getCurrentNextGlobalAim() == null) {
+        if (pedestrian.getCurrentNextGlobalAim() == null &&
+                !(pedestrian.getCurrentSection().getStreetSection() instanceof PedestrianSink)) { // when current section is a sink pedestrian left system
             // consider intersection to other pedestrian etc.
             // -> not the clear goal on exit PedestrianPoint like it is considered in force toward aim
             // pedestrian newly arrived at current section
