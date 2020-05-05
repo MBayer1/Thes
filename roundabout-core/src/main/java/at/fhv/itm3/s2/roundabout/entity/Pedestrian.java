@@ -525,16 +525,6 @@ public class Pedestrian extends Entity implements IPedestrian {
         // Port is along y axis
         if (calc.almostEqual(localBegin.getX(),
                 localEnd.getX())) {
-            boolean da1 = calc.val1LowerOrAlmostEqual((localBegin.getY()), localPedestrianPosition.getY(), 10e-1);
-            boolean da2 = calc.val1BiggerOrAlmostEqual((localEnd.getY()), localPedestrianPosition.getY(), 10e-1);
-            boolean da = da1 && da2;
-
-            boolean dd1 = calc.val1LowerOrAlmostEqual((localEnd.getY()), localPedestrianPosition.getY(), 10e-1);
-            boolean dd2 = calc.val1BiggerOrAlmostEqual((localBegin.getY()), localPedestrianPosition.getY(), 10e-1);
-            boolean dd = dd1 && dd2;
-
-            boolean ddd = calc.almostEqual(localBegin.getX(), localPedestrianPosition.getX(), 1.0);
-
             if (( ( calc.val1LowerOrAlmostEqual((localBegin.getY()), localPedestrianPosition.getY(), 10e-1) &&
                     calc.val1BiggerOrAlmostEqual((localEnd.getY()), localPedestrianPosition.getY(), 10e-1))
                     ||
@@ -769,24 +759,22 @@ public class Pedestrian extends Entity implements IPedestrian {
                     this.setCurrentNextGlobalAim(globalGoal);
                 }
             }
-
         }
     }
 
     Boolean checkTimeOfIntersectionMatches( PedestrianPoint intersection, Pedestrian otherPedestrian){
         // get from last update time to time to intersection and
         // compare simulated time of both pedestrians when reaching intersection coordinates.
-
-        double pedestrianReachedIntersection = this.getLastUpdateTime() +
+        double pedestrianReachedIntersectionTime = this.getLastUpdateTime() +
                 (calc.getDistanceByCoordinates(this.getCurrentGlobalPosition(), intersection)/this.getCurrentSpeed());
-        double otherPedestrianReachedIntersection = otherPedestrian.getLastUpdateTime() +
+        double otherPedestrianReachedIntersectionTime = otherPedestrian.getLastUpdateTime() +
                 (calc.getDistanceByCoordinates(otherPedestrian.getCurrentGlobalPosition(), intersection)/otherPedestrian.getCurrentSpeed());
 
         // convert distance min gab in to time min time gab
         double tolerance = Math.max(otherPedestrian.getMinGapForPedestrian()/otherPedestrian.getCurrentSpeed(),
                 this.getMinGapForPedestrian()/this.getCurrentSpeed());
 
-        if ( calc.almostEqual(pedestrianReachedIntersection, otherPedestrianReachedIntersection, tolerance)) {
+        if ( calc.almostEqual(pedestrianReachedIntersectionTime, otherPedestrianReachedIntersectionTime, tolerance)) {
             return true;
         }
         return false;
