@@ -12,6 +12,7 @@ public class AccelerationForceToTarget {
 
     public Vector2d getAccelerationForceToTarget(RoundaboutSimulationModel model, Pedestrian pedestrian){
         Vector2d currentSpeedVector = calculations.getUnitVector(pedestrian.getPreviousSFMVector());
+        currentSpeedVector = calculations.getUnitVector(currentSpeedVector);
         currentSpeedVector.scale(pedestrian.getCurrentSpeed());
         Vector2d currentPositionVector = new Vector2d(pedestrian.getCurrentGlobalPosition().getX(), pedestrian.getCurrentGlobalPosition().getY());
 
@@ -19,7 +20,10 @@ public class AccelerationForceToTarget {
         if (! (pedestrian.getCurrentSection().getStreetSection() instanceof PedestrianStreetSection)) {
             throw new IllegalStateException("Section not instance of PedestrianStreetSection.");
         }
-        PedestrianPoint subGoal = pedestrian.getNextSubGoal(); // global  coordinates without any obstacle etc. = exit-point of  section -> always calc new since real aim is afterwards change so is current position
+
+        // global  coordinates without any obstacle etc. = exit-point of  section -> always calc new since real aim is afterwards change so is current position
+        PedestrianPoint subGoal = pedestrian.getNextSubGoal();
+        double distToGoal = calculations.getDistanceByCoordinates(subGoal, pedestrian.getCurrentGlobalPosition());
 
         // e(t)
         Vector2d preferredSpeedVector = new Vector2d(subGoal.getX(), subGoal.getY());
@@ -33,14 +37,17 @@ public class AccelerationForceToTarget {
             preferredSpeedVector.scale(0);
         }
 
+        preferredSpeedVector.scale(distToGoal); // otherwise weight of currentSpeedVector is to high
         // 1/tau (preferred speed - current speed)
         preferredSpeedVector.sub(currentSpeedVector);
-        preferredSpeedVector.scale(1/model.getRandomPedestrianRelaxingTimeTauAlpha());
+        double Tau = model.getRandomPedestrianRelaxingTimeTauAlpha();
+        preferredSpeedVector.scale(1/Tau);
 
         if(Double.isNaN(preferredSpeedVector.getX()) || Double.isNaN(preferredSpeedVector.getY()) ){
             throw new IllegalStateException("Vector calculation  error: AccelerationForce.");
         }
 
+        preferredSpeedVector.scale(1/model.getRandomPedestrianRelaxingTimeTauAlpha());
         return preferredSpeedVector;
     }
 }

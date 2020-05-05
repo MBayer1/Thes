@@ -55,6 +55,9 @@ public class Pedestrian extends Entity implements IPedestrian {
     private Double startOfWalking;
     private Double futureEndOfWalking;
 
+    private Double enterSystemTime;
+    private Double leaveSystemTime;
+
     SupportiveCalculations calc = new SupportiveCalculations();
 
     public Pedestrian(Model model, String name, boolean showInTrace, PedestrianPoint currentGlobalPosition, IPedestrianBehaviour pedestrianBehaviour, IPedestrianRoute route, double maxDistanceForWaitingArea) {
@@ -175,8 +178,7 @@ public class Pedestrian extends Entity implements IPedestrian {
                 currentGlobalPosition.getY()) * calculatePreferredSpeed();
 
         if(calcResult < 1) { // 1 time unit, in this case 1sec
-            // todo catch strange Time.
-            String da = new String("ads");
+            throw new  IllegalStateException("Something went wrong. Suspicious transferee time of Pedestrian.");
         }
         return calcResult;
     }
@@ -305,7 +307,7 @@ public class Pedestrian extends Entity implements IPedestrian {
         return route.getDestinationSection();
     }
 
-    private RoundaboutSimulationModel getRoundaboutModel() {
+    public RoundaboutSimulationModel getRoundaboutModel() {
         final Model model = car.getModel();
         if (model instanceof RoundaboutSimulationModel) {
             return (RoundaboutSimulationModel) model;

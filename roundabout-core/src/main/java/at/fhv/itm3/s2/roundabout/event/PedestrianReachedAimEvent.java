@@ -1,6 +1,7 @@
 package at.fhv.itm3.s2.roundabout.event;
 
 import at.fhv.itm14.trafsim.model.entities.IConsumer;
+import at.fhv.itm3.s2.roundabout.PedestrianCalculations.SocialForceModelCalculation.AccelerationForceToTarget;
 import at.fhv.itm3.s2.roundabout.PedestrianCalculations.SocialForceModelCalculation.SupportiveCalculations;
 import at.fhv.itm3.s2.roundabout.api.PedestrianPoint;
 import at.fhv.itm3.s2.roundabout.api.entity.PedestrianConsumerType;
@@ -19,7 +20,7 @@ import javax.vecmath.Vector2d;
 
 public class PedestrianReachedAimEvent extends Event<Pedestrian> {
     private SupportiveCalculations calc = new SupportiveCalculations();
-    private final Integer minTimeBetweenEventCall = 1; //sec = Simulation Time Unit
+    private final Integer minTimeBetweenEventCall = 3; //sec = Simulation Time Unit
 
     /**
      * A reference to the {@link RoundaboutSimulationModel} the {@link PedestrianReachedAimEvent} is part of.
@@ -91,7 +92,7 @@ public class PedestrianReachedAimEvent extends Event<Pedestrian> {
         } else if (calc.almostEqual(pedestrian.getCurrentPreferredSpeedToUse(), 0)) {
             pedestrian.setCurrentPreferredSpeedToUse(pedestrian.getPreferredSpeed()); // reset
         }
-        Vector2d forces = pedestrian.getSocialForceVector(); //set time when next update.
+
         double timeToDestination = 0.0;
 
         // pedestrian reached new partial-aim
@@ -128,8 +129,13 @@ public class PedestrianReachedAimEvent extends Event<Pedestrian> {
             // consider intersection to other pedestrian etc.
             // -> not the clear goal on exit PedestrianPoint like it is considered in force toward aim
             // pedestrian newly arrived at current section
+            Vector2d forces = pedestrian.getSocialForceVector(); //set time when next update.
             pedestrian.setNewGoal(forces);
             timeToDestination = pedestrian.getTimeToNextSubGoal();
+
+            AccelerationForceToTarget accelerationForceToTarget = new AccelerationForceToTarget();
+            Vector2d tmp = accelerationForceToTarget.getAccelerationForceToTarget(pedestrian.getRoundaboutModel(), pedestrian);
+
             // Event call delay must not be below minTimeBetweenEventCall
             if (timeToDestination < minTimeBetweenEventCall) timeToDestination = minTimeBetweenEventCall;
         }
