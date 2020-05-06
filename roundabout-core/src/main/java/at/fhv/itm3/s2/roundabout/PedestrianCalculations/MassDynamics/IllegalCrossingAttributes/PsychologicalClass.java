@@ -9,10 +9,10 @@ public class PsychologicalClass {
 
     List<Category> categoryList = new LinkedList<>();
     public PsychologicalClass(){
-        categoryList.add(new Category("veryHeight",0.,3,0.5));
-        categoryList.add(new Category("high",3.,13,0.69));
-        categoryList.add(new Category("medium",13,21,0.91));
-        categoryList.add(new Category("low",21,101,0.97));
+        categoryList.add(new Category("veryHeight",0.,11,0.5));
+        categoryList.add(new Category("high",11.,41,0.69));
+        categoryList.add(new Category("medium",41,91,0.91));
+        categoryList.add(new Category("low",91,101,0.97));
     }
 
     public double getProbability (String type){

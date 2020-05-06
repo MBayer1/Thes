@@ -37,7 +37,14 @@ public class AccelerationForceToTarget {
             preferredSpeedVector.scale(0);
         }
 
-        preferredSpeedVector.scale(distToGoal); // otherwise weight of currentSpeedVector is to high
+        // weight factor of current SpeedVec
+        preferredSpeedVector.scale(distToGoal);
+        if(distToGoal < 1) {// -> 50%
+            // needed as backup
+            // otherwise weight of currentSpeedVector is to high
+            currentSpeedVector.scale(distToGoal / 50);
+        }
+
         // 1/tau (preferred speed - current speed)
         preferredSpeedVector.sub(currentSpeedVector);
         double Tau = model.getRandomPedestrianRelaxingTimeTauAlpha();
