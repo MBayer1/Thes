@@ -191,19 +191,11 @@ public class ConfigParser {
             extractParameter(parameters::get, Double::valueOf, MAX_PEDESTRIAN_PREFERRED_SPEED),
             extractParameter(parameters::get, Double::valueOf, EXPECTED_PEDESTRIAN_PREFERRED_SPEED),
 
-            extractParameter(parameters::get, Double::valueOf, MIN_PEDESTRIAN_GENDER),
-            extractParameter(parameters::get, Double::valueOf, MAX_PEDESTRIAN_GENDER),
-            extractParameter(parameters::get, Double::valueOf, EXPECTED_PEDESTRIAN_GENDER),
-            extractParameter(parameters::get, Double::valueOf, MIN_PEDESTRIAN_AGE_RANGE_GROUP),
-            extractParameter(parameters::get, Double::valueOf, MAX_PEDESTRIAN_AGE_RANGE_GROUP),
-            extractParameter(parameters::get, Double::valueOf, EXPECTED_PEDESTRIAN_AGE_RANGE_GROUP),
-            extractParameter(parameters::get, Double::valueOf, MIN_PEDESTRIAN_PSYCHOLOGICAL_NATURE),
-            extractParameter(parameters::get, Double::valueOf, MAX_PEDESTRIAN_PSYCHOLOGICAL_NATURE),
-            extractParameter(parameters::get, Double::valueOf, EXPECTED_PEDESTRIAN_PSYCHOLOGICAL_NATURE),
             extractParameter(parameters::get, Double::valueOf, MAX_DISTANCE_FOR_WAITING_AREA)
         );
 
         model.connectToExperiment(experiment);  // ! - Should be done before anything else.
+        model.initMassDynamic();
 
         final IModelStructure modelStructure = new ModelStructure(model, parameters);
 

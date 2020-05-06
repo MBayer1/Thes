@@ -16,7 +16,7 @@ import desmoj.core.simulator.TimeSpan;
 public class PedestrianGenerateEvent extends Event<PedestrianAbstractSource> {
 
     SupportiveCalculations calc = new SupportiveCalculations();
-    private final Integer minTimeBetweenEventCall = 3; //sec = Simulation Time Unit
+    private final Integer minTimeBetweenEventCall = 2; //sec = Simulation Time Unit
     Model model;
     String name;
     boolean showInTrace;

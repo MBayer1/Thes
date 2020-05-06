@@ -47,7 +47,6 @@ public class AccelerationForceToTarget {
             throw new IllegalStateException("Vector calculation  error: AccelerationForce.");
         }
 
-        preferredSpeedVector.scale(1/model.getRandomPedestrianRelaxingTimeTauAlpha());
         return preferredSpeedVector;
     }
 }

@@ -20,7 +20,7 @@ import javax.vecmath.Vector2d;
 
 public class PedestrianReachedAimEvent extends Event<Pedestrian> {
     private SupportiveCalculations calc = new SupportiveCalculations();
-    private final Integer minTimeBetweenEventCall = 3; //sec = Simulation Time Unit
+    private final Integer minTimeBetweenEventCall = 2; //sec = Simulation Time Unit
 
     /**
      * A reference to the {@link RoundaboutSimulationModel} the {@link PedestrianReachedAimEvent} is part of.

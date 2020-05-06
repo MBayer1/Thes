@@ -12,21 +12,21 @@ public class PedestrianBehaviour implements IPedestrianBehaviour {
     private double minDistanceToNextPedestrian;
     private double radiusOfPedestrian;
     private double accelerationFactor;
-    private GenderClass genderClass;
-    private PsychologicalClass psychologicalNature;
-    private AgeClass ageClass;
-    private DangerSenseClass dangerSenseClass;
+    private String genderClass;
+    private String psychologicalNature;
+    private String ageClass;
+    private String dangerSenseClass;
 
 
     public PedestrianBehaviour(double speed, double minDistanceToNextPedestrian, double radiusOfPedestrian,
-                               GenderClass gender, PsychologicalClass psychologicalNature, AgeClass ageRangeGroup,
-                               DangerSenseClass dangerSenseClass){
+                               String gender, String psychologicalNature, String ageRangeGroup,
+                               String dangerSenseClass){
         this(speed, minDistanceToNextPedestrian, radiusOfPedestrian, 1, gender, psychologicalNature, ageRangeGroup, dangerSenseClass);
     }
 
     public PedestrianBehaviour(double speed, double minDistanceToNextPedestrian, double radiusOfPedestrian, double accelerationFactor,
-                               GenderClass gender, PsychologicalClass psychologicalNature, AgeClass ageRangeGroup,
-                               DangerSenseClass dangerSenseClass)
+                               String gender, String psychologicalNature, String ageRangeGroup,
+                               String dangerSenseClass)
             throws IllegalArgumentException {
         setSpeed(speed);
         this.genderClass = gender;
@@ -101,6 +101,23 @@ public class PedestrianBehaviour implements IPedestrianBehaviour {
     @Override
     public double calcGapForPedestrian() {
         return minDistanceToNextPedestrian + radiusOfPedestrian;
+    }
+
+
+    public String getAgeClass() {
+        return ageClass;
+    }
+
+    public String getGenderClass() {
+        return genderClass;
+    }
+
+    public String getPsychologicalNature() {
+        return psychologicalNature;
+    }
+
+    public String getDangerSenseClass() {
+        return dangerSenseClass;
     }
 }
 
