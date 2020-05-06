@@ -39,9 +39,10 @@ public class AccelerationForceToTarget {
 
         // weight factor of current SpeedVec
         preferredSpeedVector.scale(distToGoal);
-        if(distToGoal < 1) {// -> 50%
+        if(distToGoal < currentSpeedVector.length()) {// -> 50%
             // needed as backup
             // otherwise weight of currentSpeedVector is to high
+            currentSpeedVector = calculations.getUnitVector(currentSpeedVector);
             currentSpeedVector.scale(distToGoal / 50);
         }
 

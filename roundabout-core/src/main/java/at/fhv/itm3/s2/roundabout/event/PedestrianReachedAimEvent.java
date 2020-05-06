@@ -109,13 +109,19 @@ public class PedestrianReachedAimEvent extends Event<Pedestrian> {
         boolean movedToNextSection = false;
         if (pedestrian.checkExitPortIsReached()) { // check if section will be changed
             // move to next section
-            PedestrianStreet nextStreetSection = ((PedestrianStreet) (pedestrian.getNextSection().getStreetSection()));
+            PedestrianStreet nextStreetSection = (PedestrianStreet) (pedestrian.getNextSection().getStreetSection());
+
             // special case traffic light
             if (nextStreetSection.isTrafficLightActive() && !nextStreetSection.isTrafficLightFreeToGo()) {
                 //not freeToGo
                 timeToDestination = ((PedestrianStreet) currentSection).getRemainingRedPhase();
                 //nextStreetSection.handleJamTrafficLight(); //  todo
             } else {
+                if (nextStreetSection.useMassDynamic()){
+                    if(roundaboutSimulationModel.massDynamic.doCrossing(pedestrian));
+                }
+
+
                 // destination of the current street section is reached move to next section
                 PedestrianPoint transferPos = pedestrian.transferToNextPortPos();
                 pedestrian.moveOneSectionForward(transferPos);

@@ -4,13 +4,13 @@ public class Category {
     String typeKey;
     double lowerLimit;
     double upperLimit;
-    double propabilityForCrossingIllegal;
+    double probabilityForCrossingIllegal;
 
     public Category (String typeKey, double lowerLimit,  double upperLimit, double probabilityForCrossingIllegal) {
         this.typeKey = typeKey;
         this.lowerLimit = lowerLimit;
         this.upperLimit = upperLimit;
-        this.propabilityForCrossingIllegal = probabilityForCrossingIllegal;
+        this.probabilityForCrossingIllegal = probabilityForCrossingIllegal;
     }
 
     public double getLowerLimit() {
@@ -21,8 +21,8 @@ public class Category {
         return upperLimit;
     }
 
-    public double getPropabilityForCrossingIllegal() {
-        return propabilityForCrossingIllegal;
+    public double getProbabilityForCrossingIllegal() {
+        return probabilityForCrossingIllegal;
     }
 
     public String getTypeKey() {

@@ -93,43 +93,46 @@ public class MassDynamic {
      */
     public String getRandomGenderClass() {
         double sample = genderClassSeed.sample();
-        return null;//genderClass.getTypeByDetermineValue(sample);
+        return genderClass.getTypeByDetermineValue(sample);
     }
 
     public String getRandomAgeClass() {
         double sample = ageClassSeed.sample();
-        return null;//ageClass.getTypeByDetermineValue(sample);
+        return ageClass.getTypeByDetermineValue(sample);
     }
 
     public String getRandomDangerSenseClass() {
         double sample = dangerSenseClassSeed.sample();
-        return null;//dangerSenseClass.getTypeByDetermineValue(sample);
+        return dangerSenseClass.getTypeByDetermineValue(sample);
     }
 
     public String getRandomPsychologicalClass() {
         double sample = psychologicalClassSeed.sample();
-        return null;//psychologicalClass.getTypeByDetermineValue(sample);
+        return psychologicalClass.getTypeByDetermineValue(sample);
     }
-
 
 
     public double getProbability(Pedestrian pedestrian){
-        double sum = 0; /*
-        double tmp = ageClass.getProbability();
+        double sum = 0;
+        double tmp = ageClass.getProbability(pedestrian);
         sum += tmp;
-        tmp = genderClass.getProbability();
+        tmp = genderClass.getProbability(pedestrian);
         sum += tmp;
-        tmp = groupeSizeCrossingClass.getProbability();
+        tmp = dangerSenseClass.getProbability(pedestrian);
         sum += tmp;
-        tmp = currentMovementClass.getProbability();
+        tmp = psychologicalClass.getProbability(pedestrian);
         sum += tmp;
-        tmp = dangerSenseClass.getProbability();
+        tmp = groupeSizeCrossingClass.getProbability(pedestrian);
         sum += tmp;
-        tmp = psychologicalClass.getProbability();
+        tmp = currentMovementClass.getProbability(pedestrian);
         sum += tmp;
-        tmp = stoppingWhileCrossingClass.getProbability();
-        sum += tmp;*/
-        return sum;
+        tmp = stoppingWhileCrossingClass.getProbability(pedestrian);
+        sum += tmp;
+        return sum/7;
     }
 
+
+    public boolean doCrossing(Pedestrian pedestrian){
+        return (getProbability(pedestrian) < 0.5 ) ? false : true ;
+    }
 }

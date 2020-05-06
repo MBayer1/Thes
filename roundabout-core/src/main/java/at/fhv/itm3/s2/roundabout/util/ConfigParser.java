@@ -556,6 +556,8 @@ public class ConfigParser {
                     }
 
                     final boolean isTrafficLightActive = s.getIsTrafficLightActive() != null ? s.getIsTrafficLightActive() : false;
+                    final boolean useMassDynamic = s.getUseMassDynamic() != null ? s.getUseMassDynamic() : false;
+
 
                     final PedestrianStreetSection pedestrianStreetSection = new PedestrianStreetSection(
                             s.getId(),
@@ -570,11 +572,12 @@ public class ConfigParser {
                             s.getGreenPhaseDuration(),
                             s.getRedPhaseDuration(),
                             s.getMinSizeOfPedestriansForTrafficLightTriggeredByJam(),
-                            null
+                            null,
+                            useMassDynamic
                     );
 
                     if (pedestrianStreetSection.getPedestrianConsumerType().equals(PedestrianConsumerType.PEDESTRIAN_CROSSING)) {
-                        pedestrianStreetSection.setFlexiBorderAlongX(s.getFlexiBorderAlongX());
+                        pedestrianStreetSection.setFlexiBorderAlongX(s.getFlexiBorderAlongX() != null ? s.getUseMassDynamic() : false);
                     }
 
                     if (!PEDESTRIAN_SECTION_REGISTRY.containsKey(scopeComponentId)) {
