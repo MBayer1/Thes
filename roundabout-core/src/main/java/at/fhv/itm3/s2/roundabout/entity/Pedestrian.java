@@ -3,7 +3,7 @@ package at.fhv.itm3.s2.roundabout.entity;
 import at.fhv.itm14.trafsim.model.entities.Car;
 import at.fhv.itm14.trafsim.model.entities.IConsumer;
 import at.fhv.itm14.trafsim.statistics.StopWatch;
-import at.fhv.itm3.s2.roundabout.SocialForceModelCalculation.*;
+import at.fhv.itm3.s2.roundabout.PedestrianCalculations.SocialForceModelCalculation.*;
 import at.fhv.itm3.s2.roundabout.api.PedestrianPoint;
 import at.fhv.itm3.s2.roundabout.api.entity.*;
 import at.fhv.itm3.s2.roundabout.model.RoundaboutSimulationModel;
@@ -14,7 +14,6 @@ import desmoj.core.statistic.Count;
 import desmoj.core.statistic.Tally;
 
 import javax.vecmath.Vector2d;
-import java.sql.Timestamp;
 import java.util.Iterator;
 
 public class Pedestrian extends Entity implements IPedestrian {
@@ -55,6 +54,9 @@ public class Pedestrian extends Entity implements IPedestrian {
     private Double maxDistanceForWaitingArea;
     private Double startOfWalking;
     private Double futureEndOfWalking;
+
+    private Double enterSystemTime;
+    private Double leaveSystemTime;
 
     SupportiveCalculations calc = new SupportiveCalculations();
 
@@ -176,10 +178,9 @@ public class Pedestrian extends Entity implements IPedestrian {
                 currentGlobalPosition.getY()) * calculatePreferredSpeed();
 
         if(calcResult < 1) { // 1 time unit, in this case 1sec
-            // todo catch strange Time.
-            String da = new String("ads");
+            throw new  IllegalStateException("Something went wrong. Suspicious transferee time of Pedestrian.");
         }
-        return Math.max(1, calcResult);
+        return calcResult;
     }
 
 
@@ -224,6 +225,11 @@ public class Pedestrian extends Entity implements IPedestrian {
     }
 
     public PedestrianPoint getClosestExitPointOfCurrentSectionGlobal() {
+        if(currentSection.getStreetSection() instanceof PedestrianSink){
+            // special case
+            throw new IllegalStateException("There is no next Goal as pedestrian left system.");
+        }
+
         PedestrianStreetSection currentSection = (PedestrianStreetSection) this.getCurrentSection().getStreetSection();
         for (PedestrianConnectedStreetSections connectedStreetSections : currentSection.getNextStreetConnector()) {
             if (connectedStreetSections.getToStreetSection().equals(nextSection.getStreetSection())) {
@@ -301,7 +307,7 @@ public class Pedestrian extends Entity implements IPedestrian {
         return route.getDestinationSection();
     }
 
-    private RoundaboutSimulationModel getRoundaboutModel() {
+    public RoundaboutSimulationModel getRoundaboutModel() {
         final Model model = car.getModel();
         if (model instanceof RoundaboutSimulationModel) {
             return (RoundaboutSimulationModel) model;
@@ -494,11 +500,8 @@ public class Pedestrian extends Entity implements IPedestrian {
     }
 
     public boolean checkForWaitingArea() {
-        if ( !(nextSection.getStreetSection() instanceof PedestrianStreetSection)) {
-            throw new IllegalStateException("Section not  instance of PedestrianStreetSection.");
-        }
-
-        if (((PedestrianStreetSection)(nextSection.getStreetSection())).isTrafficLightActive()) {
+        if ((nextSection.getStreetSection() instanceof PedestrianStreetSection) &&
+                ((PedestrianStreetSection)(nextSection.getStreetSection())).isTrafficLightActive()) {
             if (!((PedestrianStreetSection)(nextSection.getStreetSection())).isTrafficLightFreeToGo()) {
                 double  distance = calc.getDistanceByCoordinates(currentGlobalPosition, getNextSubGoal());
                 if (distance < maxDistanceForWaitingArea) return true;
@@ -524,16 +527,6 @@ public class Pedestrian extends Entity implements IPedestrian {
         // Port is along y axis
         if (calc.almostEqual(localBegin.getX(),
                 localEnd.getX())) {
-            boolean da1 = calc.val1LowerOrAlmostEqual((localBegin.getY()), localPedestrianPosition.getY(), 10e-1);
-            boolean da2 = calc.val1BiggerOrAlmostEqual((localEnd.getY()), localPedestrianPosition.getY(), 10e-1);
-            boolean da = da1 && da2;
-
-            boolean dd1 = calc.val1LowerOrAlmostEqual((localEnd.getY()), localPedestrianPosition.getY(), 10e-1);
-            boolean dd2 = calc.val1BiggerOrAlmostEqual((localBegin.getY()), localPedestrianPosition.getY(), 10e-1);
-            boolean dd = dd1 && dd2;
-
-            boolean ddd = calc.almostEqual(localBegin.getX(), localPedestrianPosition.getX(), 1.0);
-
             if (( ( calc.val1LowerOrAlmostEqual((localBegin.getY()), localPedestrianPosition.getY(), 10e-1) &&
                     calc.val1BiggerOrAlmostEqual((localEnd.getY()), localPedestrianPosition.getY(), 10e-1))
                     ||
@@ -768,24 +761,22 @@ public class Pedestrian extends Entity implements IPedestrian {
                     this.setCurrentNextGlobalAim(globalGoal);
                 }
             }
-
         }
     }
 
     Boolean checkTimeOfIntersectionMatches( PedestrianPoint intersection, Pedestrian otherPedestrian){
         // get from last update time to time to intersection and
         // compare simulated time of both pedestrians when reaching intersection coordinates.
-
-        double pedestrianReachedIntersection = this.getLastUpdateTime() +
+        double pedestrianReachedIntersectionTime = this.getLastUpdateTime() +
                 (calc.getDistanceByCoordinates(this.getCurrentGlobalPosition(), intersection)/this.getCurrentSpeed());
-        double otherPedestrianReachedIntersection = otherPedestrian.getLastUpdateTime() +
+        double otherPedestrianReachedIntersectionTime = otherPedestrian.getLastUpdateTime() +
                 (calc.getDistanceByCoordinates(otherPedestrian.getCurrentGlobalPosition(), intersection)/otherPedestrian.getCurrentSpeed());
 
         // convert distance min gab in to time min time gab
         double tolerance = Math.max(otherPedestrian.getMinGapForPedestrian()/otherPedestrian.getCurrentSpeed(),
                 this.getMinGapForPedestrian()/this.getCurrentSpeed());
 
-        if ( calc.almostEqual(pedestrianReachedIntersection, otherPedestrianReachedIntersection, tolerance)) {
+        if ( calc.almostEqual(pedestrianReachedIntersectionTime, otherPedestrianReachedIntersectionTime, tolerance)) {
             return true;
         }
         return false;

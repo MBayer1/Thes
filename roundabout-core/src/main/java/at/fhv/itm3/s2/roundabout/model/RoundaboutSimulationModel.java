@@ -2,6 +2,7 @@ package at.fhv.itm3.s2.roundabout.model;
 
 import at.fhv.itm14.trafsim.model.ModelFactory;
 import at.fhv.itm14.trafsim.model.entities.OneWayStreet;
+import at.fhv.itm3.s2.roundabout.PedestrianCalculations.MassDynamics.MassDynamic;
 import at.fhv.itm3.s2.roundabout.api.entity.*;
 import desmoj.core.dist.ContDist;
 import desmoj.core.dist.ContDistNormal;
@@ -9,7 +10,6 @@ import desmoj.core.dist.ContDistUniform;
 import desmoj.core.simulator.Model;
 
 import java.util.concurrent.TimeUnit;
-import java.util.function.DoubleUnaryOperator;
 
 public class RoundaboutSimulationModel extends Model {
 
@@ -57,16 +57,6 @@ public class RoundaboutSimulationModel extends Model {
     private static final Double DEFAULT_MAX_PEDESTRIAN_PREFERRED_SPEED = 1.34+0.26;
     private static final Double DEFAULT_EXPECTED_PEDESTRIAN_PREFERRED_SPEED = 1.34;
 
-    private static final Double DEFAULT_MIN_PEDESTRIAN_GENDER = 0.0;
-    private static final Double DEFAULT_MAX_PEDESTRIAN_GENDER = 100.0;
-    private static final Double DEFAULT_EXPECTED_PEDESTRIAN_GENDER = 31.9;
-    private static final Double DEFAULT_MIN_PEDESTRIAN_AGE_RANGE_GROUP = 0.0;
-    private static final Double DEFAULT_MAX_PEDESTRIAN_AGE_RANGE_GROUP = 100.0;
-    private static final Double DEFAULT_EXPECTED_PEDESTRIAN_AGE_RANGE_GROUP = 3.6+35.1;
-    private static final Double DEFAULT_MIN_PEDESTRIAN_PSYCHOLOGICAL_NATURE = 0.0;
-    private static final Double DEFAULT_MAX_PEDESTRIAN_PSYCHOLOGICAL_NATURE = 100.0;
-    private static final Double DEFAULT_EXPECTED_PEDESTRIAN_PSYCHOLOGICAL_NATURE = 4.0+13.0+13.0;
-
     private static final Double DEFAULT_MAX_DISTANCE_FOR_WAITING_AREA = 10.0;
 
     private final Long simulationSeed;
@@ -112,16 +102,6 @@ public class RoundaboutSimulationModel extends Model {
     public final Double pedestrianFieldOfViewRadius = 800.0; //cm
     public final Double pedestrianFieldOfViewDegree = 170.0; // Degree
     public final Double getPedestrianFieldOfViewWeakeningFactor = 0.1; // Value between 0 and 1
-
-    private final Double minPedestrianGender;
-    private final Double maxPedestrianGender;
-    private final Double expectedPedestrianGender;
-    private final Double minPedestrianAgeRangeGroup;
-    private final Double maxPedestrianAgeRangeGroup;
-    private final Double expectedPedestrianAgeRangeGroup;
-    private final Double minPedestrianPsychologicalNature;
-    private final Double maxPedestrianPsychologicalNature;
-    private final Double expectedPedestrianPsychologicalNature;
     private final Double maxDistanceForWaitingArea;
 
 
@@ -233,7 +213,7 @@ public class RoundaboutSimulationModel extends Model {
      */
     private ContDistUniform pedestrianEntryPoint;
 
-
+    public MassDynamic massDynamic; // needed for pedestiran massDynamic
 
     /**
      * Constructs a new RoundaboutSimulationModel
@@ -334,9 +314,6 @@ public class RoundaboutSimulationModel extends Model {
                 DEFAULT_MIN_PEDESTRIAN_SIZE_RADIUS, DEFAULT_MAX_PEDESTRIAN_SIZE_RADIUS, DEFAULT_EXPECTED_PEDESTRIAN_SIZE_RADIUS,
                 DEFAULT_MIN_PEDESTRIAN_MIN_GAP, DEFAULT_MAX_PEDESTRIAN_MIN_GAP, DEFAULT_EXPECTED_PEDESTRIAN_MIN_GAP,
                 DEFAULT_MIN_PEDESTRIAN_PREFERRED_SPEED, DEFAULT_MAX_PEDESTRIAN_PREFERRED_SPEED, DEFAULT_EXPECTED_PEDESTRIAN_PREFERRED_SPEED,
-                DEFAULT_MIN_PEDESTRIAN_GENDER, DEFAULT_MAX_PEDESTRIAN_GENDER, DEFAULT_EXPECTED_PEDESTRIAN_GENDER,
-                DEFAULT_MIN_PEDESTRIAN_AGE_RANGE_GROUP, DEFAULT_MAX_PEDESTRIAN_AGE_RANGE_GROUP, DEFAULT_EXPECTED_PEDESTRIAN_AGE_RANGE_GROUP,
-                DEFAULT_MIN_PEDESTRIAN_PSYCHOLOGICAL_NATURE, DEFAULT_MAX_PEDESTRIAN_PSYCHOLOGICAL_NATURE, DEFAULT_EXPECTED_PEDESTRIAN_PSYCHOLOGICAL_NATURE,
                 DEFAULT_MAX_DISTANCE_FOR_WAITING_AREA
         );
     }
@@ -397,15 +374,6 @@ public class RoundaboutSimulationModel extends Model {
             Double maxPedestrianPreferredSpeed,
             Double expectedPedestrianPreferredSpeed,
 
-            Double minPedestrianGender,
-            Double maxPedestrianGender,
-            Double expectedPedestrianGender,
-            Double minPedestrianAgeRangeGroup,
-            Double maxPedestrianAgeRangeGroup,
-            Double expectedPedestrianAgeRangeGroup,
-            Double minPedestrianPsychologicalNature,
-            Double maxPedestrianPsychologicalNature,
-            Double expectedPedestrianPsychologicalNature,
             Double maxDistanceForWaitingArea
     ) {
         super(model, name, showInReport, showInTrace);
@@ -452,17 +420,15 @@ public class RoundaboutSimulationModel extends Model {
         this.maxPedestrianPreferredSpeed = maxPedestrianPreferredSpeed;
         this.expectedPedestrianPreferredSpeed = expectedPedestrianPreferredSpeed;
 
-        this.minPedestrianGender = minPedestrianGender;
-        this.maxPedestrianGender = maxPedestrianGender;
-        this.expectedPedestrianGender = expectedPedestrianGender;
-        this.minPedestrianAgeRangeGroup = minPedestrianAgeRangeGroup;
-        this.maxPedestrianAgeRangeGroup = maxPedestrianAgeRangeGroup;
-        this.expectedPedestrianAgeRangeGroup = expectedPedestrianAgeRangeGroup;
-        this.minPedestrianPsychologicalNature = minPedestrianPsychologicalNature;
-        this.maxPedestrianPsychologicalNature = maxPedestrianPsychologicalNature;
-        this.expectedPedestrianPsychologicalNature = expectedPedestrianPsychologicalNature;
         this.maxDistanceForWaitingArea = maxDistanceForWaitingArea;
+
+        //this.massDynamic = new MassDynamic(simulationSeed, model); // roundabout  model not init yet
     }
+
+    public void initMassDynamic () {
+        this.massDynamic = new MassDynamic(simulationSeed, this);
+    }
+
 
     /**
      * {@inheritDoc}
@@ -654,56 +620,6 @@ public class RoundaboutSimulationModel extends Model {
                 false
         );
         pedestrianRelaxingTimeTauAlpha.setSeed(simulationSeed);
-
-        // calculate the standard deviation (of normal distribution) for determine gender
-        final StandardDeviation genderDeviation = StandardDeviation.calculate(
-                minPedestrianGender, maxPedestrianGender, expectedPedestrianGender, 1
-        );
-
-        pedestrianGender = new ContDistNormal(
-                this,
-                "gender",
-                expectedPedestrianGender,
-                genderDeviation.getLeft(),
-                genderDeviation.getRight(),
-                true,
-                false
-        );
-        pedestrianGender.setSeed(simulationSeed);
-
-        // calculate the standard deviation (of normal distribution) to define age range group
-        final StandardDeviation AgeRangeGroupDeviation = StandardDeviation.calculate(
-                minPedestrianAgeRangeGroup, maxPedestrianAgeRangeGroup, expectedPedestrianAgeRangeGroup, 0.1
-        );
-
-        pedestrianAgeRangeGroup= new ContDistNormal(
-                this,
-                "pedestrianAgeRangeGroup",
-                expectedPedestrianAgeRangeGroup,
-                AgeRangeGroupDeviation.getLeft(),
-                AgeRangeGroupDeviation.getRight(),
-                true,
-                false
-        );
-        pedestrianAgeRangeGroup.setSeed(simulationSeed);
-
-
-        // calculate the standard deviation (of normal distribution) to define psychological nature
-        final StandardDeviation PsychologicalNatureDeviation = StandardDeviation.calculate(
-                minPedestrianPsychologicalNature, maxPedestrianPsychologicalNature, expectedPedestrianPsychologicalNature, 0.1
-        );
-
-        pedestrianPsychologicalNature= new ContDistNormal(
-                this,
-                "pedestrianAgeRangeGroup",
-                expectedPedestrianPsychologicalNature,
-                PsychologicalNatureDeviation.getLeft(),
-                PsychologicalNatureDeviation.getRight(),
-                true,
-                false
-        );
-        pedestrianPsychologicalNature.setSeed(simulationSeed);
-
 
         pedestrianEntryPoint = new ContDistUniform(
                 this,
@@ -1005,38 +921,6 @@ public class RoundaboutSimulationModel extends Model {
         return Math.max(Math.min(pedestrianGapToOtherPedestrian.sample(), maxPedestrianMinGap), minPedestrianMinGap);
     }
 
-    /**
-     * Random number stream to define age range group
-     * See {@link RoundaboutSimulationModel#init()} method for stream parameters.
-     */
-    public AgeRangeGroup getRandomPedestrianAgeGroupe() {
-        int maxValue = AgeRangeGroup.values().length -1;
-        int minValue = 0;
-        double val = Math.round(Math.max(Math.min(pedestrianAgeRangeGroup.sample(),  maxValue), minValue));
-        return AgeRangeGroup.values()[(int)val];
-    }
-
-    /**
-     * Random number to define the Gender
-     * See {@link RoundaboutSimulationModel#init()} method for stream parameters.
-     */
-    public Gender getRandomPedestrianGender() {
-        int maxValue = Gender.values().length -1;
-        int minValue = 0;
-        long val = Math.round(Math.max(Math.min(pedestrianGender.sample(), maxValue), minValue));
-        return Gender.values()[(int)val];
-    }
-
-    /**
-     * Random number stream to define psychological nature
-     * See {@link RoundaboutSimulationModel#init()} method for stream parameters.
-     */
-    public PsychologicalNature getRandomPedestrianPsychologicalNature() {
-        int maxValue = PsychologicalNature.values().length -1;
-        int minValue = 0;
-        double val = Math.round(Math.max(Math.min(pedestrianPsychologicalNature.sample(),  maxValue), minValue));
-        return PsychologicalNature.values()[(int)val];
-    }
 
     /**
      * Random number stream to define the entry point
@@ -1055,4 +939,5 @@ public class RoundaboutSimulationModel extends Model {
     public double getMaxDistanceForWaitingArea(){
         return this.maxDistanceForWaitingArea;
     }
+
 }

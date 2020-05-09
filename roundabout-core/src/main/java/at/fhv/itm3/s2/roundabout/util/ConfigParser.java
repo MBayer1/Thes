@@ -7,7 +7,7 @@ import at.fhv.itm14.trafsim.model.entities.intersection.FixedCirculationControll
 import at.fhv.itm14.trafsim.model.entities.intersection.Intersection;
 import at.fhv.itm14.trafsim.model.entities.intersection.IntersectionConnection;
 import at.fhv.itm14.trafsim.model.entities.intersection.IntersectionPhase;
-import at.fhv.itm3.s2.roundabout.SocialForceModelCalculation.SupportiveCalculations;
+import at.fhv.itm3.s2.roundabout.PedestrianCalculations.SocialForceModelCalculation.SupportiveCalculations;
 import at.fhv.itm3.s2.roundabout.api.PedestrianPoint;
 import at.fhv.itm3.s2.roundabout.api.entity.*;
 import at.fhv.itm3.s2.roundabout.controller.IntersectionController;
@@ -30,8 +30,6 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-
-import java.awt.*;
 
 import static java.util.stream.Collectors.partitioningBy;
 import static java.util.stream.Collectors.toMap;
@@ -193,19 +191,11 @@ public class ConfigParser {
             extractParameter(parameters::get, Double::valueOf, MAX_PEDESTRIAN_PREFERRED_SPEED),
             extractParameter(parameters::get, Double::valueOf, EXPECTED_PEDESTRIAN_PREFERRED_SPEED),
 
-            extractParameter(parameters::get, Double::valueOf, MIN_PEDESTRIAN_GENDER),
-            extractParameter(parameters::get, Double::valueOf, MAX_PEDESTRIAN_GENDER),
-            extractParameter(parameters::get, Double::valueOf, EXPECTED_PEDESTRIAN_GENDER),
-            extractParameter(parameters::get, Double::valueOf, MIN_PEDESTRIAN_AGE_RANGE_GROUP),
-            extractParameter(parameters::get, Double::valueOf, MAX_PEDESTRIAN_AGE_RANGE_GROUP),
-            extractParameter(parameters::get, Double::valueOf, EXPECTED_PEDESTRIAN_AGE_RANGE_GROUP),
-            extractParameter(parameters::get, Double::valueOf, MIN_PEDESTRIAN_PSYCHOLOGICAL_NATURE),
-            extractParameter(parameters::get, Double::valueOf, MAX_PEDESTRIAN_PSYCHOLOGICAL_NATURE),
-            extractParameter(parameters::get, Double::valueOf, EXPECTED_PEDESTRIAN_PSYCHOLOGICAL_NATURE),
             extractParameter(parameters::get, Double::valueOf, MAX_DISTANCE_FOR_WAITING_AREA)
         );
 
         model.connectToExperiment(experiment);  // ! - Should be done before anything else.
+        model.initMassDynamic();
 
         final IModelStructure modelStructure = new ModelStructure(model, parameters);
 
@@ -566,6 +556,8 @@ public class ConfigParser {
                     }
 
                     final boolean isTrafficLightActive = s.getIsTrafficLightActive() != null ? s.getIsTrafficLightActive() : false;
+                    final boolean useMassDynamic = s.getUseMassDynamic() != null ? s.getUseMassDynamic() : false;
+
 
                     final PedestrianStreetSection pedestrianStreetSection = new PedestrianStreetSection(
                             s.getId(),
@@ -580,11 +572,12 @@ public class ConfigParser {
                             s.getGreenPhaseDuration(),
                             s.getRedPhaseDuration(),
                             s.getMinSizeOfPedestriansForTrafficLightTriggeredByJam(),
-                            null
+                            null,
+                            useMassDynamic
                     );
 
                     if (pedestrianStreetSection.getPedestrianConsumerType().equals(PedestrianConsumerType.PEDESTRIAN_CROSSING)) {
-                        pedestrianStreetSection.setFlexiBorderAlongX(s.getFlexiBorderAlongX());
+                        pedestrianStreetSection.setFlexiBorderAlongX(s.getFlexiBorderAlongX() != null ? s.getUseMassDynamic() : false);
                     }
 
                     if (!PEDESTRIAN_SECTION_REGISTRY.containsKey(scopeComponentId)) {

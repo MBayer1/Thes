@@ -1,4 +1,4 @@
-package at.fhv.itm3.s2.roundabout.SocialForceModelCalculation;
+package at.fhv.itm3.s2.roundabout.PedestrianCalculations.SocialForceModelCalculation;
 
 import at.fhv.itm3.s2.roundabout.api.PedestrianPoint;
 import at.fhv.itm3.s2.roundabout.entity.Pedestrian;
@@ -12,6 +12,7 @@ public class AccelerationForceToTarget {
 
     public Vector2d getAccelerationForceToTarget(RoundaboutSimulationModel model, Pedestrian pedestrian){
         Vector2d currentSpeedVector = calculations.getUnitVector(pedestrian.getPreviousSFMVector());
+        currentSpeedVector = calculations.getUnitVector(currentSpeedVector);
         currentSpeedVector.scale(pedestrian.getCurrentSpeed());
         Vector2d currentPositionVector = new Vector2d(pedestrian.getCurrentGlobalPosition().getX(), pedestrian.getCurrentGlobalPosition().getY());
 
@@ -19,7 +20,10 @@ public class AccelerationForceToTarget {
         if (! (pedestrian.getCurrentSection().getStreetSection() instanceof PedestrianStreetSection)) {
             throw new IllegalStateException("Section not instance of PedestrianStreetSection.");
         }
-        PedestrianPoint subGoal = pedestrian.getNextSubGoal(); // global  coordinates without any obstacle etc. = exit-point of  section -> always calc new since real aim is afterwards change so is current position
+
+        // global  coordinates without any obstacle etc. = exit-point of  section -> always calc new since real aim is afterwards change so is current position
+        PedestrianPoint subGoal = pedestrian.getNextSubGoal();
+        double distToGoal = calculations.getDistanceByCoordinates(subGoal, pedestrian.getCurrentGlobalPosition());
 
         // e(t)
         Vector2d preferredSpeedVector = new Vector2d(subGoal.getX(), subGoal.getY());
@@ -27,17 +31,25 @@ public class AccelerationForceToTarget {
         Double preferredSpeedValue = preferredSpeedVector.length();
         if (preferredSpeedValue != 0) {
             preferredSpeedVector.scale(1 / preferredSpeedValue);
+            // preferredSpeed * e(t)
+            preferredSpeedVector.scale(pedestrian.calculatePreferredSpeed()); //v_alpha * e_alpha(t)
         } else  {
-            throw new IllegalStateException("Vector calculation  error: AccelerationForce.");
+            preferredSpeedVector.scale(0);
         }
 
-
-        // preferredSpeed * e(t)
-        preferredSpeedVector.scale(pedestrian.calculatePreferredSpeed()); //v_alpha * e_alpha(t)
+        // weight factor of current SpeedVec
+        preferredSpeedVector.scale(distToGoal);
+        if(distToGoal < currentSpeedVector.length()) {// -> 50%
+            // needed as backup
+            // otherwise weight of currentSpeedVector is to high
+            currentSpeedVector = calculations.getUnitVector(currentSpeedVector);
+            currentSpeedVector.scale(distToGoal / 50);
+        }
 
         // 1/tau (preferred speed - current speed)
         preferredSpeedVector.sub(currentSpeedVector);
-        preferredSpeedVector.scale(1/model.getRandomPedestrianRelaxingTimeTauAlpha());
+        double Tau = model.getRandomPedestrianRelaxingTimeTauAlpha();
+        preferredSpeedVector.scale(1/Tau);
 
         if(Double.isNaN(preferredSpeedVector.getX()) || Double.isNaN(preferredSpeedVector.getY()) ){
             throw new IllegalStateException("Vector calculation  error: AccelerationForce.");

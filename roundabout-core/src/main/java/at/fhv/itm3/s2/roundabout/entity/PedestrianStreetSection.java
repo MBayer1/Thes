@@ -4,7 +4,7 @@ import at.fhv.itm14.trafsim.model.entities.Car;
 import at.fhv.itm14.trafsim.model.entities.IConsumer;
 import at.fhv.itm14.trafsim.model.events.CarDepartureEvent;
 import at.fhv.itm14.trafsim.persistence.model.DTO;
-import at.fhv.itm3.s2.roundabout.SocialForceModelCalculation.SupportiveCalculations;
+import at.fhv.itm3.s2.roundabout.PedestrianCalculations.SocialForceModelCalculation.SupportiveCalculations;
 import at.fhv.itm3.s2.roundabout.api.PedestrianPoint;
 import at.fhv.itm3.s2.roundabout.api.entity.*;
 import at.fhv.itm3.s2.roundabout.controller.IntersectionController;
@@ -56,7 +56,7 @@ public class PedestrianStreetSection extends PedestrianStreet {
             String modelDescription,
             boolean showInTrace
     ) {
-        this(UUID.randomUUID().toString(), lengthX, lengthY, PedestrianConsumerType.PEDESTRIAN_STREET_SECTION, model, modelDescription, showInTrace);
+        this(UUID.randomUUID().toString(), lengthX, lengthY, PedestrianConsumerType.PEDESTRIAN_STREET_SECTION, model, modelDescription, showInTrace, false);
     }
 
     public PedestrianStreetSection(
@@ -67,7 +67,7 @@ public class PedestrianStreetSection extends PedestrianStreet {
             String modelDescription,
             boolean showInTrace
     ) {
-        this(UUID.randomUUID().toString(), lengthX, lengthY, consumerType, model, modelDescription, showInTrace);
+        this(UUID.randomUUID().toString(), lengthX, lengthY, consumerType, model, modelDescription, showInTrace, false);
     }
 
     public PedestrianStreetSection(
@@ -77,11 +77,12 @@ public class PedestrianStreetSection extends PedestrianStreet {
             PedestrianConsumerType consumerType,
             Model model,
             String modelDescription,
-            boolean showInTrace
+            boolean showInTrace,
+            boolean useMassDynamic
     ) {
         this(
                 id, lengthX, lengthY, consumerType, model, modelDescription, showInTrace,
-                false, null, null, null, null, null
+                false, null, null, null, null, null,  useMassDynamic
         );
     }
 
@@ -95,12 +96,13 @@ public class PedestrianStreetSection extends PedestrianStreet {
             boolean trafficLightActive,
             Long greenPhaseDuration,
             Long redPhaseDuration,
-            Long minSizeOfPedestriansForTrafficLightTriggeredByJam
+            Long minSizeOfPedestriansForTrafficLightTriggeredByJam,
+            boolean useMassDynamic
     ) {
         this(
                 UUID.randomUUID().toString(), lengthX, lengthY, consumerType, model, modelDescription, showInTrace,
                 trafficLightActive, null, greenPhaseDuration, redPhaseDuration,
-                minSizeOfPedestriansForTrafficLightTriggeredByJam,                 null
+                minSizeOfPedestriansForTrafficLightTriggeredByJam,                 null, useMassDynamic
         );
     }
 
@@ -117,7 +119,8 @@ public class PedestrianStreetSection extends PedestrianStreet {
             Long greenPhaseDuration,
             Long redPhaseDuration,
             Long minSizeOfPedestriansForTrafficLightTriggeredByJam,
-            PedestrianPoint globalCoordinateForCenter
+            PedestrianPoint globalCoordinateForCenter,
+            boolean useMassDynamic
     ) {
         super(
                 id,
@@ -127,7 +130,8 @@ public class PedestrianStreetSection extends PedestrianStreet {
                 trafficLightActive,
                 minGreenPhaseDuration,
                 greenPhaseDuration,
-                redPhaseDuration
+                redPhaseDuration,
+                useMassDynamic
         );
 
         this.lengthX = lengthX;
@@ -146,7 +150,7 @@ public class PedestrianStreetSection extends PedestrianStreet {
 
         this.vehicleStreetList = new LinkedList<>();
         //pedestriansQueueToEnter = Collections.synchronizedList(new ArrayList<PedestrianWaitingListElement>()); TODO
-        pedestriansQueueToEnter = new CopyOnWriteArrayList<PedestrianWaitingListElement>();
+        this.pedestriansQueueToEnter = new CopyOnWriteArrayList<PedestrianWaitingListElement>();
 
         if(this.isTrafficLightActive() && !this.isTrafficLightTriggeredByJam()) {
            // RoundaboutEventFactory.getInstance().createToggleTrafficLightStateEvent(getRoundaboutModel()).schedule(
@@ -540,7 +544,7 @@ public class PedestrianStreetSection extends PedestrianStreet {
         return true;
     }
 
-    /**
+        /**
      * {@inheritDoc}
      */
     @Override

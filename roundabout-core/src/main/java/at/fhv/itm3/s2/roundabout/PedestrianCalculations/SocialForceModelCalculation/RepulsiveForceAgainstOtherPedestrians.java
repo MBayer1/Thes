@@ -1,4 +1,4 @@
-package at.fhv.itm3.s2.roundabout.SocialForceModelCalculation;
+package at.fhv.itm3.s2.roundabout.PedestrianCalculations.SocialForceModelCalculation;
 
 import at.fhv.itm14.trafsim.model.entities.IConsumer;
 import at.fhv.itm3.s2.roundabout.api.PedestrianPoint;
@@ -8,7 +8,6 @@ import at.fhv.itm3.s2.roundabout.entity.PedestrianStreetSection;
 import at.fhv.itm3.s2.roundabout.model.RoundaboutSimulationModel;
 
 import javax.vecmath.Vector2d;
-import java.awt.*;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -157,11 +156,6 @@ public class RepulsiveForceAgainstOtherPedestrians {
     }
 
     boolean checkPedestrianInRange( RoundaboutSimulationModel model, Pedestrian pedestrian, Pedestrian pedestrianBeta){
-        // check also time todo
-        // if other pedestrian reached aim jet it might be rescheduled but in this case solely the current pos has to be considered
-
-
-
         if ( calculations.almostEqual( Point2D.distance(   pedestrian.getCurrentGlobalPosition().getX(),
                                                            pedestrian.getCurrentGlobalPosition().getY(),
                                                            pedestrianBeta.getCurrentGlobalPosition().getX(),
@@ -171,6 +165,8 @@ public class RepulsiveForceAgainstOtherPedestrians {
         }
         return false;
     }
+
+
 
     Vector2d getRepulsiveForceAgainstOtherPedestrian(  RoundaboutSimulationModel model,
                                                               IPedestrian pedestrianAlpha, IPedestrian pedestrianBeta){

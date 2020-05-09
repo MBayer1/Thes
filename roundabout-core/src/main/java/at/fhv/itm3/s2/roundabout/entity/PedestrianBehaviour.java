@@ -1,9 +1,10 @@
 package at.fhv.itm3.s2.roundabout.entity;
 
-import at.fhv.itm3.s2.roundabout.api.entity.AgeRangeGroup;
-import at.fhv.itm3.s2.roundabout.api.entity.Gender;
+import at.fhv.itm3.s2.roundabout.PedestrianCalculations.MassDynamics.IllegalCrossingAttributes.DangerSenseClass;
+import at.fhv.itm3.s2.roundabout.PedestrianCalculations.MassDynamics.IllegalCrossingAttributes.PsychologicalClass;
+import at.fhv.itm3.s2.roundabout.PedestrianCalculations.MassDynamics.PersonalAttributes.AgeClass;
+import at.fhv.itm3.s2.roundabout.PedestrianCalculations.MassDynamics.PersonalAttributes.GenderClass;
 import at.fhv.itm3.s2.roundabout.api.entity.IPedestrianBehaviour;
-import at.fhv.itm3.s2.roundabout.api.entity.PsychologicalNature;
 
 public class PedestrianBehaviour implements IPedestrianBehaviour {
 
@@ -11,26 +12,31 @@ public class PedestrianBehaviour implements IPedestrianBehaviour {
     private double minDistanceToNextPedestrian;
     private double radiusOfPedestrian;
     private double accelerationFactor;
-    private Gender gender;
-    private PsychologicalNature psychologicalNature;
-    private AgeRangeGroup ageRangeGroup;
+    private String genderClass;
+    private String psychologicalNature;
+    private String ageClass;
+    private String dangerSenseClass;
 
 
     public PedestrianBehaviour(double speed, double minDistanceToNextPedestrian, double radiusOfPedestrian,
-                               Gender gender, PsychologicalNature psychologicalNature, AgeRangeGroup ageRangeGroup){
-        this(speed, minDistanceToNextPedestrian, radiusOfPedestrian, 1, gender, psychologicalNature, ageRangeGroup);
+                               String gender, String psychologicalNature, String ageRangeGroup,
+                               String dangerSenseClass){
+        this(speed, minDistanceToNextPedestrian, radiusOfPedestrian, 1, gender, psychologicalNature, ageRangeGroup, dangerSenseClass);
     }
 
     public PedestrianBehaviour(double speed, double minDistanceToNextPedestrian, double radiusOfPedestrian, double accelerationFactor,
-                               Gender gender, PsychologicalNature psychologicalNature, AgeRangeGroup ageRangeGroup)
+                               String gender, String psychologicalNature, String ageRangeGroup,
+                               String dangerSenseClass)
             throws IllegalArgumentException {
         setSpeed(speed);
-        setGender(gender);
-        setPsychologicalNature(psychologicalNature);
-        setAgeRangeGroup(ageRangeGroup);
+        this.genderClass = gender;
+        this.psychologicalNature = psychologicalNature;
+        this.ageClass = ageRangeGroup;
+        this.dangerSenseClass = dangerSenseClass;
         this.minDistanceToNextPedestrian = minDistanceToNextPedestrian;
         this.radiusOfPedestrian = radiusOfPedestrian;
         this.accelerationFactor = accelerationFactor;
+        this.dangerSenseClass = dangerSenseClass;
     }
 
     /**
@@ -52,59 +58,6 @@ public class PedestrianBehaviour implements IPedestrianBehaviour {
         } else {
             throw new IllegalArgumentException("Speed should be greater or equal than 0");
         }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Gender getGender() {
-        return gender;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void setGender(Gender gender)
-            throws IllegalArgumentException {
-        this.gender = gender;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public PsychologicalNature getPsychologicalNature() {
-        return psychologicalNature;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void setPsychologicalNature(PsychologicalNature psychologicalNature)
-            throws IllegalArgumentException {
-        this.psychologicalNature = psychologicalNature;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public AgeRangeGroup getAgeRangeGroup() {
-        return ageRangeGroup;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void setAgeRangeGroup(AgeRangeGroup ageRangeGroup)
-            throws IllegalArgumentException {
-        this.ageRangeGroup = ageRangeGroup;
-
-
     }
 
     /**
@@ -148,6 +101,23 @@ public class PedestrianBehaviour implements IPedestrianBehaviour {
     @Override
     public double calcGapForPedestrian() {
         return minDistanceToNextPedestrian + radiusOfPedestrian;
+    }
+
+
+    public String getAgeClass() {
+        return ageClass;
+    }
+
+    public String getGenderClass() {
+        return genderClass;
+    }
+
+    public String getPsychologicalNature() {
+        return psychologicalNature;
+    }
+
+    public String getDangerSenseClass() {
+        return dangerSenseClass;
     }
 }
 

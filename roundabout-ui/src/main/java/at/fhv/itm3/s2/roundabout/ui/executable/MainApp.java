@@ -2,9 +2,8 @@ package at.fhv.itm3.s2.roundabout.ui.executable;
 
 
 import at.fhv.itm3.s2.roundabout.controller.CarController;
+import at.fhv.itm3.s2.roundabout.PedestrianCalculations.SocialForceModelCalculation.ForceCalcTestEnvironment;
 import at.fhv.itm3.s2.roundabout.ui.controllers.MainViewController;
-import at.fhv.itm3.s2.roundabout.ui.pedestrianUi.PedestrianUIMain;
-import at.fhv.itm3.s2.roundabout.ui.pedestrianUi.PedestrianUIUtils;
 import at.fhv.itm3.s2.roundabout.ui.util.ViewLoader;
 import at.fhv.itm3.s2.roundabout.util.ConfigParser;
 import at.fhv.itm3.s2.roundabout.util.dto.ModelConfig;
@@ -15,8 +14,6 @@ import desmoj.core.simulator.TimeInstant;
 import javafx.application.Application;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -25,8 +22,6 @@ import java.lang.invoke.MethodHandles;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
-
-import static javafx.stage.Stage.*;
 
 /**
  * This is Utility class which starts the whole application.
@@ -41,7 +36,6 @@ public class MainApp extends Application {
     private static final int DEFAULT_HEIGHT = 750;
 
     private static final String PATH_TO_DEFAULT_CSS_FILE = "/at/fhv/itm3/s2/roundabout/ui/css/main.css";
-    //private static final String PATH_TO_MODEL_FILE = "/at/fhv/itm3/s2/roundabout/model/model_dornbirn_sued_with_intersection.xml";
     private static final String PATH_TO_MODEL_FILE = "/at/fhv/itm3/s2/roundabout/model/model_dornbirn_sued_with_intersection_and_pedestrian.xml";
 
     private static final double EXPERIMENT_STOP_TIME = 60 * 60 * 24 * 1; // equates to number of days in seconds, minutes * seconds * hours * days
@@ -82,12 +76,9 @@ public class MainApp extends Application {
             experiment.setShowProgressBar(false);
             configParser.initRoundaboutStructure(modelConfig, experiment);
 
-            PedestrianUIMain pedestrianUIMain = new PedestrianUIMain(0, 0, 200, 600, configParser);
+            //TODO delete pedestrian
+            ForceCalcTestEnvironment tmp = new ForceCalcTestEnvironment();
 
-            Scene scene = new Scene(pedestrianUIMain, PedestrianUIUtils.MAIN_WINDOW_WIDTH, PedestrianUIUtils.MAIN_WINDOW_HEIGHT);
-
-            initStage.setScene(scene);
-            initStage.show();
 
             mainViewController.generateComponentStatContainers(
                 modelConfig.getComponents().getComponent(),

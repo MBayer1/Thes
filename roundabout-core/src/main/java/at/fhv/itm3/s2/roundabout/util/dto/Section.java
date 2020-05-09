@@ -19,6 +19,7 @@ public class Section implements IDTO {
     private Integer pedestrianCrossingIDRefEnterHigh;
     private String pedestrianCrossingRefLinkedAtBegin;
     private Boolean flexiBorderAlongX;
+    private Boolean useMassDynamic;
 
     //pedestrian
     private PedestrianConsumerType pedestrianSectionType;
@@ -152,11 +153,21 @@ public class Section implements IDTO {
 
     @XmlAttribute
     public Boolean getFlexiBorderAlongX() {
-        if (flexiBorderAlongX.equals(true)) return true;
-        return false;
+        return flexiBorderAlongX;
     }
 
-    public void setFlexiBorderAlongX(Boolean flexiBorderAlongX) {
+    public void getFlexiBorderAlongX(Boolean flexiBorderAlongX) {
         this.flexiBorderAlongX = flexiBorderAlongX;
     }
+
+
+    @XmlAttribute
+    public Boolean getUseMassDynamic() {
+        return useMassDynamic;
+    }
+
+    public void setUseMassDynamic(Boolean useMassDynamic) {
+        this.useMassDynamic = useMassDynamic;
+    }
+
 }

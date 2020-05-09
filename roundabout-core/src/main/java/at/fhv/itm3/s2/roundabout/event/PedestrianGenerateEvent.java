@@ -1,11 +1,9 @@
 package at.fhv.itm3.s2.roundabout.event;
 
-import at.fhv.itm14.trafsim.model.entities.Car;
 import at.fhv.itm14.trafsim.model.entities.IConsumer;
-import at.fhv.itm3.s2.roundabout.SocialForceModelCalculation.SupportiveCalculations;
+import at.fhv.itm3.s2.roundabout.PedestrianCalculations.SocialForceModelCalculation.SupportiveCalculations;
 import at.fhv.itm3.s2.roundabout.api.PedestrianPoint;
 import at.fhv.itm3.s2.roundabout.api.entity.*;
-import at.fhv.itm3.s2.roundabout.controller.CarController;
 import at.fhv.itm3.s2.roundabout.controller.PedestrianController;
 import at.fhv.itm3.s2.roundabout.controller.PedestrianRouteController;
 import at.fhv.itm3.s2.roundabout.controller.RouteController;
@@ -15,11 +13,10 @@ import desmoj.core.simulator.Event;
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeSpan;
 
-import java.awt.*;
-
 public class PedestrianGenerateEvent extends Event<PedestrianAbstractSource> {
 
     SupportiveCalculations calc = new SupportiveCalculations();
+    private final Integer minTimeBetweenEventCall = 2; //sec = Simulation Time Unit
     Model model;
     String name;
     boolean showInTrace;
@@ -105,9 +102,10 @@ public class PedestrianGenerateEvent extends Event<PedestrianAbstractSource> {
                     roundaboutSimulationModel.getRandomPedestrianPreferredSpeed(),
                     roundaboutSimulationModel.getRandomMinGabToPedestrian(),
                     roundaboutSimulationModel.getRandomPedestrianSize_Radius(),
-                    roundaboutSimulationModel.getRandomPedestrianGender(),
-                    roundaboutSimulationModel.getRandomPedestrianPsychologicalNature(),
-                    roundaboutSimulationModel.getRandomPedestrianAgeGroupe());
+                    roundaboutSimulationModel.massDynamic.getRandomGenderClass(),
+                    roundaboutSimulationModel.massDynamic.getRandomPsychologicalClass(),
+                    roundaboutSimulationModel.massDynamic.getRandomAgeClass(),
+                    roundaboutSimulationModel.massDynamic.getRandomDangerSenseClass());
 
 
             PedestrianPoint globalEntryPoint = new PedestrianPoint();
@@ -121,7 +119,7 @@ public class PedestrianGenerateEvent extends Event<PedestrianAbstractSource> {
                 double entryX = roundaboutSimulationModel.getRandomEntryPoint(
                         Math.min(end.getX(), start.getX()),
                         Math.max(end.getX(), start.getX()));
-                globalEntryPoint.setLocation(start.getX() + global.getX(), entryX + global.getY());
+                globalEntryPoint.setLocation(entryX + global.getX(), start.getY() + global.getY());
             }
 
             final Pedestrian pedestrian = new Pedestrian(roundaboutSimulationModel, name, showInTrace, globalEntryPoint, behaviour, route, roundaboutSimulationModel.getMaxDistanceForWaitingArea());
@@ -146,8 +144,7 @@ public class PedestrianGenerateEvent extends Event<PedestrianAbstractSource> {
             final double generatorExpectationShift = source.getGeneratorExpectation() - meanTimeBetweenPedestrianArrivals;
 
             final double shiftedTimeUntilPedestrianArrival = randomTimeUntilPedestrianArrival + generatorExpectationShift;
-            final double actualTimeUntilPedestrianArrival = Math.max(shiftedTimeUntilPedestrianArrival, Math.min(minTimeBetweenPedestrianArrivals,1)); // 1 time unit, in this case 1sec
-
+            final double actualTimeUntilPedestrianArrival = Math.max(shiftedTimeUntilPedestrianArrival, Math.max(minTimeBetweenPedestrianArrivals, minTimeBetweenEventCall));
 
             pedestrianGenerateEvent.schedule(source, new TimeSpan(actualTimeUntilPedestrianArrival, roundaboutSimulationModel.getModelTimeUnit()));
 

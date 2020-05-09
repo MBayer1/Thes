@@ -46,15 +46,6 @@
         <parameter name="MAX_PEDESTRIAN_PREFERRED_SPEED" value="1.6"/>
         <parameter name="EXPECTED_PEDESTRIAN_PREFERRED_SPEED" value="1.34"/>
 
-        <parameter name="MIN_PEDESTRIAN_GENDER" value="0"/>
-        <parameter name="MAX_PEDESTRIAN_GENDER" value="100"/>
-        <parameter name="EXPECTED_PEDESTRIAN_GENDER" value="31.9"/>
-        <parameter name="MIN_PEDESTRIAN_AGE_RANGE_GROUP" value="0"/>
-        <parameter name="MAX_PEDESTRIAN_AGE_RANGE_GROUP" value="100"/>
-        <parameter name="EXPECTED_PEDESTRIAN_AGE_RANGE_GROUP" value="38.7"/>
-        <parameter name="MIN_PEDESTRIAN_PSYCHOLOGICAL_NATURE" value="0"/>
-        <parameter name="MAX_PEDESTRIAN_PSYCHOLOGICAL_NATURE" value="100"/>
-        <parameter name="EXPECTED_PEDESTRIAN_PSYCHOLOGICAL_NATURE" value="30"/>
         <parameter name="MAX_DISTANCE_FOR_WAITING_AREA" value="100"/>
 
 
@@ -71,7 +62,7 @@
                 <sink id="psk2"/>
             </sinks>
             <sections>
-                <section id="psc1" lengthX="500.0" lengthY="400.0" pedestrianSectionType="PEDESTRIAN_CROSSING" flexiBorderAlongX="true"/>
+                <section id="psc1" lengthX="500.0" lengthY="400.0" pedestrianSectionType="PEDESTRIAN_CROSSING" flexiBorderAlongX="true" useMassDynamic="true"/>
                 <section id="ps1" lengthX="500.0" lengthY="800.0" pedestrianSectionType="PEDESTRIAN_STREET_SECTION"/>
                 <section id="ps2" lengthX="500.0" lengthY="800.0" pedestrianSectionType="PEDESTRIAN_STREET_SECTION"/> <!-- In cm-->
             </sections>

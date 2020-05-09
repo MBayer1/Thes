@@ -18,6 +18,7 @@ public abstract class PedestrianStreet extends AbstractProSumer implements IPede
     private long lostPedestriansCounter;
     private TrafficLight trafficLight;
     private double greenPhaseStart;
+    private Boolean useMassDynamic;
 
     protected Observable pedestrianObserver;
     protected Observable enteredPedestrianObserver;
@@ -31,7 +32,7 @@ public abstract class PedestrianStreet extends AbstractProSumer implements IPede
     }
 
     public PedestrianStreet(String id, Model owner, String name, boolean showInTrace) {
-        this(id, owner, name, showInTrace, false, null, null, null);
+        this(id, owner, name, showInTrace, false, null, null, null, false);
     }
 
     public PedestrianStreet(
@@ -41,7 +42,8 @@ public abstract class PedestrianStreet extends AbstractProSumer implements IPede
             boolean trafficLightActive,
             boolean isJamTrafficLight,
             Long minGreenPhaseDuration,
-            Long redPhaseDuration
+            Long redPhaseDuration,
+            boolean useMassDynamic
     ) {
         this(UUID.randomUUID().toString(),
                 owner,
@@ -50,7 +52,8 @@ public abstract class PedestrianStreet extends AbstractProSumer implements IPede
                 trafficLightActive,
                 minGreenPhaseDuration,
                 null,
-                redPhaseDuration);
+                redPhaseDuration,
+                useMassDynamic);
     }
 
     public PedestrianStreet(
@@ -59,7 +62,8 @@ public abstract class PedestrianStreet extends AbstractProSumer implements IPede
             boolean showInTrace,
             boolean trafficLightActive,
             Long greenPhaseDuration,
-            Long redPhaseDuration
+            Long redPhaseDuration,
+            boolean useMassDynamic
     ) {
         this(
                 UUID.randomUUID().toString(),
@@ -69,7 +73,8 @@ public abstract class PedestrianStreet extends AbstractProSumer implements IPede
                 trafficLightActive,
                 null,
                 greenPhaseDuration,
-                redPhaseDuration
+                redPhaseDuration,
+                useMassDynamic
         );
     }
 
@@ -81,7 +86,8 @@ public abstract class PedestrianStreet extends AbstractProSumer implements IPede
             boolean trafficLightActive,
             Long minGreenPhaseDuration,
             Long greenPhaseDuration,
-            Long redPhaseDuration
+            Long redPhaseDuration,
+            boolean useMassDynamic
     ) {
         super(owner, name, showInTrace);
 
@@ -99,6 +105,8 @@ public abstract class PedestrianStreet extends AbstractProSumer implements IPede
         this.lostPedestrianObserver = new RoundaboutObservable();
         this.pedestrianPositionObserver = new RoundaboutObservable();
         this.trafficLightObserver = new RoundaboutObservable();
+
+        this.useMassDynamic = useMassDynamic;
 
         addObserver(
                 ObserverType.PEDESTRIAN_LOST,
@@ -399,4 +407,7 @@ public abstract class PedestrianStreet extends AbstractProSumer implements IPede
     public double getRemainingRedPhase () {
         return trafficLight.getRemainingRedPhase();
     }
+
+
+    public boolean useMassDynamic () { return  this.useMassDynamic; }
 }

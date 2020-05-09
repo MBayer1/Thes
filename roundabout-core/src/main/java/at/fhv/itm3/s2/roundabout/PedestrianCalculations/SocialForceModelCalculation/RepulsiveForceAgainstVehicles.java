@@ -1,4 +1,4 @@
-package at.fhv.itm3.s2.roundabout.SocialForceModelCalculation;
+package at.fhv.itm3.s2.roundabout.PedestrianCalculations.SocialForceModelCalculation;
 
 import at.fhv.itm14.trafsim.model.entities.IConsumer;
 import at.fhv.itm3.s2.roundabout.api.PedestrianPoint;
@@ -33,43 +33,43 @@ public class RepulsiveForceAgainstVehicles {
             // now it has to be verifies weather there a vehicle in range on them
 
             for ( Street vehicleStreet : currentSection.getVehicleStreetList() ) {
+                PedestrianPoint globalPositionOfVehicleFront = null;
+                PedestrianPoint globalPositionOfVehicleBack = null;
+                PedestrianPoint globalAimOfVehicle = null;
+
                 if ( vehicleStreet.getFirstCar() != null) {
                     // global position of vehicle and aim
                     ICar car = vehicleStreet.getFirstCar();
                     if( car instanceof RoundaboutCar) {
                         if( vehicleStreet instanceof StreetSection) {
-                            PedestrianPoint globalPositionOfVehicleFront = null;
-                            PedestrianPoint globalPositionOfVehicleBack = null;
-                            PedestrianPoint globalAimOfVehicle = null;
-
                             getVehicleData(globalPositionOfVehicleFront, globalPositionOfVehicleBack,
                                     globalAimOfVehicle,
                                     (StreetSection)vehicleStreet, (PedestrianStreetSection)section,
                                     (RoundaboutCar) car);
 
                             // check if it is in range
-                            if ( checkPedestrianInRangeFront(model, pedestrian, globalPositionOfVehicleFront, car.getLength()) ){
+                            if ( checkPedestrianInRangeFront(model, pedestrian, globalPositionOfVehicleFront, ((RoundaboutCar)car).getLengthInCM()) ){
                                 sumForce.add(calculateRepulsiveForceAgainstVehicles( pedestrian,
                                         globalPositionOfVehicleFront, globalPositionOfVehicleBack, (RoundaboutCar) car));
                             }
+                        }
+                    }
+                }
 
-                            // check also next street sections as they are after the crossing
-                            for ( IConsumer nextVehicleStreet : vehicleStreet.getNextStreetConnector().getNextConsumers()) {
-                                if (nextVehicleStreet instanceof Street) {
-                                    if (((Street) nextVehicleStreet).getLastCar() != null) {
+                // check also next street sections as they are after the crossing
+                for ( IConsumer nextVehicleStreet : vehicleStreet.getNextStreetConnector().getNextConsumers()) {
+                    if (nextVehicleStreet instanceof Street) {
+                        ICar car = ((Street) nextVehicleStreet).getLastCar();
+                        if (car != null) {
+                            getVehicleData(globalPositionOfVehicleFront, globalPositionOfVehicleBack,
+                                    globalAimOfVehicle,
+                                    (StreetSection)nextVehicleStreet, (PedestrianStreetSection)section,
+                                    (RoundaboutCar) car);
 
-                                        getVehicleData(globalPositionOfVehicleFront, globalPositionOfVehicleBack,
-                                                globalAimOfVehicle,
-                                                (StreetSection)nextVehicleStreet, (PedestrianStreetSection)section,
-                                                (RoundaboutCar) vehicleStreet.getLastCar());
-
-                                        // check if it is in range
-                                        if (checkPedestrianInRangeBack(model, pedestrian, globalPositionOfVehicleFront, car.getLength())) {
-                                            sumForce.add(calculateRepulsiveForceAgainstVehicles(pedestrian,
-                                                    globalPositionOfVehicleFront, globalPositionOfVehicleBack, (RoundaboutCar) car));
-                                        }
-                                    }
-                                }
+                            // check if it is in range
+                            if (checkPedestrianInRangeBack(model, pedestrian, globalPositionOfVehicleFront, ((RoundaboutCar)car).getLengthInCM())) {
+                                sumForce.add(calculateRepulsiveForceAgainstVehicles(pedestrian,
+                                        globalPositionOfVehicleFront, globalPositionOfVehicleBack, (RoundaboutCar) car));
                             }
                         }
                     }
