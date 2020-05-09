@@ -104,6 +104,7 @@ public class RoundaboutSimulationModel extends Model {
     public final Double getPedestrianFieldOfViewWeakeningFactor = 0.1; // Value between 0 and 1
     private final Double maxDistanceForWaitingArea;
 
+    private IPedestrianUIMain pedestrianUIMain;
 
     //Simulation
     private IModelStructure modelStructure;
@@ -227,11 +228,13 @@ public class RoundaboutSimulationModel extends Model {
             Model model,
             String name,
             boolean showInReport,
-            boolean showInTrace
+            boolean showInTrace,
+            IPedestrianUIMain pedestrianUIMain
     ) {
         this(
                 model, name, showInReport, showInTrace,
-                DEFAULT_MIN_TIME_BETWEEN_CAR_ARRIVALS, DEFAULT_MAX_TIME_BETWEEN_CAR_ARRIVALS
+                DEFAULT_MIN_TIME_BETWEEN_CAR_ARRIVALS, DEFAULT_MAX_TIME_BETWEEN_CAR_ARRIVALS,
+                pedestrianUIMain
         );
     }
 
@@ -249,7 +252,8 @@ public class RoundaboutSimulationModel extends Model {
             boolean showInReport,
             boolean showInTrace,
             double minTimeBetweenCarArrivals,
-            double maxTimeBetweenCarArrivals
+            double maxTimeBetweenCarArrivals,
+            IPedestrianUIMain pedestrianUIMain
     ) {
         this(
                 DEFAULT_SIMULATION_SEED, model, name, showInReport, showInTrace,
@@ -260,7 +264,8 @@ public class RoundaboutSimulationModel extends Model {
                 DEFAULT_MIN_CAR_LENGTH, DEFAULT_MAX_CAR_LENGTH, DEFAULT_EXPECTED_CAR_LENGTH,
                 DEFAULT_MIN_TRUCK_LENGTH, DEFAULT_MAX_TRUCK_LENGTH, DEFAULT_EXPECTED_TRUCK_LENGTH,
                 DEFAULT_CAR_RATIO_PER_TOTAL_VEHICLE,
-                DEFAULT_JAM_INDICATOR_IN_SECONDS
+                DEFAULT_JAM_INDICATOR_IN_SECONDS,
+                pedestrianUIMain
         );
     }
 
@@ -292,7 +297,8 @@ public class RoundaboutSimulationModel extends Model {
             Double maxTruckLength,
             Double expectedTruckLength,
             Double carRatioPerTotalVehicle,
-            Double jamIndicatorInSeconds
+            Double jamIndicatorInSeconds,
+            IPedestrianUIMain pedestrianUIMain
     ) {
         this(
                 simulationSeed, model, name, showInReport, showInTrace, minTimeBetweenCarArrivals,
@@ -314,7 +320,8 @@ public class RoundaboutSimulationModel extends Model {
                 DEFAULT_MIN_PEDESTRIAN_SIZE_RADIUS, DEFAULT_MAX_PEDESTRIAN_SIZE_RADIUS, DEFAULT_EXPECTED_PEDESTRIAN_SIZE_RADIUS,
                 DEFAULT_MIN_PEDESTRIAN_MIN_GAP, DEFAULT_MAX_PEDESTRIAN_MIN_GAP, DEFAULT_EXPECTED_PEDESTRIAN_MIN_GAP,
                 DEFAULT_MIN_PEDESTRIAN_PREFERRED_SPEED, DEFAULT_MAX_PEDESTRIAN_PREFERRED_SPEED, DEFAULT_EXPECTED_PEDESTRIAN_PREFERRED_SPEED,
-                DEFAULT_MAX_DISTANCE_FOR_WAITING_AREA
+                DEFAULT_MAX_DISTANCE_FOR_WAITING_AREA,
+                pedestrianUIMain
         );
     }
 
@@ -374,7 +381,9 @@ public class RoundaboutSimulationModel extends Model {
             Double maxPedestrianPreferredSpeed,
             Double expectedPedestrianPreferredSpeed,
 
-            Double maxDistanceForWaitingArea
+            Double maxDistanceForWaitingArea,
+
+            IPedestrianUIMain pedestrianUIMain
     ) {
         super(model, name, showInReport, showInTrace);
 
@@ -421,6 +430,8 @@ public class RoundaboutSimulationModel extends Model {
         this.expectedPedestrianPreferredSpeed = expectedPedestrianPreferredSpeed;
 
         this.maxDistanceForWaitingArea = maxDistanceForWaitingArea;
+
+        this.pedestrianUIMain = pedestrianUIMain;
 
         //this.massDynamic = new MassDynamic(simulationSeed, model); // roundabout  model not init yet
     }
@@ -931,7 +942,6 @@ public class RoundaboutSimulationModel extends Model {
 
     }
 
-
     /**
      * Define Max Range for Waiting Area
      * See {@link RoundaboutSimulationModel#init()}.
@@ -940,4 +950,9 @@ public class RoundaboutSimulationModel extends Model {
         return this.maxDistanceForWaitingArea;
     }
 
+    /**
+     * Ref to pedestiran gui
+     * See {@link RoundaboutSimulationModel#init()}.
+     */
+    public IPedestrianUIMain getPedestrianUIMain() { return  this.pedestrianUIMain; }
 }

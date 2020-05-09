@@ -59,8 +59,8 @@ public class PedestrianGenerateEvent extends Event<PedestrianAbstractSource> {
         this.name = name;
         this.showInTrace = showInTrace;
         this.routeController = PedestrianRouteController.getInstance(roundaboutSimulationModel);
-
     }
+
 
     /**
      * The event routine describes the generation (arrival) of a new pedestrian.

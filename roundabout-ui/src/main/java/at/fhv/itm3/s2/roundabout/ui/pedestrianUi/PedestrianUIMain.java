@@ -1,6 +1,10 @@
 package at.fhv.itm3.s2.roundabout.ui.pedestrianUi;
 
 import at.fhv.itm3.s2.roundabout.api.PedestrianPoint;
+import at.fhv.itm3.s2.roundabout.api.entity.IPedestrian;
+import at.fhv.itm3.s2.roundabout.api.entity.IPedestrianCountable;
+import at.fhv.itm3.s2.roundabout.api.entity.IPedestrianUIMain;
+import at.fhv.itm3.s2.roundabout.api.entity.PedestrianStreet;
 import at.fhv.itm3.s2.roundabout.entity.Pedestrian;
 import at.fhv.itm3.s2.roundabout.entity.PedestrianStreetSection;
 import at.fhv.itm3.s2.roundabout.util.ConfigParser;
@@ -16,7 +20,7 @@ import java.io.Console;
 import java.util.*;
 import java.util.List;
 
-public class PedestrianUIMain extends ScrollPane {
+public class PedestrianUIMain extends ScrollPane implements IPedestrianUIMain {
     private  int width;
     private int height;
     private int positionX;
@@ -99,8 +103,8 @@ public class PedestrianUIMain extends ScrollPane {
     }
 
 
-    public void addPedestrian(PedestrianStreetSection pedestrianStreetSection, Pedestrian pedestrian){
-        StreetSectionUI streetSectionUI = streetUIMap.get(pedestrianStreetSection.getId());
+    public void addPedestrian(PedestrianStreet pedestrianStreetSection, Pedestrian pedestrian){
+//        StreetSectionUI streetSectionUI = streetUIMap.get(pedestrianStreetSection.getId());
 
 
 //        double globalPedestrianX = streetSectionUI.getX()
@@ -138,5 +142,10 @@ public class PedestrianUIMain extends ScrollPane {
         double r = scrollPane.getViewportBounds().getWidth();
         centerX = scrollPane.getHmax() * ((y - 0.5 * v) / (h - v));
         scrollPane.setHvalue(centerX);
+    }
+
+
+    public void addPedestrian(IPedestrianCountable pedestrianStreetSection, IPedestrian pedestrian) {
+
     }
 }

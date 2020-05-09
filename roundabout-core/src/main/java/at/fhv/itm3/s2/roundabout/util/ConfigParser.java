@@ -1,5 +1,6 @@
 package at.fhv.itm3.s2.roundabout.util;
 
+
 import at.fhv.itm14.trafsim.model.entities.AbstractConsumer;
 import at.fhv.itm14.trafsim.model.entities.AbstractProducer;
 import at.fhv.itm14.trafsim.model.entities.IConsumer;
@@ -134,7 +135,7 @@ public class ConfigParser {
         return JAXB.unmarshal(configFile, ModelConfig.class);
     }
 
-    public IModelStructure initRoundaboutStructure(ModelConfig modelConfig, Experiment experiment) {
+    public IModelStructure initRoundaboutStructure(ModelConfig modelConfig, Experiment experiment, IPedestrianUIMain pedestrianUIMain) {
         final Map<String, String> parameters = handleParameters(modelConfig);
 
         final List<Component> components = modelConfig.getComponents().getComponent();
@@ -191,7 +192,8 @@ public class ConfigParser {
             extractParameter(parameters::get, Double::valueOf, MAX_PEDESTRIAN_PREFERRED_SPEED),
             extractParameter(parameters::get, Double::valueOf, EXPECTED_PEDESTRIAN_PREFERRED_SPEED),
 
-            extractParameter(parameters::get, Double::valueOf, MAX_DISTANCE_FOR_WAITING_AREA)
+            extractParameter(parameters::get, Double::valueOf, MAX_DISTANCE_FOR_WAITING_AREA),
+            pedestrianUIMain
         );
 
         model.connectToExperiment(experiment);  // ! - Should be done before anything else.
@@ -232,6 +234,7 @@ public class ConfigParser {
         model.registerModelStructure(modelStructure);
         return modelStructure;
     }
+
 
     public Map<String, Map<String, RoundaboutSource>> getSourceRegistry() {
         return Collections.unmodifiableMap(SOURCE_REGISTRY);

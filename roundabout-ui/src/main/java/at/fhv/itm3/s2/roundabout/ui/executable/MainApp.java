@@ -4,6 +4,8 @@ package at.fhv.itm3.s2.roundabout.ui.executable;
 import at.fhv.itm3.s2.roundabout.controller.CarController;
 import at.fhv.itm3.s2.roundabout.PedestrianCalculations.SocialForceModelCalculation.ForceCalcTestEnvironment;
 import at.fhv.itm3.s2.roundabout.ui.controllers.MainViewController;
+import at.fhv.itm3.s2.roundabout.ui.pedestrianUi.PedestrianUIMain;
+import at.fhv.itm3.s2.roundabout.ui.pedestrianUi.PedestrianUIUtils;
 import at.fhv.itm3.s2.roundabout.ui.util.ViewLoader;
 import at.fhv.itm3.s2.roundabout.util.ConfigParser;
 import at.fhv.itm3.s2.roundabout.util.dto.ModelConfig;
@@ -69,12 +71,20 @@ public class MainApp extends Application {
             final MainViewController mainViewController = viewLoader.getController();
             prepareNewStage(mainStage).show();
 
+
             final ConfigParser configParser = new ConfigParser(PATH_TO_MODEL_FILE);
             final ModelConfig modelConfig = configParser.loadConfig();
 
             final Experiment experiment = new Experiment("Pedestrian experiment");
             experiment.setShowProgressBar(false);
-            configParser.initRoundaboutStructure(modelConfig, experiment);
+            PedestrianUIMain pedestrianUIMain = null;
+            configParser.initRoundaboutStructure(modelConfig, experiment, pedestrianUIMain);
+
+            // pedestrian gui
+            pedestrianUIMain = new PedestrianUIMain(0, 0, 200, 600, configParser);
+            Scene scene = new Scene(pedestrianUIMain, PedestrianUIUtils.MAIN_WINDOW_WIDTH, PedestrianUIUtils.MAIN_WINDOW_HEIGHT);
+            initStage.setScene(scene);
+            initStage.show();
 
             //TODO delete pedestrian
             ForceCalcTestEnvironment tmp = new ForceCalcTestEnvironment();

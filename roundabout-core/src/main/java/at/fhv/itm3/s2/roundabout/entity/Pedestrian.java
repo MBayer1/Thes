@@ -127,6 +127,7 @@ public class Pedestrian extends Entity implements IPedestrian {
         this.previousSFMVector = new Vector2d(0,0);
 
         this.maxDistanceForWaitingArea = maxDistanceForWaitingArea;
+
     }
 
     /**
@@ -200,10 +201,13 @@ public class Pedestrian extends Entity implements IPedestrian {
     }
 
     public void setCurrentGlobalPosition(PedestrianPoint currentGlobalPosition) {
+
         if (currentGlobalPosition == null) {
             throw new IllegalArgumentException("there is no global position set");
         }
         this.currentGlobalPosition = currentGlobalPosition;
+        IPedestrianUIMain pedestrianUIMain = getRoundaboutModel().getPedestrianUIMain();
+
         setCurrentLocalPosition();
 
         IConsumer section = getCurrentSection().getStreetSection();
