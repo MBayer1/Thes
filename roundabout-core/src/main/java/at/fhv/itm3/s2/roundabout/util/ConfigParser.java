@@ -135,7 +135,7 @@ public class ConfigParser {
         return JAXB.unmarshal(configFile, ModelConfig.class);
     }
 
-    public IModelStructure initRoundaboutStructure(ModelConfig modelConfig, Experiment experiment, IPedestrianUIMain pedestrianUIMain) {
+    public IModelStructure initRoundaboutStructure(ModelConfig modelConfig, Experiment experiment) {
         final Map<String, String> parameters = handleParameters(modelConfig);
 
         final List<Component> components = modelConfig.getComponents().getComponent();
@@ -192,8 +192,7 @@ public class ConfigParser {
             extractParameter(parameters::get, Double::valueOf, MAX_PEDESTRIAN_PREFERRED_SPEED),
             extractParameter(parameters::get, Double::valueOf, EXPECTED_PEDESTRIAN_PREFERRED_SPEED),
 
-            extractParameter(parameters::get, Double::valueOf, MAX_DISTANCE_FOR_WAITING_AREA),
-            pedestrianUIMain
+            extractParameter(parameters::get, Double::valueOf, MAX_DISTANCE_FOR_WAITING_AREA)
         );
 
         model.connectToExperiment(experiment);  // ! - Should be done before anything else.
@@ -234,7 +233,6 @@ public class ConfigParser {
         model.registerModelStructure(modelStructure);
         return modelStructure;
     }
-
 
     public Map<String, Map<String, RoundaboutSource>> getSourceRegistry() {
         return Collections.unmodifiableMap(SOURCE_REGISTRY);

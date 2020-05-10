@@ -8,6 +8,7 @@ import at.fhv.itm3.s2.roundabout.api.entity.PedestrianStreet;
 import at.fhv.itm3.s2.roundabout.entity.Pedestrian;
 import at.fhv.itm3.s2.roundabout.entity.PedestrianStreetSection;
 import at.fhv.itm3.s2.roundabout.util.ConfigParser;
+import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.scene.Node;
 import javafx.scene.control.ScrollPane;
@@ -32,6 +33,8 @@ public class PedestrianUIMain extends ScrollPane implements IPedestrianUIMain {
 
     private Map<String, StreetSectionUI> streetUIMap = new HashMap<String, StreetSectionUI>();
     private Map<String, Map<String, PedestrianUI>> pedestrianMap = new HashMap<String, Map<String, PedestrianUI>>();
+    private Map<String, PedestrianUI> globalPedestrianMap = new HashMap<String, PedestrianUI>();
+
 
     Pane canvas = new Pane();
 
@@ -100,16 +103,50 @@ public class PedestrianUIMain extends ScrollPane implements IPedestrianUIMain {
             streetUIMap.put(pedestrianStreetSection.getId(), streetSectionUI);
             canvas.getChildren().add(streetSectionUI);
         }
+//        addPedestrian();
     }
 
+    @Override
+    public void addPedestrian(IPedestrian pedestrian){
+        if (pedestrian instanceof Pedestrian) {
+            Pedestrian pedestrianInstance = ((Pedestrian)pedestrian);
+            PedestrianPoint pedestrianPoint = pedestrianInstance.getCurrentGlobalPosition();
+            globalPedestrianMap.put(pedestrianInstance.getName(), new PedestrianUI(pedestrianPoint.getX(), pedestrianPoint.getY()));
+            Platform.setImplicitExit(false);
+            Platform.runLater(new Runnable(){
+                @Override
+                public void run() {
+                    Platform.runLater(() ->  canvas.getChildren().add(globalPedestrianMap.get(pedestrianInstance.getName())));
+                }
+            });
+        }else {
+            throw new IllegalArgumentException("Not suitable Pedestrian.");
+        }
+    }
 
-    public void addPedestrian(PedestrianStreet pedestrianStreetSection, Pedestrian pedestrian){
-//        StreetSectionUI streetSectionUI = streetUIMap.get(pedestrianStreetSection.getId());
+    @Override
+    public void updatePedestrian(IPedestrian pedestrian) {
+        if (pedestrian instanceof Pedestrian) {
+            Pedestrian pedestrianInstance = ((Pedestrian)pedestrian);
+            PedestrianPoint pedestrianPoint = pedestrianInstance.getCurrentGlobalPosition();
+            PedestrianUI pedestrianUI = globalPedestrianMap.get(pedestrianInstance.getName());
+            if (pedestrianUI!=null){
+                Platform.setImplicitExit(false);
+                Platform.runLater(new Runnable(){
+                    @Override
+                    public void run() {
+                        Platform.runLater(() ->  pedestrianUI.relocate(pedestrianPoint.getX(), pedestrianPoint.getY()));
+                    }
+                });
+            }
 
+        }else {
+            throw new IllegalArgumentException("Not suitable Pedestrian.");
+        }
+    }
 
-//        double globalPedestrianX = streetSectionUI.getX()
-//        double globalPedestrianY = streetSectionUI.getY
-
+    @Override
+    public void removePedestrian(IPedestrian pedestrian) {
 
     }
 

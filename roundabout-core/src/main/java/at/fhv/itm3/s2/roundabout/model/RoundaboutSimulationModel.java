@@ -228,15 +228,14 @@ public class RoundaboutSimulationModel extends Model {
             Model model,
             String name,
             boolean showInReport,
-            boolean showInTrace,
-            IPedestrianUIMain pedestrianUIMain
+            boolean showInTrace
     ) {
         this(
                 model, name, showInReport, showInTrace,
-                DEFAULT_MIN_TIME_BETWEEN_CAR_ARRIVALS, DEFAULT_MAX_TIME_BETWEEN_CAR_ARRIVALS,
-                pedestrianUIMain
+                DEFAULT_MIN_TIME_BETWEEN_CAR_ARRIVALS, DEFAULT_MAX_TIME_BETWEEN_CAR_ARRIVALS
         );
     }
+
 
     /**
      * Constructs a new RoundaboutSimulationModel
@@ -252,8 +251,7 @@ public class RoundaboutSimulationModel extends Model {
             boolean showInReport,
             boolean showInTrace,
             double minTimeBetweenCarArrivals,
-            double maxTimeBetweenCarArrivals,
-            IPedestrianUIMain pedestrianUIMain
+            double maxTimeBetweenCarArrivals
     ) {
         this(
                 DEFAULT_SIMULATION_SEED, model, name, showInReport, showInTrace,
@@ -264,8 +262,7 @@ public class RoundaboutSimulationModel extends Model {
                 DEFAULT_MIN_CAR_LENGTH, DEFAULT_MAX_CAR_LENGTH, DEFAULT_EXPECTED_CAR_LENGTH,
                 DEFAULT_MIN_TRUCK_LENGTH, DEFAULT_MAX_TRUCK_LENGTH, DEFAULT_EXPECTED_TRUCK_LENGTH,
                 DEFAULT_CAR_RATIO_PER_TOTAL_VEHICLE,
-                DEFAULT_JAM_INDICATOR_IN_SECONDS,
-                pedestrianUIMain
+                DEFAULT_JAM_INDICATOR_IN_SECONDS
         );
     }
 
@@ -297,8 +294,7 @@ public class RoundaboutSimulationModel extends Model {
             Double maxTruckLength,
             Double expectedTruckLength,
             Double carRatioPerTotalVehicle,
-            Double jamIndicatorInSeconds,
-            IPedestrianUIMain pedestrianUIMain
+            Double jamIndicatorInSeconds
     ) {
         this(
                 simulationSeed, model, name, showInReport, showInTrace, minTimeBetweenCarArrivals,
@@ -320,8 +316,7 @@ public class RoundaboutSimulationModel extends Model {
                 DEFAULT_MIN_PEDESTRIAN_SIZE_RADIUS, DEFAULT_MAX_PEDESTRIAN_SIZE_RADIUS, DEFAULT_EXPECTED_PEDESTRIAN_SIZE_RADIUS,
                 DEFAULT_MIN_PEDESTRIAN_MIN_GAP, DEFAULT_MAX_PEDESTRIAN_MIN_GAP, DEFAULT_EXPECTED_PEDESTRIAN_MIN_GAP,
                 DEFAULT_MIN_PEDESTRIAN_PREFERRED_SPEED, DEFAULT_MAX_PEDESTRIAN_PREFERRED_SPEED, DEFAULT_EXPECTED_PEDESTRIAN_PREFERRED_SPEED,
-                DEFAULT_MAX_DISTANCE_FOR_WAITING_AREA,
-                pedestrianUIMain
+                DEFAULT_MAX_DISTANCE_FOR_WAITING_AREA
         );
     }
 
@@ -381,9 +376,7 @@ public class RoundaboutSimulationModel extends Model {
             Double maxPedestrianPreferredSpeed,
             Double expectedPedestrianPreferredSpeed,
 
-            Double maxDistanceForWaitingArea,
-
-            IPedestrianUIMain pedestrianUIMain
+            Double maxDistanceForWaitingArea
     ) {
         super(model, name, showInReport, showInTrace);
 
@@ -430,14 +423,15 @@ public class RoundaboutSimulationModel extends Model {
         this.expectedPedestrianPreferredSpeed = expectedPedestrianPreferredSpeed;
 
         this.maxDistanceForWaitingArea = maxDistanceForWaitingArea;
-
-        this.pedestrianUIMain = pedestrianUIMain;
-
         //this.massDynamic = new MassDynamic(simulationSeed, model); // roundabout  model not init yet
     }
 
     public void initMassDynamic () {
         this.massDynamic = new MassDynamic(simulationSeed, this);
+    }
+
+    public void setPedestrianUIMain( IPedestrianUIMain pedestrianUIMain){
+        this.pedestrianUIMain = pedestrianUIMain;
     }
 
 
@@ -565,6 +559,7 @@ public class RoundaboutSimulationModel extends Model {
 
         //////////////////////////////////////////////////////////////////
         //Social Force Model Calculations:
+
 
         // calculate the standard deviation (of normal distribution) for define size of  pedestrian
         final StandardDeviation pedestrianSizeDeviation = StandardDeviation.calculate(

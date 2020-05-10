@@ -206,8 +206,7 @@ public class Pedestrian extends Entity implements IPedestrian {
             throw new IllegalArgumentException("there is no global position set");
         }
         this.currentGlobalPosition = currentGlobalPosition;
-        IPedestrianUIMain pedestrianUIMain = getRoundaboutModel().getPedestrianUIMain();
-
+        getRoundaboutModel().getPedestrianUIMain().updatePedestrian(this);
         setCurrentLocalPosition();
 
         IConsumer section = getCurrentSection().getStreetSection();
@@ -329,6 +328,7 @@ public class Pedestrian extends Entity implements IPedestrian {
      */
     @Override
     public void enterSystem() {
+        getRoundaboutModel().getPedestrianUIMain().addPedestrian(this);
         car.enterSystem();
     }
 
@@ -337,6 +337,7 @@ public class Pedestrian extends Entity implements IPedestrian {
      */
     @Override
     public double leaveSystem() {
+        getRoundaboutModel().getPedestrianUIMain().removePedestrian(this);
         return car.leaveSystem();
     }
 
