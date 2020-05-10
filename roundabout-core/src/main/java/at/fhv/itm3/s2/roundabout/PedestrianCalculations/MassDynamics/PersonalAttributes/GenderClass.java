@@ -11,8 +11,8 @@ public class GenderClass {
 
     List<Category> categoryList = new LinkedList<>();
     public GenderClass(){
-        categoryList.add(new Category("male",0.,33,0.5));
-        categoryList.add(new Category("female",33.,101.,0.38));
+        categoryList.add(new Category("male",0.,68.1,0.5));
+        categoryList.add(new Category("female",categoryList.get(categoryList.size()-1).getUpperLimit(),100.,0.38));
     }
 
     public double getProbability (String type){
@@ -32,7 +32,7 @@ public class GenderClass {
 
     public String getTypeByDetermineValue (double valueToDetermineClass){
         for ( int i = 0; i < categoryList.size(); ++i) {
-            if ( valueToDetermineClass >= categoryList.get(i).getLowerLimit() && valueToDetermineClass < categoryList.get(i).getUpperLimit()){
+            if ( valueToDetermineClass > categoryList.get(i).getLowerLimit() && valueToDetermineClass <= categoryList.get(i).getUpperLimit()){
                 return categoryList.get(i).getTypeKey();
             }
         }

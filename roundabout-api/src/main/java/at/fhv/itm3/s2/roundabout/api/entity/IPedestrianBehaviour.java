@@ -7,7 +7,7 @@ public interface IPedestrianBehaviour {
      *
      * @return the prefered speed of the pedestrian.
      */
-    double getSpeed();
+    double getCurrentSpeed();
 
     /**
      * Sets the riding speed of {@code this} pedestrian.
@@ -15,7 +15,7 @@ public interface IPedestrianBehaviour {
      * @param speed value to be set.
      * @throws IllegalArgumentException when given speed is not greater than or equal to 0.
      */
-    void setSpeed(double speed)
+    void setCurrentSpeed(double speed)
             throws IllegalArgumentException;
 
 

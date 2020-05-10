@@ -88,9 +88,9 @@ public class PedestrianReachedAimEvent extends Event<Pedestrian> {
 
         // check for waiting are before crossing
         if (pedestrian.checkForWaitingArea()){
-            pedestrian.setCurrentPreferredSpeedToUse(0);
-        } else if (calc.almostEqual(pedestrian.getCurrentPreferredSpeedToUse(), 0)) {
-            pedestrian.setCurrentPreferredSpeedToUse(pedestrian.getPreferredSpeed()); // reset
+            pedestrian.setCurrentSpeed(0);
+        } else if (calc.almostEqual(pedestrian.getCurrentSpeed(), 0)) {
+            pedestrian.setCurrentSpeed(pedestrian.getPreferredSpeed()); // reset
         }
 
         double timeToDestination = 0.0;

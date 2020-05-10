@@ -16,7 +16,6 @@ public class AccelerationForceToTarget {
         currentSpeedVector.scale(pedestrian.getCurrentSpeed());
         Vector2d currentPositionVector = new Vector2d(pedestrian.getCurrentGlobalPosition().getX(), pedestrian.getCurrentGlobalPosition().getY());
 
-
         if (! (pedestrian.getCurrentSection().getStreetSection() instanceof PedestrianStreetSection)) {
             throw new IllegalStateException("Section not instance of PedestrianStreetSection.");
         }
@@ -28,9 +27,9 @@ public class AccelerationForceToTarget {
         // e(t)
         Vector2d preferredSpeedVector = new Vector2d(subGoal.getX(), subGoal.getY());
         preferredSpeedVector.sub(currentPositionVector);
-        Double preferredSpeedValue = preferredSpeedVector.length();
-        if (preferredSpeedValue != 0) {
-            preferredSpeedVector.scale(1 / preferredSpeedValue);
+        double lengthBetweenPosAndGoal = preferredSpeedVector.length();
+        if (lengthBetweenPosAndGoal != 0) {
+            preferredSpeedVector.scale(1 / lengthBetweenPosAndGoal);
             // preferredSpeed * e(t)
             preferredSpeedVector.scale(pedestrian.calculatePreferredSpeed()); //v_alpha * e_alpha(t)
         } else  {
@@ -53,6 +52,10 @@ public class AccelerationForceToTarget {
 
         if(Double.isNaN(preferredSpeedVector.getX()) || Double.isNaN(preferredSpeedVector.getY()) ){
             throw new IllegalStateException("Vector calculation  error: AccelerationForce.");
+        }
+
+        if (lengthBetweenPosAndGoal < preferredSpeedVector.length()){
+            throw new IllegalStateException("Vector calculation error: AccelerationForce runs over the goal.");
         }
 
         return preferredSpeedVector;

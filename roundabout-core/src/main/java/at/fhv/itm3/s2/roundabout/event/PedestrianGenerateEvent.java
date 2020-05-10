@@ -98,6 +98,11 @@ public class PedestrianGenerateEvent extends Event<PedestrianAbstractSource> {
             connectorPair.getPortOfToStreetSection().getLocalEndOfStreetPort();
 
 
+
+            double val1 = roundaboutSimulationModel.getRandomPedestrianPreferredSpeed();
+            double val2 = roundaboutSimulationModel.getRandomPedestrianPreferredSpeed();
+            double preferredSpeed = Math.min(val1, val2);
+            double maxPreferredSpeed = Math.max(val1, val2);
             final PedestrianBehaviour behaviour = new PedestrianBehaviour(
                     roundaboutSimulationModel.getRandomPedestrianPreferredSpeed(),
                     roundaboutSimulationModel.getRandomMinGabToPedestrian(),
@@ -105,7 +110,8 @@ public class PedestrianGenerateEvent extends Event<PedestrianAbstractSource> {
                     roundaboutSimulationModel.massDynamic.getRandomGenderClass(),
                     roundaboutSimulationModel.massDynamic.getRandomPsychologicalClass(),
                     roundaboutSimulationModel.massDynamic.getRandomAgeClass(),
-                    roundaboutSimulationModel.massDynamic.getRandomDangerSenseClass());
+                    roundaboutSimulationModel.massDynamic.getRandomDangerSenseClass(),
+                    preferredSpeed, maxPreferredSpeed, roundaboutSimulationModel.getMaxDistanceForWaitingArea());
 
 
             PedestrianPoint globalEntryPoint = new PedestrianPoint();
@@ -122,7 +128,7 @@ public class PedestrianGenerateEvent extends Event<PedestrianAbstractSource> {
                 globalEntryPoint.setLocation(entryX + global.getX(), start.getY() + global.getY());
             }
 
-            final Pedestrian pedestrian = new Pedestrian(roundaboutSimulationModel, name, showInTrace, globalEntryPoint, behaviour, route, roundaboutSimulationModel.getMaxDistanceForWaitingArea());
+            final Pedestrian pedestrian = new Pedestrian(roundaboutSimulationModel, name, showInTrace, globalEntryPoint, behaviour, route);
             PedestrianController.addCarMapping(pedestrian.getCarDummy(), pedestrian);
             if (checkPedestrianCanEnterSystem(pedestrian, globalEntryPoint, (PedestrianStreetSection)currentSection)) {
                 pedestrian.enterSystem();
