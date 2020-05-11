@@ -325,20 +325,20 @@ public class SupportiveCalculations {
         return false;
     }
 
-    public void shiftIntersection (PedestrianStreetSectionPort port, PedestrianPoint intersection) {
-        shiftIntersection(port, intersection, 0);
+    public PedestrianPoint shiftIntersection (PedestrianStreetSectionPort port, PedestrianPoint intersection) {
+        return shiftIntersection(port, intersection, 0);
     }
 
-    public void shiftIntersection (PedestrianStreetSectionPort port, PedestrianPoint intersection, double minGabToWall) {
-        shiftIntersection(port.getLocalBeginOfStreetPort().getX(), port.getLocalBeginOfStreetPort().getY(),
+    public PedestrianPoint shiftIntersection (PedestrianStreetSectionPort port, PedestrianPoint intersection, double minGabToWall) {
+        return shiftIntersection(port.getLocalBeginOfStreetPort().getX(), port.getLocalBeginOfStreetPort().getY(),
                 port.getLocalEndOfStreetPort().getX(), port.getLocalEndOfStreetPort().getY(), intersection, minGabToWall);
     }
 
-    public void shiftIntersection( double portBeginX, double portBeginY, double portEndX, double portEndY, PedestrianPoint wallIntersection){
-        shiftIntersection(portBeginX, portBeginY, portEndX, portEndY, wallIntersection, 0);
+    public PedestrianPoint shiftIntersection( double portBeginX, double portBeginY, double portEndX, double portEndY, PedestrianPoint wallIntersection){
+        return shiftIntersection(portBeginX, portBeginY, portEndX, portEndY, wallIntersection, 0);
     }
 
-    public void shiftIntersection( double portBeginX, double portBeginY, double portEndX, double portEndY, PedestrianPoint wallIntersection, double minGabToWall) {
+    public PedestrianPoint shiftIntersection( double portBeginX, double portBeginY, double portEndX, double portEndY, PedestrianPoint wallIntersection, double minGabToWall) {
         // PedestrianPoint within the port gab
         // get closer corner of port
         if (getDistanceByCoordinates(portBeginX, portBeginY, wallIntersection.getX(), wallIntersection.getY()) <
@@ -349,23 +349,41 @@ public class SupportiveCalculations {
             // closer to the end of the port
             wallIntersection.setLocation(portEndX, portEndY);
         }
-        if (minGabToWall != 0) shiftIntersectionSub(portBeginX, portBeginY, portEndX, portEndY, wallIntersection, minGabToWall);
+        if (minGabToWall != 0) wallIntersection = shiftIntersectionSub(portBeginX, portBeginY, portEndX, portEndY, wallIntersection, minGabToWall);
+        return wallIntersection;
     }
 
-    public void shiftIntersectionSub( double portBeginX, double portBeginY, double portEndX, double portEndY, PedestrianPoint wallIntersection, double minGabToWall) {
+    public PedestrianPoint shiftIntersectionSub( double portBeginX, double portBeginY, double portEndX, double portEndY, PedestrianPoint wallIntersection, double minGabToWall) {
         if( almostEqual(portBeginX, portEndX) ) { // port along y side
             if( val1LowerOrAlmostEqual(portBeginY, portEndY)) {
-                wallIntersection.setLocation(wallIntersection.getX(), wallIntersection.getY() + minGabToWall);
+                if( Math.abs(wallIntersection.getY()- portEndY) < Math.abs(wallIntersection.getY()- portBeginY)){
+                    wallIntersection.setLocation(wallIntersection.getX(), portEndY - minGabToWall);
+                } else {
+                    wallIntersection.setLocation(wallIntersection.getX(), portBeginY + minGabToWall);
+                }
             } else {
-                wallIntersection.setLocation(wallIntersection.getX(), wallIntersection.getY() - minGabToWall);
+                if( Math.abs(wallIntersection.getY()- portEndY) < Math.abs(wallIntersection.getY()- portBeginY)){
+                    wallIntersection.setLocation(wallIntersection.getX(), portEndY + minGabToWall);
+                } else {
+                    wallIntersection.setLocation(wallIntersection.getX(), portBeginY - minGabToWall);
+                }
             }
         } else { // port along x side/aches
             if( val1LowerOrAlmostEqual(portBeginX, portEndX)) {
-                wallIntersection.setLocation(wallIntersection.getX() + minGabToWall, wallIntersection.getY());
+                if( Math.abs(wallIntersection.getY()- portEndY) < Math.abs(wallIntersection.getY()- portBeginY)){
+                    wallIntersection.setLocation(portEndX - minGabToWall, wallIntersection.getY());
+                } else {
+                    wallIntersection.setLocation(portEndX + minGabToWall, wallIntersection.getY());
+                }
             } else {
-                wallIntersection.setLocation(wallIntersection.getX() - minGabToWall, wallIntersection.getY());
+                if( Math.abs(wallIntersection.getY()- portEndY) < Math.abs(wallIntersection.getY()- portBeginY)){
+                    wallIntersection.setLocation(portEndX - minGabToWall, wallIntersection.getY());
+                } else {
+                    wallIntersection.setLocation(portEndX + minGabToWall, wallIntersection.getY());
+                }
             }
         }
+        return wallIntersection;
     }
 
     public PedestrianPoint shiftPointToEllipse(Vector2d point, double semiaxesBig, double semiaxesSmall) {

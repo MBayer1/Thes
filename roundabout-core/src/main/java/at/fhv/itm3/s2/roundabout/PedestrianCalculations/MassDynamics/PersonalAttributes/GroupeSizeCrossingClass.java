@@ -19,6 +19,7 @@ public class GroupeSizeCrossingClass {
 
     SupportiveCalculations calculations = new SupportiveCalculations();
     LinkedList<PedestrianStreetSection> listOfCheckedStreets = new LinkedList<>();
+    Integer numberOfPedestrian;
 
     public GroupeSizeCrossingClass(){
         // 0 is not an option as  the pedestrian it self will always be considered
@@ -41,20 +42,20 @@ public class GroupeSizeCrossingClass {
         if(!(pedestrian.getPedestrianBehaviour() instanceof PedestrianBehaviour)){
             throw new IllegalArgumentException("PedestrianBehaviour not instance of PedestrianBehaviour .");
         }
-        Double numberOfPedestrian = 0.;
 
         // check all of  those that are currently on the crossing or on one of  its waiting  areas
         if (!(pedestrian.getNextSection().getStreetSection() instanceof PedestrianStreetSection)) {
             throw new IllegalStateException("Section not instance of PedestrianStreetSection");
         }
         PedestrianStreetSection crossing = (PedestrianStreetSection) pedestrian.getNextSection().getStreetSection();
-        numberOfPedestrian += crossing.getPedestrianQueue().size();
-        listOfCheckedStreets.clear();
-        listOfCheckedStreets.add(crossing);
+        this.numberOfPedestrian = crossing.getPedestrianQueue().size();
+        this.listOfCheckedStreets.clear();
+        this.listOfCheckedStreets.add(crossing);
+
 
         // run through all previous and following connected street sections up to 8m distance
-        getAllPedestrianFromPreviousStreets(  crossing, numberOfPedestrian, crossing );
-        getAllPedestrianFromFollowingStreets( crossing, numberOfPedestrian, crossing);
+        getAllPedestrianFromPreviousStreets(  crossing, crossing);
+        getAllPedestrianFromFollowingStreets( crossing, crossing);
 
         return getProbability(getTypeByDetermineValue(numberOfPedestrian));
     }
@@ -69,7 +70,7 @@ public class GroupeSizeCrossingClass {
     }
 
 
-    boolean getAllPedestrianFromStreet(PedestrianStreetSection currentStreetSection, Double numberOfPedestrian,
+    boolean getAllPedestrianFromStreet(PedestrianStreetSection currentStreetSection,
                                        PedestrianStreetSection crossingRef ){
 
         if(currentStreetSection.getPedestrianConsumerType().equals(PedestrianConsumerType.PEDESTRIAN_SINK)) return false;
@@ -82,8 +83,7 @@ public class GroupeSizeCrossingClass {
             }
             noPedestrian = false;
             // calculate forces
-            if( checkForCrossingInRemainingRouteAndShortestDistance((Pedestrian) pedestrian, crossingRef)
-                  ){
+            if( checkForCrossingInRemainingRouteAndShortestDistance((Pedestrian) pedestrian, crossingRef)){
                 ++numberOfPedestrian;
             } else {
                 pedestrianOutOfRange = true; // no need to  check next sections
@@ -99,15 +99,26 @@ public class GroupeSizeCrossingClass {
     }
 
 
-    PedestrianStreetSection getCurrentSectionData(Pedestrian pedestrian, PedestrianStreetSection currentSection,
-                                                             PedestrianStreetSectionAndPortPair currentData) {
-        PedestrianStreetSection cur;
-        currentData = null;
+    PedestrianStreetSectionAndPortPair getCurrentSectionData(Pedestrian pedestrian, PedestrianStreetSection currentSection) {
         for(PedestrianStreetSectionAndPortPair sectionAndPortPair : pedestrian.getRoute().getRoute()){
-            cur = (PedestrianStreetSection) sectionAndPortPair.getStreetSection();
-            if (!currentData.equals(null)) return cur;
-            if(cur.equals(currentSection)){
-                currentData = sectionAndPortPair;
+            PedestrianStreetSection section = (PedestrianStreetSection) sectionAndPortPair.getStreetSection();
+            if(section.equals(currentSection)){
+                return sectionAndPortPair;
+            }
+        }
+        throw new IllegalStateException("Section not part of Route.");
+    }
+
+    PedestrianStreetSection getNextSection(Pedestrian pedestrian, PedestrianStreetSection currentSection) {
+        PedestrianStreetSection section = null;
+        boolean stopLooping = false;
+
+        for(PedestrianStreetSectionAndPortPair sectionAndPortPair : pedestrian.getRoute().getRoute()){
+            section = (PedestrianStreetSection) sectionAndPortPair.getStreetSection();
+
+            if (stopLooping) return section;
+            if(section.equals(currentSection)){
+                stopLooping = true;
             }
         }
         throw new IllegalStateException("Section not part of Route.");
@@ -121,19 +132,18 @@ public class GroupeSizeCrossingClass {
                 !(pedestrian.getCurrentSection().getStreetSection()instanceof PedestrianStreetSection) ){
             throw new IllegalArgumentException("Section is not an instance of PedestrianStreetSection");
         }
-
         PedestrianStreetSection currentSection = (PedestrianStreetSection) pedestrian.getCurrentSection().getStreetSection();
-        PedestrianStreetSectionAndPortPair currentData = null;
-        PedestrianStreetSection nextSection  = getCurrentSectionData(pedestrian, currentSection, currentData);
+        PedestrianStreetSection nextSection = getNextSection(pedestrian, currentSection);
+        PedestrianStreetSectionAndPortPair currentData = getCurrentSectionData(pedestrian, currentSection);
 
         while ( !nextSection.getPedestrianConsumerType().equals(PedestrianConsumerType.PEDESTRIAN_SINK)){
             distance += getWalkingLengthAcrossSection(currentData);
-
             if(nextSection.equals(crossingRef)) {
                 return calculations.val1LowerOrAlmostEqual(distance, pedestrian.getMaxDistanceForWaitingArea());
             }
             currentSection = nextSection;
-            nextSection  = getCurrentSectionData(pedestrian, currentSection, currentData);
+            nextSection = getNextSection(pedestrian, currentSection);
+            currentData = getCurrentSectionData(pedestrian, currentSection);
         }
         return  false;
     }
@@ -166,7 +176,7 @@ public class GroupeSizeCrossingClass {
         return midPosPrev.length();
     }
 
-    public void getAllPedestrianFromPreviousStreets(PedestrianStreetSection section, Double numberOfPedestrian,
+    public void getAllPedestrianFromPreviousStreets(PedestrianStreetSection section,
                                                     PedestrianStreetSection crossingRef) {
         List<PedestrianStreetSection> listOfStreetSectionsInRange = new ArrayList<>();
         listOfStreetSectionsInRange.add(section);
@@ -186,7 +196,7 @@ public class GroupeSizeCrossingClass {
 
                     if ( listOfCheckedStreets.contains(previousSection) ) continue;
 
-                    if (getAllPedestrianFromStreet((PedestrianStreetSection) previousSection , numberOfPedestrian,  crossingRef)){
+                    if (getAllPedestrianFromStreet((PedestrianStreetSection) previousSection,  crossingRef)){
                         listOfStreetSectionsInRange.add((PedestrianStreetSection)previousSection);
                     }
                 }
@@ -194,7 +204,7 @@ public class GroupeSizeCrossingClass {
         }
     }
 
-    void getAllPedestrianFromFollowingStreets(PedestrianStreetSection section, Double numberOfPedestrian,
+    void getAllPedestrianFromFollowingStreets(PedestrianStreetSection section,
                                               PedestrianStreetSection crossingRef) {
         List<PedestrianStreetSection> listOfStreetSectionsInRange = new ArrayList<>();
         listOfStreetSectionsInRange.add(section);
@@ -214,7 +224,7 @@ public class GroupeSizeCrossingClass {
 
                     if ( listOfCheckedStreets.contains(previousSection) ) continue;
 
-                    if (getAllPedestrianFromStreet((PedestrianStreetSection) previousSection , numberOfPedestrian,  crossingRef)){
+                    if (getAllPedestrianFromStreet((PedestrianStreetSection) previousSection,  crossingRef)){
                         listOfStreetSectionsInRange.add((PedestrianStreetSection)previousSection);
                     }
                 }

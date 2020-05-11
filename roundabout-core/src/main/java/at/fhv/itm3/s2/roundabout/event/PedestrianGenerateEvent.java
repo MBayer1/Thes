@@ -87,17 +87,21 @@ public class PedestrianGenerateEvent extends Event<PedestrianAbstractSource> {
                 throw new IllegalArgumentException("There are no connected streets");
             }
 
-            PedestrianConnectedStreetSections connectorPair = (((PedestrianStreetSection) currentSection).getPreviousStreetConnector()).get(0);
+            PedestrianConnectedStreetSections connectorPair = null;
+            for (PedestrianConnectedStreetSections connector : (((PedestrianStreetSection) currentSection).getPreviousStreetConnector())) {
+                if(connector.getToSource() != null) {
+                    connectorPair = connector;
+                    break;
+                }
+            }
+
+            if(connectorPair == null) {
+                throw new IllegalStateException("no matching connector for creating pedestrian.");
+            }
+
             if (connectorPair == null) {
                 throw new IllegalArgumentException("There is no entry port into system on this Source.");
             }
-
-            PedestrianPoint start = connectorPair.getPortOfFromStreetSection().getLocalBeginOfStreetPort();
-            PedestrianPoint end = connectorPair.getPortOfFromStreetSection().getLocalEndOfStreetPort();
-            connectorPair.getPortOfToStreetSection().getLocalBeginOfStreetPort();
-            connectorPair.getPortOfToStreetSection().getLocalEndOfStreetPort();
-
-
 
             double val1 = roundaboutSimulationModel.getRandomPedestrianPreferredSpeed();
             double val2 = roundaboutSimulationModel.getRandomPedestrianPreferredSpeed();
@@ -113,6 +117,8 @@ public class PedestrianGenerateEvent extends Event<PedestrianAbstractSource> {
                     roundaboutSimulationModel.massDynamic.getRandomDangerSenseClass(),
                     preferredSpeed, maxPreferredSpeed, roundaboutSimulationModel.getMaxDistanceForWaitingArea());
 
+            PedestrianPoint start = connectorPair.getPortOfToStreetSection().getLocalBeginOfStreetPort();
+            PedestrianPoint end = connectorPair.getPortOfToStreetSection().getLocalEndOfStreetPort();
 
             PedestrianPoint globalEntryPoint = new PedestrianPoint();
             if (calc.almostEqual(end.getX(), start.getX())) {
@@ -123,8 +129,8 @@ public class PedestrianGenerateEvent extends Event<PedestrianAbstractSource> {
 
             } else {
                 double entryX = roundaboutSimulationModel.getRandomEntryPoint(
-                        Math.min(end.getX(), start.getX()),
-                        Math.max(end.getX(), start.getX()));
+                        Math.min(end.getX(), start.getX() + behaviour.calcGapForPedestrian()),
+                        Math.max(end.getX(), start.getX()) - behaviour.calcGapForPedestrian());
                 globalEntryPoint.setLocation(entryX + global.getX(), start.getY() + global.getY());
             }
 

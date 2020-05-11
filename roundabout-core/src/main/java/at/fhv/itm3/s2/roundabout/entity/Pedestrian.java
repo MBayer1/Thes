@@ -177,6 +177,10 @@ public class Pedestrian extends Entity implements IPedestrian {
     }
 
     public double getRemainingDistnaceToCurrentNextSubgoal() {
+        if(currentNextGlobalAim == null) {
+            setCurrentNextGlobalAim();
+        }
+
         double distance = calc.getDistanceByCoordinates(currentGlobalPosition, currentNextGlobalAim);
         double walkedTime = car.getModel().getExperiment().getSimClock().getTime().getTimeAsDouble(car.getModel().getExperiment().getReferenceUnit())-lastUpdateTime;
         distance = distance - (walkedTime*pedestrianBehaviour.getCurrentSpeed());
@@ -238,7 +242,7 @@ public class Pedestrian extends Entity implements IPedestrian {
                 PedestrianPoint intersection = calc.getLinesIntersectionByCoordinates(localPort, localPos.getX(), localPos.getY(), onBorderX, onBorderY);
 
                 if (intersection == null || !calc.checkWallIntersectionWithinPort(localPort, intersection)) {
-                    if (intersection == null) intersection = localPos;
+                    if (intersection == null) intersection = new PedestrianPoint(onBorderX, onBorderY);  //localPos;
                     calc.shiftIntersection(localPort, intersection, getMinGapForPedestrian());
                 }
 
@@ -556,6 +560,7 @@ public class Pedestrian extends Entity implements IPedestrian {
         // Port is along y axis
         if (calc.almostEqual(localBegin.getX(),
                 localEnd.getX())) {
+
             if (( ( calc.val1LowerOrAlmostEqual((localBegin.getY()), localPedestrianPosition.getY(), 10e-1) &&
                     calc.val1BiggerOrAlmostEqual((localEnd.getY()), localPedestrianPosition.getY(), 10e-1))
                     ||

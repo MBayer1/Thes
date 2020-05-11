@@ -630,7 +630,6 @@ public class RoundaboutSimulationModel extends Model {
                 false
         );
         pedestrianEntryPoint.setSeed(simulationSeed);
-
     }
 
     /**
@@ -927,8 +926,11 @@ public class RoundaboutSimulationModel extends Model {
      * See {@link RoundaboutSimulationModel#init()} method for stream parameters.
      */
     public double getRandomEntryPoint(double minValue, double maxValue) {
-        return Math.max(Math.min(pedestrianEntryPoint.sample(),  maxValue), minValue);
-
+        double sample = pedestrianEntryPoint.sample();
+        double diff = Math.abs(maxValue - minValue);
+        diff *= sample;
+        diff += minValue;
+        return Math.max(Math.min(diff,  maxValue), minValue);
     }
 
 

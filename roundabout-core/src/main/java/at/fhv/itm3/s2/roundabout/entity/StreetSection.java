@@ -789,6 +789,9 @@ public class StreetSection extends Street {
      * @return weather car drives along x or y axis {@Link boolean}.
      */
     public boolean checkCarDrivesAlongYAxis(){
+        if(pedestrianCrossing == null) {
+            return false;
+        }
         return pedestrianCrossing.carDrivesAlongYAxis();
     }
 
