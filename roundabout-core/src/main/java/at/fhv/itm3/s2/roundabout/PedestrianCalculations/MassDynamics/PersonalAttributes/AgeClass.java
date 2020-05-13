@@ -10,10 +10,10 @@ import java.util.List;
 public class AgeClass {
     List<Category> categoryList = new LinkedList<>();
     public AgeClass(){
-        categoryList.add(new Category("lower16",0.,5,0.5));
-        categoryList.add(new Category("lower35",5.,71,0.68));
-        categoryList.add(new Category("lower60",71,93,0.53));
-        categoryList.add(new Category("higher60",93,101,0.44));
+        categoryList.add(new Category("lower16",-1,3.6,0.5));
+        categoryList.add(new Category("lower35",categoryList.get(categoryList.size()-1).getUpperLimit(),71.3,0.68));
+        categoryList.add(new Category("lower60",categoryList.get(categoryList.size()-1).getUpperLimit(),93.2,0.53));
+        categoryList.add(new Category("higher60",categoryList.get(categoryList.size()-1).getUpperLimit(),100,0.44));
     }
 
     public double getProbability (String type){
@@ -33,7 +33,7 @@ public class AgeClass {
 
     public String getTypeByDetermineValue (double valueToDetermineClass){
         for ( int i = 0; i < categoryList.size(); ++i) {
-            if ( valueToDetermineClass >= categoryList.get(i).getLowerLimit() && valueToDetermineClass < categoryList.get(i).getUpperLimit()){
+            if ( valueToDetermineClass > categoryList.get(i).getLowerLimit() && valueToDetermineClass <= categoryList.get(i).getUpperLimit()){
                 return categoryList.get(i).getTypeKey();
             }
         }

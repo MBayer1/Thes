@@ -126,13 +126,14 @@ public class MassDynamic {
         sum += tmp;
         tmp = currentMovementClass.getProbability(pedestrian);
         sum += tmp;
-        tmp = stoppingWhileCrossingClass.getProbability(pedestrian);
-        sum += tmp;
+        //tmp = stoppingWhileCrossingClass.getProbability(pedestrian);
+        //sum += tmp;
         return sum/7;
     }
 
 
     public boolean doCrossing(Pedestrian pedestrian){
-        return (getProbability(pedestrian) < 0.5 ) ? false : true ;
+        return (getProbability(pedestrian) <
+                pedestrian.getRoundaboutModel().getRandomMassDynamicsTriggersEventPedestrians()) ? true : false;
     }
 }

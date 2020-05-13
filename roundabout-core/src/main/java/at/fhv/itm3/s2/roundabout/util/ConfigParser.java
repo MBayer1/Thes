@@ -219,7 +219,7 @@ public class ConfigParser {
 
         final List<PedestrianRoute> pedestrianRoutes = handlePedestrianRoutes(modelConfig).values().stream().map(Map::values).flatMap(Collection::stream).collect(Collectors.toList());
         modelStructure.addPedestrianRoutes(pedestrianRoutes);
-        initGlobalCoordinates();
+        initGlobalCoordinates(modelConfig);
 
         RouteController.getInstance(model).setRoutes(modelStructure.getRoutes());
         PedestrianRouteController.getInstance(model).setRoutes(modelStructure.getPedestrianRoutes());
@@ -505,11 +505,19 @@ public class ConfigParser {
                         throw new IllegalArgumentException("A pedestrian traffic light can currently solely be on a pedestrian crossing section.");
                     }
 
-                    PedestrianStreetReferenceForVehicleStreet pedestrianStreetRef = null;
+                    PedestrianStreetReferenceForVehicleStreet pedestrianStreetRefEnter = null;
+                    PedestrianStreetReferenceForVehicleStreet pedestrianStreetRefExit = null;
                     if ( pedestrianStreetSectionRef != null) {
-                        pedestrianStreetRef =
-                                new PedestrianStreetReferenceForVehicleStreet(pedestrianStreetSectionRef,
-                                        s.getPedestrianCrossingIDRefEnterHigh(), s.getPedestrianCrossingRefLinkedAtBegin().equals("y") ? true : false);
+                        if(s.getPedestrianCrossingIDRefEnterHigh() != null) {
+                            pedestrianStreetRefEnter =
+                                    new PedestrianStreetReferenceForVehicleStreet(pedestrianStreetSectionRef,
+                                            s.getPedestrianCrossingIDRefEnterHigh(), s.getPedestrianCrossingRefLinkedAtBegin().equals("y") ? true : false);
+                        }
+                        if(s.getPedestrianCrossingIDRefExitHigh() != null) {
+                            pedestrianStreetRefExit =
+                                    new PedestrianStreetReferenceForVehicleStreet(pedestrianStreetSectionRef,
+                                            s.getPedestrianCrossingIDRefExitHigh(), s.getPedestrianCrossingRefLinkedAtBegin().equals("y") ? true : false);
+                        }
                     }
 
                     final StreetSection streetSection = new StreetSection(
@@ -522,12 +530,20 @@ public class ConfigParser {
                             s.getMinGreenPhaseDuration(),
                             s.getGreenPhaseDuration(),
                             s.getRedPhaseDuration(),
-                            pedestrianStreetRef
+                            pedestrianStreetRefEnter,
+                            pedestrianStreetRefExit
                     );
 
                     if ( (pedestrianStreetSectionRef instanceof PedestrianStreetSection) &&
-                            pedestrianStreetSectionRef.getPedestrianConsumerType().equals(PedestrianConsumerType.PEDESTRIAN_CROSSING)) {
-                        ((PedestrianStreetSection) pedestrianStreetSectionRef).addVehicleStreetList(streetSection);
+                            pedestrianStreetSectionRef.getPedestrianConsumerType().equals(PedestrianConsumerType.PEDESTRIAN_CROSSING) &&
+                        pedestrianStreetRefEnter != null) {
+                        ((PedestrianStreetSection) pedestrianStreetSectionRef).addEnteringVehicleStreetList(streetSection);
+                    }
+
+                    if ( (pedestrianStreetSectionRef instanceof PedestrianStreetSection) &&
+                            pedestrianStreetSectionRef.getPedestrianConsumerType().equals(PedestrianConsumerType.PEDESTRIAN_CROSSING) &&
+                            pedestrianStreetRefExit != null) {
+                        ((PedestrianStreetSection) pedestrianStreetSectionRef).addLeavingVehicleStreetList(streetSection);
                     }
 
                     if (!SECTION_REGISTRY.containsKey(scopeComponentId)) {
@@ -556,9 +572,8 @@ public class ConfigParser {
                         );
                     }
 
-                    final boolean isTrafficLightActive = s.getIsTrafficLightActive() != null ? s.getIsTrafficLightActive() : false;
                     final boolean useMassDynamic = s.getUseMassDynamic() != null ? s.getUseMassDynamic() : false;
-
+                    final boolean isTrafficLightActive = s.getIsTrafficLightActive() != null ? s.getIsTrafficLightActive() : false;
 
                     final PedestrianStreetSection pedestrianStreetSection = new PedestrianStreetSection(
                             s.getId(),
@@ -578,7 +593,7 @@ public class ConfigParser {
                     );
 
                     if (pedestrianStreetSection.getPedestrianConsumerType().equals(PedestrianConsumerType.PEDESTRIAN_CROSSING)) {
-                        pedestrianStreetSection.setFlexiBorderAlongX(s.getFlexiBorderAlongX() != null ? s.getUseMassDynamic() : false);
+                        pedestrianStreetSection.setFlexiBorderAlongX(s.getFlexiBorderAlongX() != null ? s.getFlexiBorderAlongX() : false);
                     }
 
                     if (!PEDESTRIAN_SECTION_REGISTRY.containsKey(scopeComponentId)) {
@@ -865,14 +880,22 @@ public class ConfigParser {
         return null;
     }
 
-    private void initGlobalCoordinates(){
-        // start at any source
+    private void initGlobalCoordinates(ModelConfig modelConfig){
         if (PEDESTRIAN_SOURCE_REGISTRY.isEmpty()) return;
+        // start at any source
         PedestrianStreetSection currentSection = getAStartForGlobalCoordinates();
         currentSection.setGlobalCoordinateOfSectionOrigin(new PedestrianPoint(0,0));
         deepSearchGlobalCoordinates(currentSection);
-
         initGlobalSource();
+
+        modelConfig.getComponents().getComponent().forEach( component -> {
+                if (! component.getType().equals(ComponentType.PEDESTRIANWALKINGAREA)) {
+                    for ( Section section : component.getSections().getSection() ) {
+                        resolveSection(component.getId(), section.getId()).setGlobalCoordinateOfCrossingIntersection();
+                    }
+                }
+            }
+        );
     }
 
     private void initGlobalSource() {

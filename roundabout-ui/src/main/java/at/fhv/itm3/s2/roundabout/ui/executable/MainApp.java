@@ -2,6 +2,7 @@ package at.fhv.itm3.s2.roundabout.ui.executable;
 
 
 import at.fhv.itm3.s2.roundabout.controller.CarController;
+import at.fhv.itm3.s2.roundabout.PedestrianCalculations.SocialForceModelCalculation.VerifyForceCalc_TestEnvironment;
 import at.fhv.itm3.s2.roundabout.PedestrianCalculations.SocialForceModelCalculation.ForceCalcTestEnvironment;
 import at.fhv.itm3.s2.roundabout.model.RoundaboutSimulationModel;
 import at.fhv.itm3.s2.roundabout.ui.controllers.MainViewController;
@@ -85,11 +86,6 @@ public class MainApp extends Application {
             Scene scene = new Scene(pedestrianUIMain, PedestrianUIUtils.MAIN_WINDOW_WIDTH, PedestrianUIUtils.MAIN_WINDOW_HEIGHT);
             initStage.setScene(scene);
             initStage.show();
-
-
-            //TODO delete pedestrian
-            ForceCalcTestEnvironment tmp = new ForceCalcTestEnvironment();
-
 
             mainViewController.generateComponentStatContainers(
                 modelConfig.getComponents().getComponent(),

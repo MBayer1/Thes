@@ -11,10 +11,10 @@ public class PsychologicalClass {
 
     List<Category> categoryList = new LinkedList<>();
     public PsychologicalClass(){
-        categoryList.add(new Category("veryHeight",0.,11,0.5));
-        categoryList.add(new Category("high",11.,41,0.69));
-        categoryList.add(new Category("medium",41,91,0.91));
-        categoryList.add(new Category("low",91,101,0.97));
+        categoryList.add(new Category("veryHeight",-1,10,0.5));
+        categoryList.add(new Category("high",categoryList.get(categoryList.size()-1).getUpperLimit(),40,0.69));
+        categoryList.add(new Category("medium",categoryList.get(categoryList.size()-1).getUpperLimit(),90,0.91));
+        categoryList.add(new Category("low",categoryList.get(categoryList.size()-1).getUpperLimit(),100,0.97));
     }
 
     public double getProbability (String type){
@@ -34,7 +34,7 @@ public class PsychologicalClass {
 
     public String getTypeByDetermineValue (double valueToDetermineClass){
         for ( int i = 0; i < categoryList.size(); ++i) {
-            if ( valueToDetermineClass >= categoryList.get(i).getLowerLimit() && valueToDetermineClass < categoryList.get(i).getUpperLimit()){
+            if ( valueToDetermineClass > categoryList.get(i).getLowerLimit() && valueToDetermineClass <= categoryList.get(i).getUpperLimit()){
                 return categoryList.get(i).getTypeKey();
             }
         }

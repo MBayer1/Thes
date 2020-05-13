@@ -32,6 +32,25 @@ public class SupportiveCalculations {
         return new Vector2d(returnXTmp, returnYTmp);
     }
 
+    public Vector2d getUnitNormalVector(double vectorX,	double vectorY)
+    {
+        // 90° counterclockwise
+
+        Vector2d newVec = getUnitVector(vectorX, vectorY);
+
+        double temp = newVec.getX();
+        double X = newVec.getY();
+        double Y = temp;
+
+        newVec = new Vector2d(X * (-1), Y);
+        return newVec;
+    }
+
+
+    public Vector2d getUnitNormalVector( Vector2d vector) {
+        return  getUnitNormalVector(vector.getX(), vector.getY());
+    }
+
     public boolean checkLinesIntersectionByCoordinates_WithinSegment(PedestrianPoint intersection,
                                                                      PedestrianPoint lineStart1,
                                                                      double lineEndX1, double lineEndY1,
@@ -306,20 +325,20 @@ public class SupportiveCalculations {
         return false;
     }
 
-    public void shiftIntersection (PedestrianStreetSectionPort port, PedestrianPoint intersection) {
-        shiftIntersection(port, intersection, 0);
+    public PedestrianPoint shiftIntersection (PedestrianStreetSectionPort port, PedestrianPoint intersection) {
+        return shiftIntersection(port, intersection, 0);
     }
 
-    public void shiftIntersection (PedestrianStreetSectionPort port, PedestrianPoint intersection, double minGabToWall) {
-        shiftIntersection(port.getLocalBeginOfStreetPort().getX(), port.getLocalBeginOfStreetPort().getY(),
+    public PedestrianPoint shiftIntersection (PedestrianStreetSectionPort port, PedestrianPoint intersection, double minGabToWall) {
+        return shiftIntersection(port.getLocalBeginOfStreetPort().getX(), port.getLocalBeginOfStreetPort().getY(),
                 port.getLocalEndOfStreetPort().getX(), port.getLocalEndOfStreetPort().getY(), intersection, minGabToWall);
     }
 
-    public void shiftIntersection( double portBeginX, double portBeginY, double portEndX, double portEndY, PedestrianPoint wallIntersection){
-        shiftIntersection(portBeginX, portBeginY, portEndX, portEndY, wallIntersection, 0);
+    public PedestrianPoint shiftIntersection( double portBeginX, double portBeginY, double portEndX, double portEndY, PedestrianPoint wallIntersection){
+        return shiftIntersection(portBeginX, portBeginY, portEndX, portEndY, wallIntersection, 0);
     }
 
-    public void shiftIntersection( double portBeginX, double portBeginY, double portEndX, double portEndY, PedestrianPoint wallIntersection, double minGabToWall) {
+    public PedestrianPoint shiftIntersection( double portBeginX, double portBeginY, double portEndX, double portEndY, PedestrianPoint wallIntersection, double minGabToWall) {
         // PedestrianPoint within the port gab
         // get closer corner of port
         if (getDistanceByCoordinates(portBeginX, portBeginY, wallIntersection.getX(), wallIntersection.getY()) <
@@ -330,23 +349,41 @@ public class SupportiveCalculations {
             // closer to the end of the port
             wallIntersection.setLocation(portEndX, portEndY);
         }
-        if (minGabToWall != 0) shiftIntersectionSub(portBeginX, portBeginY, portEndX, portEndY, wallIntersection, minGabToWall);
+        if (minGabToWall != 0) wallIntersection = shiftIntersectionSub(portBeginX, portBeginY, portEndX, portEndY, wallIntersection, minGabToWall);
+        return wallIntersection;
     }
 
-    public void shiftIntersectionSub( double portBeginX, double portBeginY, double portEndX, double portEndY, PedestrianPoint wallIntersection, double minGabToWall) {
+    public PedestrianPoint shiftIntersectionSub( double portBeginX, double portBeginY, double portEndX, double portEndY, PedestrianPoint wallIntersection, double minGabToWall) {
         if( almostEqual(portBeginX, portEndX) ) { // port along y side
             if( val1LowerOrAlmostEqual(portBeginY, portEndY)) {
-                wallIntersection.setLocation(wallIntersection.getX(), wallIntersection.getY() + minGabToWall);
+                if( Math.abs(wallIntersection.getY()- portEndY) < Math.abs(wallIntersection.getY()- portBeginY)){
+                    wallIntersection.setLocation(wallIntersection.getX(), portEndY - minGabToWall);
+                } else {
+                    wallIntersection.setLocation(wallIntersection.getX(), portBeginY + minGabToWall);
+                }
             } else {
-                wallIntersection.setLocation(wallIntersection.getX(), wallIntersection.getY() - minGabToWall);
+                if( Math.abs(wallIntersection.getY()- portEndY) < Math.abs(wallIntersection.getY()- portBeginY)){
+                    wallIntersection.setLocation(wallIntersection.getX(), portEndY + minGabToWall);
+                } else {
+                    wallIntersection.setLocation(wallIntersection.getX(), portBeginY - minGabToWall);
+                }
             }
         } else { // port along x side/aches
             if( val1LowerOrAlmostEqual(portBeginX, portEndX)) {
-                wallIntersection.setLocation(wallIntersection.getX() + minGabToWall, wallIntersection.getY());
+                if( Math.abs(wallIntersection.getY()- portEndY) < Math.abs(wallIntersection.getY()- portBeginY)){
+                    wallIntersection.setLocation(portEndX - minGabToWall, wallIntersection.getY());
+                } else {
+                    wallIntersection.setLocation(portEndX + minGabToWall, wallIntersection.getY());
+                }
             } else {
-                wallIntersection.setLocation(wallIntersection.getX() - minGabToWall, wallIntersection.getY());
+                if( Math.abs(wallIntersection.getY()- portEndY) < Math.abs(wallIntersection.getY()- portBeginY)){
+                    wallIntersection.setLocation(portEndX - minGabToWall, wallIntersection.getY());
+                } else {
+                    wallIntersection.setLocation(portEndX + minGabToWall, wallIntersection.getY());
+                }
             }
         }
+        return wallIntersection;
     }
 
     public PedestrianPoint shiftPointToEllipse(Vector2d point, double semiaxesBig, double semiaxesSmall) {
@@ -410,125 +447,6 @@ public class SupportiveCalculations {
             //System.out.println("Inside");
         }
         return false;
-    }
-
-
-    double getAngleDiffBetweenTwoLinesFacingCharCenter(
-            PedestrianPoint pointOnEllipse,
-            PedestrianPoint foci1,
-            PedestrianPoint foci2){
-
-        Vector2d vec1 = getVector(pointOnEllipse, foci1);
-        Vector2d vec2 = getVector(pointOnEllipse, foci2);
-
-        double dAngle1 = getAngleInDegFromPosition(pointOnEllipse.getX(), pointOnEllipse.getY(), foci1.getX(), foci1.getY()); // we asume this angle as Startangle
-        double dAngle2 = getAngleInDegFromPosition(pointOnEllipse.getX(), pointOnEllipse.getY(), foci2.getX(), foci2.getY());
-
-        //verify
-        double ax = pointOnEllipse.getX();
-        double ay = pointOnEllipse.getY();
-        double bx1 = foci1.getX();
-        double by1 = foci1.getY();
-        double bx2 = foci2.getX();
-        double by2 = foci2.getY();
-        double angle1 = Math.atan2( ax*by1 - ay * bx1, ax*bx1 + ay * by1 );
-        double angle2 = Math.atan2( ax*by2 - ay * bx2, ax*bx2 + ay * by2 );
-
-        if(almostEqual(dAngle1, dAngle2)){
-            throw new IllegalStateException("Angle difference can not be calculated. Both angle basis have the same angle.");
-        }
-
-        double dAngle;
-        // get Angle Anticlockwise, started from Line1
-        if(dAngle1 <=  dAngle2) {
-            dAngle = dAngle2 - dAngle1; //Anticlockwise direction
-            //if (!((dAngle1 <= dAngleCompare) && (dAngleCompare <= dAngle2) )) dAngle = 360-dAngle;  // we have to take the clockwise angle
-
-        } else { //dAngle > dAngle2
-            dAngle = 360 - dAngle1 + dAngle2; //Anticlockwise direction
-            /*if(!((dAngleCompare < 360 && dAngleCompare > dAngle1) ||dAngle < dAngle2)){
-                dAngle = 360-dAngle;  // we have to take the clockwise angle
-            }*/
-        }
-
-        return dAngle;
-    }
-
-    Vector2d getVectorFromAngleInDegAndLength (double dAngle, double dLength){
-        double dVecX, dVecY;
-
-        double dAngleInRad = Math.toRadians(dAngle);
-        dVecX = Math.cos(dAngleInRad); // is univec
-        dVecY = Math.sin(dAngleInRad); // is univec
-
-        dVecX *= dLength;
-        dVecY *= dLength;
-
-        return new Vector2d(dVecX, dVecY);
-    }
-
-    int getQuadrantOfDegreeAngle( double dAngleInDeg )
-    {
-        while( dAngleInDeg < 0) dAngleInDeg += 360;
-        while( dAngleInDeg > 360) dAngleInDeg -= 360;
-
-        if( val1Lower( dAngleInDeg, 90)){ // first qadrant
-            return 1;
-        } else if ( val1Lower( dAngleInDeg, 180 ) && val1BiggerOrAlmostEqual( dAngleInDeg, 90) ) { // second quadrant
-            return 2;
-        } else if ( val1Lower( dAngleInDeg, 270 ) && val1BiggerOrAlmostEqual( dAngleInDeg, 180) ) { // third quadrant
-            return 3;
-        } else if ( val1Lower( dAngleInDeg, 360 ) && val1BiggerOrAlmostEqual( dAngleInDeg, 270) ) {	// fourth quadrant
-            return 4;
-        }
-        throw new IllegalStateException("Quadrant of angle could not be calculated.");
-    }
-
-    double getAngleInDegFromPosition(double dX, double dY, double dAxisCenterX, double dAxisCenterY)
-    {
-        double dAlpha, dHypotenuse, dOppositeSide;
-
-        // do not use almost equal! as long there is some sort of differentce is it fine
-        // (especially needed fo step 2b: TransPoint might not be fare frome center)
-        if(dX == dAxisCenterX && dY == dAxisCenterY) return 0.;
-
-        dHypotenuse = Math.sqrt(Math.pow(dX - dAxisCenterX, 2) + Math.pow(dY - dAxisCenterY, 2));
-        dOppositeSide = Math.abs(dY - dAxisCenterY);
-        dAlpha = dOppositeSide / dHypotenuse;
-        dAlpha = Math.toDegrees(Math.asin(dAlpha));
-
-        dX = dX-dAxisCenterX;
-        dY = dY-dAxisCenterY;
-
-        if (val1LowerOrAlmostEqual(dX, 0) && dY > 0) {  // second quadrant
-            if (almostEqual(dAlpha, 0))
-                return 90.0;
-            else if (almostEqual(dAlpha, Math.PI))
-                return 180.0;
-            else
-                return 180 - dAlpha;
-        } else if (val1LowerOrAlmostEqual(dX, 0) && val1LowerOrAlmostEqual(dY, 0)) {  // third quadrant
-            if (almostEqual(dAlpha, 0))
-                return 180.0;
-            else if (almostEqual(dAlpha, Math.PI))
-                return 270.0;
-            else
-                return 180 + dAlpha;
-        } else if (val1BiggerOrAlmostEqual(dX, 0) && dY < 0) {  // forth quadrant
-            if (almostEqual(dAlpha, 0))
-                return 270.0;
-            else if (almostEqual(dAlpha, Math.PI))
-                return 0.0;
-            else
-                return 360 - dAlpha;
-        } else {
-            if (almostEqual(dAlpha, 0))
-                return 0.0;
-            else if (almostEqual(dAlpha, Math.PI))
-                return 90.0;
-            else
-                return dAlpha;
-        }
     }
 }
 

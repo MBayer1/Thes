@@ -57,30 +57,30 @@ public class RepulsiveForceAgainstObstacles {
            */
         double pedestrianX = pedestrian.getCurrentGlobalPosition().getX();
         double pedestrianY = pedestrian.getCurrentGlobalPosition().getY();
-        double sectionCenterX = currentSection.getGlobalCoordinateOfSectionOrigin().getX();
-        double sectionCenterY = currentSection.getGlobalCoordinateOfSectionOrigin().getY();
+        double sectionOriginX = currentSection.getGlobalCoordinateOfSectionOrigin().getX();
+        double sectionOriginY = currentSection.getGlobalCoordinateOfSectionOrigin().getY();
 
         // person positions - border intersections = global coordinates
-        PedestrianPoint wallIntersection1 = new PedestrianPoint(sectionCenterX, pedestrianY);
-        PedestrianPoint wallIntersection2 = new PedestrianPoint(pedestrianX,  sectionCenterY + currentSection.getLengthY());
-        PedestrianPoint wallIntersection3 = new PedestrianPoint(sectionCenterX + currentSection.getLengthX(), pedestrianY);
-        PedestrianPoint wallIntersection4 = new PedestrianPoint(pedestrianX,  sectionCenterY);
+        PedestrianPoint wallIntersection1 = new PedestrianPoint(sectionOriginX, pedestrianY);
+        PedestrianPoint wallIntersection2 = new PedestrianPoint(pedestrianX,  sectionOriginY + currentSection.getLengthY());
+        PedestrianPoint wallIntersection3 = new PedestrianPoint(sectionOriginX + currentSection.getLengthX(), pedestrianY);
+        PedestrianPoint wallIntersection4 = new PedestrianPoint(pedestrianX,  sectionOriginY);
 
         // when pedestrian is outside the street section set corner as intersection
-        if ( calculations.val1LowerOrAlmostEqual(pedestrianX, sectionCenterX )) {
-            wallIntersection2.setX(sectionCenterX);
-            wallIntersection4.setX(sectionCenterX);
-        } else if (calculations.val1BiggerOrAlmostEqual(pedestrianX, sectionCenterX + currentSection.getLengthX())) {
-            wallIntersection2.setX(sectionCenterX + currentSection.getLengthX());
-            wallIntersection4.setX(sectionCenterX + currentSection.getLengthX());
+        if ( calculations.val1LowerOrAlmostEqual(pedestrianX, sectionOriginX )) {
+            wallIntersection2.setX(sectionOriginX);
+            wallIntersection4.setX(sectionOriginX);
+        } else if (calculations.val1BiggerOrAlmostEqual(pedestrianX, sectionOriginX + currentSection.getLengthX())) {
+            wallIntersection2.setX(sectionOriginX + currentSection.getLengthX());
+            wallIntersection4.setX(sectionOriginX + currentSection.getLengthX());
         }
 
-        if ( calculations.val1LowerOrAlmostEqual(pedestrianY, sectionCenterY )) {
-            wallIntersection1.setY(sectionCenterY);
-            wallIntersection3.setY(sectionCenterY);
-        } else if (calculations.val1BiggerOrAlmostEqual(pedestrianY, sectionCenterY + currentSection.getLengthY())) {
-            wallIntersection1.setY(sectionCenterY + currentSection.getLengthY());
-            wallIntersection3.setY(sectionCenterY + currentSection.getLengthY());
+        if ( calculations.val1LowerOrAlmostEqual(pedestrianY, sectionOriginY )) {
+            wallIntersection1.setY(sectionOriginY);
+            wallIntersection3.setY(sectionOriginY);
+        } else if (calculations.val1BiggerOrAlmostEqual(pedestrianY, sectionOriginY + currentSection.getLengthY())) {
+            wallIntersection1.setY(sectionOriginY + currentSection.getLengthY());
+            wallIntersection3.setY(sectionOriginY + currentSection.getLengthY());
         }
 
         // except it is within an port gab, then it will take enter or exit port depending which is closer.
@@ -88,10 +88,10 @@ public class RepulsiveForceAgainstObstacles {
             if (connected.getFromStreetSection().equals(currentSection)) {
                 PedestrianStreetSectionPort localPort = connected.getPortOfFromStreetSection();
                 PedestrianStreetSectionPort globalPort = new PedestrianStreetSectionPort(
-                        localPort.getLocalBeginOfStreetPort().getX() + sectionCenterX,
-                        localPort.getLocalBeginOfStreetPort().getY() + sectionCenterY,
-                        localPort.getLocalEndOfStreetPort().getX() + sectionCenterX,
-                        localPort.getLocalEndOfStreetPort().getY() + sectionCenterY);
+                        localPort.getLocalBeginOfStreetPort().getX() + sectionOriginX,
+                        localPort.getLocalBeginOfStreetPort().getY() + sectionOriginY,
+                        localPort.getLocalEndOfStreetPort().getX() + sectionOriginX,
+                        localPort.getLocalEndOfStreetPort().getY() + sectionOriginY);
 
                 if ( calculations.checkWallIntersectionWithinPort( globalPort, wallIntersection1 ) )
                     calculations.shiftIntersection(globalPort, wallIntersection1);
@@ -149,16 +149,13 @@ public class RepulsiveForceAgainstObstacles {
         Vector2d wallIntersection3force = getRepulsiveForceAgainstObstacle( pedestrian, new PedestrianPoint( wallIntersection3.getX(), wallIntersection3.getY()));
         Vector2d wallIntersection4force = getRepulsiveForceAgainstObstacle( pedestrian, new PedestrianPoint( wallIntersection4.getX(), wallIntersection4.getY()));
 
+        sumForce.add(wallIntersection1force);
+        sumForce.add(wallIntersection2force);
+        sumForce.add(wallIntersection3force);
+        sumForce.add(wallIntersection4force);
+
         if ( checkAttractingForce( currentSection, pedestrian ) ) {// attracted force
-            sumForce.sub(wallIntersection1force);
-            sumForce.sub(wallIntersection2force);
-            sumForce.sub(wallIntersection3force);
-            sumForce.sub(wallIntersection4force);
-        } else {// repulsive force
-            sumForce.add(wallIntersection1force);
-            sumForce.add(wallIntersection2force);
-            sumForce.add(wallIntersection3force);
-            sumForce.add(wallIntersection4force);
+            sumForce.scale(-1);
         }
     }
 
@@ -199,10 +196,10 @@ public class RepulsiveForceAgainstObstacles {
         // Repulsive force
         Double expo = (-1 * (distanceBetweenPedestrianAndObstacle/ R));
         expo = Math.exp(expo);
-        Vector2d force = vectorBetweenPedestrianAndObstacle;
+        Vector2d force = calculations.getUnitVector(vectorBetweenPedestrianAndObstacle);
 
         force.scale(U0AlphaBeta * expo);
-        force.negate();
+        //force.negate(); not needed as we  use vec from pos sub goal
         return force;
     }
 

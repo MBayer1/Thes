@@ -19,9 +19,6 @@ import java.util.Iterator;
 public class Pedestrian extends Entity implements IPedestrian {
 
     private final Car car; //keep existing structure as dummy for some specific function considered simulation
-    private final Double preferredSpeed;
-    private Double currentPreferredSpeedToUse;
-    private final Double maxPreferredSpeed;
     private final IPedestrianRoute route;
     private final IPedestrianBehaviour pedestrianBehaviour;
     private final Iterator<PedestrianStreetSectionAndPortPair> routeIterator;
@@ -37,7 +34,6 @@ public class Pedestrian extends Entity implements IPedestrian {
     private PedestrianPoint currentGlobalPosition;
     private PedestrianPoint currentLocalPosition;
 
-
     public final Count pedestriansQueueToEnterCounter;
     public final Tally pedestriansQueueToEnterTime;
     public final StopWatch pedestriansQueueToEnterTimeStopWatch;
@@ -46,35 +42,24 @@ public class Pedestrian extends Entity implements IPedestrian {
     private PedestrianStreetSectionAndPortPair currentSection;
     private PedestrianStreetSectionAndPortPair nextSection;
     private PedestrianStreetSectionAndPortPair sectionAfterNextSection;
-    private Double currentSpeed;
     private Double walkedDistance;
     private double timeRelatedParameterValueNForSpeedCalculation;
     private PedestrianPoint currentNextGlobalAim;
-    private Vector2d previousSFMVector;
 
-    private Double maxDistanceForWaitingArea;
     private Double startOfWalking;
     private Double futureEndOfWalking;
 
     private Double enterSystemTime;
     private Double leaveSystemTime;
 
-
-
-    //ui variables
-    private double startTime;
-    private PedestrianPoint lastPedestrianCoordinates;
-
-
-
     SupportiveCalculations calc = new SupportiveCalculations();
 
-    public Pedestrian(Model model, String name, boolean showInTrace, PedestrianPoint currentGlobalPosition, IPedestrianBehaviour pedestrianBehaviour, IPedestrianRoute route, double maxDistanceForWaitingArea) {
-        this(model, name, showInTrace, currentGlobalPosition, pedestrianBehaviour, route, 1.0, maxDistanceForWaitingArea);
+    public Pedestrian(Model model, String name, boolean showInTrace, PedestrianPoint currentGlobalPosition, IPedestrianBehaviour pedestrianBehaviour, IPedestrianRoute route) {
+        this(model, name, showInTrace, currentGlobalPosition, pedestrianBehaviour, route, 1.0);
     }
 
     public Pedestrian(Model model, String name, boolean showInTrace, PedestrianPoint currentGlobalPosition, IPedestrianBehaviour pedestrianBehaviour,
-                      IPedestrianRoute route, double timeRelatedParameterValueNForSpeedCalculation, double maxDistanceForWaitingArea)
+                      IPedestrianRoute route, double timeRelatedParameterValueNForSpeedCalculation)
             throws IllegalArgumentException {
         super(model, "name", showInTrace);
 
@@ -103,11 +88,6 @@ public class Pedestrian extends Entity implements IPedestrian {
         this.car = new Car(model, "pedestrianDummy", false);
 
         // Extended of Pedestrian speed -> also include stress factor.
-        double val1 = getRoundaboutModel().getRandomPedestrianPreferredSpeed();
-        double val2 = getRoundaboutModel().getRandomPedestrianPreferredSpeed();
-        this.preferredSpeed = Math.min(val1, val2);
-        this.currentPreferredSpeedToUse = new Double(this.preferredSpeed);
-        this.maxPreferredSpeed = Math.max(val1, val2);
         this.walkedDistance = 0.0;
         this.timeRelatedParameterValueNForSpeedCalculation = timeRelatedParameterValueNForSpeedCalculation;
 
@@ -125,18 +105,12 @@ public class Pedestrian extends Entity implements IPedestrian {
         this.pedestrianCrossingTime = new Tally(model, "Roundabout time", false, false);
         this.pedestrianCrossingTime.reset();
 
-        this.currentSpeed = this.getPreferredSpeed();
         // coordinates are always at center of pedestrian, min gab simulates als the radius of pedestrian
 
         this.pedestriansQueueToEnterCounter = new Count(model, "Roundabout counter", false, false);
         this.pedestriansQueueToEnterCounter.reset();
         this.pedestriansQueueToEnterTime = new Tally(model, "Roundabout time", false, false);
         this.pedestriansQueueToEnterTimeStopWatch = new StopWatch(model);
-
-        this.previousSFMVector = new Vector2d(0,0);
-
-        this.maxDistanceForWaitingArea = maxDistanceForWaitingArea;
-
     }
 
     /**
@@ -185,7 +159,7 @@ public class Pedestrian extends Entity implements IPedestrian {
         double calcResult = calc.getDistanceByCoordinates(currentNextGlobalAim.getX(),
                 currentNextGlobalAim.getY(),
                 currentGlobalPosition.getX(),
-                currentGlobalPosition.getY()) * calculatePreferredSpeed();
+                currentGlobalPosition.getY()) * pedestrianBehaviour.getCurrentSpeed();
 
         if(calcResult < 1) { // 1 time unit, in this case 1sec
             throw new  IllegalStateException("Something went wrong. Suspicious transferee time of Pedestrian.");
@@ -202,6 +176,17 @@ public class Pedestrian extends Entity implements IPedestrian {
         return currentGlobalPosition;
     }
 
+    public double getRemainingDistnaceToCurrentNextSubgoal() {
+        if(currentNextGlobalAim == null) {
+            setCurrentNextGlobalAim();
+        }
+
+        double distance = calc.getDistanceByCoordinates(currentGlobalPosition, currentNextGlobalAim);
+        double walkedTime = car.getModel().getExperiment().getSimClock().getTime().getTimeAsDouble(car.getModel().getExperiment().getReferenceUnit())-lastUpdateTime;
+        distance = distance - (walkedTime*pedestrianBehaviour.getCurrentSpeed());
+        return distance;
+    }
+
     public PedestrianPoint getCurrentLocalPosition() {
         if (this.currentLocalPosition == null) {
             setCurrentLocalPosition();
@@ -210,7 +195,6 @@ public class Pedestrian extends Entity implements IPedestrian {
     }
 
     public void setCurrentGlobalPosition(PedestrianPoint currentGlobalPosition) {
-
         if (currentGlobalPosition == null) {
             throw new IllegalArgumentException("there is no global position set");
         }
@@ -259,7 +243,7 @@ public class Pedestrian extends Entity implements IPedestrian {
                 PedestrianPoint intersection = calc.getLinesIntersectionByCoordinates(localPort, localPos.getX(), localPos.getY(), onBorderX, onBorderY);
 
                 if (intersection == null || !calc.checkWallIntersectionWithinPort(localPort, intersection)) {
-                    if (intersection == null) intersection = localPos;
+                    if (intersection == null) intersection = new PedestrianPoint(onBorderX, onBorderY);  //localPos;
                     calc.shiftIntersection(localPort, intersection, getMinGapForPedestrian());
                 }
 
@@ -450,38 +434,71 @@ public class Pedestrian extends Entity implements IPedestrian {
     }
 
     public double getCoveredDistanceInTime(double time) {
-        return time * pedestrianBehaviour.getSpeed();
+        return time * pedestrianBehaviour.getCurrentSpeed();
     }
 
     public double getCurrentSpeed() {
-        return currentSpeed;
+        return pedestrianBehaviour.getCurrentSpeed();
     }
 
     public void setCurrentSpeed(double currentSpeed) {
-        this.currentSpeed = currentSpeed;
+        if (!(pedestrianBehaviour instanceof PedestrianBehaviour)) {
+            throw new IllegalStateException("Type miss match: behaviour not instance of PedestrianBehaviour.");
+        }
+
+        CurrentMovementPedestrian previousMovement = ((PedestrianBehaviour) pedestrianBehaviour).getCurrentMovmentClass();
+        CurrentMovementPedestrian currentMovement = Math.abs(currentSpeed - getPreferredMaxSpeed()) <
+                Math.abs(currentSpeed - getPreferredMaxSpeed())
+                ? CurrentMovementPedestrian.Walking : CurrentMovementPedestrian.Running;
+
+        CurrentMovementPedestrian newValue = CurrentMovementPedestrian.Walking; // previousMovment && currentMovement are WALKING
+        if ( previousMovement.equals(CurrentMovementPedestrian.Running) && currentMovement.equals(CurrentMovementPedestrian.Running)) {
+            newValue = CurrentMovementPedestrian.Running;
+        } else if (previousMovement.equals(CurrentMovementPedestrian.Running) && currentMovement.equals(CurrentMovementPedestrian.Walking)){
+            newValue = CurrentMovementPedestrian.WalkingAfterRunning;
+        } else if(previousMovement.equals(CurrentMovementPedestrian.Walking) && currentMovement.equals(CurrentMovementPedestrian.Running)) {
+            newValue = CurrentMovementPedestrian.RunningAfterWalking;
+        }
+
+        ((PedestrianBehaviour)pedestrianBehaviour).setCurrentMovmentClass(newValue);
+        pedestrianBehaviour.setCurrentSpeed(currentSpeed);
+    }
+
+    public CurrentMovementPedestrian getCurrentMovementType () {
+        if(!(pedestrianBehaviour instanceof PedestrianBehaviour)){
+            throw new IllegalStateException("Type miss match: behaviour not instance of PedestrianBehaviour.");
+        }
+        return ((PedestrianBehaviour)pedestrianBehaviour).getCurrentMovmentClass();
     }
 
     public double getPreferredSpeed() {
-        return this.preferredSpeed;
+        if(!(pedestrianBehaviour instanceof PedestrianBehaviour)){
+            throw new IllegalStateException("Type miss match: behaviour not instance of PedestrianBehaviour.");
+        }
+        return ((PedestrianBehaviour)pedestrianBehaviour).getPreferredSpeed();
     }
 
-    public double getCurrentPreferredSpeedToUse() {
-        return this.currentPreferredSpeedToUse;
-    }
-
-    public void setCurrentPreferredSpeedToUse(double currentSpeed) {
-        this.currentPreferredSpeedToUse = currentSpeed;
+    public double getPreferredMaxSpeed() {
+        if(!(pedestrianBehaviour instanceof PedestrianBehaviour)){
+            throw new IllegalStateException("Type miss match: behaviour not instance of PedestrianBehaviour.");
+        }
+        return ((PedestrianBehaviour)pedestrianBehaviour).getMaxPreferredSpeed();
     }
 
     public double calculatePreferredSpeed() {
+        if(!(pedestrianBehaviour instanceof PedestrianBehaviour)){
+            throw new IllegalStateException("Type miss match: behaviour not instance of PedestrianBehaviour.");
+        }
+
         double averageSpeed = getTimeSpentInSystem() == 0 ? 0 : walkedDistance / getTimeSpentInSystem();
-        double timeRelatedParameter = averageSpeed / currentPreferredSpeedToUse;
+        double timeRelatedParameter = averageSpeed / pedestrianBehaviour.getCurrentSpeed();
         timeRelatedParameter = timeRelatedParameterValueNForSpeedCalculation - timeRelatedParameter;
 
-        double part1 = (1 - timeRelatedParameter) * currentPreferredSpeedToUse;
-        double part2 = timeRelatedParameter * maxPreferredSpeed;
+        double part1 = (1 - timeRelatedParameter) * pedestrianBehaviour.getCurrentSpeed();
+        double part2 = timeRelatedParameter * ((PedestrianBehaviour)pedestrianBehaviour).getMaxPreferredSpeed();
 
-        return part1 + part2;
+        pedestrianBehaviour.setCurrentSpeed(part1 + part2);
+        return pedestrianBehaviour.getCurrentSpeed();
     }
 
     public PedestrianPoint transferToNextPortPos() {
@@ -514,11 +531,17 @@ public class Pedestrian extends Entity implements IPedestrian {
     }
 
     public boolean checkForWaitingArea() {
+
+        if(!(pedestrianBehaviour instanceof PedestrianBehaviour)){
+            throw new IllegalStateException("Type miss match: behaviour not instance of PedestrianBehaviour.");
+        }
+
         if ((nextSection.getStreetSection() instanceof PedestrianStreetSection) &&
-                ((PedestrianStreetSection)(nextSection.getStreetSection())).isTrafficLightActive()) {
+                ((PedestrianStreetSection)(nextSection.getStreetSection())).isTrafficLightActive() &&
+                !((PedestrianStreetSection)(nextSection.getStreetSection())).useMassDynamic()) {
             if (!((PedestrianStreetSection)(nextSection.getStreetSection())).isTrafficLightFreeToGo()) {
                 double  distance = calc.getDistanceByCoordinates(currentGlobalPosition, getNextSubGoal());
-                if (distance < maxDistanceForWaitingArea) return true;
+                if (distance < ((PedestrianBehaviour)pedestrianBehaviour).getMaxDistanceForWaitingArea()) return true;
             }
         }
         return false;
@@ -671,6 +694,7 @@ public class Pedestrian extends Entity implements IPedestrian {
         }
     }
 
+
     public void setCurrentNextGlobalAim() {
         setCurrentNextGlobalAim( getClosestExitPointOfCurrentSectionGlobal());
     }
@@ -687,11 +711,19 @@ public class Pedestrian extends Entity implements IPedestrian {
     }
 
     public Vector2d getPreviousSFMVector() {
-        return previousSFMVector;
+        if(!(pedestrianBehaviour instanceof PedestrianBehaviour)){
+            throw new IllegalStateException("Type miss match: behaviour not instance of PedestrianBehaviour.");
+        }
+
+        return ((PedestrianBehaviour)pedestrianBehaviour).getPreviousSFMVector();
     }
 
     public void setPreviousSFMVector(Vector2d previousSFMVector) {
-        this.previousSFMVector = previousSFMVector;
+        if(!(pedestrianBehaviour instanceof PedestrianBehaviour)){
+            throw new IllegalStateException("Type miss match: behaviour not instance of PedestrianBehaviour.");
+        }
+
+        ((PedestrianBehaviour)pedestrianBehaviour).setPreviousSFMVector(previousSFMVector);
     }
 
     /**
@@ -710,12 +742,12 @@ public class Pedestrian extends Entity implements IPedestrian {
 
         Vector2d tmp = accelerationForceToTarget.getAccelerationForceToTarget(getRoundaboutModel(), this);
         sumForce.add(tmp);
-        /*tmp = repulsiveForceAgainstOtherPedestrians.getRepulsiveForceAgainstAllOtherPedestrians(getRoundaboutModel(), this, getNextSubGoal());
+        tmp = repulsiveForceAgainstOtherPedestrians.getRepulsiveForceAgainstAllOtherPedestrians(getRoundaboutModel(), this, getNextSubGoal());
         sumForce.add(tmp);
         tmp = repulsiveForceAgainstObstacles.getRepulsiveForceAgainstAllObstacles(getRoundaboutModel(), this);
         sumForce.add(tmp);
         //tmp = repulsiveForceAgainstVehicles.getRepulsiveForceAgainstVehicles(getRoundaboutModel(), this);
-        //sumForce.add(tmp);*/
+        //sumForce.add(tmp);
         this.setPreviousSFMVector(sumForce);
         return sumForce;
     }
@@ -883,7 +915,7 @@ public class Pedestrian extends Entity implements IPedestrian {
         if( section.getPedestrianConsumerType().equals(PedestrianConsumerType.PEDESTRIAN_CROSSING)) {
             boolean crossingAllowed = false;
             // in this case it might be possible to cross over border
-            if(((PedestrianStreetSection) section).getFlexiBorderAlongX() && borderLineNr == 2 && borderLineNr == 3){
+            if(((PedestrianStreetSection) section).isFlexiBorderAlongX() && borderLineNr == 2 && borderLineNr == 3){
                 crossingAllowed = true;
             } else if (borderLineNr == 1 && borderLineNr == 4){
                 crossingAllowed = true;
@@ -914,4 +946,12 @@ public class Pedestrian extends Entity implements IPedestrian {
         if(checkX && checkY) return true;
         return false;
     }
+
+    public double getMaxDistanceForWaitingArea(){
+        if(!(pedestrianBehaviour instanceof PedestrianBehaviour)){
+            throw new IllegalStateException("Type miss match: behaviour not instance of PedestrianBehaviour.");
+        }
+        return ((PedestrianBehaviour)pedestrianBehaviour).getMaxDistanceForWaitingArea();
+    }
+
 }

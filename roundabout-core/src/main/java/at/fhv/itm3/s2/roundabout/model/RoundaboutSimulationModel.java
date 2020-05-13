@@ -151,17 +151,6 @@ public class RoundaboutSimulationModel extends Model {
      */
     private ContDistNormal timeBetweenCarArrivals;
 
-    /**
-     * Random number stream used to draw a time between two pedestrians arrivals.
-     * See {@link RoundaboutSimulationModel#init()} method for stream parameters.
-     */
-    private ContDistNormal timeBetweenPedestrianArrivals;
-
-    /**
-     * Random number stream used to calculate a distance between two pedestrians.
-     * See {@link RoundaboutSimulationModel#init()} method for stream parameters.
-     */
-    private ContDistUniform distanceFactorBetweenPedestrians;
 
     /////////////////////////////////////////////////////////////////////////////////
     ////Social Force Model Calculations:
@@ -191,30 +180,26 @@ public class RoundaboutSimulationModel extends Model {
     private ContDistNormal pedestrianGapToOtherPedestrian;
 
     /**
-     * Random number stream used to define gender
-     * See {@link RoundaboutSimulationModel#init()} method for stream parameters.
-     */
-    private ContDistNormal pedestrianGender;
-
-    /**
-     * Random number stream used to define age group
-     * See {@link RoundaboutSimulationModel#init()} method for stream parameters.
-     */
-    private ContDistNormal pedestrianAgeRangeGroup;
-
-    /**
-     * Random number stream used to define psychological nature
-     * See {@link RoundaboutSimulationModel#init()} method for stream parameters.
-     */
-    private ContDistNormal pedestrianPsychologicalNature;
-
-    /**
      * Random number stream used to define entry point
      * See {@link RoundaboutSimulationModel#init()} method for stream parameters.
      */
     private ContDistUniform pedestrianEntryPoint;
 
-    public MassDynamic massDynamic; // needed for pedestiran massDynamic
+    /**
+     * Random number stream used to draw a time between two pedestrians arrivals.
+     * See {@link RoundaboutSimulationModel#init()} method for stream parameters.
+     */
+    private ContDistNormal timeBetweenPedestrianArrivals;
+
+    /**
+     * Random number stream used to calculate weather the mass dynamics triggers an event or not.
+     * See {@link RoundaboutSimulationModel#init()} method for stream parameters.
+     */
+    private ContDistUniform massDynamicsTriggersEventPedestrians;
+
+
+    public MassDynamic massDynamic; // needed for pedestrian massDynamic
+
 
     /**
      * Constructs a new RoundaboutSimulationModel
@@ -497,7 +482,6 @@ public class RoundaboutSimulationModel extends Model {
         );
         timeBetweenCarArrivals.setSeed(simulationSeed);
 
-
         timeBetweenPedestrianArrivals = new ContDistNormal(
                 this,
                 "TimeBetweenPedestrianArrivalsStream",
@@ -637,6 +621,16 @@ public class RoundaboutSimulationModel extends Model {
         );
         pedestrianEntryPoint.setSeed(simulationSeed);
 
+
+        massDynamicsTriggersEventPedestrians = new ContDistUniform(
+                this,
+                "massDynamicsTriggersEventPedestrians",
+                0,
+                1,
+                true,
+                false
+        );
+        massDynamicsTriggersEventPedestrians.setSeed(simulationSeed);
     }
 
     /**
@@ -736,6 +730,18 @@ public class RoundaboutSimulationModel extends Model {
         final double value = timeBetweenPedestrianArrivals.sample();
         return Math.max(Math.min(value, maxTimeBetweenPedestrianArrivals), minDistanceFactorBetweenPedestrians);
     }
+
+
+    /**
+     * Returns a sample of the random stream {@link ContDistUniform} used to determine the time between car arrivals.
+     *
+     * @return a {@code timeBetweenCarArrivals} sample as double.
+     */
+    public double getRandomMassDynamicsTriggersEventPedestrians() {
+        final double value = massDynamicsTriggersEventPedestrians.sample();
+        return Math.max(Math.min(value, 1), 0);
+    }
+
 
     /**
      * Returns a sample of the random stream {@link ContDistNormal} used to determine the length of a vehicle
@@ -875,15 +881,6 @@ public class RoundaboutSimulationModel extends Model {
         return minPedestrianStreetWidth;
     } // TODO
 
-    /**
-     * Returns a sample of the random stream {@link ContDistUniform} used to determine the distance factor between cars.
-     *
-     * @return a {@code distanceFactorBetweenCars} sample as double.
-     */
-    public double getRandomDistanceFactorBetweenPedestrains() {
-        return distanceFactorBetweenPedestrians.sample();
-    }
-
     /////////////////////////////////////////////////////////////////////////////////////////////
     //Social Force Model Calculations:
 
@@ -933,8 +930,11 @@ public class RoundaboutSimulationModel extends Model {
      * See {@link RoundaboutSimulationModel#init()} method for stream parameters.
      */
     public double getRandomEntryPoint(double minValue, double maxValue) {
-        return Math.max(Math.min(pedestrianEntryPoint.sample(),  maxValue), minValue);
-
+        double sample = pedestrianEntryPoint.sample();
+        double diff = Math.abs(maxValue - minValue);
+        diff *= sample;
+        diff += minValue;
+        return Math.max(Math.min(diff,  maxValue), minValue);
     }
 
     /**

@@ -87,10 +87,10 @@ public class PedestrianReachedAimEvent extends Event<Pedestrian> {
         }
 
         // check for waiting are before crossing
-        if (pedestrian.checkForWaitingArea()){
-            pedestrian.setCurrentPreferredSpeedToUse(0);
-        } else if (calc.almostEqual(pedestrian.getCurrentPreferredSpeedToUse(), 0)) {
-            pedestrian.setCurrentPreferredSpeedToUse(pedestrian.getPreferredSpeed()); // reset
+        if (pedestrian.checkForWaitingArea() ){
+            pedestrian.setCurrentSpeed(0);
+        } else if (calc.almostEqual(pedestrian.getCurrentSpeed(), 0)) {
+            pedestrian.setCurrentSpeed(pedestrian.getPreferredSpeed()); // reset
         }
 
         double timeToDestination = 0.0;
@@ -110,18 +110,28 @@ public class PedestrianReachedAimEvent extends Event<Pedestrian> {
         if (pedestrian.checkExitPortIsReached()) { // check if section will be changed
             // move to next section
             PedestrianStreet nextStreetSection = (PedestrianStreet) (pedestrian.getNextSection().getStreetSection());
+            boolean keepWalking = false;
 
             // special case traffic light
             if (nextStreetSection.isTrafficLightActive() && !nextStreetSection.isTrafficLightFreeToGo()) {
                 //not freeToGo
-                timeToDestination = ((PedestrianStreet) currentSection).getRemainingRedPhase();
-                //nextStreetSection.handleJamTrafficLight(); //  todo
-            } else {
                 if (nextStreetSection.useMassDynamic()){
-                    if(roundaboutSimulationModel.massDynamic.doCrossing(pedestrian));
+                    if(roundaboutSimulationModel.massDynamic.doCrossing(pedestrian)){
+                        keepWalking = true;
+                    } else {
+                        pedestrian.setCurrentSpeed(0); // not walking
+                        // Event call delay must not be below minTimeBetweenEventCall
+                        if (timeToDestination < minTimeBetweenEventCall) timeToDestination = minTimeBetweenEventCall;
+                    }
+                } else {
+                    timeToDestination = ((PedestrianStreet) currentSection).getRemainingRedPhase();
+                    //nextStreetSection.handleJamTrafficLight(); //  todo
                 }
+            } else {
+                keepWalking = true;
+            }
 
-
+            if ( keepWalking ) {
                 // destination of the current street section is reached move to next section
                 PedestrianPoint transferPos = pedestrian.transferToNextPortPos();
                 pedestrian.moveOneSectionForward(transferPos);
@@ -138,9 +148,7 @@ public class PedestrianReachedAimEvent extends Event<Pedestrian> {
             Vector2d forces = pedestrian.getSocialForceVector(); //set time when next update.
             pedestrian.setNewGoal(forces);
             timeToDestination = pedestrian.getTimeToNextSubGoal();
-
-            AccelerationForceToTarget accelerationForceToTarget = new AccelerationForceToTarget();
-            Vector2d tmp = accelerationForceToTarget.getAccelerationForceToTarget(pedestrian.getRoundaboutModel(), pedestrian);
+            pedestrian.setNewGoal(forces);
 
             // Event call delay must not be below minTimeBetweenEventCall
             if (timeToDestination < minTimeBetweenEventCall) timeToDestination = minTimeBetweenEventCall;

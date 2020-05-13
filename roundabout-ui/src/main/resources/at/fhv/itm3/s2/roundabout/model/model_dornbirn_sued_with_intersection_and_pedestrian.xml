@@ -62,7 +62,7 @@
                 <sink id="psk2"/>
             </sinks>
             <sections>
-                <section id="psc1" lengthX="500.0" lengthY="400.0" pedestrianSectionType="PEDESTRIAN_CROSSING" flexiBorderAlongX="true" useMassDynamic="true"/>
+                <section id="psc1" lengthX="500.0" lengthY="400.0" pedestrianSectionType="PEDESTRIAN_CROSSING" useMassDynamic="true" flexiBorderAlongX="true"/>
                 <section id="ps1" lengthX="500.0" lengthY="800.0" pedestrianSectionType="PEDESTRIAN_STREET_SECTION"/>
                 <section id="ps2" lengthX="500.0" lengthY="800.0" pedestrianSectionType="PEDESTRIAN_STREET_SECTION"/> <!-- In cm-->
             </sections>
@@ -137,7 +137,7 @@
                 <section id="s1_t1" lengthX="110.45" isTrafficLightActive="true" greenPhaseDuration="18"
                          redPhaseDuration="50" pedestrianCrossingComponentIDReference="ro1" pedestrianCrossingIDReference="pc1"/>
 
-                <section id="s2_t1" lengthX="110.45"/>
+                <section id="s2_t1" lengthX="110.45" pedestrianCrossingIDRefExitHigh="200" pedestrianCrossingRefLinkedAtBegin="y" />
                 <section id="s2_t2" lengthX="110.45"/>
 
                 <section id="s3_t1" lengthX="31.77"/>
@@ -286,7 +286,7 @@
                 <sink id="sk3_t1"/>
             </sinks>
             <sections>
-                <section id="s2_t1" lengthX="110.45"/>
+                <section id="s2_t1" lengthX="110.45"/> <!--in meter-->
                 <section id="s2_t2" lengthX="110.45"/>
 
                 <section id="s3_t1" lengthX="102.27"/>

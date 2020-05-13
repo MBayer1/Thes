@@ -29,7 +29,7 @@ public class RepulsiveForceAgainstOtherPedestrians {
 
         // run through all previous and following connected street sections up to 8m distance
         // from current position of alpha pedestrian
-        GetAllPedestrianFromStreet( model, pedestrian, vacDestination, new LinkedList<> (),
+        GetAllPedestrianFromStreet( model, pedestrian, vacDestination,
                 (PedestrianStreetSection)pedestrian.getCurrentSection().getStreetSection(), sumForce);
         GetAllPedestrianFromPreviousStreets( model, pedestrian, vacDestination, sumForce );
         GetAllPedestrianFromFollowingStreets ( model, pedestrian, vacDestination, sumForce );
@@ -42,12 +42,14 @@ public class RepulsiveForceAgainstOtherPedestrians {
     }
 
 
-    void GetAllPedestrianFromStreet(RoundaboutSimulationModel model,
+    boolean GetAllPedestrianFromStreet(RoundaboutSimulationModel model,
                                     Pedestrian pedestrian,
                                     Vector2d destination,
-                                    List<IConsumer> listOfStreetSectionsInRange,
                                     PedestrianStreetSection section,
                                     Vector2d sumForce){
+
+        if(section.getPedestrianConsumerType().equals(PedestrianConsumerType.PEDESTRIAN_SINK)) return false;
+
         boolean noPedestrian = true;
         boolean pedestrianOutOfRange = false;
         for(IPedestrian pedestrianBeta: section.getPedestrianQueue()){
@@ -56,8 +58,7 @@ public class RepulsiveForceAgainstOtherPedestrians {
             }
             noPedestrian = false;
             // calculate forces
-            if( (section).getPedestrianConsumerType().equals(PedestrianConsumerType.PEDESTRIAN_SINK) ||
-                    checkPedestrianInRange( model, pedestrian,(Pedestrian)pedestrianBeta)){
+            if( checkPedestrianInRange( model, pedestrian,(Pedestrian)pedestrianBeta)){
                 sumForce.add(calculateActualRepulsiveForceAgainstOtherPedestrian( model, destination, pedestrian,(Pedestrian)pedestrianBeta) );
             } else {
                 pedestrianOutOfRange = true;
@@ -67,8 +68,9 @@ public class RepulsiveForceAgainstOtherPedestrians {
 
         if ( noPedestrian || ! pedestrianOutOfRange ) {
             // no Pedestrian to estimate distance or all existing pedestrian where in range
-            listOfStreetSectionsInRange.add( section );
+            return true;
         }
+        return false;
     }
 
     public void GetAllPedestrianFromPreviousStreets(RoundaboutSimulationModel model,
@@ -98,7 +100,9 @@ public class RepulsiveForceAgainstOtherPedestrians {
 
                     if ( listOfCheckedStreets.contains(previousSection) ) continue;
 
-                    GetAllPedestrianFromStreet( model, pedestrian, destination, listOfStreetSectionsInRange, (PedestrianStreetSection)previousSection, sumForce);
+                    if (GetAllPedestrianFromStreet( model, pedestrian, destination, (PedestrianStreetSection)previousSection, sumForce)) {
+                        listOfStreetSectionsInRange.add(previousSection);
+                    }
                 }
             }
         }
@@ -130,7 +134,9 @@ public class RepulsiveForceAgainstOtherPedestrians {
 
                     if (  listOfCheckedStreets.contains(nextSection) ) continue;
 
-                    GetAllPedestrianFromStreet( model, pedestrian, destination, listOfStreetSectionsInRange, (PedestrianStreetSection)nextSection, sumForce);
+                    if(GetAllPedestrianFromStreet( model, pedestrian, destination, (PedestrianStreetSection)nextSection, sumForce)){
+                        listOfStreetSectionsInRange.add(nextSection);
+                    }
                 }
             }
         }
@@ -193,12 +199,13 @@ public class RepulsiveForceAgainstOtherPedestrians {
         Double traveledPathWithinTOfBeta = ((Pedestrian)pedestrianBeta).getCurrentSpeed(); // *1s -> path within one sec -> alternatively use 0,5 sec
 
         //small half axis of the ellipse
+        Vector2d nextDestinationVectorAlphaSubTravelPathBeta = new Vector2d(vectorBetweenBothPedestrian);
         Vector2d betaData = new Vector2d(preferredDirectionOfBeta);
         betaData.scale(traveledPathWithinTOfBeta);
-        Vector2d nextDestinationVectorAlphaSubTravelPathBeta = new Vector2d(vectorBetweenBothPedestrian);
         nextDestinationVectorAlphaSubTravelPathBeta.sub(betaData);
 
-        Double smallHalfAxisOfEllipse = Math.sqrt(  Math.pow(vectorBetweenBothPedestrian.length() + nextDestinationVectorAlphaSubTravelPathBeta.length(),2)) -
+        Double smallHalfAxisOfEllipse = Math.sqrt( Math.pow(vectorBetweenBothPedestrian.length()
+                + nextDestinationVectorAlphaSubTravelPathBeta.length(),2)) -
                                                     Math.pow(traveledPathWithinTOfBeta,2);
 
         // Repulsive force against other pedestrians
@@ -214,7 +221,7 @@ public class RepulsiveForceAgainstOtherPedestrians {
         // - vecAlphaBeta * forcesAgainstBeta
         vectorBetweenBothPedestrian = calculations.getUnitVector(vectorBetweenBothPedestrian);
         vectorBetweenBothPedestrian.scale(repulsiveForce);
-        vectorBetweenBothPedestrian.negate();
+        //vectorBetweenBothPedestrian.negate();
 
         return vectorBetweenBothPedestrian;
     }

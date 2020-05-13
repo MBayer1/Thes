@@ -4,6 +4,7 @@ import at.fhv.itm14.trafsim.model.entities.Car;
 import at.fhv.itm14.trafsim.model.entities.IConsumer;
 import at.fhv.itm14.trafsim.model.events.CarDepartureEvent;
 import at.fhv.itm14.trafsim.persistence.model.DTO;
+import at.fhv.itm3.s2.roundabout.api.PedestrianPoint;
 import at.fhv.itm3.s2.roundabout.api.entity.*;
 import at.fhv.itm3.s2.roundabout.controller.CarController;
 import at.fhv.itm3.s2.roundabout.controller.IntersectionController;
@@ -18,6 +19,7 @@ import java.util.*;
 public class StreetSection extends Street {
 
     private final double length;
+    private final double minDistanceToPedestiranToKeepDrivingInM = 10.;
 
     // next two values are for the controlling of a traffic light [checking for jam/ needed for optimization]
     private double currentWaitingTime;
@@ -26,7 +28,8 @@ public class StreetSection extends Street {
     private final LinkedList<ICar> carQueue;
     private final Map<ICar, Double> carPositions;
 
-    private final PedestrianStreetReferenceForVehicleStreet pedestrianCrossing;
+    private final PedestrianStreetReferenceForVehicleStreet pedestrianCrossingEnter;
+    private final PedestrianStreetReferenceForVehicleStreet pedestrianCrossingExit;
 
     private IStreetConnector nextStreetConnector;
     private IStreetConnector previousStreetConnector;
@@ -52,7 +55,7 @@ public class StreetSection extends Street {
     ) {
         this(
                 id, length, model, modelDescription, showInTrace,
-                false, null, null, null, null
+                false, null, null, null, null, null
         );
     }
 
@@ -67,7 +70,7 @@ public class StreetSection extends Street {
     ) {
         this(
                 UUID.randomUUID().toString(), length, model, modelDescription, showInTrace,
-                trafficLightActive, null, greenPhaseDuration, redPhaseDuration, null
+                trafficLightActive, null, greenPhaseDuration, redPhaseDuration, null, null
         );
     }
 
@@ -81,7 +84,8 @@ public class StreetSection extends Street {
             Long minGreenPhaseDuration,
             Long greenPhaseDuration,
             Long redPhaseDuration,
-            PedestrianStreetReferenceForVehicleStreet pedestrianCrossing
+            PedestrianStreetReferenceForVehicleStreet pedestrianCrossingEnter,
+            PedestrianStreetReferenceForVehicleStreet pedestrianCrossingExit
     ) {
         super(
                 id,
@@ -99,7 +103,8 @@ public class StreetSection extends Street {
         this.carQueue = new LinkedList<>();
         this.carPositions = new HashMap<>();
         this.intersectionController = IntersectionController.getInstance();
-        this.pedestrianCrossing = pedestrianCrossing;
+        this.pedestrianCrossingEnter = pedestrianCrossingEnter;
+        this.pedestrianCrossingExit = pedestrianCrossingExit;
 
         if(this.isTrafficLightActive() && !this.isTrafficLightTriggeredByJam()) {
             RoundaboutEventFactory.getInstance().createToggleTrafficLightStateEvent(getRoundaboutModel()).schedule(
@@ -368,25 +373,100 @@ public class StreetSection extends Street {
         return false;
     }
 
+    public void setGlobalCoordinateOfCrossingIntersection() {
+        PedestrianStreetSection crossingSection = null;
+        if(pedestrianCrossingEnter != null) {
+            if (!(pedestrianCrossingEnter.getPedestrianCrossing() instanceof PedestrianStreetSection)) {
+                throw new IllegalStateException("type miss match.");
+            }
+            crossingSection = (PedestrianStreetSection) (pedestrianCrossingEnter.getPedestrianCrossing());
+            PedestrianPoint origin = crossingSection.getGlobalCoordinateOfSectionOrigin();
+            double x,y;
+            if (crossingSection.isFlexiBorderAlongX()) {
+                // car drives along y axis
+                if(pedestrianCrossingEnter.getLinkedAtBegin()) {
+                    x = origin.getX();
+                } else {
+                    x = origin.getX() + crossingSection.getLengthX();
+                }
+                y = pedestrianCrossingEnter.getLocalHighOfEntry() + origin.getY();
+            }else {
+                // car drives along x axis
+                if(pedestrianCrossingEnter.getLinkedAtBegin()) {
+                    y = origin.getY();
+                } else {
+                    y = origin.getY() + crossingSection.getLengthY();
+                }
+                x = pedestrianCrossingEnter.getLocalHighOfEntry() + origin.getX();
+            }
+            pedestrianCrossingEnter.setGlobalPositionOfStreetAndCrossingIntersectionInCM(new PedestrianPoint(x, y));
+        }
+
+        if(pedestrianCrossingExit != null) {
+            if (!(pedestrianCrossingExit.getPedestrianCrossing() instanceof PedestrianStreetSection)) {
+                throw new IllegalStateException("type miss match.");
+            }
+            crossingSection = (PedestrianStreetSection) (pedestrianCrossingExit.getPedestrianCrossing());
+            PedestrianPoint origin = crossingSection.getGlobalCoordinateOfSectionOrigin();
+            double x,y;
+            if (crossingSection.isFlexiBorderAlongX()) {
+                // car drives along y axis
+                if(pedestrianCrossingExit.getLinkedAtBegin()) {
+                    x = origin.getX();
+                } else {
+                    x = origin.getX() + crossingSection.getLengthX();
+                }
+                y = pedestrianCrossingExit.getLocalHighOfEntry() + origin.getY();
+            }else {
+                // car drives along x axis
+                if(pedestrianCrossingExit.getLinkedAtBegin()) {
+                    y = origin.getY();
+                } else {
+                    y = origin.getY() + crossingSection.getLengthY();
+                }
+                x = pedestrianCrossingExit.getLocalHighOfEntry() + origin.getX();
+            }
+            pedestrianCrossingExit.setGlobalPositionOfStreetAndCrossingIntersectionInCM(new PedestrianPoint(x, y));
+        }
+    }
+
     /**
      * {@inheritDoc}
      */
     @Override
     public boolean firstCarCouldEnterNextSection() {
         updateAllCarsPositions();
-
-
         // when there is a pedestrian crossing at the end of the street and it does have a traffic light it has to be red to leave section
-        if( pedestrianCrossing != null && pedestrianCrossing.getPedestrianCrossing().getPedestrianConsumerType().equals(PedestrianConsumerType.PEDESTRIAN_CROSSING)){
+        if( pedestrianCrossingEnter != null && pedestrianCrossingEnter.getPedestrianCrossing().getPedestrianConsumerType().equals(PedestrianConsumerType.PEDESTRIAN_CROSSING)){
             // check weather the traffic pedestrian traffic light is free to go for  pedestrian = car can not cross pedestrian crossing
             if(
-            pedestrianCrossing.getPedestrianCrossing().isTrafficLightActive() &&
-            pedestrianCrossing.getPedestrianCrossing().isTrafficLightFreeToGo() ) {
+            pedestrianCrossingEnter.getPedestrianCrossing().isTrafficLightActive() &&
+            pedestrianCrossingEnter.getPedestrianCrossing().isTrafficLightFreeToGo() ) {
                 return false;
             }
             // when is a non pedestrian traffic for controlling check pedestrian iin on pedestrian crossing.
-            if(!pedestrianCrossing.getPedestrianCrossing().getPedestrianQueue().isEmpty()){
-                return false;
+            // check  for height of pedestrians
+            for (IPedestrian pedestrian : pedestrianCrossingEnter.getPedestrianCrossing().getPedestrianQueue()) {
+                if ( !(pedestrian instanceof Pedestrian) ) {
+                    throw new IllegalStateException("type miss match.");
+                }
+
+                if (!(pedestrianCrossingExit.getPedestrianCrossing() instanceof PedestrianStreetSection)) {
+                    throw new IllegalStateException("type miss match.");
+                }
+                PedestrianStreetSection  crossingSection = (PedestrianStreetSection) (pedestrianCrossingExit.getPedestrianCrossing());
+                if (crossingSection.isFlexiBorderAlongX()) {
+                    // car drives along y axis
+                    //  check high of pedestrian by illegal crossing
+                    double carHigh = pedestrianCrossingExit.getGlobalPositionOfStreetAndCrossingIntersectionInCM().getX();
+                    double pedestrianHigh = ((Pedestrian) pedestrian).getGlobalCoordinatesOfCurrentSection().getX();
+                    if(Math.abs(carHigh-pedestrianHigh) < (minDistanceToPedestiranToKeepDrivingInM * 100)) return false;
+                } else {
+                    // car drives along x axis
+                    double carHigh = pedestrianCrossingExit.getGlobalPositionOfStreetAndCrossingIntersectionInCM().getY();
+                    double pedestrianHigh = ((Pedestrian) pedestrian).getGlobalCoordinatesOfCurrentSection().getY();
+                    if(Math.abs(carHigh-pedestrianHigh) < (minDistanceToPedestiranToKeepDrivingInM * 100)) return false;
+                }
             }
         }
 
@@ -730,9 +810,11 @@ public class StreetSection extends Street {
      *
      * @return true when there is a pedestrian crossing, false when not.
      */
-    public Boolean doesHavePedestrianCrossing(){
-        return pedestrianCrossing != null;
+    public Boolean doesHavePedestrianCrossingToEnter(){
+        return pedestrianCrossingEnter != null;
     }
+
+    public Boolean doesHavePedestrianCrossingThatHasBeenLeftBefore(){return pedestrianCrossingExit != null;}
 
     /**
      * Returns pedestrian crossing {@link PedestrianStreet}
@@ -740,8 +822,12 @@ public class StreetSection extends Street {
      *
      * @return pedestrian crossing {@Link PedestrianStreet}.
      */
-    public PedestrianStreetReferenceForVehicleStreet getPedestrianCrossing(){
-        return pedestrianCrossing;
+    public PedestrianStreetReferenceForVehicleStreet getPedestrianCrossingEnter(){
+        return pedestrianCrossingEnter;
+    }
+
+    public PedestrianStreetReferenceForVehicleStreet getPedestrianCrossingExit(){
+        return pedestrianCrossingExit;
     }
 
     /**
@@ -750,17 +836,10 @@ public class StreetSection extends Street {
      * @return int.
      */
     public double getPedestrianCrossingEntryHigh(){
-        return pedestrianCrossing.getHighOfEntry();
+        return pedestrianCrossingEnter.getLocalHighOfEntry();
     }
-
-    /**
-     * Returns pedestrian crossing {@link PedestrianStreet} entry width (height x)
-     *
-     * @return int.
-     */
-    public int getPedestrianCrossingEntryWidth(){
-
-        return (int)pedestrianCrossing.getPedestrianCrossing().getLengthX();
+    public double getPedestrianCrossingExitHigh(){
+        return pedestrianCrossingEnter.getLocalHighOfEntry();
     }
 
     /**
@@ -769,8 +848,11 @@ public class StreetSection extends Street {
      * @return boolean.
      */
     public boolean getPedestrianCrossingEntryAtBeginning(){
+        return pedestrianCrossingEnter.getLinkedAtBegin();
+    }
 
-        return pedestrianCrossing.getLinkedAtBegin();
+    public boolean getPedestrianCrossingExitAtBeginning(){
+        return pedestrianCrossingExit.getLinkedAtBegin();
     }
 
     /**
@@ -780,7 +862,12 @@ public class StreetSection extends Street {
      * @return width of pedestrian crossing {@Link double}.
      */
     public double getPedestrianCrossingWidth(){
-        return this.doesHavePedestrianCrossing() ? pedestrianCrossing.getLengthForVehicleToPass() : 0.0;
+        if (this.doesHavePedestrianCrossingToEnter()) {
+            return pedestrianCrossingEnter.getLengthForVehicleToPass()/ 100; //   cm into m
+        } else  if(this.doesHavePedestrianCrossingThatHasBeenLeftBefore() ) {
+            return pedestrianCrossingExit.getLengthForVehicleToPass()/ 100; //   cm into m
+        }
+        return 0;
     }
 
     /**
@@ -789,7 +876,10 @@ public class StreetSection extends Street {
      * @return weather car drives along x or y axis {@Link boolean}.
      */
     public boolean checkCarDrivesAlongYAxis(){
-        return pedestrianCrossing.carDrivesAlongYAxis();
+        if(pedestrianCrossingEnter == null) {
+            return false;
+        }
+        return pedestrianCrossingEnter.carDrivesAlongYAxis();
     }
 
 

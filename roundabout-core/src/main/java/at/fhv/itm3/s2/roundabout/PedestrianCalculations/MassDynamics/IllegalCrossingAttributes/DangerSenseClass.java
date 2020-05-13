@@ -11,10 +11,10 @@ public class DangerSenseClass {
 
     List<Category> categoryList = new LinkedList<>();
     public DangerSenseClass(){
-        categoryList.add(new Category("veryHeight",0.,2,0.5));
-        categoryList.add(new Category("high",2.,14,0.51));
-        categoryList.add(new Category("medium",14,16,0.57));
-        categoryList.add(new Category("low",16,101,0.7));
+        categoryList.add(new Category("veryHeight",-1,1,0.5));
+        categoryList.add(new Category("high",categoryList.get(categoryList.size()-1).getUpperLimit(),13,0.51));
+        categoryList.add(new Category("medium",categoryList.get(categoryList.size()-1).getUpperLimit(),16,0.57));
+        categoryList.add(new Category("low",categoryList.get(categoryList.size()-1).getUpperLimit(),100,0.7));
     }
 
     public double getProbability (String type){
@@ -33,7 +33,7 @@ public class DangerSenseClass {
     }
     public String getTypeByDetermineValue (double valueToDetermineClass){
         for ( int i = 0; i < categoryList.size(); ++i) {
-            if ( valueToDetermineClass >= categoryList.get(i).getLowerLimit() && valueToDetermineClass < categoryList.get(i).getUpperLimit()){
+            if ( valueToDetermineClass > categoryList.get(i).getLowerLimit() && valueToDetermineClass <= categoryList.get(i).getUpperLimit()){
                 return categoryList.get(i).getTypeKey();
             }
         }
