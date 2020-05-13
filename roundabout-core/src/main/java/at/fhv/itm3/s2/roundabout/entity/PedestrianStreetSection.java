@@ -42,7 +42,8 @@ public class PedestrianStreetSection extends PedestrianStreet {
     private LinkedList<Circle> circularObsticals; //TODO include those obstacles in to calculations
     private LinkedList<Polygon> polygoneObstical; //TODO include those obstacles in to calculations
 
-    private LinkedList<Street> vehicleStreetList;
+    private LinkedList<Street> leavingVehicleStreetList;
+    private LinkedList<Street> enteringVehicleStreetList;
 
     private List<PedestrianConnectedStreetSections> nextStreetConnector = new LinkedList<>();
     private List<PedestrianConnectedStreetSections> previousStreetConnector = new LinkedList<>();
@@ -148,7 +149,8 @@ public class PedestrianStreetSection extends PedestrianStreet {
         this.intersectionController = IntersectionController.getInstance();
         this.globalCoordinateOfSectionOrigin = globalCoordinateForCenter;
 
-        this.vehicleStreetList = new LinkedList<>();
+        this.enteringVehicleStreetList = new LinkedList<>();
+        this.leavingVehicleStreetList = new LinkedList<>();
         //pedestriansQueueToEnter = Collections.synchronizedList(new ArrayList<PedestrianWaitingListElement>()); TODO
         this.pedestriansQueueToEnter = new CopyOnWriteArrayList<PedestrianWaitingListElement>();
 
@@ -201,16 +203,28 @@ public class PedestrianStreetSection extends PedestrianStreet {
         return this.globalCoordinateOfSectionOrigin;
     }
 
-    public LinkedList<Street> getVehicleStreetList() {
-        return vehicleStreetList;
+    public LinkedList<Street> getEnteringVehicleStreetList() {
+        return enteringVehicleStreetList;
     }
 
-    public void addVehicleStreetList(Street street) {
-        if(vehicleStreetList == null) {
-            vehicleStreetList = new LinkedList<>();
-        }
-        vehicleStreetList.add(street);
+    public LinkedList<Street> getLeavingVehicleStreetList() {
+        return leavingVehicleStreetList;
     }
+
+    public void addEnteringVehicleStreetList(Street street) {
+        if(enteringVehicleStreetList == null) {
+            enteringVehicleStreetList = new LinkedList<>();
+        }
+        enteringVehicleStreetList.add(street);
+    }
+
+    public void addLeavingVehicleStreetList(Street street) {
+        if(leavingVehicleStreetList == null) {
+            leavingVehicleStreetList = new LinkedList<>();
+        }
+        leavingVehicleStreetList.add(street);
+    }
+
 
     /**
      * {@inheritDoc}
@@ -479,7 +493,7 @@ public class PedestrianStreetSection extends PedestrianStreet {
         this.flexiBorderAlongX = flexiBorderAlongX;
     }
 
-    public boolean getFlexiBorderAlongX(){ return this.flexiBorderAlongX;}
+    public boolean isFlexiBorderAlongX(){ return this.flexiBorderAlongX;}
 
     public void addPedestriansQueueToEnter(Pedestrian pedestrian, PedestrianPoint globalEnterPoint, PedestrianStreetSection section){
 

@@ -11,6 +11,11 @@ public class PedestrianPoint implements Serializable{
         setY(0);
     }
 
+    public PedestrianPoint (PedestrianPoint point) {
+        setX(point.getX());
+        setY(point.getY());
+    }
+
     public PedestrianPoint (double x, double y) {
         setX(x);
         setY(y);

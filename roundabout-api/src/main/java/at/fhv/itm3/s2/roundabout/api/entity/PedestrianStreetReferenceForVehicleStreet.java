@@ -1,18 +1,31 @@
 package at.fhv.itm3.s2.roundabout.api.entity;
 
+import at.fhv.itm3.s2.roundabout.api.PedestrianPoint;
+
 public class PedestrianStreetReferenceForVehicleStreet {
 
     private final PedestrianStreet pedestrianCrossing;
     private final Double highOfEntry;// from start point of entry port in cm = center of street
     private final Boolean linkedAtBegin; // closer to the origin 0
+    private PedestrianPoint globalPositionOfStreetAndCrossingIntersectionInCM;
 
-    public PedestrianStreetReferenceForVehicleStreet(PedestrianStreet pedestrianCrossing, double highOfEntry, boolean linkedAtBegin){
+    public PedestrianStreetReferenceForVehicleStreet(PedestrianStreet pedestrianCrossing, double highOfEntry,
+                                                     boolean linkedAtBegin){
         this.pedestrianCrossing = pedestrianCrossing;
         this.highOfEntry = highOfEntry;
         this.linkedAtBegin = linkedAtBegin;
+        this.globalPositionOfStreetAndCrossingIntersectionInCM = new PedestrianPoint(0,0);
     }
 
-    public double getHighOfEntry() {
+    public PedestrianPoint getGlobalPositionOfStreetAndCrossingIntersectionInCM() {
+        return globalPositionOfStreetAndCrossingIntersectionInCM;
+    }
+
+    public void setGlobalPositionOfStreetAndCrossingIntersectionInCM(PedestrianPoint globalPositionOfStreetAndCrossingIntersection) {
+        this.globalPositionOfStreetAndCrossingIntersectionInCM = globalPositionOfStreetAndCrossingIntersection;
+    }
+
+    public double getLocalHighOfEntry() {
         return highOfEntry;
     }
 

@@ -38,46 +38,44 @@ public class RepulsiveForceAgainstVehicles {
         PedestrianStreetSection currentSection = (PedestrianStreetSection) section;
         Vector2d sumForce = new Vector2d(0,0);
 
-        if( !currentSection.getVehicleStreetList().isEmpty()){
-            // there are vehicle street section connected to it.
-            // now it has to be verifies weather there a vehicle in range on them
-            for ( Street vehicleStreet : currentSection.getVehicleStreetList() ) {
+        // there are vehicle street section connected to it.
+        // now it has to be verifies weather there a vehicle in range on them
+        for ( Street vehicleStreet : currentSection.getEnteringVehicleStreetList() ) {
+            if( vehicleStreet instanceof StreetSection) {
                 if ( vehicleStreet.getFirstCar() != null) {
-                    // global position of vehicle and aim
-                    ICar car = vehicleStreet.getFirstCar();
-                    if( car instanceof RoundaboutCar) {
-                        if( vehicleStreet instanceof StreetSection) {
-                            getVehicleData((StreetSection)vehicleStreet, (PedestrianStreetSection)section,
-                                    (RoundaboutCar) car);
-
-                            // check if it is in range
-                            if ( checkPedestrianInRangeFront(model, pedestrian, globalPositionOfVehicleFront, ((RoundaboutCar)car).getLengthInCM()) ){
-                                sumForce.add(calculateRepulsiveForceAgainstVehicles( pedestrian,
-                                        globalPositionOfVehicleFront, globalPositionOfVehicleBack, (RoundaboutCar) car,
-                                        globalPositionOfVehicle, globalAimOfVehicle));
-                            }
-                        }
-                    }
-                }
-
-                // check also next street sections as they are after the crossing
-                for ( IConsumer nextVehicleStreet : vehicleStreet.getNextStreetConnector().getNextConsumers()) {
-                    if (nextVehicleStreet instanceof Street) {
-                        ICar car = ((Street) nextVehicleStreet).getLastCar();
-                        if (car != null) {
-                            getVehicleDataBack(((RoundaboutCar)car));
-                            // check if it is in range
-                            if (checkPedestrianInRangeBack(model, pedestrian, globalPositionOfVehicleFront2, ((RoundaboutCar)car).getLengthInCM())) {
-                                sumForce.add(calculateRepulsiveForceAgainstVehicles(pedestrian,
-                                        globalPositionOfVehicleFront2, globalPositionOfVehicleBack2, (RoundaboutCar) car,
-                                        globalPositionOfVehicle2, globalAimOfVehicle2));
-                            }
+                // global position of vehicle and aim
+                ICar car = vehicleStreet.getFirstCar();
+                    if( car != null && car instanceof RoundaboutCar) {
+                        getVehicleData((StreetSection)vehicleStreet, (PedestrianStreetSection)section, (RoundaboutCar) car);
+                        // check if it is in range
+                        if ( checkPedestrianInRangeFront(model, pedestrian, globalPositionOfVehicleFront, ((RoundaboutCar)car).getLengthInCM()) ){
+                            sumForce.add(calculateRepulsiveForceAgainstVehicles( pedestrian,
+                                    globalPositionOfVehicleFront, globalPositionOfVehicleBack, (RoundaboutCar) car,
+                                    globalPositionOfVehicle, globalAimOfVehicle));
                         }
                     }
                 }
             }
-
         }
+
+        // check also next street sections as they are after the crossing
+        for ( IConsumer nextVehicleStreet : currentSection.getLeavingVehicleStreetList() ) {
+            if (nextVehicleStreet instanceof Street) {
+                if( nextVehicleStreet instanceof StreetSection) {
+                    ICar car = ((Street) nextVehicleStreet).getLastCar();
+                    if (car != null && car instanceof RoundaboutCar) {
+                        getVehicleDataBack(((RoundaboutCar) car));
+                        // check if it is in range
+                        if (checkPedestrianInRangeBack(model, pedestrian, globalPositionOfVehicleFront2, ((RoundaboutCar) car).getLengthInCM())) {
+                            sumForce.add(calculateRepulsiveForceAgainstVehicles(pedestrian,
+                                    globalPositionOfVehicleFront2, globalPositionOfVehicleBack2, (RoundaboutCar) car,
+                                    globalPositionOfVehicle2, globalAimOfVehicle2));
+                        }
+                    }
+                }
+            }
+        }
+
 
         if(Double.isNaN(sumForce.getX()) || Double.isNaN(sumForce.getY()) ){
             throw new IllegalStateException("Vector calculation  error: ForceAgainstVehicle.");
@@ -91,7 +89,18 @@ public class RepulsiveForceAgainstVehicles {
         globalPositionOfVehicleFront2 = new PedestrianPoint(0,0);
         globalAimOfVehicle2 = new PedestrianPoint(0,0);
 
-        Vector2d vccGlobalPositionOfVehicle = new Vector2d(globalAimOfVehicle.getX(),  globalAimOfVehicle.getX());
+        if( !(car.getCurrentSection() instanceof StreetSection)) {
+            throw new IllegalStateException("type miss match.");
+        }
+        StreetSection currentVehicleStreet = (StreetSection) car.getCurrentSection();
+        if(currentVehicleStreet.doesHavePedestrianCrossingThatHasBeenLeftBefore()){
+            globalAimOfVehicle2  = new PedestrianPoint(currentVehicleStreet.getPedestrianCrossingExit().getGlobalPositionOfStreetAndCrossingIntersectionInCM());
+        } else {
+            throw new IllegalStateException("Something went  wrong in calculation of force against vehicle.");
+        }
+        Vector2d vccGlobalPositionOfVehicle = new Vector2d(globalAimOfVehicle2.getX(),  globalAimOfVehicle2.getX());
+
+
         double carLength = car.getLengthInCM();
 
         if(!(car.getCurrentSection() instanceof StreetSection)) {
@@ -136,6 +145,16 @@ public class RepulsiveForceAgainstVehicles {
         globalPositionOfVehicleFront= new PedestrianPoint(0,0);
         globalAimOfVehicle = new PedestrianPoint(0,0);
 
+        if( !(car.getNextSection() instanceof StreetSection)) {
+            throw new IllegalStateException("type miss match.");
+        }
+        StreetSection nextVehicleStreet = (StreetSection) car.getNextSection();
+        if(nextVehicleStreet.doesHavePedestrianCrossingThatHasBeenLeftBefore()){
+            globalAimOfVehicle  = new PedestrianPoint(nextVehicleStreet.getPedestrianCrossingExit().getGlobalPositionOfStreetAndCrossingIntersectionInCM());
+        } else {
+            throw new IllegalStateException("Something went  wrong in calculation of force against vehicle.");
+        }
+
         double carLength = car.getLengthInCM();
         double remainingLength = car.getRemainingLengthOfCurrentSection();
         double crossingWidth = vehicleStreet.getPedestrianCrossingWidth();
@@ -147,22 +166,18 @@ public class RepulsiveForceAgainstVehicles {
         if (carDrivesAlongYAxis) {
             originXGlobal += vehicleStreet.getPedestrianCrossingEntryHigh();
             if( vehicleStreet.getPedestrianCrossingEntryAtBeginning() ) {
-                globalAimOfVehicle.setLocation(originXGlobal, originYGlobal + crossingWidth);
                 originYGlobal -= remainingLength;
                 globalPositionOfVehicleBack.setLocation(originXGlobal, originYGlobal-carLength);
             } else {
-                globalAimOfVehicle.setLocation(originXGlobal, originYGlobal );
                 originYGlobal += remainingLength + crossingWidth;
                 globalPositionOfVehicleBack.setLocation(originXGlobal, originYGlobal+carLength);
             }
         } else {
             originYGlobal += vehicleStreet.getPedestrianCrossingEntryHigh();
             if( vehicleStreet.getPedestrianCrossingEntryAtBeginning() ) {
-                globalAimOfVehicle.setLocation(originXGlobal + crossingWidth, originYGlobal );
                 originXGlobal -= remainingLength;
                 globalPositionOfVehicleBack.setLocation(originXGlobal-carLength, originYGlobal);
             } else {
-                globalAimOfVehicle.setLocation(originXGlobal ,originYGlobal );
                 originXGlobal += remainingLength + crossingWidth;
                 globalPositionOfVehicleBack.setLocation(originXGlobal+carLength, originYGlobal);
             }

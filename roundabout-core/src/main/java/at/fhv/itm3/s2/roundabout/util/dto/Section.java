@@ -125,6 +125,15 @@ public class Section implements IDTO {
     }
 
     @XmlAttribute
+    public Integer getPedestrianCrossingIDRefExitHigh() {
+        return pedestrianCrossingIDRefEnterHigh;
+    }
+
+    public void setPedestrianCrossingIDRefExitHigh( Integer pedestrianCrossingIDRefEnterHigh) {
+        this.pedestrianCrossingIDRefEnterHigh = pedestrianCrossingIDRefEnterHigh;
+    }
+
+    @XmlAttribute
     public String getPedestrianCrossingRefLinkedAtBegin() {
         return pedestrianCrossingRefLinkedAtBegin;
     }
@@ -156,9 +165,10 @@ public class Section implements IDTO {
         return flexiBorderAlongX;
     }
 
-    public void getFlexiBorderAlongX(Boolean flexiBorderAlongX) {
+    public void setFlexiBorderAlongX(Boolean flexiBorderAlongX) {
         this.flexiBorderAlongX = flexiBorderAlongX;
     }
+
 
 
     @XmlAttribute

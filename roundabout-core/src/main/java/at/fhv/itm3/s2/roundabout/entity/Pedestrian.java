@@ -744,8 +744,8 @@ public class Pedestrian extends Entity implements IPedestrian {
         sumForce.add(tmp);
         tmp = repulsiveForceAgainstObstacles.getRepulsiveForceAgainstAllObstacles(getRoundaboutModel(), this);
         sumForce.add(tmp);
-        tmp = repulsiveForceAgainstVehicles.getRepulsiveForceAgainstVehicles(getRoundaboutModel(), this);
-        sumForce.add(tmp);
+        //tmp = repulsiveForceAgainstVehicles.getRepulsiveForceAgainstVehicles(getRoundaboutModel(), this);
+        //sumForce.add(tmp);
         this.setPreviousSFMVector(sumForce);
         return sumForce;
     }
@@ -913,7 +913,7 @@ public class Pedestrian extends Entity implements IPedestrian {
         if( section.getPedestrianConsumerType().equals(PedestrianConsumerType.PEDESTRIAN_CROSSING)) {
             boolean crossingAllowed = false;
             // in this case it might be possible to cross over border
-            if(((PedestrianStreetSection) section).getFlexiBorderAlongX() && borderLineNr == 2 && borderLineNr == 3){
+            if(((PedestrianStreetSection) section).isFlexiBorderAlongX() && borderLineNr == 2 && borderLineNr == 3){
                 crossingAllowed = true;
             } else if (borderLineNr == 1 && borderLineNr == 4){
                 crossingAllowed = true;

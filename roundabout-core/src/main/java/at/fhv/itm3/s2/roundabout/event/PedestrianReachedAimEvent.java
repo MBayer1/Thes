@@ -118,6 +118,10 @@ public class PedestrianReachedAimEvent extends Event<Pedestrian> {
                 if (nextStreetSection.useMassDynamic()){
                     if(roundaboutSimulationModel.massDynamic.doCrossing(pedestrian)){
                         keepWalking = true;
+                    } else {
+                        pedestrian.setCurrentSpeed(0); // not walking
+                        // Event call delay must not be below minTimeBetweenEventCall
+                        if (timeToDestination < minTimeBetweenEventCall) timeToDestination = minTimeBetweenEventCall;
                     }
                 } else {
                     timeToDestination = ((PedestrianStreet) currentSection).getRemainingRedPhase();
@@ -145,7 +149,6 @@ public class PedestrianReachedAimEvent extends Event<Pedestrian> {
             pedestrian.setNewGoal(forces);
             timeToDestination = pedestrian.getTimeToNextSubGoal();
             pedestrian.setNewGoal(forces);
-            boolean tmp = (pedestrian.checkExitPortIsReached());
 
             // Event call delay must not be below minTimeBetweenEventCall
             if (timeToDestination < minTimeBetweenEventCall) timeToDestination = minTimeBetweenEventCall;
