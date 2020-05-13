@@ -127,7 +127,7 @@ public class PedestrianStreetSection extends PedestrianStreet {
                 model,
                 modelDescription,
                 showInTrace,
-                trafficLightActive,
+                useMassDynamic ? true : trafficLightActive,
                 minGreenPhaseDuration,
                 greenPhaseDuration,
                 redPhaseDuration,
@@ -157,8 +157,9 @@ public class PedestrianStreetSection extends PedestrianStreet {
            //         this, TODO
            //         new TimeSpan(greenPhaseDuration)
            // );
-
         }
+
+        if (useMassDynamic) this.setTrafficLightFreeToGo(false);
     }
 
     /**

@@ -555,9 +555,8 @@ public class ConfigParser {
                         );
                     }
 
-                    final boolean isTrafficLightActive = s.getIsTrafficLightActive() != null ? s.getIsTrafficLightActive() : false;
                     final boolean useMassDynamic = s.getUseMassDynamic() != null ? s.getUseMassDynamic() : false;
-
+                    final boolean isTrafficLightActive = s.getIsTrafficLightActive() != null ? s.getIsTrafficLightActive() : false;
 
                     final PedestrianStreetSection pedestrianStreetSection = new PedestrianStreetSection(
                             s.getId(),

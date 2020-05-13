@@ -133,6 +133,7 @@ public class MassDynamic {
 
 
     public boolean doCrossing(Pedestrian pedestrian){
-        return (getProbability(pedestrian) < 0.5 ) ? false : true ;
+        return (getProbability(pedestrian) <
+                pedestrian.getRoundaboutModel().getRandomMassDynamicsTriggersEventPedestrians()) ? true : false;
     }
 }

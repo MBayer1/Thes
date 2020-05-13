@@ -87,7 +87,7 @@ public class PedestrianReachedAimEvent extends Event<Pedestrian> {
         }
 
         // check for waiting are before crossing
-        if (pedestrian.checkForWaitingArea()){
+        if (pedestrian.checkForWaitingArea() ){
             pedestrian.setCurrentSpeed(0);
         } else if (calc.almostEqual(pedestrian.getCurrentSpeed(), 0)) {
             pedestrian.setCurrentSpeed(pedestrian.getPreferredSpeed()); // reset
@@ -110,18 +110,24 @@ public class PedestrianReachedAimEvent extends Event<Pedestrian> {
         if (pedestrian.checkExitPortIsReached()) { // check if section will be changed
             // move to next section
             PedestrianStreet nextStreetSection = (PedestrianStreet) (pedestrian.getNextSection().getStreetSection());
+            boolean keepWalking = false;
 
             // special case traffic light
             if (nextStreetSection.isTrafficLightActive() && !nextStreetSection.isTrafficLightFreeToGo()) {
                 //not freeToGo
-                timeToDestination = ((PedestrianStreet) currentSection).getRemainingRedPhase();
-                //nextStreetSection.handleJamTrafficLight(); //  todo
-            } else {
                 if (nextStreetSection.useMassDynamic()){
-                    if(roundaboutSimulationModel.massDynamic.doCrossing(pedestrian));
+                    if(roundaboutSimulationModel.massDynamic.doCrossing(pedestrian)){
+                        keepWalking = true;
+                    }
+                } else {
+                    timeToDestination = ((PedestrianStreet) currentSection).getRemainingRedPhase();
+                    //nextStreetSection.handleJamTrafficLight(); //  todo
                 }
+            } else {
+                keepWalking = true;
+            }
 
-
+            if ( keepWalking ) {
                 // destination of the current street section is reached move to next section
                 PedestrianPoint transferPos = pedestrian.transferToNextPortPos();
                 pedestrian.moveOneSectionForward(transferPos);

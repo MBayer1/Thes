@@ -534,7 +534,8 @@ public class Pedestrian extends Entity implements IPedestrian {
         }
 
         if ((nextSection.getStreetSection() instanceof PedestrianStreetSection) &&
-                ((PedestrianStreetSection)(nextSection.getStreetSection())).isTrafficLightActive()) {
+                ((PedestrianStreetSection)(nextSection.getStreetSection())).isTrafficLightActive() &&
+                !((PedestrianStreetSection)(nextSection.getStreetSection())).useMassDynamic()) {
             if (!((PedestrianStreetSection)(nextSection.getStreetSection())).isTrafficLightFreeToGo()) {
                 double  distance = calc.getDistanceByCoordinates(currentGlobalPosition, getNextSubGoal());
                 if (distance < ((PedestrianBehaviour)pedestrianBehaviour).getMaxDistanceForWaitingArea()) return true;
