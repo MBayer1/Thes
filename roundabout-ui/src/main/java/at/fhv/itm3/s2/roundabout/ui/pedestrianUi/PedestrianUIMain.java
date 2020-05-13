@@ -8,18 +8,27 @@ import at.fhv.itm3.s2.roundabout.api.entity.PedestrianStreet;
 import at.fhv.itm3.s2.roundabout.entity.Pedestrian;
 import at.fhv.itm3.s2.roundabout.entity.PedestrianStreetSection;
 import at.fhv.itm3.s2.roundabout.util.ConfigParser;
+import desmoj.core.simulator.SimClock;
+import javafx.animation.PathTransition;
+import javafx.animation.PathTransition.OrientationType;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.scene.Node;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.*;
+import javafx.scene.shape.*;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.transform.Scale;
+import javafx.util.Duration;
 
 import java.awt.*;
 import java.io.Console;
 import java.util.*;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+import static java.awt.Color.*;
+import static javafx.scene.paint.Color.BROWN;
 
 public class PedestrianUIMain extends ScrollPane implements IPedestrianUIMain {
     private  int width;
@@ -95,13 +104,14 @@ public class PedestrianUIMain extends ScrollPane implements IPedestrianUIMain {
                     break;
 
                 case PEDESTRIAN_CROSSING:
-                    streetSectionUI = new PedestrianCrosswalkUI(pedestrianStreetSection);
+                    streetSectionUI = new PedestrianCrosswalkUI(pedestrianStreetSection, canvas);
                     break;
             }
             pedestrianMap.put(pedestrianStreetSection.getId(), new HashMap<String, PedestrianUI>());
 
             streetUIMap.put(pedestrianStreetSection.getId(), streetSectionUI);
             canvas.getChildren().add(streetSectionUI);
+            streetSectionUI.toBack();
         }
 //        addPedestrian();
     }
@@ -111,12 +121,15 @@ public class PedestrianUIMain extends ScrollPane implements IPedestrianUIMain {
         if (pedestrian instanceof Pedestrian) {
             Pedestrian pedestrianInstance = ((Pedestrian)pedestrian);
             PedestrianPoint pedestrianPoint = pedestrianInstance.getCurrentGlobalPosition();
-            globalPedestrianMap.put(pedestrianInstance.getName(), new PedestrianUI(pedestrianPoint.getX(), pedestrianPoint.getY()));
+            globalPedestrianMap.put(pedestrianInstance.getName(), new PedestrianUI(canvas, pedestrianPoint.getX(), pedestrianPoint.getY(), pedestrianInstance.getName()));
+            PedestrianUI pedestrianUI = globalPedestrianMap.get(pedestrianInstance.getName());
+
             Platform.setImplicitExit(false);
             Platform.runLater(new Runnable(){
                 @Override
-                public void run() {
-                    Platform.runLater(() ->  canvas.getChildren().add(globalPedestrianMap.get(pedestrianInstance.getName())));
+                public void run()
+                {
+                    pedestrianUI.addToContainer();
                 }
             });
         }else {
@@ -126,8 +139,70 @@ public class PedestrianUIMain extends ScrollPane implements IPedestrianUIMain {
 
     @Override
     public void updatePedestrian(IPedestrian pedestrian) {
+        long startTime = System.nanoTime();
+        long estimatedTime = System.nanoTime() - startTime;
+
+        //Drawing a Circle
+        Circle circle = new Circle();
+
+        //Setting the position of the circle
+        circle.setCenterX(300.0f);
+        circle.setCenterY(135.0f);
+
+        //Setting the radius of the circle
+        circle.setRadius(25.0f);
+
+        //Setting the color of the circle
+        circle.setFill(BROWN);
+
+        //Setting the stroke width of the circle
+        circle.setStrokeWidth(20);
+
+        //Creating a Path
+        Path path = new Path();
+
+        //Moving to the starting point
+        MoveTo moveTo = new MoveTo(0, 0);
+
+        //Creating 1st line
+        LineTo line1 = new LineTo(321, 161);
+
+
+        //Adding all the elements to the path
+        path.getElements().add(moveTo);
+        path.getElements().add(line1);
+
+        //Creating the path transition
+        PathTransition pathTransition = new PathTransition();
+
+        //Setting the duration of the transition
+        pathTransition.setDuration(Duration.millis(1000));
+
+        //Setting the node for the transition
+        pathTransition.setNode(circle);
+
+        //Setting the path for the transition
+        pathTransition.setPath(path);
+
+        //Setting the orientation of the path
+        pathTransition.setOrientation(OrientationType.ORTHOGONAL_TO_TANGENT);
+
+        //Setting the cycle count for the transition
+        pathTransition.setCycleCount(1);
+
+
+
+        //Setting auto reverse value to true
+        pathTransition.setAutoReverse(false);
+
+        //Playing the animation
+
         if (pedestrian instanceof Pedestrian) {
             Pedestrian pedestrianInstance = ((Pedestrian)pedestrian);
+            SimClock simClock = pedestrianInstance.getRoundaboutModel().getExperiment().getSimClock();
+            TimeUnit test = pedestrianInstance.getRoundaboutModel().getModelTimeUnit();
+
+
             PedestrianPoint pedestrianPoint = pedestrianInstance.getCurrentGlobalPosition();
             PedestrianUI pedestrianUI = globalPedestrianMap.get(pedestrianInstance.getName());
             if (pedestrianUI!=null){
@@ -135,10 +210,13 @@ public class PedestrianUIMain extends ScrollPane implements IPedestrianUIMain {
                 Platform.runLater(new Runnable(){
                     @Override
                     public void run() {
-                        Platform.runLater(() ->  pedestrianUI.relocate(pedestrianPoint.getX(), pedestrianPoint.getY()));
+                        pathTransition.play();
+                        pedestrianUI.updateInContainer(pedestrianPoint.getX(), pedestrianPoint.getY());
                     }
                 });
             }
+
+
 
         }else {
             throw new IllegalArgumentException("Not suitable Pedestrian.");
@@ -147,10 +225,24 @@ public class PedestrianUIMain extends ScrollPane implements IPedestrianUIMain {
 
     @Override
     public void removePedestrian(IPedestrian pedestrian) {
+        if (pedestrian instanceof Pedestrian) {
+            Pedestrian pedestrianInstance = ((Pedestrian)pedestrian);
+            PedestrianUI pedestrianUI = globalPedestrianMap.get(pedestrianInstance.getName());
 
+            Platform.setImplicitExit(false);
+            Platform.runLater(new Runnable(){
+                @Override
+                public void run()
+                {
+                     pedestrianUI.removeFromContainer();
+                }
+            });
+            globalPedestrianMap.remove(pedestrianInstance.getName());
+        }else {
+            throw new IllegalArgumentException("Not suitable Pedestrian.");
+        }
     }
 
-    public void updatePedestrian(){}
 
     private void centerCanvas(Pane nonCenteredCanvas){
         double w2 = nonCenteredCanvas.getBoundsInParent().getMaxX();
@@ -179,10 +271,5 @@ public class PedestrianUIMain extends ScrollPane implements IPedestrianUIMain {
         double r = scrollPane.getViewportBounds().getWidth();
         centerX = scrollPane.getHmax() * ((y - 0.5 * v) / (h - v));
         scrollPane.setHvalue(centerX);
-    }
-
-
-    public void addPedestrian(IPedestrianCountable pedestrianStreetSection, IPedestrian pedestrian) {
-
     }
 }

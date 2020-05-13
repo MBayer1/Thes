@@ -37,6 +37,7 @@ public class Pedestrian extends Entity implements IPedestrian {
     private PedestrianPoint currentGlobalPosition;
     private PedestrianPoint currentLocalPosition;
 
+
     public final Count pedestriansQueueToEnterCounter;
     public final Tally pedestriansQueueToEnterTime;
     public final StopWatch pedestriansQueueToEnterTimeStopWatch;
@@ -57,6 +58,14 @@ public class Pedestrian extends Entity implements IPedestrian {
 
     private Double enterSystemTime;
     private Double leaveSystemTime;
+
+
+
+    //ui variables
+    private double startTime;
+    private PedestrianPoint lastPedestrianCoordinates;
+
+
 
     SupportiveCalculations calc = new SupportiveCalculations();
 
@@ -905,5 +914,4 @@ public class Pedestrian extends Entity implements IPedestrian {
         if(checkX && checkY) return true;
         return false;
     }
-
 }
