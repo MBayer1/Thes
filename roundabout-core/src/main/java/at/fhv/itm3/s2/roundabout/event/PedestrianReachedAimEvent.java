@@ -94,6 +94,7 @@ public class PedestrianReachedAimEvent extends Event<Pedestrian> {
         }
 
         double timeToDestination = 0.0;
+        PedestrianPoint lastGlobalAim = pedestrian.getCurrentNextGlobalAim();
 
         // pedestrian reached new partial-aim
         if (pedestrian.getCurrentNextGlobalAim() != null) {
@@ -116,6 +117,7 @@ public class PedestrianReachedAimEvent extends Event<Pedestrian> {
             if (nextStreetSection.isTrafficLightActive() && !nextStreetSection.isTrafficLightFreeToGo()) {
                 //not freeToGo
                 if (nextStreetSection.useMassDynamic()){
+                    pedestrian.setCurrentNextGlobalAim(lastGlobalAim);
                     if(roundaboutSimulationModel.massDynamic.doCrossing(pedestrian)){
                         keepWalking = true;
                     } else {
@@ -123,6 +125,7 @@ public class PedestrianReachedAimEvent extends Event<Pedestrian> {
                         // Event call delay must not be below minTimeBetweenEventCall
                         if (timeToDestination < minTimeBetweenEventCall) timeToDestination = minTimeBetweenEventCall;
                     }
+                    pedestrian.setCurrentGlobalPosition(null);
                 } else {
                     timeToDestination = ((PedestrianStreet) currentSection).getRemainingRedPhase();
                     //nextStreetSection.handleJamTrafficLight(); //  todo

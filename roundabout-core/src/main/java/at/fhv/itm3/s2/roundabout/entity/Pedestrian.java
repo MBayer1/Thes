@@ -9,6 +9,7 @@ import at.fhv.itm3.s2.roundabout.api.entity.*;
 import at.fhv.itm3.s2.roundabout.model.RoundaboutSimulationModel;
 import desmoj.core.simulator.Entity;
 import desmoj.core.simulator.Model;
+import desmoj.core.simulator.TimeInstant;
 import desmoj.core.simulator.TimeSpan;
 import desmoj.core.statistic.Count;
 import desmoj.core.statistic.Tally;
@@ -91,7 +92,7 @@ public class Pedestrian extends Entity implements IPedestrian {
         this.walkedDistance = 0.0;
         this.timeRelatedParameterValueNForSpeedCalculation = timeRelatedParameterValueNForSpeedCalculation;
 
-        this.setLastUpdateTime(getRoundaboutModel().getCurrentTime());
+        this.setLastUpdateTime();
 
         this.pedestrianStopWatch = new StopWatch(model);
         this.pedestrianCounter = new Count(model, "Roundabout counter", false, false);
@@ -133,6 +134,14 @@ public class Pedestrian extends Entity implements IPedestrian {
         } else {
             throw new IllegalArgumentException("last update time must be positive");
         }
+    }
+
+    public void setLastUpdateTime(){
+        setLastUpdateTime(getRoundaboutModel().getCurrentTime());
+    }
+
+    public void setFirstLastUpdateTime(){
+        lastUpdateTime = getRoundaboutModel().getCurrentTime();
     }
 
     /**
@@ -182,8 +191,17 @@ public class Pedestrian extends Entity implements IPedestrian {
         }
 
         double distance = calc.getDistanceByCoordinates(currentGlobalPosition, currentNextGlobalAim);
-        double walkedTime = car.getModel().getExperiment().getSimClock().getTime().getTimeAsDouble(car.getModel().getExperiment().getReferenceUnit())-lastUpdateTime;
-        distance = distance - (walkedTime*pedestrianBehaviour.getCurrentSpeed());
+        double walkedTime = getRoundaboutModel().getCurrentTime();
+
+        double tmp = futureEndOfWalking - walkedTime; // todo del
+
+        walkedTime -= startOfWalking;
+
+        double calculatedDistance = walkedTime*pedestrianBehaviour.getCurrentSpeed();
+        if( distance < calculatedDistance) {
+            throw new IllegalStateException("walked over the destination.");
+        }
+        distance -= calculatedDistance;
         return distance;
     }
 

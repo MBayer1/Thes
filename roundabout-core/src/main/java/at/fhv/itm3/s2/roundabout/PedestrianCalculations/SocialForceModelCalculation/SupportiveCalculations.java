@@ -288,9 +288,9 @@ public class SupportiveCalculations {
                                          double dAxisCenterX, double dAxisCenterY)
     {
         if (dPosX2 == 0 && dPosY2 == 0) {
-            return Math.sqrt((Math.pow(dPosX1 - (dAxisCenterX), 2) + Math.pow(dPosY1 - dAxisCenterY, 2)));
+            return Math.abs(Math.sqrt((Math.pow(dPosX1 - (dAxisCenterX), 2) + Math.pow(dPosY1 - dAxisCenterY, 2))));
         } else {
-            return Math.sqrt(Math.pow(dPosX1 - dPosX2, 2) + Math.pow(dPosY1 - dPosY2, 2));
+            return Math.abs(Math.sqrt(Math.pow(dPosX1 - dPosX2, 2) + Math.pow(dPosY1 - dPosY2, 2)));
         }
     }
 
