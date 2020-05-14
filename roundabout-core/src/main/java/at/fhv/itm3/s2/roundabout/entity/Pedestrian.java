@@ -176,7 +176,7 @@ public class Pedestrian extends Entity implements IPedestrian {
         return currentGlobalPosition;
     }
 
-    public double getRemainingDistnaceToCurrentNextSubgoal() {
+    public double getRemainingDistanceToCurrentNextSubsoil() {
         if(currentNextGlobalAim == null) {
             setCurrentNextGlobalAim();
         }

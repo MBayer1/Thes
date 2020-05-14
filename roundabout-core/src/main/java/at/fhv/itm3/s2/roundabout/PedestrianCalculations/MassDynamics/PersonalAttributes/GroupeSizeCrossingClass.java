@@ -126,7 +126,7 @@ public class GroupeSizeCrossingClass {
 
     boolean checkForCrossingInRemainingRouteAndShortestDistance(Pedestrian pedestrian, PedestrianStreetSection crossingRef) {
 
-        double distance = pedestrian.getRemainingDistnaceToCurrentNextSubgoal();
+        double distance = pedestrian.getRemainingDistanceToCurrentNextSubsoil();
 
         if( !(pedestrian.getNextSection().getStreetSection() instanceof PedestrianStreetSection) ||
                 !(pedestrian.getCurrentSection().getStreetSection()instanceof PedestrianStreetSection) ){
