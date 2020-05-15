@@ -125,7 +125,7 @@ public class PedestrianReachedAimEvent extends Event<Pedestrian> {
                         // Event call delay must not be below minTimeBetweenEventCall
                         if (timeToDestination < minTimeBetweenEventCall) timeToDestination = minTimeBetweenEventCall;
                     }
-                    pedestrian.setCurrentGlobalPosition(null);
+                    pedestrian.setCurrentNextGlobalAim(null);
                 } else {
                     timeToDestination = ((PedestrianStreet) currentSection).getRemainingRedPhase();
                     //nextStreetSection.handleJamTrafficLight(); //  todo

@@ -12,8 +12,8 @@ public class StoppingWhileCrossingClass {
     List<Category> categoryList = new LinkedList<>();
 
     public StoppingWhileCrossingClass(){
-        categoryList.add(new Category("StoppingWhileCrossing",-1,10,0.5));
-        categoryList.add(new Category("NotStoppingWhileCrossing",-1,10,0.36));
+        categoryList.add(new Category("StoppingWhileCrossing",-1,15.6,0.5));
+        categoryList.add(new Category("NotStoppingWhileCrossing",categoryList.get(categoryList.size()-1).getUpperLimit(),100,0.36));
     }
 
     public double getProbability (String type){

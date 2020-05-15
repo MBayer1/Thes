@@ -193,16 +193,23 @@ public class Pedestrian extends Entity implements IPedestrian {
         double distance = calc.getDistanceByCoordinates(currentGlobalPosition, currentNextGlobalAim);
         double walkedTime = getRoundaboutModel().getCurrentTime();
 
+        PedestrianPoint sectonPOs = ((PedestrianStreetSection)currentSection.getStreetSection()).getPedestrianPositions().get(this);
+
+
         double tmp = futureEndOfWalking - walkedTime; // todo del
+        double a = futureEndOfWalking - startOfWalking;
+        double as = a - tmp;
 
         walkedTime -= startOfWalking;
 
+
         double calculatedDistance = walkedTime*pedestrianBehaviour.getCurrentSpeed();
         if( distance < calculatedDistance) {
-            throw new IllegalStateException("walked over the destination.");
+            double da = 2;
+            // throw new IllegalStateException("walked over the destination.");
         }
         distance -= calculatedDistance;
-        return distance;
+        return Math.max(distance,0);
     }
 
     public PedestrianPoint getCurrentLocalPosition() {
