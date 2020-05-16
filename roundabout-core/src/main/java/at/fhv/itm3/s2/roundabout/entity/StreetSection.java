@@ -861,11 +861,15 @@ public class StreetSection extends Street {
      *
      * @return width of pedestrian crossing {@Link double}.
      */
-    public double getPedestrianCrossingWidth(){
+    public double getPedestrianCrossingWidthInM(){
+        return getPedestrianCrossingWidthInCM()/100;
+    }
+
+    public double getPedestrianCrossingWidthInCM(){
         if (this.doesHavePedestrianCrossingToEnter()) {
-            return pedestrianCrossingEnter.getLengthForVehicleToPass()/ 100; //   cm into m
+            return pedestrianCrossingEnter.getLengthForVehicleToPass(); //   cm into m
         } else  if(this.doesHavePedestrianCrossingThatHasBeenLeftBefore() ) {
-            return pedestrianCrossingExit.getLengthForVehicleToPass()/ 100; //   cm into m
+            return pedestrianCrossingExit.getLengthForVehicleToPass(); //   cm into m
         }
         return 0;
     }

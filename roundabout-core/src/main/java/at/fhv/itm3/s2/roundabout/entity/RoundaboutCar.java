@@ -8,7 +8,6 @@ import at.fhv.itm3.s2.roundabout.model.RoundaboutSimulationModel;
 import at.fhv.itm3.s2.roundabout.api.entity.ICar;
 import at.fhv.itm3.s2.roundabout.api.entity.IDriverBehaviour;
 import at.fhv.itm3.s2.roundabout.api.entity.IRoute;
-import com.sun.org.apache.bcel.internal.generic.ICONST;
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeSpan;
 import desmoj.core.statistic.Count;
@@ -136,7 +135,7 @@ public class RoundaboutCar implements ICar {
                 carPosition = streetSection.getCarPositions().get(this);
             }
 
-            double remainingLength = streetSection.getLength() - carPosition + ((StreetSection) section).getPedestrianCrossingWidth();
+            double remainingLength = streetSection.getLength() - carPosition + ((StreetSection) section).getPedestrianCrossingWidthInM();
             return remainingLength ;
         }else {
             throw new IllegalStateException("Sections needs to be instance of StreetSection.");
