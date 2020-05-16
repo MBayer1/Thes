@@ -389,7 +389,7 @@ public class StreetSection extends Street {
                 } else {
                     x = origin.getX() + crossingSection.getLengthX();
                 }
-                y = pedestrianCrossingEnter.getLocalHighOfEntry() + origin.getY();
+                y = origin.getY() + pedestrianCrossingEnter.getLocalHighOfEntry();
             }else {
                 // car drives along x axis
                 if(pedestrianCrossingEnter.getLinkedAtBegin()) {
@@ -397,7 +397,7 @@ public class StreetSection extends Street {
                 } else {
                     y = origin.getY() + crossingSection.getLengthY();
                 }
-                x = pedestrianCrossingEnter.getLocalHighOfEntry() + origin.getX();
+                x = origin.getX() + pedestrianCrossingEnter.getLocalHighOfEntry();
             }
             pedestrianCrossingEnter.setGlobalPositionOfStreetAndCrossingIntersectionInCM(new PedestrianPoint(x, y));
         }
@@ -416,7 +416,7 @@ public class StreetSection extends Street {
                 } else {
                     x = origin.getX() + crossingSection.getLengthX();
                 }
-                y = pedestrianCrossingExit.getLocalHighOfEntry() + origin.getY();
+                y = origin.getY() + pedestrianCrossingExit.getLocalHighOfEntry();
             }else {
                 // car drives along x axis
                 if(pedestrianCrossingExit.getLinkedAtBegin()) {
@@ -424,7 +424,7 @@ public class StreetSection extends Street {
                 } else {
                     y = origin.getY() + crossingSection.getLengthY();
                 }
-                x = pedestrianCrossingExit.getLocalHighOfEntry() + origin.getX();
+                x = origin.getX() + pedestrianCrossingExit.getLocalHighOfEntry();
             }
             pedestrianCrossingExit.setGlobalPositionOfStreetAndCrossingIntersectionInCM(new PedestrianPoint(x, y));
         }
