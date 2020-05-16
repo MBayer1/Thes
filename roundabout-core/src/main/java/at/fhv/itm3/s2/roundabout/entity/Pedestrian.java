@@ -49,6 +49,7 @@ public class Pedestrian extends Entity implements IPedestrian {
 
     private Double startOfWalking;
     private Double futureEndOfWalking;
+    private Double walkingSpeedByStartOfWalking;
 
     private Double enterSystemTime;
     private Double leaveSystemTime;
@@ -168,11 +169,18 @@ public class Pedestrian extends Entity implements IPedestrian {
         double calcResult = calc.getDistanceByCoordinates(currentNextGlobalAim.getX(),
                 currentNextGlobalAim.getY(),
                 currentGlobalPosition.getX(),
-                currentGlobalPosition.getY()) * pedestrianBehaviour.getCurrentSpeed();
+                currentGlobalPosition.getY()) / pedestrianBehaviour.getCurrentSpeed();
 
-        if(calcResult < 1) { // 1 time unit, in this case 1sec
-            throw new  IllegalStateException("Something went wrong. Suspicious transferee time of Pedestrian.");
+        if (Double.isInfinite(calcResult)) {
+            calcResult = 0; // no current speed = waiting
+        } else
+        if(calcResult < 1 ) { // 1 time unit, in this case 1sec
+            //throw new  IllegalStateException("Something went wrong. Suspicious transferee time of Pedestrian.");
+            //todo del
+            double d = 2;
+
         }
+
         return calcResult;
     }
 
@@ -192,22 +200,8 @@ public class Pedestrian extends Entity implements IPedestrian {
 
         double distance = calc.getDistanceByCoordinates(currentGlobalPosition, currentNextGlobalAim);
         double walkedTime = getRoundaboutModel().getCurrentTime();
-
-        PedestrianPoint sectonPOs = ((PedestrianStreetSection)currentSection.getStreetSection()).getPedestrianPositions().get(this);
-
-
-        double tmp = futureEndOfWalking - walkedTime; // todo del
-        double a = futureEndOfWalking - startOfWalking;
-        double as = a - tmp;
-
         walkedTime -= startOfWalking;
-
-
-        double calculatedDistance = walkedTime*pedestrianBehaviour.getCurrentSpeed();
-        if( distance < calculatedDistance) {
-            double da = 2;
-            // throw new IllegalStateException("walked over the destination.");
-        }
+        double calculatedDistance = walkedTime * walkingSpeedByStartOfWalking;
         distance -= calculatedDistance;
         return Math.max(distance,0);
     }
@@ -518,8 +512,11 @@ public class Pedestrian extends Entity implements IPedestrian {
 
         double part1 = (1 - timeRelatedParameter) * pedestrianBehaviour.getCurrentSpeed();
         double part2 = timeRelatedParameter * ((PedestrianBehaviour)pedestrianBehaviour).getMaxPreferredSpeed();
+        if( Double.isNaN(part1)) part1 = 0;
+        if( Double.isNaN(part2)) part2 = 0;
 
         pedestrianBehaviour.setCurrentSpeed(part1 + part2);
+        walkingSpeedByStartOfWalking = pedestrianBehaviour.getCurrentSpeed();
         return pedestrianBehaviour.getCurrentSpeed();
     }
 
@@ -657,30 +654,30 @@ public class Pedestrian extends Entity implements IPedestrian {
 
         } // Port is along x axis
         else {
-            if ( (globalBeginX < globalEndX && currentGlobalPosition.getX() >= (globalBeginX + minGapForPedestrian) &&
-                    currentGlobalPosition.getX() <= (globalEndX - getMinGapForPedestrian()) ) ||
-                    (globalBeginX > globalEndX && currentGlobalPosition.getX() >= (globalEndX + minGapForPedestrian) &&
-                            currentGlobalPosition.getX() <= (globalBeginX - getMinGapForPedestrian()) )   ) {
-                //pedestrian high is withing port?
-                pos.setLocation(currentGlobalPosition.getX(), globalBeginY);
-            } else
-            if (Math.abs(currentGlobalPosition.getX() - globalBeginX) < Math.abs(currentGlobalPosition.getX() - globalEndX)) { // check if it is closer to end or begin
-                //closer to begin exit port
-                //now moving intersection into the port about the min Gap
-                if (globalBeginX < globalEndX ) {
-                    pos.setLocation(globalBeginX + minGapForPedestrian, globalBeginY);
-                }else {
-                    pos.setLocation(globalBeginX - minGapForPedestrian, globalBeginY );
-                }
-            } else {
-                //closer to end of exit Port
-                //now moving intersection into the port about the min Gap
-                if (globalBeginX > globalEndX ) {
-                    pos.setLocation(globalEndX + minGapForPedestrian, globalEndY );
-                }else {
-                    pos.setLocation(globalEndX - minGapForPedestrian, globalEndY );
-                }
-            }
+           if ( (globalBeginX < globalEndX && currentGlobalPosition.getX() >= (globalBeginX + minGapForPedestrian) &&
+                   currentGlobalPosition.getX() <= (globalEndX - minGapForPedestrian) ) ||
+                   (globalBeginX > globalEndX && currentGlobalPosition.getX() >= (globalEndX + minGapForPedestrian) &&
+                           currentGlobalPosition.getX() <= (globalBeginX - minGapForPedestrian) )   ) {
+               //pedestrian high is withing port?
+               pos.setLocation(globalBeginX, currentGlobalPosition.getX());
+           } else
+           if (Math.abs(currentGlobalPosition.getX() - globalBeginX) < Math.abs(currentGlobalPosition.getX() - globalEndX)) { // check if it is closer to end or begin
+               //closer to begin exit port
+               //now moving intersection into the port about the min Gap
+               if (globalBeginX < globalEndX ) {
+                   pos.setLocation(globalBeginX  + minGapForPedestrian, globalBeginY);
+               }else {
+                   pos.setLocation(globalBeginX  - minGapForPedestrian, globalBeginY);
+               }
+           } else {
+               //closer to end of exit Port
+               //now moving intersection into the port about the min Gap
+               if (globalBeginX > globalEndX ) {
+                   pos.setLocation(globalEndX + minGapForPedestrian, globalEndY);
+               }else {
+                   pos.setLocation(globalEndX - minGapForPedestrian, globalEndY);
+               }
+           }
         }
 
         return pos;
@@ -975,6 +972,14 @@ public class Pedestrian extends Entity implements IPedestrian {
             throw new IllegalStateException("Type miss match: behaviour not instance of PedestrianBehaviour.");
         }
         return ((PedestrianBehaviour)pedestrianBehaviour).getMaxDistanceForWaitingArea();
+    }
+
+    public void setWalkingSpeedByStartOfWalking ( double walkingSpeedByStartOfWalking) {
+        this.walkingSpeedByStartOfWalking = walkingSpeedByStartOfWalking;
+    }
+
+    public double getWalkingSpeedByStartOfWalking () {
+        return this.walkingSpeedByStartOfWalking;
     }
 
 }

@@ -121,18 +121,33 @@ public class PedestrianGenerateEvent extends Event<PedestrianAbstractSource> {
             PedestrianPoint end = connectorPair.getPortOfToStreetSection().getLocalEndOfStreetPort();
 
             PedestrianPoint globalEntryPoint = new PedestrianPoint();
+            double entryY, entryX;
             if (calc.almostEqual(end.getX(), start.getX())) {
-                double entryY = roundaboutSimulationModel.getRandomEntryPoint(
-                        Math.min(end.getY(), start.getY()) + behaviour.calcGapForPedestrian() ,
-                        Math.max(end.getY(), start.getY()) - behaviour.calcGapForPedestrian());
-                globalEntryPoint.setLocation(start.getX() + global.getX(), entryY + global.getY());
-
+                // port along y axis
+                if( end.getY() > start.getY() ) {
+                    entryY = roundaboutSimulationModel.getRandomEntryPoint(
+                            start.getY() + behaviour.calcGapForPedestrian(),
+                            end.getY() - behaviour.calcGapForPedestrian());
+                } else {
+                    entryY = roundaboutSimulationModel.getRandomEntryPoint(
+                            end.getY() + behaviour.calcGapForPedestrian(),
+                            start.getY() - behaviour.calcGapForPedestrian());
+                }
+                entryX = end.getX();
             } else {
-                double entryX = roundaboutSimulationModel.getRandomEntryPoint(
-                        Math.min(end.getX(), start.getX() + behaviour.calcGapForPedestrian()),
-                        Math.max(end.getX(), start.getX()) - behaviour.calcGapForPedestrian());
-                globalEntryPoint.setLocation(entryX + global.getX(), start.getY() + global.getY());
+                // port along x axis
+                if( end.getX() > start.getX() ) {
+                    entryX = roundaboutSimulationModel.getRandomEntryPoint(
+                            start.getX() + behaviour.calcGapForPedestrian(),
+                            end.getX() - behaviour.calcGapForPedestrian());
+                } else {
+                    entryX = roundaboutSimulationModel.getRandomEntryPoint(
+                            end.getX() + behaviour.calcGapForPedestrian(),
+                            start.getX() - behaviour.calcGapForPedestrian());
+                }
+                entryY = end.getY();
             }
+            globalEntryPoint.setLocation(entryX + global.getX(), entryY + global.getY());
 
             final Pedestrian pedestrian = new Pedestrian(roundaboutSimulationModel, name, showInTrace, globalEntryPoint, behaviour, route);
             PedestrianController.addCarMapping(pedestrian.getCarDummy(), pedestrian);

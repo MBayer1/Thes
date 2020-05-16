@@ -36,12 +36,12 @@
         <parameter name="MIN_PEDESTRIAN_RELAXING_TIME" value="1.7"/>
         <parameter name="MAX_PEDESTRIAN_RELAXING_TIME" value="2.7"/>
         <parameter name="EXPECTED_PEDESTRIAN_RELAXING_TIME" value="2.2"/>
-        <parameter name="MIN_PEDESTRIAN_SIZE_RADIUS" value="0.5"/>
-        <parameter name="MAX_PEDESTRIAN_SIZE_RADIUS" value="1.1"/>
-        <parameter name="EXPECTED_PEDESTRIAN_SIZE_RADIUS" value="0.8"/>
-        <parameter name="MIN_PEDESTRIAN_MIN_GAP" value="0.2"/>
-        <parameter name="MAX_PEDESTRIAN_MIN_GAP" value="1.0"/>
-        <parameter name="EXPECTED_PEDESTRIAN_MIN_GAP" value="0.5"/>
+        <parameter name="MIN_PEDESTRIAN_SIZE_RADIUS" value="50"/>
+        <parameter name="MAX_PEDESTRIAN_SIZE_RADIUS" value="110"/>
+        <parameter name="EXPECTED_PEDESTRIAN_SIZE_RADIUS" value="80"/>
+        <parameter name="MIN_PEDESTRIAN_MIN_GAP" value="20"/>
+        <parameter name="MAX_PEDESTRIAN_MIN_GAP" value="100"/>
+        <parameter name="EXPECTED_PEDESTRIAN_MIN_GAP" value="50"/>
         <parameter name="MIN_PEDESTRIAN_PREFERRED_SPEED" value="1.08"/>
         <parameter name="MAX_PEDESTRIAN_PREFERRED_SPEED" value="1.6"/>
         <parameter name="EXPECTED_PEDESTRIAN_PREFERRED_SPEED" value="1.34"/>

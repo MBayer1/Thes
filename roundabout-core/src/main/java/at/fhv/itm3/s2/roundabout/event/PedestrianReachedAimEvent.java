@@ -1,7 +1,6 @@
 package at.fhv.itm3.s2.roundabout.event;
 
 import at.fhv.itm14.trafsim.model.entities.IConsumer;
-import at.fhv.itm3.s2.roundabout.PedestrianCalculations.SocialForceModelCalculation.AccelerationForceToTarget;
 import at.fhv.itm3.s2.roundabout.PedestrianCalculations.SocialForceModelCalculation.SupportiveCalculations;
 import at.fhv.itm3.s2.roundabout.api.PedestrianPoint;
 import at.fhv.itm3.s2.roundabout.api.entity.PedestrianConsumerType;
@@ -123,7 +122,7 @@ public class PedestrianReachedAimEvent extends Event<Pedestrian> {
                     } else {
                         pedestrian.setCurrentSpeed(0); // not walking
                         // Event call delay must not be below minTimeBetweenEventCall
-                        if (timeToDestination < minTimeBetweenEventCall) timeToDestination = minTimeBetweenEventCall;
+                        timeToDestination = minTimeBetweenEventCall;
                     }
                     pedestrian.setCurrentNextGlobalAim(null);
                 } else {
@@ -151,6 +150,13 @@ public class PedestrianReachedAimEvent extends Event<Pedestrian> {
             Vector2d forces = pedestrian.getSocialForceVector(); //set time when next update.
             pedestrian.setNewGoal(forces);
             timeToDestination = pedestrian.getTimeToNextSubGoal();
+
+            //todo del
+            boolean da = pedestrian.checkExitPortIsReached();
+            Vector2d forces2 = pedestrian.getSocialForceVector(); //set time when next update.
+            pedestrian.setNewGoal(forces2);
+            // fin del
+
             pedestrian.setNewGoal(forces);
 
             // Event call delay must not be below minTimeBetweenEventCall
@@ -166,8 +172,12 @@ public class PedestrianReachedAimEvent extends Event<Pedestrian> {
         pedestrian.setWalkingTimeStamps(timeToDestination);
 
         // schedule next event
-        pedestrianEventFactory.createPedestrianReachedAimEvent(roundaboutSimulationModel).schedule(
-                pedestrian, new TimeSpan(timeToDestination, roundaboutSimulationModel.getModelTimeUnit()));
+        try {
+            pedestrianEventFactory.createPedestrianReachedAimEvent(roundaboutSimulationModel).schedule(
+                    pedestrian, new TimeSpan(timeToDestination, roundaboutSimulationModel.getModelTimeUnit()));
+        } catch (Exception e){
+            throw new IllegalArgumentException("Pedestrian Event went wrong.");
+        }
 
         Pedestrian pedestrianToEnter = null;
         if (((PedestrianStreetSection) currentSection).reCheckPedestrianCanEnterSection(pedestrianToEnter)) { // after some movements recheck pedestrians in queue

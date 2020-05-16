@@ -22,7 +22,6 @@ public class PedestrianBehaviour implements IPedestrianBehaviour {
     private String statusOfWalking;
     private CurrentMovementPedestrian currentMovementClass;
 
-
     public PedestrianBehaviour(double speed, double minDistanceToNextPedestrian, double radiusOfPedestrian,
                                String gender, String psychologicalNature, String ageRangeGroup,
                                String dangerSenseClass, Double preferredSpeed, Double maxPreferredSpeed,

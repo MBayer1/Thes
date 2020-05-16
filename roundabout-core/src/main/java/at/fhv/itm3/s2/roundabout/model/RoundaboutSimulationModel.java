@@ -185,6 +185,12 @@ public class RoundaboutSimulationModel extends Model {
     private ContDistUniform pedestrianEntryPoint;
 
     /**
+     * Random number stream used to define weather a person stops while illegal crossing or not
+     * See {@link RoundaboutSimulationModel#init()} method for stream parameters.
+     */
+    private ContDistUniform pedestrianStopWhileIllegalCrossing;
+
+    /**
      * Random number stream used to draw a time between two pedestrians arrivals.
      * See {@link RoundaboutSimulationModel#init()} method for stream parameters.
      */
@@ -616,6 +622,16 @@ public class RoundaboutSimulationModel extends Model {
         pedestrianEntryPoint.setSeed(simulationSeed);
 
 
+        pedestrianStopWhileIllegalCrossing = new ContDistUniform(
+                this,
+                "pedestrianStopWhileIllegalCrossing",
+                0,
+                1,
+                true,
+                false
+        );
+        pedestrianStopWhileIllegalCrossing.setSeed(simulationSeed);
+
         massDynamicsTriggersEventPedestrians = new ContDistUniform(
                 this,
                 "massDynamicsTriggersEventPedestrians",
@@ -930,6 +946,16 @@ public class RoundaboutSimulationModel extends Model {
         diff += minValue;
         return Math.max(Math.min(diff,  maxValue), minValue);
     }
+
+
+    /**
+     * Random number stream to define weather person stops while illegal crossing
+     * See {@link RoundaboutSimulationModel#init()} method for stream parameters.
+     */
+    public double getRandomPedestrianStopWhileIllegalCrossing() {
+        return  pedestrianStopWhileIllegalCrossing.sample();
+    }
+
 
     /**
      * Define Max Range for Waiting Area
