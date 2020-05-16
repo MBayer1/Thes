@@ -17,6 +17,7 @@ public class Section implements IDTO {
     private Long minSizeOfPedestriansForTrafficLightTriggeredByJam;
     private String pedestrianCrossingIDRef, pedestrianCrossingComponentIDRef;
     private Integer pedestrianCrossingIDRefEnterHigh;
+    private Integer pedestrianCrossingIDRefExitHigh;
     private String pedestrianCrossingRefLinkedAtBegin;
     private Boolean flexiBorderAlongX;
     private Boolean useMassDynamic;
@@ -126,11 +127,11 @@ public class Section implements IDTO {
 
     @XmlAttribute
     public Integer getPedestrianCrossingIDRefExitHigh() {
-        return pedestrianCrossingIDRefEnterHigh;
+        return pedestrianCrossingIDRefExitHigh;
     }
 
-    public void setPedestrianCrossingIDRefExitHigh( Integer pedestrianCrossingIDRefEnterHigh) {
-        this.pedestrianCrossingIDRefEnterHigh = pedestrianCrossingIDRefEnterHigh;
+    public void setPedestrianCrossingIDRefExitHigh( Integer pedestrianCrossingIDRefExitHigh) {
+        this.pedestrianCrossingIDRefExitHigh = pedestrianCrossingIDRefExitHigh;
     }
 
     @XmlAttribute

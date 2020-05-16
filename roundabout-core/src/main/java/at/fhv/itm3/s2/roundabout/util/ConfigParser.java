@@ -499,6 +499,7 @@ public class ConfigParser {
 
                     PedestrianStreetReferenceForVehicleStreet pedestrianStreetRefEnter = null;
                     PedestrianStreetReferenceForVehicleStreet pedestrianStreetRefExit = null;
+
                     if ( pedestrianStreetSectionRef != null) {
                         if(s.getPedestrianCrossingIDRefEnterHigh() != null) {
                             pedestrianStreetRefEnter =
