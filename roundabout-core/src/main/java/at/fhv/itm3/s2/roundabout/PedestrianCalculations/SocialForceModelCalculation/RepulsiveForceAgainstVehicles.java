@@ -234,7 +234,7 @@ public class RepulsiveForceAgainstVehicles {
         //Traveled path of the walker β within ∆t
         double speed = car.getDriverBehaviour().getSpeed();
         double kmhToMs = 1000./(60*60);
-        double traveledPathWithinTOfBeta = speed / kmhToMs; // speed in km/h -> change to m/s := 1000/(60*60)
+        double traveledPathWithinTOfBeta = kmhToMs; // speed in km/h -> change to m/s := 1000/(60*60)
 
         // preparation
         Vector2d vecVehicleDrivingDirection = new Vector2d(vecVehicleGlobGoal);

@@ -765,8 +765,8 @@ public class Pedestrian extends Entity implements IPedestrian {
         sumForce.add(tmp);
         tmp = repulsiveForceAgainstObstacles.getRepulsiveForceAgainstAllObstacles(getRoundaboutModel(), this);
         sumForce.add(tmp);
-        //tmp = repulsiveForceAgainstVehicles.getRepulsiveForceAgainstVehicles(getRoundaboutModel(), this);
-        //sumForce.add(tmp);
+        tmp = repulsiveForceAgainstVehicles.getRepulsiveForceAgainstVehicles(getRoundaboutModel(), this);
+        sumForce.add(tmp);
         this.setPreviousSFMVector(sumForce);
         return sumForce;
     }
