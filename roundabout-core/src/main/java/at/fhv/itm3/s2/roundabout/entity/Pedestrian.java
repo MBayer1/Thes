@@ -262,7 +262,7 @@ public class Pedestrian extends Entity implements IPedestrian {
 
                 if (intersection == null || !calc.checkWallIntersectionWithinPort(localPort, intersection)) {
                     if (intersection == null) intersection = new PedestrianPoint(onBorderX, onBorderY);  //localPos;
-                    calc.shiftIntersection(localPort, intersection, getMinGapForPedestrian());
+                    intersection = calc.shiftIntersection(localPort, intersection, getMinGapForPedestrian());
                 }
 
                 PedestrianPoint globalBase = currentSection.getGlobalCoordinateOfSectionOrigin();
