@@ -373,6 +373,15 @@ public class StreetSection extends Street {
         return false;
     }
 
+    public PedestrianPoint getGlobalCoordinateOfCrossingIntersection () {
+        if(pedestrianCrossingEnter != null) {
+            return pedestrianCrossingEnter.getGlobalPositionOfStreetAndCrossingIntersectionInCM();
+        } else if (pedestrianCrossingExit != null){
+            return pedestrianCrossingExit.getGlobalPositionOfStreetAndCrossingIntersectionInCM();
+        }
+        throw new IllegalArgumentException("No connection to Crossing.");
+    }
+
     public void setGlobalCoordinateOfCrossingIntersection() {
         PedestrianStreetSection crossingSection = null;
         if(pedestrianCrossingEnter != null) {

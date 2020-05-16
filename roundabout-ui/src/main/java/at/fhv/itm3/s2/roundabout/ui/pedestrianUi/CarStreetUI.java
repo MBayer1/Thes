@@ -7,7 +7,7 @@ public class CarStreetUI extends StreetSectionUI {
 
     private final static Color carStreetColor =  Color.YELLOW;
 
-    public CarStreetUI(PedestrianStreetSection pedestrianStreetSection) {
-        super(pedestrianStreetSection, carStreetColor);
+    public CarStreetUI(double x, double y, double width, double height, String uuid ){
+        super(x, y, width, height, carStreetColor, uuid);
     }
 }

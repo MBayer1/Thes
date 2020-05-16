@@ -17,7 +17,7 @@ public class PedestrianUI extends Circle {
     private double relativeLabelPositionY = 10;
 
     public PedestrianUI(Pane canvas, double x, double y, String pedestrianName){
-        super(x, y, PedestrianUIUtils.PEDESTRIAN_WIDTH);
+        super(x - (PedestrianUIUtils.PEDESTRIAN_WIDTH/2), x - (PedestrianUIUtils.PEDESTRIAN_WIDTH/2), PedestrianUIUtils.PEDESTRIAN_WIDTH);
         setFill(Color.color(Math.random(), Math.random(), Math.random()));
         this.canvas = canvas;
         pedestrianNameLabel = new Label(pedestrianName);

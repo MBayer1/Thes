@@ -15,6 +15,11 @@ public class PedestrianCrosswalkUI extends StreetSectionUI {
         Rectangle rectangle = new Rectangle(30, 30, 50, 50);
         rectangle.setFill(Color.GREEN);
         canvas.getChildren().add(rectangle);
-
     }
+//    public PedestrianCrosswalkUI(CarStreetUI carStreetUI, Pane canvas) {
+//        super(pedestrianStreetSection, pedestrianCrosswalkColor);
+//        Rectangle rectangle = new Rectangle(30, 30, 50, 50);
+//        rectangle.setFill(Color.GREEN);
+//        canvas.getChildren().add(rectangle);
+//    }
 }

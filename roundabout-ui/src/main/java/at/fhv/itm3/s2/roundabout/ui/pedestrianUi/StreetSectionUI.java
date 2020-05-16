@@ -15,4 +15,14 @@ public class StreetSectionUI extends Rectangle {
         this.uuid = pedestrianStreetSection.getId();
         //super.setStyle("-fx-fill: red; -fx-stroke: black; -fx-stroke-width: 5;");
     }
+
+    public StreetSectionUI(double x, double y, double width, double height, Color color, String uuid){
+        super(width, height);
+        setX(x);
+        setY(y);
+        setFill(color);
+        this.uuid = uuid;
+        //super.setStyle("-fx-fill: red; -fx-stroke: black; -fx-stroke-width: 5;");
+    }
+
 }

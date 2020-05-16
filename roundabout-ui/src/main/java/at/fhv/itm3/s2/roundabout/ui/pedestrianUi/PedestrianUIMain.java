@@ -1,12 +1,10 @@
 package at.fhv.itm3.s2.roundabout.ui.pedestrianUi;
 
 import at.fhv.itm3.s2.roundabout.api.PedestrianPoint;
-import at.fhv.itm3.s2.roundabout.api.entity.IPedestrian;
-import at.fhv.itm3.s2.roundabout.api.entity.IPedestrianCountable;
-import at.fhv.itm3.s2.roundabout.api.entity.IPedestrianUIMain;
-import at.fhv.itm3.s2.roundabout.api.entity.PedestrianStreet;
+import at.fhv.itm3.s2.roundabout.api.entity.*;
 import at.fhv.itm3.s2.roundabout.entity.Pedestrian;
 import at.fhv.itm3.s2.roundabout.entity.PedestrianStreetSection;
+import at.fhv.itm3.s2.roundabout.entity.StreetSection;
 import at.fhv.itm3.s2.roundabout.util.ConfigParser;
 import desmoj.core.simulator.SimClock;
 import javafx.animation.PathTransition;
@@ -43,6 +41,7 @@ public class PedestrianUIMain extends ScrollPane implements IPedestrianUIMain {
     private Map<String, StreetSectionUI> streetUIMap = new HashMap<String, StreetSectionUI>();
     private Map<String, Map<String, PedestrianUI>> pedestrianMap = new HashMap<String, Map<String, PedestrianUI>>();
     private Map<String, PedestrianUI> globalPedestrianMap = new HashMap<String, PedestrianUI>();
+    private Map<String, CarStreetUI> carStreetUIMap = new HashMap<>();
 
 
     Pane canvas = new Pane();
@@ -105,6 +104,12 @@ public class PedestrianUIMain extends ScrollPane implements IPedestrianUIMain {
 
                 case PEDESTRIAN_CROSSING:
                     streetSectionUI = new PedestrianCrosswalkUI(pedestrianStreetSection, canvas);
+                    double width = GetStreetWidth(
+                            pedestrianStreetSection.getEnteringVehicleStreetList(),
+                            pedestrianStreetSection.getLeavingVehicleStreetList(),
+                            pedestrianStreetSection);
+                    AddVehicleStreets(canvas, pedestrianStreetSection.getEnteringVehicleStreetList(), pedestrianStreetSection, width);
+                    AddVehicleStreets(canvas, pedestrianStreetSection.getLeavingVehicleStreetList(), pedestrianStreetSection, width);
                     break;
             }
             pedestrianMap.put(pedestrianStreetSection.getId(), new HashMap<String, PedestrianUI>());
@@ -190,8 +195,6 @@ public class PedestrianUIMain extends ScrollPane implements IPedestrianUIMain {
         //Setting the cycle count for the transition
         pathTransition.setCycleCount(1);
 
-
-
         //Setting auto reverse value to true
         pathTransition.setAutoReverse(false);
 
@@ -240,6 +243,65 @@ public class PedestrianUIMain extends ScrollPane implements IPedestrianUIMain {
             globalPedestrianMap.remove(pedestrianInstance.getName());
         }else {
             throw new IllegalArgumentException("Not suitable Pedestrian.");
+        }
+    }
+
+    private double GetStreetWidth(LinkedList<Street> entryVehicleStreetList, LinkedList<Street> exitVehicleStreetList, PedestrianStreetSection pedestrianStreetSection)
+    {
+        double streetWidth;
+        if (pedestrianStreetSection.isFlexiBorderAlongX()){
+              streetWidth = pedestrianStreetSection.getLengthX();
+        } else {
+            streetWidth = pedestrianStreetSection.getLengthY();
+        }
+
+        double calculatedStreetWidth;
+
+        if (entryVehicleStreetList.size() > exitVehicleStreetList.size()){
+            calculatedStreetWidth =  streetWidth / entryVehicleStreetList.size();
+        } else {
+            calculatedStreetWidth =  streetWidth / exitVehicleStreetList.size();
+        }
+        return calculatedStreetWidth;
+    }
+
+    private void AddVehicleStreets(Pane canvas, LinkedList<Street> vehicleStreetList, PedestrianStreetSection pedestrianStreetSection, double streetWidth){
+        if (vehicleStreetList!=null){
+            for (Street street : vehicleStreetList){
+                if (street instanceof StreetSection){
+                    StreetSection streetsection = (StreetSection)street;
+                    PedestrianPoint vehicleStreetPoint = streetsection.getGlobalCoordinateOfCrossingIntersection();
+                    PedestrianPoint crosswalkStreetPoint = pedestrianStreetSection.getGlobalCoordinateOfSectionOrigin();
+
+                    CarStreetUI carStreetUI = null;
+                    //from upside
+                    if (crosswalkStreetPoint.getX() == vehicleStreetPoint.getX()){
+                        carStreetUI = new CarStreetUI(
+                                vehicleStreetPoint.getX() + (streetWidth/2),
+                                vehicleStreetPoint.getY() + street.getLength(),
+                                width,
+                                street.getLength(),
+                                streetsection.getId()
+                        );
+                        canvas.getChildren().add(carStreetUI);
+                        carStreetUIMap.put(streetsection.getId(), carStreetUI);
+                    }
+                    //from bottom
+                    if (crosswalkStreetPoint.getX() + pedestrianStreetSection.getLengthY() == vehicleStreetPoint.getX())
+
+                    //from left
+                    if (crosswalkStreetPoint.getY() == vehicleStreetPoint.getY()){
+
+                    }
+
+                    //from left
+                    if (crosswalkStreetPoint.getY() + pedestrianStreetSection.getLengthX() == vehicleStreetPoint.getY()){
+
+                    }
+
+                    int test  = 5;
+                }
+            }
         }
     }
 

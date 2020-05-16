@@ -2,8 +2,6 @@ package at.fhv.itm3.s2.roundabout.ui.executable;
 
 
 import at.fhv.itm3.s2.roundabout.controller.CarController;
-import at.fhv.itm3.s2.roundabout.PedestrianCalculations.SocialForceModelCalculation.VerifyForceCalc_TestEnvironment;
-import at.fhv.itm3.s2.roundabout.PedestrianCalculations.SocialForceModelCalculation.ForceCalcTestEnvironment;
 import at.fhv.itm3.s2.roundabout.model.RoundaboutSimulationModel;
 import at.fhv.itm3.s2.roundabout.ui.controllers.MainViewController;
 import at.fhv.itm3.s2.roundabout.ui.pedestrianUi.PedestrianUIMain;
