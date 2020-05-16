@@ -81,10 +81,10 @@
                                      toSectionId="ps1" toSectionType="PEDESTRIAN_STREET_SECTION" toXPortPositionStart="250" toYPortPositionStart="1200" toXPortPositionEnd="750" toYPortPositionEnd="1200" />
                 </pedestrianConnector>
                 <pedestrianConnector id="pco_3">
-                    <pedestrianTrack fromSectionId="ps2"  fromSectionType="PEDESTRIAN_STREET_SECTION" fromXPortPositionStart="0" fromYPortPositionStart="250" fromXPortPositionEnd="0" fromYPortPositionEnd="750"
+                    <pedestrianTrack fromSectionId="ps2"  fromSectionType="PEDESTRIAN_STREET_SECTION" fromXPortPositionStart="250" fromYPortPositionStart="0" fromXPortPositionEnd="750" fromYPortPositionEnd="0"
                                      toSectionId="psc1" toSectionType="PEDESTRIAN_CROSSING" toXPortPositionStart="0" toYPortPositionStart="1720" toXPortPositionEnd="500" toYPortPositionEnd="1720"/>
                     <pedestrianTrack fromSectionId="psc1" fromSectionType="PEDESTRIAN_CROSSING" fromXPortPositionStart="0" fromYPortPositionStart="1720" fromXPortPositionEnd="500" fromYPortPositionEnd="1720"
-                                     toSectionId="ps2" toSectionType="PEDESTRIAN_STREET_SECTION" toXPortPositionStart="0" toYPortPositionStart="250" toXPortPositionEnd="0" toYPortPositionEnd="750"/>
+                                     toSectionId="ps2" toSectionType="PEDESTRIAN_STREET_SECTION" toXPortPositionStart="250" toYPortPositionStart="0" toXPortPositionEnd="750" toYPortPositionEnd="0"/>
                 </pedestrianConnector>
                 <pedestrianConnector id="pco_4">
                     <pedestrianTrack fromSectionId="pso2" fromSectionType="PEDESTRIAN_SOURCE" fromXPortPositionStart="0" fromYPortPositionStart="0" fromXPortPositionEnd="1000" fromYPortPositionEnd="0"
