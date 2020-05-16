@@ -251,17 +251,18 @@ public class Pedestrian extends Entity implements IPedestrian {
                 double onBorderX, onBorderY;
                 PedestrianPoint localPos = getCurrentLocalPosition();
                 if (calc.almostEqual(localPort.getLocalBeginOfStreetPort().getX(), localPort.getLocalEndOfStreetPort().getX())) { // port along y side
-                    onBorderX = localPort.getLocalBeginOfStreetPort().getX(); // Min of border
+                    onBorderX = localPort.getLocalBeginOfStreetPort().getX();
                     onBorderY = localPos.getY();
                 } else { // port along x side
                     onBorderX = localPos.getX();
-                    onBorderY = localPort.getLocalBeginOfStreetPort().getY(); // Min of border
+                    onBorderY = localPort.getLocalBeginOfStreetPort().getY();
                 }
 
-                PedestrianPoint intersection = calc.getLinesIntersectionByCoordinates(localPort, localPos.getX(), localPos.getY(), onBorderX, onBorderY);
+                PedestrianPoint intersection = calc.getLinesIntersectionByCoordinates(localPort,
+                        localPos.getX(), localPos.getY(), onBorderX, onBorderY);
+                if (intersection == null) intersection = new PedestrianPoint(onBorderX, onBorderY);  //localPos;
 
-                if (intersection == null || !calc.checkWallIntersectionWithinPort(localPort, intersection)) {
-                    if (intersection == null) intersection = new PedestrianPoint(onBorderX, onBorderY);  //localPos;
+                if (!calc.checkWallIntersectionWithinPort(localPort, intersection)) {
                     intersection = calc.shiftIntersection(localPort, intersection, getMinGapForPedestrian());
                 }
 
@@ -527,7 +528,7 @@ public class Pedestrian extends Entity implements IPedestrian {
         PedestrianPoint pos = null;
         PedestrianPoint exitPointOnPort = getClosestExitPointOfCurrentSectionGlobal();
 
-        // exit Port along x axis
+        // exit Port along y axis
         if (calc.almostEqual(exitPort.getLocalBeginOfStreetPort().getX(), exitPort.getLocalEndOfStreetPort().getX())) {
             //start lower value than end
             if (calc.val1LowerOrAlmostEqual(enterPort.getLocalBeginOfStreetPort().getY(), enterPort.getLocalEndOfStreetPort().getY())) {
@@ -537,7 +538,7 @@ public class Pedestrian extends Entity implements IPedestrian {
                 high = exitPointOnPort.getY() - enterPort.getLocalEndOfStreetPort().getY();
                 pos = new PedestrianPoint(enterPort.getLocalEndOfStreetPort().getX(), enterPort.getLocalEndOfStreetPort().getY() + high);
             }
-        } else { // exit Port along y axis
+        } else { // exit Port along x axis
             if (calc.val1LowerOrAlmostEqual(enterPort.getLocalBeginOfStreetPort().getX(), enterPort.getLocalEndOfStreetPort().getX())) {
                 high = exitPointOnPort.getX() - enterPort.getLocalBeginOfStreetPort().getX();
                 pos = new PedestrianPoint(enterPort.getLocalBeginOfStreetPort().getX() + high, enterPort.getLocalBeginOfStreetPort().getY());
@@ -581,9 +582,7 @@ public class Pedestrian extends Entity implements IPedestrian {
         PedestrianPoint localEnd = currentSection.getExitPort().getLocalEndOfStreetPort();
 
         // Port is along y axis
-        if (calc.almostEqual(localBegin.getX(),
-                localEnd.getX())) {
-
+        if (calc.almostEqual(localBegin.getX(), localEnd.getX())) {
             if (( ( calc.val1LowerOrAlmostEqual((localBegin.getY()), localPedestrianPosition.getY(), 10e-1) &&
                     calc.val1BiggerOrAlmostEqual((localEnd.getY()), localPedestrianPosition.getY(), 10e-1))
                     ||

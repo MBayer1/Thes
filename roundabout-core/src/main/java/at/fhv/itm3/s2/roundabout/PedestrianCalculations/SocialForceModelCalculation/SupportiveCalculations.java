@@ -373,13 +373,13 @@ public class SupportiveCalculations {
                 if( Math.abs(wallIntersection.getX()- portEndX) < Math.abs(wallIntersection.getX()- portBeginX)){
                     wallIntersection.setLocation(portEndX - minGabToWall, wallIntersection.getY());
                 } else {
-                    wallIntersection.setLocation(portEndX + minGabToWall, wallIntersection.getY());
+                    wallIntersection.setLocation(portBeginX + minGabToWall, wallIntersection.getY());
                 }
             } else {
                 if( Math.abs(wallIntersection.getX()- portEndX) < Math.abs(wallIntersection.getX()- portBeginX)){
                     wallIntersection.setLocation(portEndX - minGabToWall, wallIntersection.getY());
                 } else {
-                    wallIntersection.setLocation(portEndX + minGabToWall, wallIntersection.getY());
+                    wallIntersection.setLocation(portBeginX + minGabToWall, wallIntersection.getY());
                 }
             }
         }

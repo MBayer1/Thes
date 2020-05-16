@@ -154,10 +154,8 @@ public class PedestrianReachedAimEvent extends Event<Pedestrian> {
             //todo del
             boolean da = pedestrian.checkExitPortIsReached();
             Vector2d forces2 = pedestrian.getSocialForceVector(); //set time when next update.
-            pedestrian.setNewGoal(forces2);
+            //pedestrian.setNewGoal(forces2);
             // fin del
-
-            pedestrian.setNewGoal(forces);
 
             // Event call delay must not be below minTimeBetweenEventCall
             if (timeToDestination < minTimeBetweenEventCall) timeToDestination = minTimeBetweenEventCall;
