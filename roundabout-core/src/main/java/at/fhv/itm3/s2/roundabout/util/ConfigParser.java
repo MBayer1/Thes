@@ -223,13 +223,6 @@ public class ConfigParser {
 
         RouteController.getInstance(model).setRoutes(modelStructure.getRoutes());
         PedestrianRouteController.getInstance(model).setRoutes(modelStructure.getPedestrianRoutes());
-
-        // Neighbouring of Street Section needed for GUI
-        if(modelConfig.getNeighbours() != null){ //TODO
-            if(modelConfig.getNeighbours().getNeighbourList() != null){
-                handleStreetNeighbours(modelConfig.getNeighbours());
-            }
-        }
         model.registerModelStructure(modelStructure);
         return modelStructure;
     }

@@ -125,8 +125,7 @@ public class GroupeSizeCrossingClass {
     }
 
     boolean checkForCrossingInRemainingRouteAndShortestDistance(Pedestrian pedestrian, PedestrianStreetSection crossingRef) {
-
-        double distance = pedestrian.getRemainingDistnaceToCurrentNextSubgoal();
+        double distance = pedestrian.getRemainingDistanceToCurrentNextSubsoil();
 
         if( !(pedestrian.getNextSection().getStreetSection() instanceof PedestrianStreetSection) ||
                 !(pedestrian.getCurrentSection().getStreetSection()instanceof PedestrianStreetSection) ){
@@ -137,10 +136,10 @@ public class GroupeSizeCrossingClass {
         PedestrianStreetSectionAndPortPair currentData = getCurrentSectionData(pedestrian, currentSection);
 
         while ( !nextSection.getPedestrianConsumerType().equals(PedestrianConsumerType.PEDESTRIAN_SINK)){
-            distance += getWalkingLengthAcrossSection(currentData);
             if(nextSection.equals(crossingRef)) {
                 return calculations.val1LowerOrAlmostEqual(distance, pedestrian.getMaxDistanceForWaitingArea());
             }
+            distance += getWalkingLengthAcrossSection(currentData);
             currentSection = nextSection;
             nextSection = getNextSection(pedestrian, currentSection);
             currentData = getCurrentSectionData(pedestrian, currentSection);

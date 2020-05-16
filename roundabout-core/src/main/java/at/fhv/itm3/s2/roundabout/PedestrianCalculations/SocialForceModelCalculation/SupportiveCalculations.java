@@ -288,9 +288,9 @@ public class SupportiveCalculations {
                                          double dAxisCenterX, double dAxisCenterY)
     {
         if (dPosX2 == 0 && dPosY2 == 0) {
-            return Math.sqrt((Math.pow(dPosX1 - (dAxisCenterX), 2) + Math.pow(dPosY1 - dAxisCenterY, 2)));
+            return Math.abs(Math.sqrt((Math.pow(dPosX1 - (dAxisCenterX), 2) + Math.pow(dPosY1 - dAxisCenterY, 2))));
         } else {
-            return Math.sqrt(Math.pow(dPosX1 - dPosX2, 2) + Math.pow(dPosY1 - dPosY2, 2));
+            return Math.abs(Math.sqrt(Math.pow(dPosX1 - dPosX2, 2) + Math.pow(dPosY1 - dPosY2, 2)));
         }
     }
 
@@ -370,16 +370,16 @@ public class SupportiveCalculations {
             }
         } else { // port along x side/aches
             if( val1LowerOrAlmostEqual(portBeginX, portEndX)) {
-                if( Math.abs(wallIntersection.getY()- portEndY) < Math.abs(wallIntersection.getY()- portBeginY)){
+                if( Math.abs(wallIntersection.getX()- portEndX) < Math.abs(wallIntersection.getX()- portBeginX)){
                     wallIntersection.setLocation(portEndX - minGabToWall, wallIntersection.getY());
                 } else {
-                    wallIntersection.setLocation(portEndX + minGabToWall, wallIntersection.getY());
+                    wallIntersection.setLocation(portBeginX + minGabToWall, wallIntersection.getY());
                 }
             } else {
-                if( Math.abs(wallIntersection.getY()- portEndY) < Math.abs(wallIntersection.getY()- portBeginY)){
+                if( Math.abs(wallIntersection.getX()- portEndX) < Math.abs(wallIntersection.getX()- portBeginX)){
                     wallIntersection.setLocation(portEndX - minGabToWall, wallIntersection.getY());
                 } else {
-                    wallIntersection.setLocation(portEndX + minGabToWall, wallIntersection.getY());
+                    wallIntersection.setLocation(portBeginX + minGabToWall, wallIntersection.getY());
                 }
             }
         }

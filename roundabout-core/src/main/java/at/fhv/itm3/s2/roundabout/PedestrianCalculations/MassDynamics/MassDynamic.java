@@ -122,12 +122,12 @@ public class MassDynamic {
         sum += tmp;
         tmp = psychologicalClass.getProbability(pedestrian);
         sum += tmp;
-        //tmp = groupeSizeCrossingClass.getProbability(pedestrian);
-        //sum += tmp;
-        //tmp = currentMovementClass.getProbability(pedestrian);
-        //sum += tmp;
-        //tmp = stoppingWhileCrossingClass.getProbability(pedestrian);
-        //sum += tmp;
+        tmp = groupeSizeCrossingClass.getProbability(pedestrian);
+        sum += tmp;
+        tmp = currentMovementClass.getProbability(pedestrian);
+        sum += tmp;
+        tmp = stoppingWhileCrossingClass.getProbability(pedestrian);
+        sum += tmp;
         return sum/7;
     }
 

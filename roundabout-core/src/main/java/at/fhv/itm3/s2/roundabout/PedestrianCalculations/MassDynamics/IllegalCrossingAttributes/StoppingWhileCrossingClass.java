@@ -12,8 +12,8 @@ public class StoppingWhileCrossingClass {
     List<Category> categoryList = new LinkedList<>();
 
     public StoppingWhileCrossingClass(){
-        categoryList.add(new Category("StoppingWhileCrossing",-1,10,0.5));
-        categoryList.add(new Category("NotStoppingWhileCrossing",-1,10,0.36));
+        categoryList.add(new Category("StoppingWhileCrossing",-1,0.156,0.5));
+        categoryList.add(new Category("NotStoppingWhileCrossing",categoryList.get(categoryList.size()-1).getUpperLimit(),100,0.36));
     }
 
     public double getProbability (String type){
@@ -28,7 +28,7 @@ public class StoppingWhileCrossingClass {
         if(!(pedestrian.getPedestrianBehaviour() instanceof PedestrianBehaviour)){
             throw new IllegalArgumentException("PedestrianBehaviour not instance of PedestrianBehaviour .");
         }
-        return this.getProbability(((PedestrianBehaviour)(pedestrian.getPedestrianBehaviour())).getPsychologicalNature());
+        return this.getProbability( getTypeByDetermineValue(pedestrian.getRoundaboutModel().getRandomPedestrianStopWhileIllegalCrossing()));
     }
 
     public String getTypeByDetermineValue (double valueToDetermineClass){

@@ -1,7 +1,6 @@
 package at.fhv.itm3.s2.roundabout.event;
 
 import at.fhv.itm14.trafsim.model.entities.IConsumer;
-import at.fhv.itm3.s2.roundabout.PedestrianCalculations.SocialForceModelCalculation.AccelerationForceToTarget;
 import at.fhv.itm3.s2.roundabout.PedestrianCalculations.SocialForceModelCalculation.SupportiveCalculations;
 import at.fhv.itm3.s2.roundabout.api.PedestrianPoint;
 import at.fhv.itm3.s2.roundabout.api.entity.PedestrianConsumerType;
@@ -94,6 +93,7 @@ public class PedestrianReachedAimEvent extends Event<Pedestrian> {
         }
 
         double timeToDestination = 0.0;
+        PedestrianPoint lastGlobalAim = pedestrian.getCurrentNextGlobalAim();
 
         // pedestrian reached new partial-aim
         if (pedestrian.getCurrentNextGlobalAim() != null) {
@@ -116,13 +116,15 @@ public class PedestrianReachedAimEvent extends Event<Pedestrian> {
             if (nextStreetSection.isTrafficLightActive() && !nextStreetSection.isTrafficLightFreeToGo()) {
                 //not freeToGo
                 if (nextStreetSection.useMassDynamic()){
+                    pedestrian.setCurrentNextGlobalAim(lastGlobalAim);
                     if(roundaboutSimulationModel.massDynamic.doCrossing(pedestrian)){
                         keepWalking = true;
                     } else {
                         pedestrian.setCurrentSpeed(0); // not walking
                         // Event call delay must not be below minTimeBetweenEventCall
-                        if (timeToDestination < minTimeBetweenEventCall) timeToDestination = minTimeBetweenEventCall;
+                        timeToDestination = minTimeBetweenEventCall;
                     }
+                    pedestrian.setCurrentNextGlobalAim(null);
                 } else {
                     timeToDestination = ((PedestrianStreet) currentSection).getRemainingRedPhase();
                     //nextStreetSection.handleJamTrafficLight(); //  todo
@@ -148,7 +150,6 @@ public class PedestrianReachedAimEvent extends Event<Pedestrian> {
             Vector2d forces = pedestrian.getSocialForceVector(); //set time when next update.
             pedestrian.setNewGoal(forces);
             timeToDestination = pedestrian.getTimeToNextSubGoal();
-            pedestrian.setNewGoal(forces);
 
             // Event call delay must not be below minTimeBetweenEventCall
             if (timeToDestination < minTimeBetweenEventCall) timeToDestination = minTimeBetweenEventCall;
@@ -163,8 +164,12 @@ public class PedestrianReachedAimEvent extends Event<Pedestrian> {
         pedestrian.setWalkingTimeStamps(timeToDestination);
 
         // schedule next event
-        pedestrianEventFactory.createPedestrianReachedAimEvent(roundaboutSimulationModel).schedule(
-                pedestrian, new TimeSpan(timeToDestination, roundaboutSimulationModel.getModelTimeUnit()));
+        try {
+            pedestrianEventFactory.createPedestrianReachedAimEvent(roundaboutSimulationModel).schedule(
+                    pedestrian, new TimeSpan(timeToDestination, roundaboutSimulationModel.getModelTimeUnit()));
+        } catch (Exception e){
+            throw new IllegalArgumentException("Pedestrian Event went wrong.");
+        }
 
         Pedestrian pedestrianToEnter = null;
         if (((PedestrianStreetSection) currentSection).reCheckPedestrianCanEnterSection(pedestrianToEnter)) { // after some movements recheck pedestrians in queue
