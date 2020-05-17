@@ -168,7 +168,6 @@ public class ConfigParser {
 
             extractParameter(parameters::get, Double::valueOf, MIN_TIME_BETWEEN_PEDESTRIAN_ARRIVALS),
             extractParameter(parameters::get, Double::valueOf, MAX_TIME_BETWEEN_PEDESTRIAN_ARRIVALS),
-            extractParameter(parameters::get, Double::valueOf, MEAN_TIME_BETWEEN_PEDESTRIAN_ARRIVALS),
             extractParameter(parameters::get, Double::valueOf, MIN_DISTANCE_FACTOR_BETWEEN_PEDESTRIAN),
             extractParameter(parameters::get, Double::valueOf, MAX_DISTANCE_FACTOR_BETWEEN_PEDESTRIAN),
 
@@ -818,7 +817,7 @@ public class ConfigParser {
             // Start generating roots for every vehicle source.
             if(component.getType().equals(ComponentType.INTERSECTION) || component.getType().equals(ComponentType.ROUNDABOUT)) {
                 component.getSources().getSource().forEach(sourceDTO -> {
-                    final AbstractSource source = SOURCE_REGISTRY.get(component.getId()).get(sourceDTO.getId());
+                      final AbstractSource source = SOURCE_REGISTRY.get(component.getId()).get(sourceDTO.getId());
                     final Street connectedStreet = source.getConnectedStreet();
 
                     final List<IConsumer> route = new LinkedList<>();
