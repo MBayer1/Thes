@@ -64,7 +64,7 @@ public class PedestrianUIMain extends ScrollPane implements IPedestrianUIMain {
         scale.setX(PedestrianUIUtils.SCALE_FACTOR);
         scale.setY(-PedestrianUIUtils.SCALE_FACTOR);
 
-        canvas.setStyle("-fx-background-color: black");
+//        canvas.setStyle("-fx-background-color: black");
 
         scale.pivotYProperty().bind(Bindings.createDoubleBinding(() ->
                         canvas.getBoundsInLocal().getMinY() + canvas.getBoundsInLocal().getHeight()/2,
