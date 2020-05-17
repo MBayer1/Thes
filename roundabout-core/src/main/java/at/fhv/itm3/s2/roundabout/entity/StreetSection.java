@@ -420,7 +420,6 @@ public class StreetSection extends Street {
                 x = origin.getX() + pedestrianCrossingExit.getLocalHighOfEntry();
             }else {
                 // car drives along x axis
-
                 if(pedestrianCrossingExit.getLinkedAtBegin()) {
                     x = origin.getX();
                 } else {
