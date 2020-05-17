@@ -359,7 +359,7 @@ public class PedestrianUIMain extends ScrollPane implements IPedestrianUIMain {
                     if (crosswalkStreetPoint.getY() == vehicleStreetPoint.getY()){
                         carStreetUI = new CarStreetUI(
                                 vehicleStreetPoint.getX() - (streetWidth/2),
-                                vehicleStreetPoint.getY() + PedestrianUIUtils.GetMaxedUiStreetLength(streetsection),
+                                vehicleStreetPoint.getY()+ pedestrianStreetSection.getLengthY(),
                                 streetWidth,
                                 PedestrianUIUtils.GetMaxedUiStreetLength(streetsection),
                                 streetsection.getId()
@@ -368,10 +368,9 @@ public class PedestrianUIMain extends ScrollPane implements IPedestrianUIMain {
 
                     //from top
                     if (crosswalkStreetPoint.getY() + pedestrianStreetSection.getLengthY() == vehicleStreetPoint.getY()){
-                        double startingY = crosswalkStreetPoint.getY() - pedestrianStreetSection.getLengthY();
                         carStreetUI = new CarStreetUI(
                                 vehicleStreetPoint.getX() - (streetWidth/2),
-                                startingY - PedestrianUIUtils.GetMaxedUiStreetLength(streetsection),
+                                crosswalkStreetPoint.getY() - PedestrianUIUtils.GetMaxedUiStreetLength(streetsection),
                                 streetWidth,
                                 PedestrianUIUtils.GetMaxedUiStreetLength(streetsection),
                                 streetsection.getId()
