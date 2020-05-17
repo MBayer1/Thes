@@ -91,7 +91,7 @@ public class PedestrianReachedAimEvent extends Event<Pedestrian> {
 
         if(!currentSection.checkPedestrianIsWithinSection(pedestrian) &&
                 currentSection.getPedestrianConsumerType().equals(PedestrianConsumerType.PEDESTRIAN_CROSSING)) {
-            //throw new IllegalArgumentException("Pedestrian out of section. Not possible.");
+            throw new IllegalArgumentException("Pedestrian out of section. Not possible.");
         }
 
 
