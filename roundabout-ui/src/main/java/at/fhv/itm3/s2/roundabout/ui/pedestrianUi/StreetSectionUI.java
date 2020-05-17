@@ -25,4 +25,22 @@ public class StreetSectionUI extends Rectangle {
         //super.setStyle("-fx-fill: red; -fx-stroke: black; -fx-stroke-width: 5;");
     }
 
+    public StreetSectionUI(double x, double y, double width, double height, Color color, String uuid, String style){
+        super(width, height);
+        super.setStyle(style);
+        setX(x);
+        setY(y);
+        setFill(color);
+        this.uuid = uuid;
+        //
+    }
+
+
+    public void setStreetWidth(double width){
+        super.setWidth(width);
+    }
+
+    public void setStreetHeight(double height){
+        super.setWidth(height);
+    }
 }

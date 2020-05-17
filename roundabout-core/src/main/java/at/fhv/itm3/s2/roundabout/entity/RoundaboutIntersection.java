@@ -3,7 +3,9 @@ package at.fhv.itm3.s2.roundabout.entity;
 import at.fhv.itm14.trafsim.model.entities.Car;
 import at.fhv.itm14.trafsim.model.entities.IConsumer;
 import at.fhv.itm14.trafsim.model.entities.intersection.Intersection;
+import at.fhv.itm3.s2.roundabout.api.entity.PedestrianStreetReferenceForVehicleStreet;
 import desmoj.core.simulator.Model;
+import org.omg.CORBA.PUBLIC_MEMBER;
 
 public class RoundaboutIntersection extends Intersection implements IConsumer {
 

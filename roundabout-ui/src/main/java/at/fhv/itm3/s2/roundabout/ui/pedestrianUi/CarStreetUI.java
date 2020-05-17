@@ -6,8 +6,9 @@ import javafx.scene.paint.Color;
 public class CarStreetUI extends StreetSectionUI {
 
     private final static Color carStreetColor =  Color.YELLOW;
+    private final static String rectStyle = "-fx-stroke: black; -fx-stroke-width: 5;";
 
     public CarStreetUI(double x, double y, double width, double height, String uuid ){
-        super(x, y, width, height, carStreetColor, uuid);
+        super(x, y, width, height, carStreetColor, uuid, rectStyle);
     }
 }
