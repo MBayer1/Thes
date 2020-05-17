@@ -77,19 +77,21 @@ public class PedestrianReachedAimEvent extends Event<Pedestrian> {
         if (!(pedestrian.getCurrentSection().getStreetSection() instanceof PedestrianStreet)) {
             throw new IllegalArgumentException("Street not instance of PedestrianStreet.");
         }
+
         IConsumer currentSectionTmp = pedestrian.getCurrentSection().getStreetSection();
+        if(currentSectionTmp instanceof PedestrianSink) {
+            return;
+        }
+
         if (!(currentSectionTmp instanceof PedestrianStreetSection)) {
             throw new IllegalArgumentException("Street not instance of PedestrianStreet.");
         }
 
         PedestrianStreetSection currentSection = (PedestrianStreetSection) currentSectionTmp;
-        if(currentSection.getPedestrianConsumerType().equals(PedestrianConsumerType.PEDESTRIAN_SINK)) {
-            return;
-        }
 
         if(!currentSection.checkPedestrianIsWithinSection(pedestrian) &&
                 currentSection.getPedestrianConsumerType().equals(PedestrianConsumerType.PEDESTRIAN_CROSSING)) {
-            throw new IllegalArgumentException("Pedestrian out of section. Not possible.");
+            //throw new IllegalArgumentException("Pedestrian out of section. Not possible.");
         }
 
 
