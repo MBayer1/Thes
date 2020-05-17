@@ -422,19 +422,20 @@ public class StreetSection extends Street {
             if (crossingSection.isFlexiBorderAlongX()) {
                 // car drives along y axis
                 if(pedestrianCrossingExit.getLinkedAtBegin()) {
-                    x = origin.getX();
-                } else {
-                    x = origin.getX() + crossingSection.getLengthX();
-                }
-                y = origin.getY() + pedestrianCrossingExit.getLocalHighOfEntry();
-            }else {
-                // car drives along x axis
-                if(pedestrianCrossingExit.getLinkedAtBegin()) {
                     y = origin.getY();
                 } else {
                     y = origin.getY() + crossingSection.getLengthY();
                 }
                 x = origin.getX() + pedestrianCrossingExit.getLocalHighOfEntry();
+            }else {
+                // car drives along x axis
+
+                if(pedestrianCrossingExit.getLinkedAtBegin()) {
+                    x = origin.getX();
+                } else {
+                    x = origin.getX() + crossingSection.getLengthX();
+                }
+                y = origin.getY() + pedestrianCrossingExit.getLocalHighOfEntry();
             }
             pedestrianCrossingExit.setGlobalPositionOfStreetAndCrossingIntersectionInCM(new PedestrianPoint(x, y));
         }
