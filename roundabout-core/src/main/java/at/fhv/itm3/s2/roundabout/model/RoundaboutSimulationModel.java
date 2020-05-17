@@ -298,7 +298,6 @@ public class RoundaboutSimulationModel extends Model {
                 DEFAULT_MAX_DISTANCE_FACTOR_BETWEEN_PEDESTRIAN,
                 DEFAULT_MIN_TIME_BETWEEN_PEDESTRIAN_ARRIVALS,
                 DEFAULT_MAX_TIME_BETWEEN_PEDESTRIAN_ARRIVALS,
-                DEFAULT_MEAN_TIME_BETWEEN_PEDESTRIAN_ARRIVALS,
 
                 DEFAULT_MIN_PEDESTRIAN_GROUP_SIZE, DEFAULT_MAX_PEDESTRIAN_GROUP_SIZE,
                 DEFAULT_MIN_PEDESTRIAN_STREET_LENGTH, DEFAULT_MIN_PEDESTRIAN_STREET_WIDTH,
@@ -344,7 +343,6 @@ public class RoundaboutSimulationModel extends Model {
 
             Double minTimeBetweenPedestrianArrivals,
             Double maxTimeBetweenPedestrianArrivals,
-            Double meanTimeBetweenPedestrianArrivals,
             Double minDistanceFactorBetweenPedestrians,
             Double maxDistanceFactorBetweenPedestrians,
 
@@ -392,7 +390,7 @@ public class RoundaboutSimulationModel extends Model {
         this.maxDistanceFactorBetweenPedestrians = maxDistanceFactorBetweenPedestrians;
         this.minTimeBetweenPedestrianArrivals = minTimeBetweenPedestrianArrivals;
         this.maxTimeBetweenPedestrianArrivals = maxTimeBetweenPedestrianArrivals;
-        this. meanTimeBetweenPedestrianArrivals = meanTimeBetweenPedestrianArrivals;
+        this.meanTimeBetweenPedestrianArrivals = (minTimeBetweenPedestrianArrivals + maxTimeBetweenPedestrianArrivals) / 2;
 
         this.minPedestrianGroupeSize = minPedestrianGroupSize;
         this.maxPedestrianGroupeSize = maxPedestrianGroupSize;

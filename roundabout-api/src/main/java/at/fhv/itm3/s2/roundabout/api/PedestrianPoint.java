@@ -1,5 +1,6 @@
 package at.fhv.itm3.s2.roundabout.api;
 
+import javax.vecmath.Vector2d;
 import java.io.Serializable;
 
 public class PedestrianPoint implements Serializable{
@@ -24,6 +25,11 @@ public class PedestrianPoint implements Serializable{
     public void setLocation (double x, double y) {
         setX(x);
         setY(y);
+    }
+
+    public void setLocation (Vector2d point) {
+        setX(point.getX());
+        setY(point.getY());
     }
 
     public void setLocation (PedestrianPoint point) {

@@ -1,0 +1,447 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<model name="S2 Roundabout simulation">
+    <!-- global parameters needed for simulation -->
+    <parameters>
+        <parameter name="SIMULATION_SEED" value="1"/>
+
+        <!--Parameter for vehicles-->
+        <parameter name="MIN_DISTANCE_FACTOR_BETWEEN_CARS" value="0.1"/>
+        <parameter name="MAX_DISTANCE_FACTOR_BETWEEN_CARS" value="1.0"/>
+        <parameter name="MIN_TIME_BETWEEN_CAR_ARRIVALS" value="3.0"/>
+        <parameter name="MAIN_ARRIVAL_RATE_FOR_ONE_WAY_STREETS" value="1.0"/>
+        <parameter name="STANDARD_CAR_ACCELERATION_TIME" value="2"/>
+        <parameter name="MIN_CAR_LENGTH" value="3.0"/> <!-- meter-->
+        <parameter name="MAX_CAR_LENGTH" value="6.0"/>
+        <parameter name="EXPECTED_CAR_LENGTH" value="4.5"/>
+        <parameter name="MIN_TRUCK_LENGTH" value="6.0"/>
+        <parameter name="MAX_TRUCK_LENGTH" value="19.5"/>
+        <parameter name="EXPECTED_TRUCK_LENGTH" value="16.5"/>
+        <parameter name="CAR_RATIO_PER_TOTAL_VEHICLE" value="0.9"/>
+        <parameter name="JAM_INDICATOR_IN_SECONDS" value="10"/>
+
+        <!--Parameter for pedestrians-->
+        <parameter name="MIN_TIME_BETWEEN_PEDESTRIAN_ARRIVALS" value="3600"/>     <!-- 1 min-->
+        <parameter name="MAX_TIME_BETWEEN_PEDESTRIAN_ARRIVALS" value="216000"/>   <!-- 1 h-->
+        <!--        <parameter name="MEAN_TIME_BETWEEN_PEDESTRIAN_ARRIVALS" value="108000"/>  <!- 30 min-->
+        <parameter name="MEAN_TIME_BETWEEN_PEDESTRIAN_ARRIVALS" value="18000"/> <!--  5 min-->
+        <parameter name="MIN_DISTANCE_FACTOR_BETWEEN_PEDESTRIAN" value="2"/>
+        <parameter name="MAX_DISTANCE_FACTOR_BETWEEN_PEDESTRIAN" value="2"/>
+        <parameter name="MIN_PEDESTRIAN_GROUP_SIZE" value="2"/>
+        <parameter name="MAX_PEDESTRIAN_GROUP_SIZE" value="30"/>   <!-- persons-->
+        <parameter name="MIN_PEDESTRIAN_STREET_LENGTH" value="20"/>  <!-- cm-->
+        <parameter name="MIN_PEDESTRIAN_STREET_WIDTH" value="20"/>   <!-- cm-->
+
+        <parameter name="SFM_DEGREE_OF_ACCURACY" value="10e-8"/>
+
+        <parameter name="MIN_PEDESTRIAN_RELAXING_TIME" value="1.7"/>
+        <parameter name="MAX_PEDESTRIAN_RELAXING_TIME" value="2.7"/>
+        <parameter name="EXPECTED_PEDESTRIAN_RELAXING_TIME" value="2.2"/>
+        <parameter name="MIN_PEDESTRIAN_SIZE_RADIUS" value="50"/>
+        <parameter name="MAX_PEDESTRIAN_SIZE_RADIUS" value="110"/>
+        <parameter name="EXPECTED_PEDESTRIAN_SIZE_RADIUS" value="80"/>
+        <parameter name="MIN_PEDESTRIAN_MIN_GAP" value="20"/>
+        <parameter name="MAX_PEDESTRIAN_MIN_GAP" value="100"/>
+        <parameter name="EXPECTED_PEDESTRIAN_MIN_GAP" value="50"/>
+        <parameter name="MIN_PEDESTRIAN_PREFERRED_SPEED" value="1.08"/>
+        <parameter name="MAX_PEDESTRIAN_PREFERRED_SPEED" value="1.6"/>
+        <parameter name="EXPECTED_PEDESTRIAN_PREFERRED_SPEED" value="1.34"/>
+
+        <parameter name="MAX_DISTANCE_FOR_WAITING_AREA" value="100"/>
+
+
+    </parameters>
+    Timo Martin, [16.05.20 21:15]
+    <?xml version="1.0" encoding="utf-8" ?>
+    <model name="S2 Roundabout simulation">
+        <!-- global parameters needed for simulation -->
+        <parameters>
+            <parameter name="SIMULATION_SEED" value="1"/>
+
+            <!--Parameter for vehicles-->
+            <parameter name="MIN_DISTANCE_FACTOR_BETWEEN_CARS" value="0.1"/>
+            <parameter name="MAX_DISTANCE_FACTOR_BETWEEN_CARS" value="1.0"/>
+            <parameter name="MIN_TIME_BETWEEN_CAR_ARRIVALS" value="3.0"/>
+            <parameter name="MAIN_ARRIVAL_RATE_FOR_ONE_WAY_STREETS" value="1.0"/>
+            <parameter name="STANDARD_CAR_ACCELERATION_TIME" value="2"/>
+            <parameter name="MIN_CAR_LENGTH" value="3.0"/> <!-- meter-->
+            <parameter name="MAX_CAR_LENGTH" value="6.0"/>
+            <parameter name="EXPECTED_CAR_LENGTH" value="4.5"/>
+            <parameter name="MIN_TRUCK_LENGTH" value="6.0"/>
+            <parameter name="MAX_TRUCK_LENGTH" value="19.5"/>
+            <parameter name="EXPECTED_TRUCK_LENGTH" value="16.5"/>
+            <parameter name="CAR_RATIO_PER_TOTAL_VEHICLE" value="0.9"/>
+            <parameter name="JAM_INDICATOR_IN_SECONDS" value="10"/>
+
+            <!--Parameter for pedestrians-->
+            <parameter name="MIN_TIME_BETWEEN_PEDESTRIAN_ARRIVALS" value="3600"/>     <!-- 1 min-->
+            <parameter name="MAX_TIME_BETWEEN_PEDESTRIAN_ARRIVALS" value="216000"/>   <!-- 1 h-->
+            <!--        <parameter name="MEAN_TIME_BETWEEN_PEDESTRIAN_ARRIVALS" value="108000"/>  <!- 30 min-->
+            <parameter name="MEAN_TIME_BETWEEN_PEDESTRIAN_ARRIVALS" value="18000"/> <!--  5 min-->
+            <parameter name="MIN_DISTANCE_FACTOR_BETWEEN_PEDESTRIAN" value="2"/>
+            <parameter name="MAX_DISTANCE_FACTOR_BETWEEN_PEDESTRIAN" value="2"/>
+            <parameter name="MIN_PEDESTRIAN_GROUP_SIZE" value="2"/>
+            <parameter name="MAX_PEDESTRIAN_GROUP_SIZE" value="30"/>   <!-- persons-->
+            <parameter name="MIN_PEDESTRIAN_STREET_LENGTH" value="20"/>  <!-- cm-->
+            <parameter name="MIN_PEDESTRIAN_STREET_WIDTH" value="20"/>   <!-- cm-->
+
+            <parameter name="SFM_DEGREE_OF_ACCURACY" value="10e-8"/>
+
+            <parameter name="MIN_PEDESTRIAN_RELAXING_TIME" value="1.7"/>
+            <parameter name="MAX_PEDESTRIAN_RELAXING_TIME" value="2.7"/>
+            <parameter name="EXPECTED_PEDESTRIAN_RELAXING_TIME" value="2.2"/>
+            <parameter name="MIN_PEDESTRIAN_SIZE_RADIUS" value="0.5"/>
+            <parameter name="MAX_PEDESTRIAN_SIZE_RADIUS" value="1.1"/>
+            <parameter name="EXPECTED_PEDESTRIAN_SIZE_RADIUS" value="0.8"/>
+            <parameter name="MIN_PEDESTRIAN_MIN_GAP" value="0.2"/>
+            <parameter name="MAX_PEDESTRIAN_MIN_GAP" value="1.0"/>
+            <parameter name="EXPECTED_PEDESTRIAN_MIN_GAP" value="0.5"/>
+            <parameter name="MIN_PEDESTRIAN_PREFERRED_SPEED" value="1.08"/>
+            <parameter name="MAX_PEDESTRIAN_PREFERRED_SPEED" value="1.6"/>
+            <parameter name="EXPECTED_PEDESTRIAN_PREFERRED_SPEED" value="1.34"/>
+
+            <parameter name="MAX_DISTANCE_FOR_WAITING_AREA" value="100"/>
+        </parameters>
+        <components>
+            <component id="p1" type="PEDESTRIANWALKINGAREA" name="Zebrastreifen">
+                <sources>
+                    <source id="pso1" sectionId="ps1" generatorExpectation="10.0"/>
+                    <source id="pso2" sectionId="ps2" generatorExpectation="10.0"/>
+                </sources>
+
+                <sinks>
+                    <sink id="psk1"/>
+                    <sink id="psk2"/>
+                </sinks>
+                <sections>
+                    <section id="psc1" lengthX="500.0" lengthY="400.0" pedestrianSectionType="PEDESTRIAN_CROSSING" useMassDynamic="true" flexiBorderAlongX="true"/>
+                    <section id="ps1" lengthX="500.0" lengthY="800.0" pedestrianSectionType="PEDESTRIAN_STREET_SECTION"/>
+                    <section id="ps2" lengthX="500.0" lengthY="800.0" pedestrianSectionType="PEDESTRIAN_STREET_SECTION"/> <!-- In cm-->
+                </sections>
+
+                Timo Martin, [16.05.20 21:15]
+                <pedestrianConnectors>
+                    <pedestrianConnector id="pco_1">
+                        <pedestrianTrack fromSectionId="pso1" fromSectionType="PEDESTRIAN_SOURCE" fromXPortPositionStart="0" fromYPortPositionStart="0" fromXPortPositionEnd="0" fromYPortPositionEnd="800"
+                                         toSectionId="ps1" toSectionType="PEDESTRIAN_STREET_SECTION" toXPortPositionStart="0" toYPortPositionStart="0" toXPortPositionEnd="0" toYPortPositionEnd="800"/>
+                        <pedestrianTrack fromSectionId="ps1" fromSectionType="PEDESTRIAN_STREET_SECTION" fromXPortPositionStart="0" fromYPortPositionStart="0" fromXPortPositionEnd="0" fromYPortPositionEnd="800"
+                                         toSectionId="psk1" toSectionType="PEDESTRIAN_SINK" toXPortPositionStart="0" toYPortPositionStart="0" toXPortPositionEnd="0" toYPortPositionEnd="0"/>
+                    </pedestrianConnector>
+                    <pedestrianConnector id="pco_2">
+                        <pedestrianTrack fromSectionId="ps1" fromSectionType="PEDESTRIAN_STREET_SECTION" fromXPortPositionStart="500" fromYPortPositionStart="100" fromXPortPositionEnd="500" fromYPortPositionEnd="500"
+                                         toSectionId="psc1" toSectionType="PEDESTRIAN_CROSSING" toXPortPositionStart="0" toYPortPositionStart="0" toXPortPositionEnd="0" toYPortPositionEnd="400"/>
+                        <pedestrianTrack fromSectionId="psc1" fromSectionType="PEDESTRIAN_CROSSING" fromXPortPositionStart="0" fromYPortPositionStart="0" fromXPortPositionEnd="0" fromYPortPositionEnd="400"
+                                         toSectionId="ps1" toSectionType="PEDESTRIAN_STREET_SECTION" toXPortPositionStart="500" toYPortPositionStart="100" toXPortPositionEnd="500" toYPortPositionEnd="500" />
+                    </pedestrianConnector>
+                    <pedestrianConnector id="pco_3">
+                        <pedestrianTrack fromSectionId="ps2"  fromSectionType="PEDESTRIAN_STREET_SECTION" fromXPortPositionStart="0" fromYPortPositionStart="100" fromXPortPositionEnd="0" fromYPortPositionEnd="500"
+                                         toSectionId="psc1" toSectionType="PEDESTRIAN_CROSSING" toXPortPositionStart="500" toYPortPositionStart="0" toXPortPositionEnd="500" toYPortPositionEnd="400"/>
+                        <pedestrianTrack fromSectionId="psc1" fromSectionType="PEDESTRIAN_CROSSING" fromXPortPositionStart="500" fromYPortPositionStart="0" fromXPortPositionEnd="500" fromYPortPositionEnd="400"
+                                         toSectionId="ps2" toSectionType="PEDESTRIAN_STREET_SECTION" toXPortPositionStart="0" toYPortPositionStart="100" toXPortPositionEnd="0" toYPortPositionEnd="500"/>
+                    </pedestrianConnector>
+                    <pedestrianConnector id="pco_4">
+                        <pedestrianTrack fromSectionId="pso2" fromSectionType="PEDESTRIAN_SOURCE" fromXPortPositionStart="0" fromYPortPositionStart="0" fromXPortPositionEnd="0" fromYPortPositionEnd="800"
+                                         toSectionId="ps2" toSectionType="PEDESTRIAN_STREET_SECTION"  toXPortPositionStart="500" toYPortPositionStart="0" toXPortPositionEnd="500" toYPortPositionEnd="800"/>
+                        <pedestrianTrack fromSectionId="ps2" fromSectionType="PEDESTRIAN_STREET_SECTION" fromXPortPositionStart="500" fromYPortPositionStart="0" fromXPortPositionEnd="500" fromYPortPositionEnd="800"
+                                         toSectionId="psk2" toSectionType="PEDESTRIAN_SINK"  toXPortPositionStart="0" toYPortPositionStart="0" toXPortPositionEnd="0" toYPortPositionEnd="0"/>
+                    </pedestrianConnector>
+                </pedestrianConnectors>
+            </component>
+            <pedestrianRoutes>
+                <pedestrianRoute fromComponentId="p1" fromSourceId="pso1" toComponentId="p1" toSinkId="psk2" ratio="1.0"/>
+                <pedestrianRoute fromComponentId="p1" fromSourceId="pso2" toComponentId="p1" toSinkId="psk1" ratio="1.0"/>
+            </pedestrianRoutes>
+
+            Timo Martin, [16.05.20 21:15]
+            <component id="ro1" type="ROUNDABOUT" name="Kreisverkehr Dornbirn Süd">
+                <sources>
+                    <source id="so_s5_t1" sectionId="s5_t1" generatorExpectation="56.18"/>
+
+                    <source id="so_s6_t1" sectionId="s6_t1" generatorExpectation="60.0"/>
+
+                    <source id="so_s10_t1" sectionId="s10_t1" generatorExpectation="6.24"/>
+                    <source id="so_s10_t2" sectionId="s10_t2" generatorExpectation="56.18"/>
+
+                    <source id="so_s11_t1" sectionId="s11_t1" generatorExpectation="20.0"/>
+
+                    <source id="so_s14_t1" sectionId="s14_t1" generatorExpectation="6.24"/>
+                    <source id="so_s14_t2" sectionId="s14_t2" generatorExpectation="18.73"/>
+
+                    <source id="so_s15_t1" sectionId="s15_t1" generatorExpectation="60.0"/>
+
+                    <source id="so_s18_t1" sectionId="s18_t1" generatorExpectation="9.36"/>
+                </sources>
+                <sinks>
+                    <sink id="sk_s4_t1"/>
+
+                    <sink id="sk_s6_t1"/>
+
+                    <sink id="sk_s9_t1"/>
+                    <sink id="sk_s9_t2"/>
+
+                    <sink id="sk_s11_t1"/>
+
+                    <sink id="sk_s13_t1"/>
+
+                    <sink id="sk_s15_t1"/>
+
+                    <sink id="sk_s17_t1"/>
+                </sinks>
+                <sections>
+                    <section id="s1_t1" lengthX="110.45" isTrafficLightActive="true" greenPhaseDuration="18"
+                             redPhaseDuration="50" pedestrianCrossingComponentIDReference="ro1" pedestrianCrossingIDReference="pc1"/>
+
+                    <section id="s2_t1" lengthX="110.45" pedestrianCrossingIDRefExitHigh="200" pedestrianCrossingRefLinkedAtBegin="y" />
+                    <section id="s2_t2" lengthX="110.45"/>
+
+                    <section id="s3_t1" lengthX="31.77"/>
+                    <section id="s3_t2" lengthX="27.5"/>
+
+                    <section id="s4_t1" lengthX="114.55"/>
+
+                    <section id="s5_t1" lengthX="111.27"/>
+
+                    <section id="s6_t1" lengthX="237.27"/>
+
+                    <section id="s7_t2" lengthX="42.35"/>
+                    <section id="s7_t1" lengthX="49.28"/>
+
+                    <section id="s8_t1" lengthX="29"/>
+
+                    <section id="s9_t1" lengthX="200"/>
+                    <section id="s9_t2" lengthX="200"/>
+
+                    <section id="s10_t1" lengthX="229" isTrafficLightActive="true" minGreenPhaseDuration="120"
+                             redPhaseDuration="40"/>
+                    <section id="s10_t2" lengthX="229" isTrafficLightActive="true" minGreenPhaseDuration="120"
+                             redPhaseDuration="40"/>
+
+                    <section id="s11_t1" lengthX="474.55"/>
+
+                    <section id="s12_t1" lengthX="29.12"/>
+                    <section id="s12_t2" lengthX="23.85"/>
+
+                    <section id="s13_t1" lengthX="245.45"/>
+
+                    <section id="s14_t1" lengthX="81.82"/>
+                    <section id="s14_t2" lengthX="81.82"/>
+
+                    <section id="s15_t1" lengthX="327.27"/>
+
+                    <section id="s16_t1" lengthX="28.08"/>
+                    <section id="s16_t2" lengthX="23.31"/>
+
+                    <section id="s17_t1" lengthX="81.82"/>
+
+                    <section id="s18_t1" lengthX="90"/>
+
+                    <section id="s19_t1" lengthX="22.23"/>
+                    <section id="s19_t2" lengthX="24.89"/>
+                </sections>
+                <connectors>
+                    <connector id="co_1">
+                        <track order="1" fromSectionId="s19_t1" fromSectionType="ROUNDABOUT_SECTION" toSectionId="s1_t1" toSectionType="ROUNDABOUT_EXIT"/>
+
+                        <track order="2" fromSectionId="s19_t2" fromSectionType="ROUNDABOUT_SECTION" toSectionId="s3_t1" toSectionType="ROUNDABOUT_SECTION"/>
+                        <track order="3" fromSectionId="s19_t2" fromSectionType="ROUNDABOUT_SECTION" toSectionId="s3_t2" toSectionType="ROUNDABOUT_SECTION"/>
+
+                        Timo Martin, [16.05.20 21:15]
+                        <track order="4" fromSectionId="s2_t1" fromSectionType="ROUNDABOUT_INLET" toSectionId="s3_t1" toSectionType="ROUNDABOUT_SECTION"/>
+                        <track order="5" fromSectionId="s2_t2" fromSectionType="ROUNDABOUT_INLET" toSectionId="s3_t2" toSectionType="ROUNDABOUT_SECTION"/>
+                    </connector>
+                    <connector id="co_2">
+                        <track order="1" fromSectionId="s3_t1" fromSectionType="ROUNDABOUT_SECTION" toSectionId="s4_t1" toSectionType="ROUNDABOUT_EXIT"/>
+
+                        <track order="2" fromSectionId="s3_t1" fromSectionType="ROUNDABOUT_SECTION" toSectionId="s7_t1" toSectionType="ROUNDABOUT_SECTION"/>
+                        <track order="3" fromSectionId="s3_t2" fromSectionType="ROUNDABOUT_SECTION" toSectionId="s7_t2" toSectionType="ROUNDABOUT_SECTION"/>
+
+                        <track order="4" fromSectionId="s5_t1" fromSectionType="ROUNDABOUT_INLET" toSectionId="s7_t2" toSectionType="ROUNDABOUT_SECTION"/>
+                    </connector>
+                    <connector id="co_3">
+                        <track order="1" fromSectionId="s7_t1" fromSectionType="ROUNDABOUT_SECTION" toSectionId="s8_t1" toSectionType="ROUNDABOUT_EXIT"/>
+
+                        <track order="2" fromSectionId="s7_t2" fromSectionType="ROUNDABOUT_SECTION" toSectionId="s12_t1" toSectionType="ROUNDABOUT_SECTION"/>
+                        <track order="3" fromSectionId="s7_t2" fromSectionType="ROUNDABOUT_SECTION" toSectionId="s12_t2" toSectionType="ROUNDABOUT_SECTION"/>
+
+                        <track order="4" fromSectionId="s10_t1" fromSectionType="ROUNDABOUT_INLET" toSectionId="s12_t1" toSectionType="ROUNDABOUT_SECTION"/>
+                        <track order="5" fromSectionId="s10_t2" fromSectionType="ROUNDABOUT_INLET" toSectionId="s12_t2" toSectionType="ROUNDABOUT_SECTION"/>
+                    </connector>
+                    <connector id="co_4">
+                        <track order="1" fromSectionId="s12_t1" fromSectionType="ROUNDABOUT_SECTION" toSectionId="s13_t1" toSectionType="ROUNDABOUT_EXIT"/>
+
+                        <track order="2" fromSectionId="s12_t1" fromSectionType="ROUNDABOUT_SECTION" toSectionId="s16_t1" toSectionType="ROUNDABOUT_SECTION"/>
+                        <track order="3" fromSectionId="s12_t2" fromSectionType="ROUNDABOUT_SECTION" toSectionId="s16_t2" toSectionType="ROUNDABOUT_SECTION"/>
+
+                        <track order="4" fromSectionId="s14_t1" fromSectionType="ROUNDABOUT_INLET" toSectionId="s16_t1" toSectionType="ROUNDABOUT_SECTION"/>
+                        <track order="5" fromSectionId="s14_t2" fromSectionType="ROUNDABOUT_INLET" toSectionId="s16_t2" toSectionType="ROUNDABOUT_SECTION"/>
+                    </connector>
+                    <connector id="co_5">
+                        <track order="1" fromSectionId="s16_t1" fromSectionType="ROUNDABOUT_SECTION" toSectionId="s17_t1" toSectionType="ROUNDABOUT_EXIT"/>
+
+                        <track order="2" fromSectionId="s16_t1" fromSectionType="ROUNDABOUT_SECTION" toSectionId="s19_t1" toSectionType="ROUNDABOUT_SECTION"/>
+                        <track order="3" fromSectionId="s16_t2" fromSectionType="ROUNDABOUT_SECTION" toSectionId="s19_t2" toSectionType="ROUNDABOUT_SECTION"/>
+
+                        Timo Martin, [16.05.20 21:15]
+                        <track order="4" fromSectionId="s18_t1" fromSectionType="ROUNDABOUT_INLET" toSectionId="s19_t1" toSectionType="ROUNDABOUT_SECTION"/>
+                        <track order="5" fromSectionId="s18_t1" fromSectionType="ROUNDABOUT_INLET" toSectionId="s19_t2" toSectionType="ROUNDABOUT_SECTION"/>
+                    </connector>
+                    <connector id="co_s8_t1_s9">
+                        <track order="1" fromSectionId="s8_t1" fromSectionType="ROUNDABOUT_SECTION" toSectionId="s9_t1" toSectionType="STREET_SECTION"/>
+                        <track order="2" fromSectionId="s8_t1" fromSectionType="ROUNDABOUT_SECTION" toSectionId="s9_t2" toSectionType="STREET_SECTION"/>
+                    </connector>
+                    <connector id="co_s4_t1_sk_s4_t1">
+                        <track fromSectionId="s4_t1" fromSectionType="ROUNDABOUT_SECTION" toSectionId="sk_s4_t1" toSectionType="ROUNDABOUT_EXIT"/>
+                    </connector>
+                    <connector id="co_s6_t1_sk_s6_t1">
+                        <track fromSectionId="s6_t1" fromSectionType="ROUNDABOUT_SECTION" toSectionId="sk_s6_t1" toSectionType="ROUNDABOUT_EXIT"/>
+                    </connector>
+                    <connector id="co_s9_t1_sk_s9_t1">
+                        <track fromSectionId="s9_t1" fromSectionType="ROUNDABOUT_SECTION" toSectionId="sk_s9_t1" toSectionType="ROUNDABOUT_EXIT"/>
+                    </connector>
+                    <connector id="co_s9_t2_sk_s9_t2">
+                        <track fromSectionId="s9_t2" fromSectionType="ROUNDABOUT_SECTION" toSectionId="sk_s9_t2" toSectionType="ROUNDABOUT_EXIT"/>
+                    </connector>
+                    <connector id="co_s11_t1_sk_s11_t1">
+                        <track fromSectionId="s11_t1" fromSectionType="ROUNDABOUT_SECTION" toSectionId="sk_s11_t1" toSectionType="ROUNDABOUT_EXIT"/>
+                    </connector>
+                    <connector id="co_s13_t1_sk_s13_t1">
+                        <track fromSectionId="s13_t1" fromSectionType="ROUNDABOUT_SECTION" toSectionId="sk_s13_t1" toSectionType="ROUNDABOUT_EXIT"/>
+                    </connector>
+                    <connector id="co_s15_t1_sk_s15_t1">
+                        <track fromSectionId="s15_t1" fromSectionType="ROUNDABOUT_SECTION" toSectionId="sk_s15_t1" toSectionType="ROUNDABOUT_EXIT"/>
+                    </connector>
+                    <connector id="co_s17_t1_sk_s17_t1">
+                        <track fromSectionId="s17_t1" fromSectionType="ROUNDABOUT_SECTION" toSectionId="sk_s17_t1" toSectionType="ROUNDABOUT_EXIT"/>
+                    </connector>
+                </connectors>
+            </component>
+            <component id="is1" type="INTERSECTION" name="Messekreuzung mit Personenüberführung (Zebrastreifen)">
+                <parameters>
+                    <parameter name="INTERSECTION_SIZE" value="16"/>
+                    <parameter name="INTERSECTION_SERVICE_DELAY" value="1"/>
+                    <parameter name="CONTROLLER_GREEN_DURATION" value="22.5"/>
+                    <parameter name="CONTROLLER_YELLOW_DURATION" value="7.5"/>
+                    <parameter name="CONTROLLER_PHASE_SHIFT_TIME" value="0.1"/>
+                </parameters>
+                <sources>
+                    <source id="so_s3_t1" sectionId="s3_t1"/>
+                    <source id="so_s3_t2" sectionId="s3_t2"/>
+                    <source id="so_s3_t3" sectionId="s3_t3"/>
+                    <source id="so_s3_t4" sectionId="s3_t4"/>
+
+                    <source id="so_s4_t1" sectionId="s4_t1"/>
+                    <source id="so_s4_t2" sectionId="s4_t2"/>
+
+                    <source id="so_s5_t1" sectionId="s5_t1"/>
+                    <source id="so_s5_t2" sectionId="s5_t2"/>
+                    <source id="so_s5_t3" sectionId="s5_t3"/>
+                </sources>
+                <sinks>
+                    <sink id="sk1_t1"/>
+                    <sink id="sk2_t1"/>
+                    <sink id="sk3_t1"/>
+                </sinks>
+                <sections>
+                    <section id="s2_t1" lengthX="110.45"/> <!--in meter-->
+                    <section id="s2_t2" lengthX="110.45"/>
+
+                    Timo Martin, [16.05.20 21:15]
+                    <section id="s3_t1" lengthX="102.27"/>
+                    <section id="s3_t2" lengthX="102.27"/>
+                    <section id="s3_t3" lengthX="102.27"/>
+                    <section id="s3_t4" lengthX="102.27"/>
+
+                    <section id="s4_t2" lengthX="149.72"/>
+                    <section id="s4_t1" lengthX="147.27"/>
+
+                    <section id="s5_t1" lengthX="106.36"/>
+                    <section id="s5_t2" lengthX="106.36"/>
+                    <section id="s5_t3" lengthX="106.36"/>
+
+                    <section id="s6_t1" lengthX="110.45" pedestrianCrossingComponentIDRef="p1" pedestrianCrossingIDRef="psc1" pedestrianCrossingIDRefEnterHigh="200" pedestrianCrossingRefLinkedAtBegin="y" /> <!--entry high in cm-->
+                    <section id="s6_t2" lengthX="110.45" pedestrianCrossingComponentIDRef="p1" pedestrianCrossingIDRef="psc1" pedestrianCrossingIDRefEnterHigh="400" pedestrianCrossingRefLinkedAtBegin="n" />
+
+                </sections>
+                <connectors>
+                    <connector id="main_horizontal">
+                        <track fromSectionId="s2_t1" fromSectionType="STREET_SECTION" toSectionId="sk1_t1" toSectionType="ROUNDABOUT_EXIT"/>
+                        <track fromSectionId="s2_t2" fromSectionType="STREET_SECTION" toSectionId="sk2_t1" toSectionType="ROUNDABOUT_EXIT"/>
+
+                        <track fromSectionId="s4_t1" fromSectionType="STREET_SECTION" toSectionId="sk3_t1" toSectionType="ROUNDABOUT_EXIT"/>
+                        <track fromSectionId="s4_t1" fromSectionType="STREET_SECTION" toSectionId="s6_t1" toSectionType="STREET_SECTION"/>
+                    </connector>
+                    <connector id="secondary_horizontal">
+                        <track fromSectionId="s2_t2" fromSectionType="STREET_SECTION" toSectionId="sk3_t1" toSectionType="ROUNDABOUT_EXIT"/>
+
+                        <track fromSectionId="s4_t2" fromSectionType="STREET_SECTION" toSectionId="sk1_t1" toSectionType="ROUNDABOUT_EXIT"/>
+                    </connector>
+                    <connector id="main_vertical">
+                        <track fromSectionId="s5_t1" fromSectionType="STREET_SECTION" toSectionId="s6_t1" toSectionType="STREET_SECTION"/>
+                        <track fromSectionId="s5_t3" fromSectionType="STREET_SECTION" toSectionId="sk2_t1" toSectionType="ROUNDABOUT_EXIT"/>
+
+                        <track fromSectionId="s3_t4" fromSectionType="STREET_SECTION" toSectionId="s6_t2" toSectionType="STREET_SECTION"/>
+                        <track fromSectionId="s3_t3" fromSectionType="STREET_SECTION" toSectionId="s6_t1" toSectionType="STREET_SECTION"/>
+                        <track fromSectionId="s3_t1" fromSectionType="STREET_SECTION" toSectionId="sk2_t1" toSectionType="ROUNDABOUT_EXIT"/>
+                    </connector>
+                    <connector id="secondary_vertical">
+                        <track fromSectionId="s3_t2" fromSectionType="STREET_SECTION" toSectionId="sk3_t1" toSectionType="ROUNDABOUT_EXIT"/>
+                        <track fromSectionId="s5_t2" fromSectionType="STREET_SECTION" toSectionId="sk1_t1" toSectionType="ROUNDABOUT_EXIT"/>
+                    </connector>
+                </connectors>
+            </component>
+            <connectors>
+                <connector id="co_ro1_s1_t1_is1_s2">
+                    <track order="1" fromComponentId="ro1" fromSectionId="s1_t1" fromSectionType="STREET_SECTION" toComponentId="is1" toSectionId="s2_t1" toSectionType="STREET_SECTION"/>
+                    <track order="2" fromComponentId="ro1" fromSectionId="s1_t1" fromSectionType="STREET_SECTION" toComponentId="is1" toSectionId="s2_t2" toSectionType="STREET_SECTION"/>
+                </connector>
+
+                <connector id="co_is1_s6_t1_ro1_s2_t1">
+                    <track fromComponentId="is1" fromSectionId="s6_t1" fromSectionType="STREET_SECTION" toComponentId="ro1" toSectionId="s2_t1" toSectionType="STREET_SECTION"/>
+                </connector>
+
+                Timo Martin, [16.05.20 21:15]
+                <connector id="co_is1_s6_t2_ro1_s2_t2">
+                    <track fromComponentId="is1" fromSectionId="s6_t2" fromSectionType="STREET_SECTION" toComponentId="ro1" toSectionId="s2_t2" toSectionType="STREET_SECTION" />
+                </connector>
+            </connectors>
+            <routes>
+                <route fromComponentId="is1" fromSourceId="so_s3_t1" toComponentId="is1" toSinkId="sk2_t1" ratio="1.0"/>
+                <route fromComponentId="is1" fromSourceId="so_s3_t2" toComponentId="is1" toSinkId="sk3_t1" ratio="1.0"/>
+                <route fromComponentId="is1" fromSourceId="so_s4_t2" toComponentId="is1" toSinkId="sk1_t1" ratio="1.0"/>
+                <route fromComponentId="is1" fromSourceId="so_s5_t2" toComponentId="is1" toSinkId="sk1_t1" ratio="1.0"/>
+                <route fromComponentId="is1" fromSourceId="so_s5_t3" toComponentId="is1" toSinkId="sk2_t1" ratio="1.0"/>
+
+                <route fromComponentId="is1" fromSourceId="so_s3_t3" toComponentId="ro1" toSinkId="sk_s4_t1" ratio="0.143"/>
+                <route fromComponentId="is1" fromSourceId="so_s4_t1" toComponentId="is1" toSinkId="sk3_t1" ratio="0.4"/>
+                <route fromComponentId="is1" fromSourceId="so_s5_t1" toComponentId="ro1" toSinkId="sk_s9_t2" ratio="0.457"/>
+
+                <route fromComponentId="is1" fromSourceId="so_s3_t4" toComponentId="ro1" toSinkId="sk_s17_t1" ratio="0.077"/>
+
+                <route fromComponentId="ro1" fromSourceId="so_s5_t1" toComponentId="ro1" toSinkId="sk_s13_t1" ratio="0.8"/>
+                <route fromComponentId="ro1" fromSourceId="so_s5_t1" toComponentId="ro1" toSinkId="sk_s17_t1" ratio="0.1"/>
+
+                <route fromComponentId="ro1" fromSourceId="so_s6_t1" toComponentId="ro1" toSinkId="sk_s6_t1" ratio="1.0"/>
+
+                <route fromComponentId="ro1" fromSourceId="so_s10_t1" toComponentId="ro1" toSinkId="sk_s17_t1" ratio="0.333"/>
+                <route fromComponentId="ro1" fromSourceId="so_s10_t1" toComponentId="is1" toSinkId="sk2_t1" ratio="0.667"/>
+
+                <route fromComponentId="ro1" fromSourceId="so_s10_t2" toComponentId="ro1" toSinkId="sk_s4_t1" ratio="1.0"/>
+
+                <route fromComponentId="ro1" fromSourceId="so_s11_t1" toComponentId="ro1" toSinkId="sk_s11_t1" ratio="1.0"/>
+
+                <route fromComponentId="ro1" fromSourceId="so_s14_t1" toComponentId="is1" toSinkId="sk2_t1" ratio="1.0"/>
+
+                <route fromComponentId="ro1" fromSourceId="so_s14_t2" toComponentId="ro1" toSinkId="sk_s4_t1" ratio="0.333"/>
+                <route fromComponentId="ro1" fromSourceId="so_s14_t2" toComponentId="ro1" toSinkId="sk_s9_t1" ratio="0.3"/>
+                <route fromComponentId="ro1" fromSourceId="so_s14_t2" toComponentId="ro1" toSinkId="sk_s9_t2" ratio="0.367"/>
+
+                <route fromComponentId="ro1" fromSourceId="so_s15_t1" toComponentId="ro1" toSinkId="sk_s15_t1" ratio="1.0"/>
+
+                <route fromComponentId="ro1" fromSourceId="so_s18_t1" toComponentId="is1" toSinkId="sk1_t1" ratio="0.25"/>
+                <route fromComponentId="ro1" fromSourceId="so_s18_t1" toComponentId="ro1" toSinkId="sk_s4_t1" ratio="0.083"/>
+                <route fromComponentId="ro1" fromSourceId="so_s18_t1" toComponentId="ro1" toSinkId="sk_s9_t1" ratio="0.15"/>
+                <route fromComponentId="ro1" fromSourceId="so_s18_t1" toComponentId="ro1" toSinkId="sk_s9_t2" ratio="0.183"/>
+                <route fromComponentId="ro1" fromSourceId="so_s18_t1" toComponentId="ro1" toSinkId="sk_s13_t1" ratio="0.333"/>
+            </routes>
+        </components>
+    </model>
+</model>

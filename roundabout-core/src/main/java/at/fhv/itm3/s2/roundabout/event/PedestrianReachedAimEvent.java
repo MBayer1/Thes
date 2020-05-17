@@ -77,13 +77,21 @@ public class PedestrianReachedAimEvent extends Event<Pedestrian> {
         if (!(pedestrian.getCurrentSection().getStreetSection() instanceof PedestrianStreet)) {
             throw new IllegalArgumentException("Street not instance of PedestrianStreet.");
         }
-        IConsumer currentSection = pedestrian.getCurrentSection().getStreetSection();
-        if (!(currentSection instanceof PedestrianStreet)) {
+        IConsumer currentSectionTmp = pedestrian.getCurrentSection().getStreetSection();
+        if (!(currentSectionTmp instanceof PedestrianStreetSection)) {
             throw new IllegalArgumentException("Street not instance of PedestrianStreet.");
         }
-        if(((PedestrianStreet)currentSection).getPedestrianConsumerType().equals(PedestrianConsumerType.PEDESTRIAN_SINK)) {
+
+        PedestrianStreetSection currentSection = (PedestrianStreetSection) currentSectionTmp;
+        if(currentSection.getPedestrianConsumerType().equals(PedestrianConsumerType.PEDESTRIAN_SINK)) {
             return;
         }
+
+        if(!currentSection.checkPedestrianIsWithinSection(pedestrian) &&
+                currentSection.getPedestrianConsumerType().equals(PedestrianConsumerType.PEDESTRIAN_CROSSING)) {
+            throw new IllegalArgumentException("Pedestrian out of section. Not possible.");
+        }
+
 
         // check for waiting are before crossing
         if (pedestrian.checkForWaitingArea() ){
@@ -126,7 +134,7 @@ public class PedestrianReachedAimEvent extends Event<Pedestrian> {
                     }
                     pedestrian.setCurrentNextGlobalAim(null);
                 } else {
-                    timeToDestination = ((PedestrianStreet) currentSection).getRemainingRedPhase();
+                    timeToDestination =  currentSection.getRemainingRedPhase();
                     //nextStreetSection.handleJamTrafficLight(); //  todo
                 }
             } else {
@@ -172,7 +180,7 @@ public class PedestrianReachedAimEvent extends Event<Pedestrian> {
         }
 
         Pedestrian pedestrianToEnter = null;
-        if (((PedestrianStreetSection) currentSection).reCheckPedestrianCanEnterSection(pedestrianToEnter)) { // after some movements recheck pedestrians in queue
+        if (currentSection.reCheckPedestrianCanEnterSection(pedestrianToEnter)) { // after some movements recheck pedestrians in queue
             pedestrianEventFactory.createPedestrianReachedAimEvent(roundaboutSimulationModel).schedule(
                     pedestrianToEnter, new TimeSpan(0, roundaboutSimulationModel.getModelTimeUnit()));
         }

@@ -460,19 +460,19 @@ public class StreetSection extends Street {
                     throw new IllegalStateException("type miss match.");
                 }
 
-                if (!(pedestrianCrossingExit.getPedestrianCrossing() instanceof PedestrianStreetSection)) {
+                if (!(pedestrianCrossingEnter.getPedestrianCrossing() instanceof PedestrianStreetSection)) {
                     throw new IllegalStateException("type miss match.");
                 }
-                PedestrianStreetSection  crossingSection = (PedestrianStreetSection) (pedestrianCrossingExit.getPedestrianCrossing());
+                PedestrianStreetSection  crossingSection = (PedestrianStreetSection) (pedestrianCrossingEnter.getPedestrianCrossing());
                 if (crossingSection.isFlexiBorderAlongX()) {
                     // car drives along y axis
                     //  check high of pedestrian by illegal crossing
-                    double carHigh = pedestrianCrossingExit.getGlobalPositionOfStreetAndCrossingIntersectionInCM().getX();
+                    double carHigh = pedestrianCrossingEnter.getGlobalPositionOfStreetAndCrossingIntersectionInCM().getX();
                     double pedestrianHigh = ((Pedestrian) pedestrian).getGlobalCoordinatesOfCurrentSection().getX();
                     if(Math.abs(carHigh-pedestrianHigh) < (minDistanceToPedestiranToKeepDrivingInM * 100)) return false;
                 } else {
                     // car drives along x axis
-                    double carHigh = pedestrianCrossingExit.getGlobalPositionOfStreetAndCrossingIntersectionInCM().getY();
+                    double carHigh = pedestrianCrossingEnter.getGlobalPositionOfStreetAndCrossingIntersectionInCM().getY();
                     double pedestrianHigh = ((Pedestrian) pedestrian).getGlobalCoordinatesOfCurrentSection().getY();
                     if(Math.abs(carHigh-pedestrianHigh) < (minDistanceToPedestiranToKeepDrivingInM * 100)) return false;
                 }
@@ -870,11 +870,15 @@ public class StreetSection extends Street {
      *
      * @return width of pedestrian crossing {@Link double}.
      */
-    public double getPedestrianCrossingWidth(){
+    public double getPedestrianCrossingWidthInM(){
+        return getPedestrianCrossingWidthInCM()/100;
+    }
+
+    public double getPedestrianCrossingWidthInCM(){
         if (this.doesHavePedestrianCrossingToEnter()) {
-            return pedestrianCrossingEnter.getLengthForVehicleToPass()/ 100; //   cm into m
+            return pedestrianCrossingEnter.getLengthForVehicleToPass(); //   cm into m
         } else  if(this.doesHavePedestrianCrossingThatHasBeenLeftBefore() ) {
-            return pedestrianCrossingExit.getLengthForVehicleToPass()/ 100; //   cm into m
+            return pedestrianCrossingExit.getLengthForVehicleToPass(); //   cm into m
         }
         return 0;
     }

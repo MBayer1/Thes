@@ -64,7 +64,7 @@ public class RepulsiveForceAgainstVehicles {
                 if( nextVehicleStreet instanceof StreetSection) {
                     ICar car = ((Street) nextVehicleStreet).getLastCar();
                     if (car != null && car instanceof RoundaboutCar) {
-                        getVehicleDataBack(((RoundaboutCar) car));
+                        getVehicleDataBack(((RoundaboutCar) car), currentSection);
                         // check if it is in range
                         if (checkPedestrianInRangeBack(model, pedestrian, globalPositionOfVehicleFront2, ((RoundaboutCar) car).getLengthInCM())) {
                             sumForce.add(calculateRepulsiveForceAgainstVehicles(pedestrian,
@@ -83,7 +83,8 @@ public class RepulsiveForceAgainstVehicles {
         return sumForce;
     }
 
-    void getVehicleDataBack ( RoundaboutCar car ) {
+    void getVehicleDataBack ( RoundaboutCar car, PedestrianStreetSection crossing ) {
+
         globalPositionOfVehicleBack2 = new PedestrianPoint(0,0);
         globalPositionOfVehicle2 = new PedestrianPoint(0,0);
         globalPositionOfVehicleFront2 = new PedestrianPoint(0,0);
@@ -92,42 +93,58 @@ public class RepulsiveForceAgainstVehicles {
         if( !(car.getCurrentSection() instanceof StreetSection)) {
             throw new IllegalStateException("type miss match.");
         }
+
+        Vector2d vecIntersectionOfSections;
         StreetSection currentVehicleStreet = (StreetSection) car.getCurrentSection();
         if(currentVehicleStreet.doesHavePedestrianCrossingThatHasBeenLeftBefore()){
-            globalAimOfVehicle2  = new PedestrianPoint(currentVehicleStreet.getPedestrianCrossingExit().getGlobalPositionOfStreetAndCrossingIntersectionInCM());
+            PedestrianPoint tmp = currentVehicleStreet.getPedestrianCrossingExit().getGlobalPositionOfStreetAndCrossingIntersectionInCM();
+            vecIntersectionOfSections  = new Vector2d(tmp.getX(), tmp.getY());
         } else {
             throw new IllegalStateException("Something went  wrong in calculation of force against vehicle.");
         }
-        Vector2d vccGlobalPositionOfVehicle = new Vector2d(globalAimOfVehicle2.getX(),  globalAimOfVehicle2.getX());
-
 
         double carLength = car.getLengthInCM();
 
         if(!(car.getCurrentSection() instanceof StreetSection)) {
             throw new IllegalStateException("Type miss match");
         }
-        double streetPosLength = ((StreetSection)(car.getCurrentSection())).getLength() - car.getRemainingLengthOfCurrentSection();
 
-        Vector2d direction = new Vector2d(globalPositionOfVehicleFront.getX(), globalPositionOfVehicleFront.getY());
-        direction.sub(new Vector2d(globalPositionOfVehicleBack.getX(), globalPositionOfVehicleBack.getY()));
-        direction = calculations.getUnitVector(direction);
+        double streetLength = ((StreetSection)(car.getCurrentSection())).getLength();
+        double streetPosLength = streetLength - (car.getRemainingLengthOfCurrentSection()*100);
 
-        Vector2d tmp = new Vector2d(direction);
+        Vector2d drivingDirection;
+        PedestrianPoint origin = crossing.getGlobalCoordinateOfSectionOrigin();
+        if( currentVehicleStreet.checkCarDrivesAlongYAxis()) {
+            if (calculations.almostEqual(vecIntersectionOfSections.getY() - origin.getY(), 0)) {
+                drivingDirection = new Vector2d(0,-1);
+            } else {
+                drivingDirection = new Vector2d(0,1);
+            }
+        } else {
+            if (calculations.almostEqual(vecIntersectionOfSections.getX() - origin.getX(), 0)) {
+                drivingDirection = new Vector2d(0,-1);
+            } else {
+                drivingDirection = new Vector2d(0,1);
+            }
+        }
+
+        Vector2d tmp = new Vector2d(drivingDirection);
+        tmp.scale(streetLength);
+        Vector2d tmp2 = new Vector2d(vecIntersectionOfSections.getX(), vecIntersectionOfSections.getY());
+        tmp2.add(tmp);
+        globalAimOfVehicle2.setLocation(tmp2);
+
+        tmp = new Vector2d(drivingDirection);
         tmp.scale(streetPosLength);
+        Vector2d vccGlobalPositionOfVehicle = new Vector2d(vecIntersectionOfSections);
         vccGlobalPositionOfVehicle.add(tmp);
-        globalPositionOfVehicleFront2.setLocation(vccGlobalPositionOfVehicle.getX(), vccGlobalPositionOfVehicle.getY());
+        globalPositionOfVehicleFront2.setLocation(vccGlobalPositionOfVehicle);
 
-        tmp = new Vector2d(direction);
+        tmp = new Vector2d(drivingDirection);
         tmp.scale(streetPosLength - carLength);
-        vccGlobalPositionOfVehicle = new Vector2d(globalAimOfVehicle.getX(),  globalAimOfVehicle.getX());
+        vccGlobalPositionOfVehicle = new Vector2d(vecIntersectionOfSections);
         vccGlobalPositionOfVehicle.add(tmp);
-        globalPositionOfVehicleBack2.setLocation(vccGlobalPositionOfVehicle.getX(), vccGlobalPositionOfVehicle.getY());
-
-        tmp = new Vector2d(direction);
-        tmp.scale(car.getRemainingLengthOfCurrentSection());
-        vccGlobalPositionOfVehicle = new Vector2d(globalPositionOfVehicleFront2.getX(), globalPositionOfVehicleFront2.getY());
-        vccGlobalPositionOfVehicle.add(tmp);
-        globalAimOfVehicle2.setLocation(vccGlobalPositionOfVehicle.getX(), vccGlobalPositionOfVehicle.getY());
+        globalPositionOfVehicleBack2.setLocation(vccGlobalPositionOfVehicle);
 
         Vector2d globalFrontVehicleVec = new Vector2d(globalPositionOfVehicleFront2.getX(), globalPositionOfVehicleFront2.getY());
         Vector2d globalPositionOfVehicleVec = new Vector2d(globalFrontVehicleVec);
@@ -156,8 +173,8 @@ public class RepulsiveForceAgainstVehicles {
         }
 
         double carLength = car.getLengthInCM();
-        double remainingLength = car.getRemainingLengthOfCurrentSection();
-        double crossingWidth = vehicleStreet.getPedestrianCrossingWidth();
+        double remainingLength = car.getRemainingLengthOfCurrentSection() * 100;
+        double crossingWidth = vehicleStreet.getPedestrianCrossingWidthInCM();
         boolean carDrivesAlongYAxis = vehicleStreet.checkCarDrivesAlongYAxis();
 
         double originXGlobal = section.getGlobalCoordinateOfSectionOrigin().getX();
@@ -234,7 +251,7 @@ public class RepulsiveForceAgainstVehicles {
         //Traveled path of the walker β within ∆t
         double speed = car.getDriverBehaviour().getSpeed();
         double kmhToMs = 1000./(60*60);
-        double traveledPathWithinTOfBeta = speed / kmhToMs; // speed in km/h -> change to m/s := 1000/(60*60)
+        double traveledPathWithinTOfBeta = kmhToMs; // speed in km/h -> change to m/s := 1000/(60*60)
 
         // preparation
         Vector2d vecVehicleDrivingDirection = new Vector2d(vecVehicleGlobGoal);
