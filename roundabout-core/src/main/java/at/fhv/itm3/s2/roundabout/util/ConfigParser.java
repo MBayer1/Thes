@@ -1032,7 +1032,7 @@ public class ConfigParser {
                     if (!routeSections.contains(toSection)) {
                         final List<IConsumer> newRouteSections = new LinkedList<>(routeSections);
                         if (component.getType() == ComponentType.INTERSECTION) {
-                            //newRouteSections.add((IConsumer) INTERSECTION_REGISTRY.get(component.getId()));
+                            newRouteSections.add((IConsumer) INTERSECTION_REGISTRY.get(component.getId()));
                         }
                         newRouteSections.add(toSection);
 
