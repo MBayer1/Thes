@@ -338,6 +338,7 @@ public class RoundaboutCar implements ICar {
     }
 
     public void startAdditionalWaiting() {
+        stopAdditionalWaiting(); // needed for update in critical cases
         if (!this.timeWaitingDueToIllegalCrossingOfPedestrianStopWatch.isRunning()) {
             this.timeWaitingDueToIllegalCrossingOfPedestrianStopWatch.start();
         }

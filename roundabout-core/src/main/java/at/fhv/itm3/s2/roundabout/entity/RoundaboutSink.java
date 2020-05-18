@@ -55,6 +55,9 @@ public class RoundaboutSink extends AbstractSink {
         iCar.leaveSystem();
         incrementEnteredCarCounter();
         updateStats(iCar);
+        if (iCar instanceof RoundaboutCar) {
+            ((RoundaboutCar) iCar).stopAdditionalWaiting();
+        }
 
         IConsumer consumer = iCar.getLastSection();
         if (consumer instanceof Street) {
@@ -75,7 +78,6 @@ public class RoundaboutSink extends AbstractSink {
         meanStopCount = meanStopCount * dPreviousRate + car.getStopCount()/ getNrOfEnteredCars();
         meanIntersectionPassTime = meanIntersectionPassTime * dPreviousRate + car.getMeanIntersectionPassTime()/ getNrOfEnteredCars();
         meanTimeWaitingDueToIllegalCrossingOfPedestrian = meanTimeWaitingDueToIllegalCrossingOfPedestrian * dPreviousRate + car.getMeanTimeWaitingDueToIllegalCrossingOfPedestrian()/ getNrOfEnteredCars();
-
     }
 
     /**

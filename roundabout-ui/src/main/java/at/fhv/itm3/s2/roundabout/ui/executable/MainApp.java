@@ -1,12 +1,21 @@
 package at.fhv.itm3.s2.roundabout.ui.executable;
 
 
+import at.fhv.itm14.trafsim.model.entities.IConsumer;
+import at.fhv.itm3.s2.roundabout.api.entity.AbstractSource;
+import at.fhv.itm3.s2.roundabout.api.entity.ICar;
+import at.fhv.itm3.s2.roundabout.api.entity.Street;
 import at.fhv.itm3.s2.roundabout.controller.CarController;
 import at.fhv.itm3.s2.roundabout.PedestrianCalculations.SocialForceModelCalculation.VerifyForceCalc_TestEnvironment;
+import at.fhv.itm3.s2.roundabout.entity.RoundaboutCar;
+import at.fhv.itm3.s2.roundabout.entity.StreetSection;
 import at.fhv.itm3.s2.roundabout.ui.controllers.MainViewController;
 import at.fhv.itm3.s2.roundabout.ui.util.ViewLoader;
 import at.fhv.itm3.s2.roundabout.util.ConfigParser;
+import at.fhv.itm3.s2.roundabout.util.dto.Component;
+import at.fhv.itm3.s2.roundabout.util.dto.ComponentType;
 import at.fhv.itm3.s2.roundabout.util.dto.ModelConfig;
+import at.fhv.itm3.s2.roundabout.util.dto.Section;
 import desmoj.core.simulator.Experiment;
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.SimClock;
@@ -19,6 +28,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.lang.invoke.MethodHandles;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -87,7 +99,9 @@ public class MainApp extends Application {
             mainViewController.setStartRunnable(initExperimentRunnable(
                 experiment,
                 mainViewController::getCurrentSimSpeed,
-                mainViewController::setProgress
+                mainViewController::setProgress,
+                    modelConfig,
+                    configParser
             ));
             mainViewController.setFinishRunnable(() -> {
                 if (IS_TRACE_ENABLED || IS_DEBUG_ENABLED) {
@@ -116,7 +130,9 @@ public class MainApp extends Application {
     private Runnable initExperimentRunnable(
         Experiment experiment,
         Supplier<Double> executionSpeedRateSupplier,
-        Consumer<Double> progressConsumer
+        Consumer<Double> progressConsumer,
+        ModelConfig modelConfig,
+        ConfigParser configParser
     ) {
         return () -> {
             Experiment.setReferenceUnit(EXPERIMENT_TIME_UNIT);
@@ -163,6 +179,26 @@ public class MainApp extends Application {
             final long finishTime = System.currentTimeMillis();
             System.out.println("Logic Stop: " + finishTime);
             System.out.println("Time:" + (finishTime - time));
+
+            double meanAddWait = 0;
+            int cntCar = 0;
+            // collect all additional waiting times for vehicle due to illegal crossing of pedestrians.
+            for ( Component component : modelConfig.getComponents().getComponent() ) {
+                if(component.getType().equals(ComponentType.INTERSECTION) || component.getType().equals(ComponentType.ROUNDABOUT)) {
+                    for ( Section sectionDTO : component.getSections().getSection()) {
+                        StreetSection section = configParser.getSectionRegistry().get(component.getId()).get(sectionDTO.getId());
+                        for (ICar icar : section.getCarQueue()) {
+                            if ( icar instanceof RoundaboutCar) {
+                                RoundaboutCar car = (RoundaboutCar) icar;
+                                ++cntCar;
+                                double dPreviousRate = ((double)cntCar-1)/ (double) cntCar;
+                                meanAddWait = meanAddWait * dPreviousRate + car.getMeanTimeWaitingDueToIllegalCrossingOfPedestrian() / cntCar;
+                            }
+                        }
+                    }
+                }
+            }
+            System.out.println("additional waiting times for vehicle due to illegal crossing of pedestrians.: " + meanAddWait);
         };
     }
 
