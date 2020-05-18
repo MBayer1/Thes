@@ -75,6 +75,7 @@ public class RoundaboutSink extends AbstractSink {
         meanStopCount = meanStopCount * dPreviousRate + car.getStopCount()/ getNrOfEnteredCars();
         meanIntersectionPassTime = meanIntersectionPassTime * dPreviousRate + car.getMeanIntersectionPassTime()/ getNrOfEnteredCars();
         meanTimeWaitingDueToIllegalCrossingOfPedestrian = meanTimeWaitingDueToIllegalCrossingOfPedestrian * dPreviousRate + car.getMeanTimeWaitingDueToIllegalCrossingOfPedestrian()/ getNrOfEnteredCars();
+
     }
 
     /**

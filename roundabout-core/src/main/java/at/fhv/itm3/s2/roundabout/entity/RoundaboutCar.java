@@ -22,8 +22,8 @@ public class RoundaboutCar implements ICar {
     private final IRoute route;
     private final IDriverBehaviour driverBehaviour;
     private final Iterator<IConsumer> routeIterator;
-    public final StopWatch roundaboutStopWatch;
-    public final StopWatch timeWaitingDueToIllegalCrossingOfPedestrianStopWatch;
+    private final StopWatch roundaboutStopWatch;
+    private final StopWatch timeWaitingDueToIllegalCrossingOfPedestrianStopWatch;
     private final Count roundaboutCounter;
     private final Tally roundaboutTime;
     public final Tally timeWaitingDueToIllegalCrossingOfPedestrian;
@@ -280,7 +280,13 @@ public class RoundaboutCar implements ICar {
             double res = this.roundaboutStopWatch.stop();
             this.roundaboutTime.update(new TimeSpan(res));
         }
+        if (this.timeWaitingDueToIllegalCrossingOfPedestrianStopWatch.isRunning()) {
+            double res = this.timeWaitingDueToIllegalCrossingOfPedestrianStopWatch.stop();
+            this.timeWaitingDueToIllegalCrossingOfPedestrian.update(new TimeSpan(res));
+        }
+
     }
+
 
     /**
      * {@inheritDoc}
@@ -324,6 +330,23 @@ public class RoundaboutCar implements ICar {
             this.stopsStopWatch.stop();
         } else {
             car.stopWaiting();
+        }
+    }
+
+    public boolean additionalWaitingIsRunning(){
+        return this.timeWaitingDueToIllegalCrossingOfPedestrianStopWatch.isRunning();
+    }
+
+    public void startAdditionalWaiting() {
+        if (!this.timeWaitingDueToIllegalCrossingOfPedestrianStopWatch.isRunning()) {
+            this.timeWaitingDueToIllegalCrossingOfPedestrianStopWatch.start();
+        }
+    }
+
+    public void stopAdditionalWaiting() {
+        if (this.timeWaitingDueToIllegalCrossingOfPedestrianStopWatch.isRunning()) {
+            double res = this.timeWaitingDueToIllegalCrossingOfPedestrianStopWatch.stop();
+            this.timeWaitingDueToIllegalCrossingOfPedestrian.update(new TimeSpan(res));
         }
     }
 

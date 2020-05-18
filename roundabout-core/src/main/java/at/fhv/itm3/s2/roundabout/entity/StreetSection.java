@@ -444,8 +444,8 @@ public class StreetSection extends Street {
            for ( ICar icar : carQueue) {
                if ( icar instanceof RoundaboutCar) {
                    RoundaboutCar car = (RoundaboutCar) icar;
-                   if (!car.timeWaitingDueToIllegalCrossingOfPedestrianStopWatch.isRunning()) {
-                       car.timeWaitingDueToIllegalCrossingOfPedestrianStopWatch.start();
+                   if (!car.additionalWaitingIsRunning()) {
+                       car.startAdditionalWaiting();
                    }
                }
            }
@@ -454,9 +454,8 @@ public class StreetSection extends Street {
            for ( ICar icar : carQueue) {
                if ( icar instanceof RoundaboutCar) {
                    RoundaboutCar car = (RoundaboutCar) icar;
-                   if (car.timeWaitingDueToIllegalCrossingOfPedestrianStopWatch.isRunning()) {
-                       double res = car.timeWaitingDueToIllegalCrossingOfPedestrianStopWatch.stop();
-                       car.timeWaitingDueToIllegalCrossingOfPedestrian.update(new TimeSpan(res));
+                   if (car.additionalWaitingIsRunning()) {
+                       car.stopAdditionalWaiting();
                    }
                }
            }
