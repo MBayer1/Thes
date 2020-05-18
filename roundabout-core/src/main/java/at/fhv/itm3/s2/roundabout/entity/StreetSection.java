@@ -445,7 +445,6 @@ public class StreetSection extends Street {
                if ( icar instanceof RoundaboutCar) {
                    RoundaboutCar car = (RoundaboutCar) icar;
                    car.startAdditionalWaiting();
-
                }
            }
 
@@ -454,7 +453,6 @@ public class StreetSection extends Street {
                if ( icar instanceof RoundaboutCar) {
                    RoundaboutCar car = (RoundaboutCar) icar;
                    car.stopAdditionalWaiting();
-
                }
            }
        }
@@ -482,12 +480,16 @@ public class StreetSection extends Street {
                     //  check high of pedestrian by illegal crossing
                     double carHigh = pedestrianCrossingEnter.getGlobalPositionOfStreetAndCrossingIntersectionInCM().getX();
                     double pedestrianHigh = currPos.getX();
-                    if(Math.abs(carHigh-pedestrianHigh) < (minDistanceToPedestiranToKeepDrivingInM * 100)) return false;
+                    if(Math.abs(carHigh-pedestrianHigh) < (minDistanceToPedestiranToKeepDrivingInM * 100)) {
+                        return false;
+                    }
                 } else {
                     // car drives along x axis
                     double carHigh = pedestrianCrossingEnter.getGlobalPositionOfStreetAndCrossingIntersectionInCM().getY();
                     double pedestrianHigh = currPos.getY();
-                    if(Math.abs(carHigh-pedestrianHigh) < (minDistanceToPedestiranToKeepDrivingInM * 100)) return false;
+                    if(Math.abs(carHigh-pedestrianHigh) < (minDistanceToPedestiranToKeepDrivingInM * 100)) {
+                        return false;
+                    }
                 }
             }
         }
