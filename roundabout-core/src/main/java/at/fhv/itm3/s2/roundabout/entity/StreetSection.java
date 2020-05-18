@@ -466,8 +466,7 @@ public class StreetSection extends Street {
 
     public boolean firstCarCouldEnterNextSection_CheckIllegalCrossing () {
         // when there is a pedestrian crossing at the end of the street and it does have a traffic light it has to be red to leave section
-        if( pedestrianCrossingEnter != null &&
-                pedestrianCrossingEnter.getPedestrianCrossing().getPedestrianConsumerType().equals(PedestrianConsumerType.PEDESTRIAN_CROSSING)){
+        if( pedestrianCrossingEnter != null){
             // when is a non pedestrian traffic for controlling check pedestrian iin on pedestrian crossing.
             // check  for height of pedestrians
             for (IPedestrian pedestrian : pedestrianCrossingEnter.getPedestrianCrossing().getPedestrianQueue()) {
@@ -484,16 +483,16 @@ public class StreetSection extends Street {
                     //  check high of pedestrian by illegal crossing
                     double carHigh = pedestrianCrossingEnter.getGlobalPositionOfStreetAndCrossingIntersectionInCM().getX();
                     double pedestrianHigh = ((Pedestrian) pedestrian).getGlobalCoordinatesOfCurrentSection().getX();
-                    if(Math.abs(carHigh-pedestrianHigh) < (minDistanceToPedestiranToKeepDrivingInM * 100)) return false;
+                    if(Math.abs(carHigh-pedestrianHigh) > (minDistanceToPedestiranToKeepDrivingInM * 100)) return true;
                 } else {
                     // car drives along x axis
                     double carHigh = pedestrianCrossingEnter.getGlobalPositionOfStreetAndCrossingIntersectionInCM().getY();
                     double pedestrianHigh = ((Pedestrian) pedestrian).getGlobalCoordinatesOfCurrentSection().getY();
-                    if(Math.abs(carHigh-pedestrianHigh) < (minDistanceToPedestiranToKeepDrivingInM * 100)) return false;
+                    if(Math.abs(carHigh-pedestrianHigh) > (minDistanceToPedestiranToKeepDrivingInM * 100)) return true;
                 }
             }
         }
-        return true;
+        return false;
     }
 
     public boolean firstCarCouldEnterNextSection_CheckCar() {

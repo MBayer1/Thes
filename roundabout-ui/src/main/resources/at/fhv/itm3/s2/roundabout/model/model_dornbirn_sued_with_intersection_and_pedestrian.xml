@@ -52,8 +52,8 @@
     <components>
         <component id="p1" type="PEDESTRIANWALKINGAREA" name="Zebrastreifen">
             <sources>
-                <source id="pso1" sectionId="ps1" generatorExpectation="1000.0"/>
-                <source id="pso2" sectionId="ps2" generatorExpectation="1000.0"/>
+                <source id="pso1" sectionId="ps1" generatorExpectation="100.0"/>
+                <source id="pso2" sectionId="ps2" generatorExpectation="100.0"/>
             </sources>
 
             <sinks>
@@ -133,11 +133,10 @@
                 <sink id="sk_s17_t1"/>
             </sinks>
             <sections>
-                <section id="s1_t1" lengthX="110.45" isTrafficLightActive="true" greenPhaseDuration="18"
-                         redPhaseDuration="50"
+                <section id="s1_t1" lengthX="110.45"
                          pedestrianCrossingComponentIDRef="p1" pedestrianCrossingIDRef="psc1"
                          pedestrianCrossingIDRefEnterHigh="285"
-                         pedestrianCrossingRefLinkedAtBegin="y" /> <!--entry high in cm-->
+                         pedestrianCrossingRefLinkedAtBegin="y" /> entry high in cm
 
                 <section id="s2_t1" lengthX="110.45"
                          pedestrianCrossingComponentIDRef="p1" pedestrianCrossingIDRef="psc1"
