@@ -131,6 +131,18 @@ public interface IPedestrian {
     void leavePedestrianArea();
 
     /**
+     * Used for statistical values. Starts a stopwatch to determine the
+     * time spent on waiting.
+     */
+    void startPedestrianWaiting();
+
+    /**
+     * Used for statistical values. Stops the stopwatch that is used for
+     * determining the time spent on waiting.
+     */
+    void endPedestrianWaiting();
+
+    /**
      * Used for statistical values. Returns the mean time spend on the pedestrian area.
      *
      * @return  the mean time the pedestrian used to pass a street crossing as model time units

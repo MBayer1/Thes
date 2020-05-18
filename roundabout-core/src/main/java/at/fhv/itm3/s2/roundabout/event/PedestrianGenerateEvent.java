@@ -151,6 +151,7 @@ public class PedestrianGenerateEvent extends Event<PedestrianAbstractSource> {
 
             final Pedestrian pedestrian = new Pedestrian(roundaboutSimulationModel, name, showInTrace, globalEntryPoint, behaviour, route);
             PedestrianController.addCarMapping(pedestrian.getCarDummy(), pedestrian);
+            pedestrian.enterSystem();
             if (checkPedestrianCanEnterSystem(pedestrian, globalEntryPoint, (PedestrianStreetSection)currentSection)) {
                 pedestrian.enterSystem();
                 ((PedestrianStreetSection) currentSection).addPedestrian(pedestrian, globalEntryPoint);
@@ -180,8 +181,8 @@ public class PedestrianGenerateEvent extends Event<PedestrianAbstractSource> {
     }
 
     private boolean checkPedestrianCanEnterSystem(Pedestrian pedestrian, PedestrianPoint globalEnterPoint, PedestrianStreetSection section) {
-        Pedestrian pedestrianToEnter = null;
-        if (section.reCheckPedestrianCanEnterSection(pedestrianToEnter)) { // after some movements recheck pedestrians in queue
+        Pedestrian pedestrianToEnter = section.reCheckPedestrianCanEnterSection();
+        if ( pedestrianToEnter != null) { // after some movements recheck pedestrians in queue
             pedestrianEventFactory.createPedestrianReachedAimEvent(roundaboutSimulationModel).schedule(
                     pedestrianToEnter, new TimeSpan(10, roundaboutSimulationModel.getModelTimeUnit()));
         }
@@ -189,6 +190,7 @@ public class PedestrianGenerateEvent extends Event<PedestrianAbstractSource> {
             section.addPedestriansQueueToEnter(pedestrian, globalEnterPoint, section);
             return false;
         }
+        pedestrian.enterPedestrianArea();
         return true;
     }
 }

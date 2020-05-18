@@ -550,20 +550,18 @@ public class PedestrianStreetSection extends PedestrianStreet {
 
     public void addPedestriansQueueToEnter(Pedestrian pedestrian, PedestrianPoint globalEnterPoint, PedestrianStreetSection section){
 
-        /*if(pedestriansQueueToEnter.size() >= 1000) { TODO
+        if(pedestriansQueueToEnter.size() >= 1000) { //TODO
             throw new IllegalStateException("lower generation  of pedestrians que is too long.");
-        }*/
-
-        if (!pedestrian.pedestriansQueueToEnterTimeStopWatch.isRunning()) {
-            pedestrian.pedestriansQueueToEnterCounter.update();
-            pedestrian.pedestriansQueueToEnterTimeStopWatch.start();
         }
+
+        pedestrian.enteringWaitingQue();
         synchronized(pedestriansQueueToEnter) {
             section.pedestriansQueueToEnter.add(new PedestrianWaitingListElement(pedestrian, globalEnterPoint, section));
         }
     }
 
-    public boolean reCheckPedestrianCanEnterSection(Pedestrian pedestrian) {
+    public Pedestrian reCheckPedestrianCanEnterSection() {
+        Pedestrian pedestrian = null;
         synchronized(pedestriansQueueToEnter) {
             for (PedestrianWaitingListElement pedestrianToEnter : pedestriansQueueToEnter) {
                 // due to list fifo is considered
@@ -578,17 +576,18 @@ public class PedestrianStreetSection extends PedestrianStreet {
                     ((Pedestrian) pedestrianToEnter.getPedestrian()).setCurrentLocalPosition(); // do this after adding to street section
 
                     pedestriansQueueToEnter.remove(pedestrianToEnter);
+                    pedestrian.leavingWaitingQue();
                     pedestriansQueueToEnter.notifyAll();
 
                     if (((Pedestrian) pedestrianToEnter.getPedestrian()).pedestriansQueueToEnterTimeStopWatch.isRunning()) {
                         double res = ((Pedestrian) pedestrianToEnter.getPedestrian()).pedestriansQueueToEnterTimeStopWatch.stop();
                         ((Pedestrian) pedestrianToEnter.getPedestrian()).pedestriansQueueToEnterTime.update(new TimeSpan(res));
                     }
-                    return true;
+                    return pedestrian;
                 }
             }
         }
-        return false;
+        return pedestrian;
     }
 
     public boolean checkPedestrianCanEnterSection (PedestrianWaitingListElement element) {

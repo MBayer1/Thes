@@ -230,4 +230,12 @@ public interface ICar {
      * @return      the distance as model length unit
      */
     double getCoveredDistanceInTime(double time);
+
+    /**
+     * Used for statistical values. Returns the mean time was waiting due to illegal crossing by pedestrian.
+     * Delegates the call to the Trafsim car object.
+     *
+     * @return  the mean time the car was waiting due to illegal crossing by pedestrian in model time units
+     */
+    double getMeanTimeWaitingDueToIllegalCrossingOfPedestrian();
 }

@@ -22,9 +22,11 @@ public class RoundaboutCar implements ICar {
     private final IRoute route;
     private final IDriverBehaviour driverBehaviour;
     private final Iterator<IConsumer> routeIterator;
-    private final StopWatch roundaboutStopWatch;
+    public final StopWatch roundaboutStopWatch;
+    public final StopWatch timeWaitingDueToIllegalCrossingOfPedestrianStopWatch;
     private final Count roundaboutCounter;
     private final Tally roundaboutTime;
+    public final Tally timeWaitingDueToIllegalCrossingOfPedestrian;
     private final StopWatch stopsStopWatch;
 
     private double lastUpdateTime;
@@ -66,11 +68,14 @@ public class RoundaboutCar implements ICar {
         this.setLastUpdateTime(getRoundaboutModel().getCurrentTime());
 
         this.roundaboutStopWatch = new StopWatch(model);
+        this.timeWaitingDueToIllegalCrossingOfPedestrianStopWatch = new StopWatch(model);
         this.stopsStopWatch = new StopWatch(model);
         this.roundaboutCounter = new Count(model,  "Roundabout counter", false, false);
         this.roundaboutCounter.reset();
         this.roundaboutTime = new Tally(model, "Roundabout time", false, false);
         this.roundaboutTime.reset();
+        this.timeWaitingDueToIllegalCrossingOfPedestrian = new Tally(model, "Roundabout time", false, false);
+        this.timeWaitingDueToIllegalCrossingOfPedestrian.reset();
     }
 
     public Car getOldImplementationCar() {
@@ -349,4 +354,10 @@ public class RoundaboutCar implements ICar {
     public double getCoveredDistanceInTime(double time) {
         return time * driverBehaviour.getSpeed();
     }
+
+    public double getMeanTimeWaitingDueToIllegalCrossingOfPedestrian() {
+        return this.timeWaitingDueToIllegalCrossingOfPedestrian.getObservations() <= 0L
+                ? 0.0D : this.timeWaitingDueToIllegalCrossingOfPedestrian.getMean();
+    }
+
 }

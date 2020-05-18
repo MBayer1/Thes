@@ -22,6 +22,7 @@ public class RoundaboutSink extends AbstractSink {
     private double meanWaitingTimePerStop;
     private double meanStopCount;
     private double meanIntersectionPassTime;
+    private double meanTimeWaitingDueToIllegalCrossingOfPedestrian;
 
     public RoundaboutSink(Model owner, String name, boolean showInTrace) {
         this(UUID.randomUUID().toString(), owner, name, showInTrace);
@@ -35,6 +36,7 @@ public class RoundaboutSink extends AbstractSink {
         this.meanWaitingTimePerStop = 0;
         this.meanStopCount = 0;
         this.meanIntersectionPassTime = 0;
+        this.meanTimeWaitingDueToIllegalCrossingOfPedestrian = 0;
     }
 
     /**
@@ -72,6 +74,7 @@ public class RoundaboutSink extends AbstractSink {
         meanWaitingTimePerStop = meanWaitingTimePerStop * dPreviousRate + car.getMeanWaitingTime()/ getNrOfEnteredCars();
         meanStopCount = meanStopCount * dPreviousRate + car.getStopCount()/ getNrOfEnteredCars();
         meanIntersectionPassTime = meanIntersectionPassTime * dPreviousRate + car.getMeanIntersectionPassTime()/ getNrOfEnteredCars();
+        meanTimeWaitingDueToIllegalCrossingOfPedestrian = meanTimeWaitingDueToIllegalCrossingOfPedestrian * dPreviousRate + car.getMeanTimeWaitingDueToIllegalCrossingOfPedestrian()/ getNrOfEnteredCars();
     }
 
     /**
@@ -273,4 +276,6 @@ public class RoundaboutSink extends AbstractSink {
     @Override
     public double getMeanIntersectionPassTimeForEnteredCars() { return meanIntersectionPassTime;
     }
+
+    public double getMeanTimeWaitingDueToIllegalCrossingOfPedestrian() {return meanTimeWaitingDueToIllegalCrossingOfPedestrian;}
 }

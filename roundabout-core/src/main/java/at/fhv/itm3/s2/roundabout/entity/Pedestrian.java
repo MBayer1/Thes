@@ -22,21 +22,21 @@ public class Pedestrian extends Entity implements IPedestrian {
     private final IPedestrianRoute route;
     private final IPedestrianBehaviour pedestrianBehaviour;
     private final Iterator<PedestrianStreetSectionAndPortPair> routeIterator;
-    private final StopWatch pedestrianStopWatch; // this was prepared for waiting areas
-    private final Count pedestrianCounter; // this was prepared for waiting areas
-    private final Tally pedestrianAreaTime; // this was prepared for waiting areas
+    private final StopWatch pedestrianAreaStopWatch;
+    private final Tally pedestrianAreaTime;
     private final StopWatch pedestrianCrossingStopWatch;
     private final Count pedestrianCrossingCounter;
     private final Tally pedestrianCrossingTime;
+    private final StopWatch pedestrianWaitingStopWatch;
+    private final Count pedestrianWaitingCounter;
+    private final Tally pedestrianWaitingTime;
     private double currentTimeSpendInSystem;
+    public final Tally pedestriansQueueToEnterTime;
+    public final StopWatch pedestriansQueueToEnterTimeStopWatch;
 
     private double lastUpdateTime;
     private PedestrianPoint currentGlobalPosition;
     private PedestrianPoint currentLocalPosition;
-
-    public final Count pedestriansQueueToEnterCounter;
-    public final Tally pedestriansQueueToEnterTime;
-    public final StopWatch pedestriansQueueToEnterTimeStopWatch;
 
     private PedestrianStreetSection lastSection;
     private PedestrianStreetSectionAndPortPair currentSection;
@@ -49,9 +49,6 @@ public class Pedestrian extends Entity implements IPedestrian {
     private Double startOfWalking;
     private Double futureEndOfWalking;
     private Double walkingSpeedByStartOfWalking;
-
-    private Double enterSystemTime;
-    private Double leaveSystemTime;
 
     SupportiveCalculations calc = new SupportiveCalculations();
 
@@ -94,9 +91,7 @@ public class Pedestrian extends Entity implements IPedestrian {
 
         this.setLastUpdateTime();
 
-        this.pedestrianStopWatch = new StopWatch(model);
-        this.pedestrianCounter = new Count(model, "Roundabout counter", false, false);
-        this.pedestrianCounter.reset();
+        this.pedestrianAreaStopWatch = new StopWatch(model);
         this.pedestrianAreaTime = new Tally(model, "Roundabout time", false, false);
         this.pedestrianAreaTime.reset();
 
@@ -106,10 +101,14 @@ public class Pedestrian extends Entity implements IPedestrian {
         this.pedestrianCrossingTime = new Tally(model, "Roundabout time", false, false);
         this.pedestrianCrossingTime.reset();
 
-        // coordinates are always at center of pedestrian, min gab simulates als the radius of pedestrian
 
-        this.pedestriansQueueToEnterCounter = new Count(model, "Roundabout counter", false, false);
-        this.pedestriansQueueToEnterCounter.reset();
+        this.pedestrianWaitingStopWatch = new StopWatch(model);
+        this.pedestrianWaitingCounter = new Count(model, "Roundabout counter", false, false);
+        this.pedestrianWaitingCounter.reset();
+        this.pedestrianWaitingTime = new Tally(model, "Roundabout time", false, false);
+        this.pedestrianWaitingTime.reset();
+
+        // coordinates are always at center of pedestrian, min gab simulates als the radius of pedestrian
         this.pedestriansQueueToEnterTime = new Tally(model, "Roundabout time", false, false);
         this.pedestriansQueueToEnterTimeStopWatch = new StopWatch(model);
     }
@@ -174,7 +173,8 @@ public class Pedestrian extends Entity implements IPedestrian {
             calcResult = 0; // no current speed = waiting
         } else
         if(calcResult < 1 && getCurrentSpeed() > 0) { // 1 time unit, in this case 1sec
-            throw new  IllegalStateException("Something went wrong. Suspicious transferee time of Pedestrian.");
+            double as = 2;
+            //throw new  IllegalStateException("Something went wrong. Suspicious transferee time of Pedestrian.");
         }
         return calcResult;
     }
@@ -370,6 +370,26 @@ public class Pedestrian extends Entity implements IPedestrian {
      * {@inheritDoc}
      */
     @Override
+    public void startPedestrianWaiting() {
+        this.pedestrianWaitingCounter.update();
+        this.pedestrianWaitingStopWatch.start();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void endPedestrianWaiting() {
+        if (this.pedestrianWaitingStopWatch.isRunning()) {
+            double res = this.pedestrianWaitingStopWatch.stop();
+            this.pedestrianWaitingTime.update(new TimeSpan(res));
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public double getMeanStreetCrossingPassTime() {
         return this.pedestrianCrossingTime.getObservations() <= 0L ? 0.0D : this.pedestrianCrossingTime.getMean();
     }
@@ -379,9 +399,8 @@ public class Pedestrian extends Entity implements IPedestrian {
      */
     @Override
     public void enterPedestrianArea() {
-        this.pedestrianCounter.update();
-        if(!this.pedestrianStopWatch.isRunning()) {
-            this.pedestrianStopWatch.start();
+        if(!this.pedestrianAreaStopWatch.isRunning()) {
+            this.pedestrianAreaStopWatch.start();
         }
     }
 
@@ -390,8 +409,8 @@ public class Pedestrian extends Entity implements IPedestrian {
      */
     @Override
     public void leavePedestrianArea() {
-        if(pedestrianStopWatch.isRunning()) {
-            double res = this.pedestrianStopWatch.stop();
+        if(pedestrianAreaStopWatch.isRunning()) {
+            double res = this.pedestrianAreaStopWatch.stop();
             this.pedestrianAreaTime.update(new TimeSpan(res));
         }
     }
@@ -408,14 +427,14 @@ public class Pedestrian extends Entity implements IPedestrian {
         if (!isWaiting()) {
             car.startWaiting();
         }
-        if (!this.pedestrianStopWatch.isRunning()) {
-            this.pedestrianStopWatch.start();
+        if (!this.pedestrianAreaStopWatch.isRunning()) {
+            this.pedestrianAreaStopWatch.start();
         }
     }
 
     public void stopWaiting() {
-        if (this.pedestrianStopWatch.isRunning()) {
-            this.pedestrianStopWatch.stop();
+        if (this.pedestrianAreaStopWatch.isRunning()) {
+            this.pedestrianAreaStopWatch.stop();
         } else {
             car.stopWaiting();
         }
@@ -433,11 +452,7 @@ public class Pedestrian extends Entity implements IPedestrian {
         return car.getMeanWaitingTime();
     }
 
-    public double getWaitingBeforeEnteringCount() {
-        return this.pedestriansQueueToEnterCounter.getValue();
-    }
-
-    public double getMeanWaitingBeforeEnteringsTime() {
+    public double getMeanWaitingBeforeEnteringTime() {
         return this.pedestriansQueueToEnterTime.getObservations() <= 0L ? 0.0D : this.pedestriansQueueToEnterTime.getMean();
     }
 
@@ -1007,4 +1022,18 @@ public class Pedestrian extends Entity implements IPedestrian {
     public double getWalkingSpeedByStartOfWalking () {
         return this.walkingSpeedByStartOfWalking;
     }
+
+    public void enteringWaitingQue () {
+        if (!pedestriansQueueToEnterTimeStopWatch.isRunning()) {
+            pedestriansQueueToEnterTimeStopWatch.start();
+        }
+    }
+
+    public void leavingWaitingQue () {
+        if (pedestriansQueueToEnterTimeStopWatch.isRunning()) {
+            double tmp = pedestriansQueueToEnterTimeStopWatch.stop();
+            pedestriansQueueToEnterTime.update(new TimeSpan(tmp));
+        }
+    }
+
 }
