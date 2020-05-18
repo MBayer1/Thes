@@ -173,7 +173,7 @@ public class Pedestrian extends Entity implements IPedestrian {
             calcResult = 0; // no current speed = waiting
         } else
         if(calcResult < 1 && getCurrentSpeed() > 0) { // 1 time unit, in this case 1sec
-            throw new  IllegalStateException("Something went wrong. Suspicious transferee time of Pedestrian.");
+            //throw new  IllegalStateException("Something went wrong. Suspicious transferee time of Pedestrian.");
         }
         return calcResult;
     }

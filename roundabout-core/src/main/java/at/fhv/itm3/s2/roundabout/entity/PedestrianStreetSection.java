@@ -28,7 +28,6 @@ public class PedestrianStreetSection extends PedestrianStreet {
     private boolean flexiBorderAlongX = true; // needed for type PedestrianCrossing
     SupportiveCalculations calculations = new SupportiveCalculations();
 
-    //public List<PedestrianWaitingListElement> pedestriansQueueToEnter;
     public List<PedestrianWaitingListElement> pedestriansQueueToEnter;
 
 
@@ -552,6 +551,7 @@ public class PedestrianStreetSection extends PedestrianStreet {
 
         if(pedestriansQueueToEnter.size() >= 1000) { //TODO
             //throw new IllegalStateException("lower generation  of pedestrians que is too long.");
+            double ad = 1;
         }
 
         pedestrian.enteringWaitingQue();
@@ -561,6 +561,7 @@ public class PedestrianStreetSection extends PedestrianStreet {
     }
 
     public Pedestrian reCheckPedestrianCanEnterSection() {
+        /* TODo
         Pedestrian pedestrian = null;
         synchronized(pedestriansQueueToEnter) {
             for (PedestrianWaitingListElement pedestrianToEnter : pedestriansQueueToEnter) {
@@ -586,7 +587,8 @@ public class PedestrianStreetSection extends PedestrianStreet {
                 }
             }
         }
-        return pedestrian;
+        return pedestrian;*/
+        return null;
     }
 
     public boolean checkPedestrianCanEnterSection (PedestrianWaitingListElement element) {

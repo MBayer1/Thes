@@ -99,7 +99,7 @@ public class StatsViewController extends JfxController {
                 final long longValue = rawValue != null ? Long.valueOf(rawValue) : 0;
                 final long is_counter = Math.max(longValue - streetSection.getNrOfLeftCars(), 0);
                 Platform.runLater(() ->
-                    lblSourceIS.setText(toStringOrEmpty(is_counter))
+                        lblSourceIS.setText(toStringOrEmpty(is_counter))
                 );
             });
 
@@ -107,12 +107,12 @@ public class StatsViewController extends JfxController {
                 final String rawValue = toStringOrEmpty(arg);
                 final long longValue = rawValue != null ? Long.valueOf(rawValue) : 0;
                 Platform.runLater(() ->
-                    lblSourcePS.setText(rawValue)
+                        lblSourcePS.setText(rawValue)
                 );
 
                 final long is_counter = Math.max(streetSection.getNrOfEnteredCars() - longValue, 0);
                 Platform.runLater(() ->
-                    lblSourceIS.setText(toStringOrEmpty(is_counter))
+                        lblSourceIS.setText(toStringOrEmpty(is_counter))
                 );
             });
         });
@@ -184,11 +184,8 @@ public class StatsViewController extends JfxController {
 
             sink.addObserver(ObserverType.CAR_ENTITY, (o, arg) -> {
                 final Double carWaitTime = sink.getMeanWaitingTimePerStopForEnteredCars();
-                final Double carAdditionalWaitTime = sink.getMeanTimeWaitingDueToIllegalCrossingOfPedestrian();
+                //final Double carAdditionalWaitTime = sink.getMeanTimeWaitingDueToIllegalCrossingOfPedestrian();
 
-                if (carAdditionalWaitTime > 0) {
-                    double as = 5;
-                }
 
                 final double minValue = sinkMinStats.getOrDefault(sinkMin, Double.MAX_VALUE);
                 if (carWaitTime < minValue || !sinkMinStats.containsKey(sinkMin)) {
@@ -247,7 +244,7 @@ public class StatsViewController extends JfxController {
                     });
                 }
 
-                /////////////////////////////////////////////////////////////////
+                /*////////////////////////////////////////////////////////////////
                 final String sinkAvgWaitValue = toStringOrEmpty(carAdditionalWaitTime, DOUBLE_STRING_FORMATTER_FUNCTION);
                 final OptionalDouble optionalAvgSinkAvgWaitValue = sinkAvgAddWaitStats.values().stream().mapToDouble(v -> v).average();
                 final String avgSinkAvgWaitValue;
@@ -262,6 +259,9 @@ public class StatsViewController extends JfxController {
                     lblSinkAdditionalWaiting.setText(sinkAvgWaitValue);
                     lblAvgAddWaiting.setText(avgSinkAvgWaitValue);
                 });
+
+                */
+
             });
         });
 
