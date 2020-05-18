@@ -444,9 +444,8 @@ public class StreetSection extends Street {
            for ( ICar icar : carQueue) {
                if ( icar instanceof RoundaboutCar) {
                    RoundaboutCar car = (RoundaboutCar) icar;
-                   if (!car.additionalWaitingIsRunning()) {
-                       car.startAdditionalWaiting();
-                   }
+                   car.startAdditionalWaiting();
+
                }
            }
 
@@ -454,9 +453,8 @@ public class StreetSection extends Street {
            for ( ICar icar : carQueue) {
                if ( icar instanceof RoundaboutCar) {
                    RoundaboutCar car = (RoundaboutCar) icar;
-                   if (car.additionalWaitingIsRunning()) {
-                       car.stopAdditionalWaiting();
-                   }
+                   car.stopAdditionalWaiting();
+
                }
            }
        }
@@ -478,21 +476,22 @@ public class StreetSection extends Street {
                     throw new IllegalStateException("type miss match.");
                 }
                 PedestrianStreetSection  crossingSection = (PedestrianStreetSection) (pedestrianCrossingEnter.getPedestrianCrossing());
+                PedestrianPoint currPos = ((Pedestrian) pedestrian).getPositionByCurrTime();
                 if (crossingSection.isFlexiBorderAlongX()) {
                     // car drives along y axis
                     //  check high of pedestrian by illegal crossing
                     double carHigh = pedestrianCrossingEnter.getGlobalPositionOfStreetAndCrossingIntersectionInCM().getX();
-                    double pedestrianHigh = ((Pedestrian) pedestrian).getGlobalCoordinatesOfCurrentSection().getX();
-                    if(Math.abs(carHigh-pedestrianHigh) > (minDistanceToPedestiranToKeepDrivingInM * 100)) return true;
+                    double pedestrianHigh = currPos.getX();
+                    if(Math.abs(carHigh-pedestrianHigh) < (minDistanceToPedestiranToKeepDrivingInM * 100)) return false;
                 } else {
                     // car drives along x axis
                     double carHigh = pedestrianCrossingEnter.getGlobalPositionOfStreetAndCrossingIntersectionInCM().getY();
-                    double pedestrianHigh = ((Pedestrian) pedestrian).getGlobalCoordinatesOfCurrentSection().getY();
-                    if(Math.abs(carHigh-pedestrianHigh) > (minDistanceToPedestiranToKeepDrivingInM * 100)) return true;
+                    double pedestrianHigh = currPos.getY();
+                    if(Math.abs(carHigh-pedestrianHigh) < (minDistanceToPedestiranToKeepDrivingInM * 100)) return false;
                 }
             }
         }
-        return false;
+        return true;
     }
 
     public boolean firstCarCouldEnterNextSection_CheckCar() {

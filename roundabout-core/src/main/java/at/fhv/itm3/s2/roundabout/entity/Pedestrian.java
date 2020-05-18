@@ -178,6 +178,21 @@ public class Pedestrian extends Entity implements IPedestrian {
         return calcResult;
     }
 
+    public PedestrianPoint getPositionByCurrTime(){
+        double timeDiff = futureEndOfWalking - getRoundaboutModel().getCurrentTime();
+        double traffeledPath = getCurrentSpeed() * timeDiff;
+
+        Vector2d curPos = new Vector2d(currentGlobalPosition.getX(), currentGlobalPosition.getY());
+        Vector2d dir = new Vector2d(currentGlobalPosition.getX(), currentGlobalPosition.getY());
+        dir.sub(new Vector2d(currentNextGlobalAim.getX(), currentNextGlobalAim.getY()));
+
+        dir = calc.getUnitVector(dir);
+        dir.scale(traffeledPath);
+        curPos.add(dir);
+
+        return new PedestrianPoint(curPos);
+    }
+
 
     /**
      * {@inheritDoc}
