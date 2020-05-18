@@ -551,7 +551,7 @@ public class PedestrianStreetSection extends PedestrianStreet {
     public void addPedestriansQueueToEnter(Pedestrian pedestrian, PedestrianPoint globalEnterPoint, PedestrianStreetSection section){
 
         if(pedestriansQueueToEnter.size() >= 1000) { //TODO
-            throw new IllegalStateException("lower generation  of pedestrians que is too long.");
+            //throw new IllegalStateException("lower generation  of pedestrians que is too long.");
         }
 
         pedestrian.enteringWaitingQue();

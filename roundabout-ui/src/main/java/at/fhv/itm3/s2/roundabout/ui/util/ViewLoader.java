@@ -78,6 +78,10 @@ public class ViewLoader<T extends IJfxController> {
         return new ViewLoader<>(controllerClass);
     }
 
+    public static <T extends IJfxController> ViewLoader<T> loadViewPedestrian(Class<T> controllerClass) {
+        return new ViewLoader<>(controllerClass);
+    }
+
     /**
      * ViewLoaderException class which is used (returned) to indicate problem on
      * the view-loading stage.

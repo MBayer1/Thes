@@ -52,8 +52,8 @@
     <components>
         <component id="p1" type="PEDESTRIANWALKINGAREA" name="Zebrastreifen">
             <sources>
-                <source id="pso1" sectionId="ps1" generatorExpectation="10000.0"/>
-                <source id="pso2" sectionId="ps2" generatorExpectation="10000.0"/>
+                <source id="pso1" sectionId="ps1" generatorExpectation="100.0"/>
+                <source id="pso2" sectionId="ps2" generatorExpectation="100.0"/>
             </sources>
 
             <sinks>

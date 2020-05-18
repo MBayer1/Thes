@@ -19,7 +19,7 @@ import java.net.URL;
 import java.util.*;
 import java.util.function.Function;
 
-public class StatsViewController extends JfxController {
+public class StatsViewControllerPedestrian extends JfxController {
 
     private static final String KEY_FORMAT = "%s%s";
 
@@ -38,7 +38,6 @@ public class StatsViewController extends JfxController {
     private final Map<String, Double> sinkMinStats = new HashMap<>();
     private final Map<String, Double> sinkAvgStats = new HashMap<>();
     private final Map<String, Double> sinkMaxStats = new HashMap<>();
-    private final Map<String, Double> sinkAvgAddWaitStats = new HashMap<>();
 
     @FXML private TitledPane paneStatsTitle;
 
@@ -52,8 +51,6 @@ public class StatsViewController extends JfxController {
     @FXML private VBox sinkAvgContainer;
     @FXML private VBox sinkMaxContainer;
 
-    @FXML private VBox sinkAvgWaitDueToIllegalCrossing;
-
     /**
      * {@inheritDoc}
      */
@@ -61,16 +58,157 @@ public class StatsViewController extends JfxController {
     public void initialize(URL location, ResourceBundle resources) {
     }
 
+    public void generateStatLabelsPedestrian(String title, Collection<PedestrianStreetSection> streetSections, Collection<PedestrianSink> sinks) {
+        Platform.runLater(() -> paneStatsTitle.setText(title));
 
-    public void generateStatLabels(String title, Collection<StreetSection> streetSections, Collection<RoundaboutSink> sinks) {
+        //generateStreetSectionLabelsPedestrian(streetSections);
+        //generateSinkLabelsPedestrian(sinks);
+    }
+
+
+    private void generateSinkLabelsPedestrian(Collection<PedestrianSink> sinks) {
+        final Label lblAverageSink = new Label(AVG);
+        final Label lblPSAverageSink = new Label(NOT_AVAILABLE);
+        final Label lblMinAverageSink = new Label(NOT_AVAILABLE);
+        final Label lblAvgAverageSink = new Label(NOT_AVAILABLE);
+        final Label lblMaxAverageSink = new Label(NOT_AVAILABLE);
+
+        sinks.stream().sorted(Comparator.comparing(PedestrianSink::getId)).forEach(sink -> {
+            final String sinkMin = String.format(KEY_FORMAT, sink.getId(), SINK_MIN_SUFFIX);
+            final String sinkAvg = String.format(KEY_FORMAT, sink.getId(), SINK_AVG_SUFFIX);
+            final String sinkMax = String.format(KEY_FORMAT, sink.getId(), SINK_MAX_SUFFIX);
+
+            final Label lblSinkId = new Label(sink.getId());
+            final Rectangle trafficLight = new Rectangle(TRAFFIC_LIGHT_INDICATOR_SIZE, TRAFFIC_LIGHT_INDICATOR_SIZE, Color.GRAY);
+            trafficLight.setStroke(Color.BLACK);
+            lblSinkId.setGraphic(trafficLight);
+            sinkIdContainer.getChildren().add(lblSinkId);
+
+            final Label lblSinkPS = new Label(NOT_AVAILABLE);
+            sinkPSContainer.getChildren().add(lblSinkPS);
+
+            final Label lblSinkMin = new Label(NOT_AVAILABLE);
+            sinkMinContainer.getChildren().add(lblSinkMin);
+
+            final Label lblSinkAvg = new Label(NOT_AVAILABLE);
+            sinkAvgContainer.getChildren().add(lblSinkAvg);
+
+            final Label lblSinkMax = new Label(NOT_AVAILABLE);
+            sinkMaxContainer.getChildren().add(lblSinkMax);
+
+            sink.addObserver(ObserverType.TRAFFIC_LIGHT, ((o, arg) -> {
+                if (sink.isTrafficLightFreeToGo()) {
+                    trafficLight.setFill(Color.GREEN);
+                } else if (!sink.isTrafficLightActive()) {
+                    trafficLight.setFill(Color.GRAY);
+                } else {
+                    trafficLight.setFill(Color.RED);
+                }
+            }));
+
+            sink.addObserver(ObserverType.CAR_LEFT, (o, arg) -> {
+                final long nrOfLeftCars = sink.getNrOfLeftPedestrians();
+                final String rawValue = toStringOrEmpty(nrOfLeftCars);
+                sinkPSStats.put(sinkMax, nrOfLeftCars);
+
+                final OptionalDouble optionalAvgSinkPSValue = sinkPSStats.values().stream().mapToLong(v -> v).average();
+                final String avgSinkPSValue;
+                if (optionalAvgSinkPSValue.isPresent()) {
+                    avgSinkPSValue = toStringOrEmpty(optionalAvgSinkPSValue.getAsDouble(), DOUBLE_STRING_FORMATTER_FUNCTION);
+                } else {
+                    avgSinkPSValue = NOT_AVAILABLE;
+                }
+                Platform.runLater(() -> {
+                    lblSinkPS.setText(rawValue);
+                    lblPSAverageSink.setText(avgSinkPSValue);
+                });
+            });
+
+            sink.addObserver(ObserverType.CAR_ENTITY, (o, arg) -> {
+                final Double carWaitTime = sink.getMeanWaitingTimePerStopForEnteredPedestrians();
+
+                final double minValue = sinkMinStats.getOrDefault(sinkMin, Double.MAX_VALUE);
+                if (carWaitTime < minValue || !sinkMinStats.containsKey(sinkMin)) {
+                    sinkMinStats.put(sinkMin, carWaitTime);
+
+                    final String sinkMinValue = toStringOrEmpty(carWaitTime, DOUBLE_STRING_FORMATTER_FUNCTION);
+                    final OptionalDouble optionalAvgSinkMinValue = sinkMinStats.values().stream().mapToDouble(v -> v).average();
+                    final String avgSinkMinValue;
+                    if (optionalAvgSinkMinValue.isPresent()) {
+                        avgSinkMinValue = toStringOrEmpty(optionalAvgSinkMinValue.getAsDouble(), DOUBLE_STRING_FORMATTER_FUNCTION);
+                    } else {
+                        avgSinkMinValue = NOT_AVAILABLE;
+                    }
+
+                    Platform.runLater(() -> {
+                        lblSinkMin.setText(sinkMinValue);
+                        lblMinAverageSink.setText(avgSinkMinValue);
+                    });
+                }
+
+                final String sinkAvgValue = toStringOrEmpty(carWaitTime, DOUBLE_STRING_FORMATTER_FUNCTION);
+                final OptionalDouble optionalAvgSinkAvgValue = sinkAvgStats.values().stream().mapToDouble(v -> v).average();
+                final String avgSinkAvgValue;
+                if (optionalAvgSinkAvgValue.isPresent()) {
+                    avgSinkAvgValue = toStringOrEmpty(optionalAvgSinkAvgValue.getAsDouble(), DOUBLE_STRING_FORMATTER_FUNCTION);
+                } else {
+                    avgSinkAvgValue = NOT_AVAILABLE;
+                }
+
+                sinkAvgStats.put(sinkAvg, carWaitTime);
+                Platform.runLater(() -> {
+                    lblSinkAvg.setText(sinkAvgValue);
+                    lblAvgAverageSink.setText(avgSinkAvgValue);
+                });
+
+                final double maxValue = sinkMaxStats.getOrDefault(sinkMax, Double.MIN_VALUE);
+                if (carWaitTime > maxValue || !sinkMaxStats.containsKey(sinkMax)) {
+                    sinkMaxStats.put(sinkMax, carWaitTime);
+
+                    final String sinkMaxValue = toStringOrEmpty(carWaitTime, DOUBLE_STRING_FORMATTER_FUNCTION);
+                    final OptionalDouble optionalAvgSinkMaxValue = sinkMaxStats.values().stream().mapToDouble(v -> v).average();
+                    final String avgSinkMaxValue;
+                    if (optionalAvgSinkMaxValue.isPresent()) {
+                        avgSinkMaxValue = toStringOrEmpty(optionalAvgSinkMaxValue.getAsDouble(), DOUBLE_STRING_FORMATTER_FUNCTION);
+                    } else {
+                        avgSinkMaxValue = NOT_AVAILABLE;
+                    }
+
+                    Platform.runLater(() -> {
+                        lblSinkMax.setText(sinkMaxValue);
+                        lblMaxAverageSink.setText(avgSinkMaxValue);
+                    });
+                }
+            });
+        });
+
+        // Adding average value labels.
+        sinkIdContainer.getChildren().add(new Separator());
+        sinkIdContainer.getChildren().add(lblAverageSink);
+
+        sinkPSContainer.getChildren().add(new Separator());
+        sinkPSContainer.getChildren().add(lblPSAverageSink);
+
+        sinkMinContainer.getChildren().add(new Separator());
+        sinkMinContainer.getChildren().add(lblMinAverageSink);
+
+        sinkAvgContainer.getChildren().add(new Separator());
+        sinkAvgContainer.getChildren().add(lblAvgAverageSink);
+
+        sinkMaxContainer.getChildren().add(new Separator());
+        sinkMaxContainer.getChildren().add(lblMaxAverageSink);
+    }
+
+
+    public void generateStatLabels(String title, Collection<PedestrianStreetSection> streetSections, Collection<PedestrianSink> sinks) {
         Platform.runLater(() -> paneStatsTitle.setText(title));
 
         generateStreetSectionLabels(streetSections);
         generateSinkLabels(sinks);
     }
 
-    private void generateStreetSectionLabels(Collection<StreetSection> streetSections) {
-        streetSections.stream().sorted(Comparator.comparing(StreetSection::getId)).forEach(streetSection -> {
+    private void generateStreetSectionLabels(Collection<PedestrianStreetSection> streetSections) {
+        streetSections.stream().sorted(Comparator.comparing(PedestrianStreetSection::getId)).forEach(streetSection -> {
 
             final Label lblSourceId = new Label(streetSection.getId());
             final Rectangle trafficLight = new Rectangle(TRAFFIC_LIGHT_INDICATOR_SIZE, TRAFFIC_LIGHT_INDICATOR_SIZE, Color.GRAY);
@@ -97,7 +235,7 @@ public class StatsViewController extends JfxController {
             streetSection.addObserver(ObserverType.CAR_ENTERED, (o, arg) -> {
                 final String rawValue = toStringOrEmpty(arg) ;
                 final long longValue = rawValue != null ? Long.valueOf(rawValue) : 0;
-                final long is_counter = Math.max(longValue - streetSection.getNrOfLeftCars(), 0);
+                final long is_counter = Math.max(longValue - streetSection.getNrOfLeftPedestrians(), 0);
                 Platform.runLater(() ->
                     lblSourceIS.setText(toStringOrEmpty(is_counter))
                 );
@@ -110,7 +248,7 @@ public class StatsViewController extends JfxController {
                     lblSourcePS.setText(rawValue)
                 );
 
-                final long is_counter = Math.max(streetSection.getNrOfEnteredCars() - longValue, 0);
+                final long is_counter = Math.max(streetSection.getNrOfEnteredPedestrians() - longValue, 0);
                 Platform.runLater(() ->
                     lblSourceIS.setText(toStringOrEmpty(is_counter))
                 );
@@ -118,19 +256,17 @@ public class StatsViewController extends JfxController {
         });
     }
 
-    private void generateSinkLabels(Collection<RoundaboutSink> sinks) {
+    private void generateSinkLabels(Collection<PedestrianSink> sinks) {
         final Label lblAverageSink = new Label(AVG);
         final Label lblPSAverageSink = new Label(NOT_AVAILABLE);
         final Label lblMinAverageSink = new Label(NOT_AVAILABLE);
         final Label lblAvgAverageSink = new Label(NOT_AVAILABLE);
         final Label lblMaxAverageSink = new Label(NOT_AVAILABLE);
-        final Label lblAvgAddWaiting = new Label(NOT_AVAILABLE);
 
-        sinks.stream().sorted(Comparator.comparing(RoundaboutSink::getId)).forEach(sink -> {
+        sinks.stream().sorted(Comparator.comparing(PedestrianSink::getId)).forEach(sink -> {
             final String sinkMin = String.format(KEY_FORMAT, sink.getId(), SINK_MIN_SUFFIX);
             final String sinkAvg = String.format(KEY_FORMAT, sink.getId(), SINK_AVG_SUFFIX);
             final String sinkMax = String.format(KEY_FORMAT, sink.getId(), SINK_MAX_SUFFIX);
-            final String sinkMvgAddWait = String.format(KEY_FORMAT, sink.getId(), SINK_MAX_SUFFIX);
 
             final Label lblSinkId = new Label(sink.getId());
             final Rectangle trafficLight = new Rectangle(TRAFFIC_LIGHT_INDICATOR_SIZE, TRAFFIC_LIGHT_INDICATOR_SIZE, Color.GRAY);
@@ -150,10 +286,6 @@ public class StatsViewController extends JfxController {
             final Label lblSinkMax = new Label(NOT_AVAILABLE);
             sinkMaxContainer.getChildren().add(lblSinkMax);
 
-            final Label lblSinkAdditionalWaiting = new Label(NOT_AVAILABLE);
-            sinkAvgWaitDueToIllegalCrossing.getChildren().add(lblSinkAdditionalWaiting);
-
-
             sink.addObserver(ObserverType.TRAFFIC_LIGHT, ((o, arg) -> {
                 if (sink.isTrafficLightFreeToGo()) {
                     trafficLight.setFill(Color.GREEN);
@@ -165,7 +297,7 @@ public class StatsViewController extends JfxController {
             }));
 
             sink.addObserver(ObserverType.CAR_LEFT, (o, arg) -> {
-                final long nrOfLeftCars = sink.getNrOfLeftCars();
+                final long nrOfLeftCars = sink.getNrOfEnteredPedestrians();
                 final String rawValue = toStringOrEmpty(nrOfLeftCars);
                 sinkPSStats.put(sinkMax, nrOfLeftCars);
 
@@ -183,12 +315,7 @@ public class StatsViewController extends JfxController {
             });
 
             sink.addObserver(ObserverType.CAR_ENTITY, (o, arg) -> {
-                final Double carWaitTime = sink.getMeanWaitingTimePerStopForEnteredCars();
-                final Double carAdditionalWaitTime = sink.getMeanTimeWaitingDueToIllegalCrossingOfPedestrian();
-
-                if (carAdditionalWaitTime > 0) {
-                    double as = 5;
-                }
+                final Double carWaitTime = sink.getMeanWaitingTimePerStopForEnteredPedestrians();
 
                 final double minValue = sinkMinStats.getOrDefault(sinkMin, Double.MAX_VALUE);
                 if (carWaitTime < minValue || !sinkMinStats.containsKey(sinkMin)) {
@@ -209,8 +336,6 @@ public class StatsViewController extends JfxController {
                     });
                 }
 
-
-                /////////////////////////////////////////////////////////////////
                 final String sinkAvgValue = toStringOrEmpty(carWaitTime, DOUBLE_STRING_FORMATTER_FUNCTION);
                 final OptionalDouble optionalAvgSinkAvgValue = sinkAvgStats.values().stream().mapToDouble(v -> v).average();
                 final String avgSinkAvgValue;
@@ -226,8 +351,6 @@ public class StatsViewController extends JfxController {
                     lblAvgAverageSink.setText(avgSinkAvgValue);
                 });
 
-
-                /////////////////////////////////////////////////////////////////
                 final double maxValue = sinkMaxStats.getOrDefault(sinkMax, Double.MIN_VALUE);
                 if (carWaitTime > maxValue || !sinkMaxStats.containsKey(sinkMax)) {
                     sinkMaxStats.put(sinkMax, carWaitTime);
@@ -246,22 +369,6 @@ public class StatsViewController extends JfxController {
                         lblMaxAverageSink.setText(avgSinkMaxValue);
                     });
                 }
-
-                /////////////////////////////////////////////////////////////////
-                final String sinkAvgWaitValue = toStringOrEmpty(carAdditionalWaitTime, DOUBLE_STRING_FORMATTER_FUNCTION);
-                final OptionalDouble optionalAvgSinkAvgWaitValue = sinkAvgAddWaitStats.values().stream().mapToDouble(v -> v).average();
-                final String avgSinkAvgWaitValue;
-                if (optionalAvgSinkAvgWaitValue.isPresent()) {
-                    avgSinkAvgWaitValue = toStringOrEmpty(optionalAvgSinkAvgWaitValue.getAsDouble(), DOUBLE_STRING_FORMATTER_FUNCTION);
-                } else {
-                    avgSinkAvgWaitValue = NOT_AVAILABLE;
-                }
-
-                sinkAvgAddWaitStats.put(sinkMvgAddWait, carAdditionalWaitTime);
-                Platform.runLater(() -> {
-                    lblSinkAdditionalWaiting.setText(sinkAvgWaitValue);
-                    lblAvgAddWaiting.setText(avgSinkAvgWaitValue);
-                });
             });
         });
 
@@ -280,9 +387,6 @@ public class StatsViewController extends JfxController {
 
         sinkMaxContainer.getChildren().add(new Separator());
         sinkMaxContainer.getChildren().add(lblMaxAverageSink);
-
-        sinkAvgWaitDueToIllegalCrossing.getChildren().add(new Separator());
-        sinkAvgWaitDueToIllegalCrossing.getChildren().add(lblAvgAddWaiting);
     }
 
     private <T> String toStringOrEmpty(T value) {

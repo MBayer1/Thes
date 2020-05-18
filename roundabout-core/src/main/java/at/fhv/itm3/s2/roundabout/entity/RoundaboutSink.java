@@ -277,5 +277,7 @@ public class RoundaboutSink extends AbstractSink {
     public double getMeanIntersectionPassTimeForEnteredCars() { return meanIntersectionPassTime;
     }
 
-    public double getMeanTimeWaitingDueToIllegalCrossingOfPedestrian() {return meanTimeWaitingDueToIllegalCrossingOfPedestrian;}
+    public double getMeanTimeWaitingDueToIllegalCrossingOfPedestrian() {
+        return meanTimeWaitingDueToIllegalCrossingOfPedestrian;
+    }
 }

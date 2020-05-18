@@ -79,7 +79,9 @@ public class MainApp extends Application {
             mainViewController.generateComponentStatContainers(
                 modelConfig.getComponents().getComponent(),
                 configParser.getSectionRegistry(),
-                configParser.getSinkRegistry()
+                configParser.getSinkRegistry(),
+                configParser.getPedestrianSectionRegistry(),
+                configParser.getPedestrianSinkRegistry()
             );
 
             mainViewController.setStartRunnable(initExperimentRunnable(
