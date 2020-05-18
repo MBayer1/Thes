@@ -74,26 +74,13 @@ public class PedestrianReachedAimEvent extends Event<Pedestrian> {
             throw new IllegalArgumentException("Pedestrian not instance of Pedestrian.");
         }
         // since all sup-aims are within one street section it is enough to check all other pedestrian on the same section
-        if (!(pedestrian.getCurrentSection().getStreetSection() instanceof PedestrianStreet)) {
-            throw new IllegalArgumentException("Street not instance of PedestrianStreet.");
-        }
-
-        IConsumer currentSectionTmp = pedestrian.getCurrentSection().getStreetSection();
-        if(currentSectionTmp instanceof PedestrianSink) {
-            return;
-        }
-
-        if (!(currentSectionTmp instanceof PedestrianStreetSection)) {
-            throw new IllegalArgumentException("Street not instance of PedestrianStreet.");
-        }
-
-        PedestrianStreetSection currentSection = (PedestrianStreetSection) currentSectionTmp;
+        PedestrianStreetSection currentSection = getCurrentSectionAndCheckForSink(pedestrian);
+        if (currentSection == null) return; // reached sink
 
         if(!currentSection.checkPedestrianIsWithinSection(pedestrian) &&
-                currentSection.getPedestrianConsumerType().equals(PedestrianConsumerType.PEDESTRIAN_CROSSING)) {
+                !currentSection.getPedestrianConsumerType().equals(PedestrianConsumerType.PEDESTRIAN_CROSSING)) {
             throw new IllegalArgumentException("Pedestrian out of section. Not possible.");
         }
-
 
         // check for waiting are before crossing
         if (pedestrian.checkForWaitingArea() ){
@@ -188,4 +175,21 @@ public class PedestrianReachedAimEvent extends Event<Pedestrian> {
         }
     }
 
+
+    PedestrianStreetSection getCurrentSectionAndCheckForSink( Pedestrian pedestrian) {
+        if (!(pedestrian.getCurrentSection().getStreetSection() instanceof PedestrianStreet)) {
+            throw new IllegalArgumentException("Street not instance of PedestrianStreet.");
+        }
+
+        IConsumer currentSectionTmp = pedestrian.getCurrentSection().getStreetSection();
+        if(currentSectionTmp instanceof PedestrianSink) {
+            return null;
+        }
+
+        if (!(currentSectionTmp instanceof PedestrianStreetSection)) {
+            throw new IllegalArgumentException("Street not instance of PedestrianStreet.");
+        }
+
+        return (PedestrianStreetSection) currentSectionTmp;
+    }
 }

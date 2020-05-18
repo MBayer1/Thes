@@ -434,6 +434,59 @@ public class PedestrianStreetSection extends PedestrianStreet {
         return false;
     }
 
+    public boolean checkPointIsWithinSectionAndNotWithinAPort(PedestrianPoint globalPosition) {
+        boolean outside = false;
+
+        if(     calculations.val1BiggerOrAlmostEqual( globalPosition.getX(), getGlobalCoordinateOfSectionOrigin().getX() ) &&
+                calculations.val1LowerOrAlmostEqual( globalPosition.getX(), getGlobalCoordinateOfSectionOrigin().getX() + getLengthX()) &&
+                calculations.val1BiggerOrAlmostEqual( globalPosition.getY(), getGlobalCoordinateOfSectionOrigin().getY() ) &&
+                calculations.val1LowerOrAlmostEqual( globalPosition.getY(), getGlobalCoordinateOfSectionOrigin().getY() + getLengthY())
+                ) outside = true;
+
+        if ( !outside ) outside = checkPointAlongPort(globalPosition);
+        return outside;
+    }
+
+    public boolean checkPointAlongPort(PedestrianPoint globalPosition) {
+        // except it is within an port gab, then it will take enter or exit port depending which is closer.
+        for ( PedestrianConnectedStreetSections connected : this.getNextStreetConnector()) {
+            if (connected.getFromStreetSection().equals(this)) {
+                double sectionOriginX = getGlobalCoordinateOfSectionOrigin().getX();
+                double sectionOriginY = getGlobalCoordinateOfSectionOrigin().getY();
+
+                PedestrianStreetSectionPort localPort = connected.getPortOfFromStreetSection();
+                PedestrianStreetSectionPort globalPort = new PedestrianStreetSectionPort(
+                        localPort.getLocalBeginOfStreetPort().getX() + sectionOriginX,
+                        localPort.getLocalBeginOfStreetPort().getY() + sectionOriginY,
+                        localPort.getLocalEndOfStreetPort().getX() + sectionOriginX,
+                        localPort.getLocalEndOfStreetPort().getY() + sectionOriginY);
+
+                if (calculations.checkWallIntersectionWithinPort(globalPort, globalPosition)){
+                    return true;
+                }
+            }
+        }
+
+        for ( PedestrianConnectedStreetSections connected : this.getPreviousStreetConnector()) {
+            if (connected.getFromStreetSection().equals(this)) {
+                double sectionOriginX = getGlobalCoordinateOfSectionOrigin().getX();
+                double sectionOriginY = getGlobalCoordinateOfSectionOrigin().getY();
+
+                PedestrianStreetSectionPort localPort = connected.getPortOfFromStreetSection();
+                PedestrianStreetSectionPort globalPort = new PedestrianStreetSectionPort(
+                        localPort.getLocalBeginOfStreetPort().getX() + sectionOriginX,
+                        localPort.getLocalBeginOfStreetPort().getY() + sectionOriginY,
+                        localPort.getLocalEndOfStreetPort().getX() + sectionOriginX,
+                        localPort.getLocalEndOfStreetPort().getY() + sectionOriginY);
+
+                if (calculations.checkWallIntersectionWithinPort(globalPort, globalPosition)){
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     public void setPedestrianPosition(Pedestrian pedestrian, PedestrianPoint globalPos) {
         if(pedestrianPositions.get(pedestrian) == null) {
             if(this.pedestriansQueueToEnter.contains(pedestrian)) {
