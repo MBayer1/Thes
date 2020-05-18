@@ -571,7 +571,6 @@ public class PedestrianStreetSection extends PedestrianStreet {
 
                 if (checkPedestrianCanEnterSection(pedestrianToEnter)) {
                     pedestrian = (Pedestrian) pedestrianToEnter.getPedestrian();
-                    pedestrianToEnter.getPedestrian().enterSystem();
                     this.addPedestrian(pedestrianToEnter.getPedestrian(), pedestrianToEnter.getGlobalEnterPoint());
                     ((Pedestrian) pedestrianToEnter.getPedestrian()).setCurrentLocalPosition(); // do this after adding to street section
 

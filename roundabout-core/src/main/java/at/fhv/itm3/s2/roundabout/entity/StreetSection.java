@@ -455,7 +455,6 @@ public class StreetSection extends Street {
                if ( icar instanceof RoundaboutCar) {
                    RoundaboutCar car = (RoundaboutCar) icar;
                    if (car.timeWaitingDueToIllegalCrossingOfPedestrianStopWatch.isRunning()) {
-                       car.timeWaitingDueToIllegalCrossingOfPedestrianStopWatch.stop();
                        double res = car.timeWaitingDueToIllegalCrossingOfPedestrianStopWatch.stop();
                        car.timeWaitingDueToIllegalCrossingOfPedestrian.update(new TimeSpan(res));
                    }
