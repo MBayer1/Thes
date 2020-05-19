@@ -12,4 +12,5 @@ public enum ObserverType {
     PEDESTRIAN_LOST,
     PEDESTRIAN_ENTITY,
     PEDESTRIAN_POSITION,
+    ADD_WAIT_TIME
 }

@@ -2,11 +2,11 @@ package at.fhv.itm3.s2.roundabout.ui.executable;
 
 
 import at.fhv.itm14.trafsim.model.entities.IConsumer;
-import at.fhv.itm3.s2.roundabout.api.entity.AbstractSource;
-import at.fhv.itm3.s2.roundabout.api.entity.ICar;
-import at.fhv.itm3.s2.roundabout.api.entity.Street;
+import at.fhv.itm3.s2.roundabout.api.entity.*;
 import at.fhv.itm3.s2.roundabout.controller.CarController;
 import at.fhv.itm3.s2.roundabout.PedestrianCalculations.SocialForceModelCalculation.VerifyForceCalc_TestEnvironment;
+import at.fhv.itm3.s2.roundabout.entity.Pedestrian;
+import at.fhv.itm3.s2.roundabout.entity.PedestrianStreetSection;
 import at.fhv.itm3.s2.roundabout.entity.RoundaboutCar;
 import at.fhv.itm3.s2.roundabout.entity.StreetSection;
 import at.fhv.itm3.s2.roundabout.ui.controllers.MainViewController;
@@ -198,7 +198,22 @@ public class MainApp extends Application {
                     }
                 }
             }
-            System.out.println("additional waiting times for vehicle due to illegal crossing of pedestrians.: " + meanAddWait);
+            System.out.println("Additional waiting times for vehicle due to illegal crossing of pedestrians.: " + meanAddWait);
+
+
+            double cntPedestrian = 0;
+            for ( Component component : modelConfig.getComponents().getComponent() ) {
+                if(component.getType().equals(ComponentType.PEDESTRIANWALKINGAREA)) {
+                    for ( Section sectionDTO : component.getSections().getSection()) {
+                        PedestrianStreetSection section = configParser.getPedestrianSectionRegistry().get(component.getId()).get(sectionDTO.getId());
+
+                        if( section.isPedestrianCrossing() ) {
+                            cntPedestrian += section.getNrOfEnteredPedestrians();
+                        }
+                    }
+                }
+            }
+            System.out.println("Number of Pedestrians that crosses illegal.: " + cntPedestrian);
         };
     }
 

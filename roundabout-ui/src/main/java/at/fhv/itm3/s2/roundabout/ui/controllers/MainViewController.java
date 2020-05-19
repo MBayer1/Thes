@@ -195,7 +195,7 @@ public class MainViewController extends JfxController {
 
                 Platform.runLater(() -> vBoxContainer.getChildren().add(statNode));
             } else {
-                ViewLoader<StatsViewController> viewLoader = ViewLoader.loadView(StatsViewController.class);
+                /*ViewLoader<StatsViewController> viewLoader = ViewLoader.loadView(StatsViewController.class);
                 Node statNode = viewLoader.loadNode();
 
                 //final Map<String, PedestrianStreetSection> streetSectionMap = pedestrianStreetSections.get(component.getId());
@@ -211,9 +211,9 @@ public class MainViewController extends JfxController {
                 //                Platform.runLater(() -> drawPane.getChildren().add(car));
                 //            }));
 
-                //viewLoader.getController().generateStatLabelsPedestrian(component.getName(), /*componentStreetSections*/ null, componentSinks);
+                //viewLoader.getController().generateStatLabelsPedestrian(component.getName(), componentStreetSections, componentSinks);
 
-                Platform.runLater(() -> vBoxContainer.getChildren().add(statNode));
+                Platform.runLater(() -> vBoxContainer.getChildren().add(statNode));*/
             }
         });
     }
