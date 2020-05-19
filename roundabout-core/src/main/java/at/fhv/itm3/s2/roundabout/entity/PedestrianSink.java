@@ -22,6 +22,7 @@ public class PedestrianSink extends PedestrianAbstractSink {
     private double meanTimeOnPedestrianArea;
     private double meanTimeSpentInWaitingPuffer;
     private double meanWaitingTimeBeforeEnteringSystem; //pedestriansQueueTo
+    private double meanEventTimeGap;
 
     public PedestrianSink(Model owner, String name, boolean showInTrace) {
         this(UUID.randomUUID().toString(), owner, name, showInTrace);
@@ -36,6 +37,7 @@ public class PedestrianSink extends PedestrianAbstractSink {
         this.meanStopCount = 0;
         this.meanTimeOnPedestrianArea = 0;
         this.meanWaitingTimeBeforeEnteringSystem = 0;
+        this.meanEventTimeGap = 0;
     }
 
 
@@ -118,6 +120,7 @@ public class PedestrianSink extends PedestrianAbstractSink {
             throw new IllegalStateException("type mismatch");
         }
         meanWaitingTimeBeforeEnteringSystem = meanWaitingTimeBeforeEnteringSystem * dPreviousRate + ((Pedestrian) pedestrian).getMeanWaitingBeforeEnteringTime() / getNrOfEnteredPedestrians();
+        meanEventTimeGap = meanEventTimeGap * dPreviousRate + ((Pedestrian) pedestrian).getMeanTimeEventGap() / getNrOfEnteredPedestrians();
     }
 
     /**
@@ -296,5 +299,8 @@ public class PedestrianSink extends PedestrianAbstractSink {
     }
 
     public double getMeanTimeSpentInWaitingPuffer() {return meanTimeSpentInWaitingPuffer;}
+
+
+    public double getMeanTimeBetweenEventCall() {return meanEventTimeGap;}
 
 }

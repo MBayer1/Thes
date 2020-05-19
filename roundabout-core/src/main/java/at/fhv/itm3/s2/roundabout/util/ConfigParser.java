@@ -432,7 +432,11 @@ public class ConfigParser {
                 Source::getId,
                 so -> {
                     final Street street = resolveSection(scopeComponentId, so.getSectionId());
-                    final RoundaboutSource source = new RoundaboutSource(so.getId(), so.getGeneratorExpectation(), model, so.getId(), false, street);
+
+                    double ratio = so.getGeneratorExpectation() == null ? 0 : so.getGeneratorExpectation()*0.5;// todo adapt generationExpectation for test
+                    final RoundaboutSource source = new RoundaboutSource(so.getId(),
+                            ratio,
+                            model, so.getId(), false, street);
                     if (!SOURCE_REGISTRY.containsKey(scopeComponentId)) {
                         SOURCE_REGISTRY.put(scopeComponentId, new HashMap<>());
                     }

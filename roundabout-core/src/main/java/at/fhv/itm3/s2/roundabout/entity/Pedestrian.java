@@ -34,6 +34,12 @@ public class Pedestrian extends Entity implements IPedestrian {
     public final Tally pedestriansQueueToEnterTime;
     public final StopWatch pedestriansQueueToEnterTimeStopWatch;
 
+    private final StopWatch pedestrianEventIntervallGapStopWatch;
+    private final Count pedestrianEventIntervalGapCounter;
+    private final Tally pedestrianEventIntervalGap;
+
+
+
     private double lastUpdateTime;
     private PedestrianPoint currentGlobalPosition;
     private PedestrianPoint currentLocalPosition;
@@ -107,6 +113,13 @@ public class Pedestrian extends Entity implements IPedestrian {
         this.pedestrianWaitingCounter.reset();
         this.pedestrianWaitingTime = new Tally(model, "Roundabout time", false, false);
         this.pedestrianWaitingTime.reset();
+
+
+        this.pedestrianEventIntervallGapStopWatch = new StopWatch(model);
+        this.pedestrianEventIntervalGapCounter = new Count(model, "EventIntervallGap", false, false);
+        this.pedestrianEventIntervalGapCounter.reset();
+        this.pedestrianEventIntervalGap = new Tally(model, "EventIntervallGap", false, false);
+        this.pedestrianEventIntervalGap.reset();
 
         // coordinates are always at center of pedestrian, min gab simulates als the radius of pedestrian
         this.pedestriansQueueToEnterTime = new Tally(model, "Roundabout time", false, false);
@@ -189,7 +202,6 @@ public class Pedestrian extends Entity implements IPedestrian {
         dir = calc.getUnitVector(dir);
         dir.scale(traffeledPath);
         curPos.add(dir);
-
         return new PedestrianPoint(curPos);
     }
 
@@ -398,6 +410,23 @@ public class Pedestrian extends Entity implements IPedestrian {
             double res = this.pedestrianWaitingStopWatch.stop();
             this.pedestrianWaitingTime.update(new TimeSpan(res));
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void addEventGap( double timeGap) {
+        this.pedestrianEventIntervalGapCounter.update();
+        this.pedestrianEventIntervalGap.update(timeGap);
+    }
+
+    public double getMeanTimeEventGap() {
+        return this.pedestrianEventIntervalGap.getMean();
+    }
+
+    public long getEventGapDataSize() {
+        return this.pedestrianEventIntervalGapCounter.getValue();
     }
 
     /**
@@ -887,7 +916,7 @@ public class Pedestrian extends Entity implements IPedestrian {
         double distance = calc.getDistanceByCoordinates(this.getCurrentGlobalPosition(), this.getCurrentNextGlobalAim());
 
         // todo edit for comparision to continuously SFM
-        distance /= 4;
+        //distance /= 1;
 
         Vector2d uniVecForces = calc.getUnitVector(forces);
         uniVecForces.scale(distance);

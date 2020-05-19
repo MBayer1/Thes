@@ -20,7 +20,7 @@
         <parameter name="JAM_INDICATOR_IN_SECONDS" value="10"/>
 
         <!--Parameter for pedestrians-->
-        <parameter name="MIN_TIME_BETWEEN_PEDESTRIAN_ARRIVALS" value="5"/>     <!-- 1 min = 3600-->
+        <parameter name="MIN_TIME_BETWEEN_PEDESTRIAN_ARRIVALS" value="0"/>     <!-- 1 min = 3600-->
         <parameter name="MAX_TIME_BETWEEN_PEDESTRIAN_ARRIVALS" value="10"/>
         <!--       30 min = 108000 | 216000 == 1 h-->
         <parameter name="MIN_DISTANCE_FACTOR_BETWEEN_PEDESTRIAN" value="2"/>
@@ -46,6 +46,7 @@
         <parameter name="EXPECTED_PEDESTRIAN_PREFERRED_SPEED" value="1.34"/>
 
         <parameter name="MAX_DISTANCE_FOR_WAITING_AREA" value="100"/>
+
 
     </parameters>
     <components>
@@ -96,22 +97,21 @@
             <pedestrianRoute fromComponentId="p1" fromSourceId="pso1" toComponentId="p1" toSinkId="psk2" ratio="1.0"/>
             <pedestrianRoute fromComponentId="p1" fromSourceId="pso2" toComponentId="p1" toSinkId="psk1" ratio="1.0"/>
         </pedestrianRoutes>
-
         <component id="ro1" type="ROUNDABOUT" name="Kreisverkehr Dornbirn Süd">
             <sources>
-                <source id="so_s5_t1" sectionId="s5_t1" generatorExpectation="56.18"/>
+                <!--<source id="so_s5_t1" sectionId="s5_t1" generatorExpectation="56.18"/>-->
 
-                <source id="so_s6_t1" sectionId="s6_t1" generatorExpectation="60.0"/>
+                <!--<source id="so_s6_t1" sectionId="s6_t1" generatorExpectation= "60.0"/-->
 
                 <source id="so_s10_t1" sectionId="s10_t1" generatorExpectation="6.24"/>
-                <source id="so_s10_t2" sectionId="s10_t2" generatorExpectation="56.18"/>
+                <!--<source id="so_s10_t2" sectionId="s10_t2" generatorExpectation="56.18"/>-->
 
-                <source id="so_s11_t1" sectionId="s11_t1" generatorExpectation="20.0"/>
+                <!--<source id="so_s11_t1" sectionId="s11_t1" generatorExpectation="20.0"/>-->
 
                 <source id="so_s14_t1" sectionId="s14_t1" generatorExpectation="6.24"/>
-                <source id="so_s14_t2" sectionId="s14_t2" generatorExpectation="18.73"/>
+                <!--<source id="so_s14_t2" sectionId="s14_t2" generatorExpectation="18.73"/>-->
 
-                <source id="so_s15_t1" sectionId="s15_t1" generatorExpectation="60.0"/>
+                <!--<source id="so_s15_t1" sectionId="s15_t1" generatorExpectation="60.0"/>-->
 
                 <source id="so_s18_t1" sectionId="s18_t1" generatorExpectation="9.36"/>
             </sources>
@@ -133,8 +133,6 @@
             </sinks>
             <sections>
                 <section id="s1_t1" lengthX="110.45"
-                         isTrafficLightActive="true" greenPhaseDuration="18"
-                         redPhaseDuration="50"
                          pedestrianCrossingComponentIDRef="p1" pedestrianCrossingIDRef="psc1"
                          pedestrianCrossingIDRefEnterHigh="285"
                          pedestrianCrossingRefLinkedAtBegin="y" /> entry high in cm
@@ -165,10 +163,8 @@
                 <section id="s9_t1" lengthX="200"/>
                 <section id="s9_t2" lengthX="200"/>
 
-                <section id="s10_t1" lengthX="229" isTrafficLightActive="true" minGreenPhaseDuration="120"
-                         redPhaseDuration="40"/>
-                <section id="s10_t2" lengthX="229" isTrafficLightActive="true" minGreenPhaseDuration="120"
-                         redPhaseDuration="40"/>
+                <section id="s10_t1" lengthX="229" />
+                <section id="s10_t2" lengthX="229" />
 
                 <section id="s11_t1" lengthX="474.55"/>
 
@@ -276,17 +272,17 @@
                 <parameter name="CONTROLLER_PHASE_SHIFT_TIME" value="0.1"/>
             </parameters>
             <sources>
-                <source id="so_s3_t1" sectionId="s3_t1"/>
-                <source id="so_s3_t2" sectionId="s3_t2"/>
-                <source id="so_s3_t3" sectionId="s3_t3"/>
+                <!--<source id="so_s3_t1" sectionId="s3_t1" /> -->
+                <!--<source id="so_s3_t2" sectionId="s3_t2" /> -->
+                <source id="so_s3_t3" sectionId="s3_t3" />
                 <source id="so_s3_t4" sectionId="s3_t4"/>
 
-                <source id="so_s4_t1" sectionId="s4_t1"/>
-                <source id="so_s4_t2" sectionId="s4_t2"/>
+                <source id="so_s4_t1" sectionId="s4_t1" /> -->
+                <source id="so_s4_t2" sectionId="s4_t2" /> -->
 
-                <source id="so_s5_t1" sectionId="s5_t1"/>
-                <source id="so_s5_t2" sectionId="s5_t2"/>
-                <source id="so_s5_t3" sectionId="s5_t3"/>
+                <source id="so_s5_t1" sectionId="s5_t1" />
+                <source id="so_s5_t2" sectionId="s5_t2" /> -->
+                <source id="so_s5_t3" sectionId="s5_t3" /> -->
             </sources>
             <sinks>
                 <sink id="sk1_t1"/>
@@ -367,43 +363,43 @@
             </connector>
         </connectors>
         <routes>
-            <route fromComponentId="is1" fromSourceId="so_s3_t1" toComponentId="is1" toSinkId="sk2_t1" ratio="1.0"/>
-            <route fromComponentId="is1" fromSourceId="so_s3_t2" toComponentId="is1" toSinkId="sk3_t1" ratio="1.0"/>
-            <route fromComponentId="is1" fromSourceId="so_s4_t2" toComponentId="is1" toSinkId="sk1_t1" ratio="1.0"/>
-            <route fromComponentId="is1" fromSourceId="so_s5_t2" toComponentId="is1" toSinkId="sk1_t1" ratio="1.0"/>
-            <route fromComponentId="is1" fromSourceId="so_s5_t3" toComponentId="is1" toSinkId="sk2_t1" ratio="1.0"/>
+            <!--<route fromComponentId="is1" fromSourceId="so_s3_t1" toComponentId="is1" toSinkId="sk2_t1" ratio="1.0"/>-->
+            <!--<route fromComponentId="is1" fromSourceId="so_s3_t2" toComponentId="is1" toSinkId="sk3_t1" ratio="1.0"/>-->
+            <!--<route fromComponentId="is1" fromSourceId="so_s4_t2" toComponentId="is1" toSinkId="sk1_t1" ratio="1.0"/>-->
+            <!--<route fromComponentId="is1" fromSourceId="so_s5_t2" toComponentId="is1" toSinkId="sk1_t1" ratio="1.0"/>-->
+            <!--<route fromComponentId="is1" fromSourceId="so_s5_t3" toComponentId="is1" toSinkId="sk2_t1" ratio="1.0"/>-->
 
             <route fromComponentId="is1" fromSourceId="so_s3_t3" toComponentId="ro1" toSinkId="sk_s4_t1" ratio="0.143"/>
-            <route fromComponentId="is1" fromSourceId="so_s4_t1" toComponentId="is1" toSinkId="sk3_t1" ratio="0.4"/>
+            <!--<route fromComponentId="is1" fromSourceId="so_s4_t1" toComponentId="is1" toSinkId="sk3_t1" ratio="0.4"/>-->
             <route fromComponentId="is1" fromSourceId="so_s5_t1" toComponentId="ro1" toSinkId="sk_s9_t2" ratio="0.457"/>
 
             <route fromComponentId="is1" fromSourceId="so_s3_t4" toComponentId="ro1" toSinkId="sk_s17_t1" ratio="0.077"/>
 
-            <route fromComponentId="ro1" fromSourceId="so_s5_t1" toComponentId="ro1" toSinkId="sk_s13_t1" ratio="0.8"/>
-            <route fromComponentId="ro1" fromSourceId="so_s5_t1" toComponentId="ro1" toSinkId="sk_s17_t1" ratio="0.1"/>
+            <!--<route fromComponentId="ro1" fromSourceId="so_s5_t1" toComponentId="ro1" toSinkId="sk_s13_t1" ratio="0.8"/>-->
+            <!--<route fromComponentId="ro1" fromSourceId="so_s5_t1" toComponentId="ro1" toSinkId="sk_s17_t1" ratio="0.1"/>-->
 
-            <route fromComponentId="ro1" fromSourceId="so_s6_t1" toComponentId="ro1" toSinkId="sk_s6_t1" ratio="1.0"/>
+            <!--<route fromComponentId="ro1" fromSourceId="so_s6_t1" toComponentId="ro1" toSinkId="sk_s6_t1" ratio="1.0"/>-->
 
-            <route fromComponentId="ro1" fromSourceId="so_s10_t1" toComponentId="ro1" toSinkId="sk_s17_t1" ratio="0.333"/>
+            <!--<route fromComponentId="ro1" fromSourceId="so_s10_t1" toComponentId="ro1" toSinkId="sk_s17_t1" ratio="0.333"/>-->
             <route fromComponentId="ro1" fromSourceId="so_s10_t1" toComponentId="is1" toSinkId="sk2_t1" ratio="0.667"/>
 
-            <route fromComponentId="ro1" fromSourceId="so_s10_t2" toComponentId="ro1" toSinkId="sk_s4_t1" ratio="1.0"/>
+            <!--<route fromComponentId="ro1" fromSourceId="so_s10_t2" toComponentId="ro1" toSinkId="sk_s4_t1" ratio="1.0"/>-->
 
-            <route fromComponentId="ro1" fromSourceId="so_s11_t1" toComponentId="ro1" toSinkId="sk_s11_t1" ratio="1.0"/>
+            <!--<route fromComponentId="ro1" fromSourceId="so_s11_t1" toComponentId="ro1" toSinkId="sk_s11_t1" ratio="1.0"/>-->
 
             <route fromComponentId="ro1" fromSourceId="so_s14_t1" toComponentId="is1" toSinkId="sk2_t1" ratio="1.0"/>
 
-            <route fromComponentId="ro1" fromSourceId="so_s14_t2" toComponentId="ro1" toSinkId="sk_s4_t1" ratio="0.333"/>
-            <route fromComponentId="ro1" fromSourceId="so_s14_t2" toComponentId="ro1" toSinkId="sk_s9_t1" ratio="0.3"/>
-            <route fromComponentId="ro1" fromSourceId="so_s14_t2" toComponentId="ro1" toSinkId="sk_s9_t2" ratio="0.367"/>
+            <!--<route fromComponentId="ro1" fromSourceId="so_s14_t2" toComponentId="ro1" toSinkId="sk_s4_t1" ratio="0.333"/>-->
+            <!--<route fromComponentId="ro1" fromSourceId="so_s14_t2" toComponentId="ro1" toSinkId="sk_s9_t1" ratio="0.3"/>-->
+            <!--<route fromComponentId="ro1" fromSourceId="so_s14_t2" toComponentId="ro1" toSinkId="sk_s9_t2" ratio="0.367"/>-->
 
-            <route fromComponentId="ro1" fromSourceId="so_s15_t1" toComponentId="ro1" toSinkId="sk_s15_t1" ratio="1.0"/>
+            <!--<route fromComponentId="ro1" fromSourceId="so_s15_t1" toComponentId="ro1" toSinkId="sk_s15_t1" ratio="1.0"/>-->
 
             <route fromComponentId="ro1" fromSourceId="so_s18_t1" toComponentId="is1" toSinkId="sk1_t1" ratio="0.25"/>
-            <route fromComponentId="ro1" fromSourceId="so_s18_t1" toComponentId="ro1" toSinkId="sk_s4_t1" ratio="0.083"/>
-            <route fromComponentId="ro1" fromSourceId="so_s18_t1" toComponentId="ro1" toSinkId="sk_s9_t1" ratio="0.15"/>
-            <route fromComponentId="ro1" fromSourceId="so_s18_t1" toComponentId="ro1" toSinkId="sk_s9_t2" ratio="0.183"/>
-            <route fromComponentId="ro1" fromSourceId="so_s18_t1" toComponentId="ro1" toSinkId="sk_s13_t1" ratio="0.333"/>
+            <!--<route fromComponentId="ro1" fromSourceId="so_s18_t1" toComponentId="ro1" toSinkId="sk_s4_t1" ratio="0.083"/>-->
+            <!--<route fromComponentId="ro1" fromSourceId="so_s18_t1" toComponentId="ro1" toSinkId="sk_s9_t1" ratio="0.15"/>-->
+            <!--<route fromComponentId="ro1" fromSourceId="so_s18_t1" toComponentId="ro1" toSinkId="sk_s9_t2" ratio="0.183"/>-->
+            <!--<route fromComponentId="ro1" fromSourceId="so_s18_t1" toComponentId="ro1" toSinkId="sk_s13_t1" ratio="0.333"/>-->
         </routes>
     </components>
 </model>

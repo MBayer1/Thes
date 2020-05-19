@@ -162,6 +162,7 @@ public class PedestrianReachedAimEvent extends Event<Pedestrian> {
 
         // set planed time of movement
         pedestrian.setWalkingTimeStamps(timeToDestination);
+        pedestrian.addEventGap(timeToDestination);
 
         // schedule next event
         try {

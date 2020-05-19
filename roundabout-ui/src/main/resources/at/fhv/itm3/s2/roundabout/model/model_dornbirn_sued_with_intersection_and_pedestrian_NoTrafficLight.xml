@@ -21,8 +21,8 @@
 
         <!--Parameter for pedestrians-->
         <parameter name="MIN_TIME_BETWEEN_PEDESTRIAN_ARRIVALS" value="0"/>     <!-- 1 min = 3600-->
-        <parameter name="MAX_TIME_BETWEEN_PEDESTRIAN_ARRIVALS" value="21600000000"/>   <!-- 1 h-->
-        <!--        <parameter name="MEAN_TIME_BETWEEN_PEDESTRIAN_ARRIVALS" value="108000"/>  <!- 30 min  | 216000 == 1 h-->
+        <parameter name="MAX_TIME_BETWEEN_PEDESTRIAN_ARRIVALS" value="10"/>
+        <!--       30 min = 108000 | 216000 == 1 h-->
         <parameter name="MIN_DISTANCE_FACTOR_BETWEEN_PEDESTRIAN" value="2"/>
         <parameter name="MAX_DISTANCE_FACTOR_BETWEEN_PEDESTRIAN" value="2"/>
         <parameter name="MIN_PEDESTRIAN_GROUP_SIZE" value="2"/>
@@ -52,8 +52,8 @@
     <components>
         <component id="p1" type="PEDESTRIANWALKINGAREA" name="Zebrastreifen">
             <sources>
-                <source id="pso1" sectionId="ps1" generatorExpectation="10.0"/>
-                <source id="pso2" sectionId="ps2" generatorExpectation="10.0"/>
+                <source id="pso1" sectionId="ps1" generatorExpectation="-101000"/>
+                <source id="pso2" sectionId="ps2" generatorExpectation="-101000"/>
             </sources>
 
             <sinks>

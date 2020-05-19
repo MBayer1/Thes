@@ -68,6 +68,7 @@ public class CarGenerateEvent extends Event<AbstractSource> {
      */
     @Override
     public void eventRoutine(AbstractSource source) {
+        if (source.getGeneratorExpectation() == 0) return;
         final IRoute route = routeController.getRandomRoute(source);
         final double carLength = roundaboutSimulationModel.getRandomVehicleLength();
 
