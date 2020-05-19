@@ -22,6 +22,8 @@ public class RoundaboutSink extends AbstractSink {
     private double meanWaitingTimePerStop;
     private double meanStopCount;
     private double meanIntersectionPassTime;
+    private double minTimeWaitingDueToIllegalCrossingOfPedestrian;
+    private double maxTimeWaitingDueToIllegalCrossingOfPedestrian;
     private double meanTimeWaitingDueToIllegalCrossingOfPedestrian;
 
     public RoundaboutSink(Model owner, String name, boolean showInTrace) {
@@ -36,6 +38,8 @@ public class RoundaboutSink extends AbstractSink {
         this.meanWaitingTimePerStop = 0;
         this.meanStopCount = 0;
         this.meanIntersectionPassTime = 0;
+        this.minTimeWaitingDueToIllegalCrossingOfPedestrian = 0;
+        this.maxTimeWaitingDueToIllegalCrossingOfPedestrian = 0;
         this.meanTimeWaitingDueToIllegalCrossingOfPedestrian = 0;
     }
 
@@ -79,6 +83,9 @@ public class RoundaboutSink extends AbstractSink {
         meanIntersectionPassTime = meanIntersectionPassTime * dPreviousRate + car.getMeanIntersectionPassTime()/ getNrOfEnteredCars();
         meanTimeWaitingDueToIllegalCrossingOfPedestrian = meanTimeWaitingDueToIllegalCrossingOfPedestrian * dPreviousRate + car.getMeanTimeWaitingDueToIllegalCrossingOfPedestrian()/ getNrOfEnteredCars();
         updateAddionalWaitingTime(meanTimeWaitingDueToIllegalCrossingOfPedestrian);
+
+        minTimeWaitingDueToIllegalCrossingOfPedestrian = Math.min(minTimeWaitingDueToIllegalCrossingOfPedestrian, car.getMinTimeWaitingDueToIllegalCrossingOfPedestrian());
+        maxTimeWaitingDueToIllegalCrossingOfPedestrian = Math.max(maxTimeWaitingDueToIllegalCrossingOfPedestrian, car.getMaxTimeWaitingDueToIllegalCrossingOfPedestrian());
     }
 
     /**
@@ -279,6 +286,14 @@ public class RoundaboutSink extends AbstractSink {
      */
     @Override
     public double getMeanIntersectionPassTimeForEnteredCars() { return meanIntersectionPassTime;
+    }
+
+    public double getMinTimeWaitingDueToIllegalCrossingOfPedestrian() {
+        return minTimeWaitingDueToIllegalCrossingOfPedestrian;
+    }
+
+    public double getMaxTimeWaitingDueToIllegalCrossingOfPedestrian() {
+        return maxTimeWaitingDueToIllegalCrossingOfPedestrian;
     }
 
     public double getMeanTimeWaitingDueToIllegalCrossingOfPedestrian() {

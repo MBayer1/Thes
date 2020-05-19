@@ -238,4 +238,6 @@ public interface ICar {
      * @return  the mean time the car was waiting due to illegal crossing by pedestrian in model time units
      */
     double getMeanTimeWaitingDueToIllegalCrossingOfPedestrian();
+    double getMinTimeWaitingDueToIllegalCrossingOfPedestrian();
+    double getMaxTimeWaitingDueToIllegalCrossingOfPedestrian();
 }

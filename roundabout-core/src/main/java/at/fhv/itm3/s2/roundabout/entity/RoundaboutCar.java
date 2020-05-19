@@ -287,6 +287,22 @@ public class RoundaboutCar implements ICar {
 
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public double getMinTimeWaitingDueToIllegalCrossingOfPedestrian () {
+        return timeWaitingDueToIllegalCrossingOfPedestrian.getMinimum();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public double getMaxTimeWaitingDueToIllegalCrossingOfPedestrian () {
+        return timeWaitingDueToIllegalCrossingOfPedestrian.getMaximum();
+    }
+
 
     /**
      * {@inheritDoc}
