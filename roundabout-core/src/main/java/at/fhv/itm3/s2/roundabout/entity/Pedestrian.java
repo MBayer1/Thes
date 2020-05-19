@@ -817,8 +817,8 @@ public class Pedestrian extends Entity implements IPedestrian {
         this.setCurrentNextGlobalAim();// set as first aim the exit PedestrianPoint of the street section
         PedestrianStreet section = ((PedestrianStreet)this.getCurrentSection().getStreetSection());
         PedestrianPoint curGlobPos = this.getCurrentGlobalPosition();
-        PedestrianPoint globalGoal = checkAndGetAimWithinSection(forces, section);
-        this.setCurrentNextGlobalAim(globalGoal);
+        PedestrianPoint globalGoalTmp = checkAndGetAimWithinSection(forces, section);
+        this.setCurrentNextGlobalAim(globalGoalTmp);
 
         for (IPedestrian otherPedestrian : section.getPedestrianQueue()){ // check for intersections with other pedestrians
             if(otherPedestrian.equals(this)) continue;
@@ -832,7 +832,9 @@ public class Pedestrian extends Entity implements IPedestrian {
             // the "current global aim" of the current pedestrian is cut down to it.
             // Otherwise the end of the section is the aim.
             // Afterwards the time until this destination is reached is calculated.
-            if( ((Pedestrian)otherPedestrian).getCurrentNextGlobalAim() != null) {
+            if( ((Pedestrian)otherPedestrian).getCurrentNextGlobalAim() != null &&
+                    getCurrentSpeed() != 0) {
+                PedestrianPoint globalGoal = new PedestrianPoint(globalGoalTmp);
                 if(calc.checkLinesIntersectionByCoordinates_WithinSegment(globalGoal,
                         this.getCurrentGlobalPosition(),
                         this.getCurrentGlobalPosition().getX() + forces.getX(), this.getCurrentGlobalPosition().getY() + forces.getY(),

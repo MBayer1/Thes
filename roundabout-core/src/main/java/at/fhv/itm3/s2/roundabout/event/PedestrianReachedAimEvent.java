@@ -79,8 +79,7 @@ public class PedestrianReachedAimEvent extends Event<Pedestrian> {
 
         if(!currentSection.checkPedestrianIsWithinSection(pedestrian) &&
                 !currentSection.getPedestrianConsumerType().equals(PedestrianConsumerType.PEDESTRIAN_CROSSING)) {
-            double da = 5;
-            //throw new IllegalArgumentException("Pedestrian out of section. Not possible.");
+            throw new IllegalArgumentException("Pedestrian out of section. Not possible.");
         }
 
         // check for waiting are before crossing
