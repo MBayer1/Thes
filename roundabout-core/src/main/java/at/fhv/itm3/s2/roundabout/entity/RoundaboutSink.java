@@ -25,6 +25,7 @@ public class RoundaboutSink extends AbstractSink {
     private double minTimeWaitingDueToIllegalCrossingOfPedestrian;
     private double maxTimeWaitingDueToIllegalCrossingOfPedestrian;
     private double meanTimeWaitingDueToIllegalCrossingOfPedestrian;
+    private long cntCarCrossingPedestrianCrossing;
 
     public RoundaboutSink(Model owner, String name, boolean showInTrace) {
         this(UUID.randomUUID().toString(), owner, name, showInTrace);
@@ -41,6 +42,7 @@ public class RoundaboutSink extends AbstractSink {
         this.minTimeWaitingDueToIllegalCrossingOfPedestrian = 0;
         this.maxTimeWaitingDueToIllegalCrossingOfPedestrian = 0;
         this.meanTimeWaitingDueToIllegalCrossingOfPedestrian = 0;
+        this.cntCarCrossingPedestrianCrossing = 0;
     }
 
     /**
@@ -81,11 +83,24 @@ public class RoundaboutSink extends AbstractSink {
         meanWaitingTimePerStop = meanWaitingTimePerStop * dPreviousRate + car.getMeanWaitingTime()/ getNrOfEnteredCars();
         meanStopCount = meanStopCount * dPreviousRate + car.getStopCount()/ getNrOfEnteredCars();
         meanIntersectionPassTime = meanIntersectionPassTime * dPreviousRate + car.getMeanIntersectionPassTime()/ getNrOfEnteredCars();
-        meanTimeWaitingDueToIllegalCrossingOfPedestrian = meanTimeWaitingDueToIllegalCrossingOfPedestrian * dPreviousRate + car.getMeanTimeWaitingDueToIllegalCrossingOfPedestrian()/ getNrOfEnteredCars();
-        updateAddionalWaitingTime(meanTimeWaitingDueToIllegalCrossingOfPedestrian);
 
-        minTimeWaitingDueToIllegalCrossingOfPedestrian = Math.min(minTimeWaitingDueToIllegalCrossingOfPedestrian, car.getMinTimeWaitingDueToIllegalCrossingOfPedestrian());
-        maxTimeWaitingDueToIllegalCrossingOfPedestrian = Math.max(maxTimeWaitingDueToIllegalCrossingOfPedestrian, car.getMaxTimeWaitingDueToIllegalCrossingOfPedestrian());
+
+        for ( IConsumer section : car.getRoute().getRoute() ) {
+            if (section instanceof StreetSection) {
+                if (((StreetSection) section).doesHavePedestrianCrossingToEnter()) {
+                    cntCarCrossingPedestrianCrossing ++;
+                    double dPreviousRate2 = ((double)cntCarCrossingPedestrianCrossing-1)/ (double) cntCarCrossingPedestrianCrossing;
+
+                    meanTimeWaitingDueToIllegalCrossingOfPedestrian = meanTimeWaitingDueToIllegalCrossingOfPedestrian * dPreviousRate2 + car.getMeanTimeWaitingDueToIllegalCrossingOfPedestrian()/ getNrOfEnteredCars();
+
+                    minTimeWaitingDueToIllegalCrossingOfPedestrian = Math.min(minTimeWaitingDueToIllegalCrossingOfPedestrian, car.getMinTimeWaitingDueToIllegalCrossingOfPedestrian());
+                    maxTimeWaitingDueToIllegalCrossingOfPedestrian = Math.max(maxTimeWaitingDueToIllegalCrossingOfPedestrian, car.getMaxTimeWaitingDueToIllegalCrossingOfPedestrian());
+
+                }
+            }
+        }
+
+
     }
 
     /**

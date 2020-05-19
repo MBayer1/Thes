@@ -37,6 +37,9 @@ public class Pedestrian extends Entity implements IPedestrian {
     private final StopWatch pedestrianEventIntervallGapStopWatch;
     private final Count pedestrianEventIntervalGapCounter;
     private final Tally pedestrianEventIntervalGap;
+    private final StopWatch pedestrianEventIntervallGapStopWatch_Generation;
+    private final Count pedestrianEventIntervalGapCounter_Generation;
+    private final Tally pedestrianEventIntervalGap_Generation;
 
 
 
@@ -120,6 +123,13 @@ public class Pedestrian extends Entity implements IPedestrian {
         this.pedestrianEventIntervalGapCounter.reset();
         this.pedestrianEventIntervalGap = new Tally(model, "EventIntervallGap", false, false);
         this.pedestrianEventIntervalGap.reset();
+
+
+        this.pedestrianEventIntervallGapStopWatch_Generation = new StopWatch(model);
+        this.pedestrianEventIntervalGapCounter_Generation = new Count(model, "EventIntervallGap", false, false);
+        this.pedestrianEventIntervalGapCounter_Generation.reset();
+        this.pedestrianEventIntervalGap_Generation = new Tally(model, "EventIntervallGap_Generation", false, false);
+        this.pedestrianEventIntervalGap_Generation.reset();
 
         // coordinates are always at center of pedestrian, min gab simulates als the radius of pedestrian
         this.pedestriansQueueToEnterTime = new Tally(model, "Roundabout time", false, false);
@@ -416,17 +426,26 @@ public class Pedestrian extends Entity implements IPedestrian {
      * {@inheritDoc}
      */
     @Override
-    public void addEventGap( double timeGap) {
+    public void addEventGap_ReachedAim(double timeGap) {
         this.pedestrianEventIntervalGapCounter.update();
         this.pedestrianEventIntervalGap.update(timeGap);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void addEventGap_Generation( double timeGap) {
+        this.pedestrianEventIntervalGapCounter_Generation.update();
+        this.pedestrianEventIntervalGap_Generation.update(timeGap);
     }
 
     public double getMeanTimeEventGap() {
         return this.pedestrianEventIntervalGap.getMean();
     }
 
-    public long getEventGapDataSize() {
-        return this.pedestrianEventIntervalGapCounter.getValue();
+    public double getMeanTimeEventGap_Generation() {
+        return this.pedestrianEventIntervalGap_Generation.getMean();
     }
 
     /**

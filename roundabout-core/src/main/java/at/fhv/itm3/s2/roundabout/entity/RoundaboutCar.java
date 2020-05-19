@@ -300,7 +300,7 @@ public class RoundaboutCar implements ICar {
      */
     @Override
     public double getMaxTimeWaitingDueToIllegalCrossingOfPedestrian () {
-        return timeWaitingDueToIllegalCrossingOfPedestrian.getMaximum();
+        return Math.max(timeWaitingDueToIllegalCrossingOfPedestrian.getMaximum(),0);
     }
 
 

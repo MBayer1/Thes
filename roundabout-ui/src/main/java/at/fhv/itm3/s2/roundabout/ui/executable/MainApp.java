@@ -1,10 +1,8 @@
 package at.fhv.itm3.s2.roundabout.ui.executable;
 
 
-import at.fhv.itm14.trafsim.model.entities.IConsumer;
 import at.fhv.itm3.s2.roundabout.api.entity.*;
 import at.fhv.itm3.s2.roundabout.controller.CarController;
-import at.fhv.itm3.s2.roundabout.PedestrianCalculations.SocialForceModelCalculation.VerifyForceCalc_TestEnvironment;
 import at.fhv.itm3.s2.roundabout.entity.*;
 import at.fhv.itm3.s2.roundabout.ui.controllers.MainViewController;
 import at.fhv.itm3.s2.roundabout.ui.util.ViewLoader;
@@ -22,9 +20,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.lang.invoke.MethodHandles;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -42,9 +37,9 @@ public class MainApp extends Application {
     private static final int DEFAULT_HEIGHT = 750;
 
     private static final String PATH_TO_DEFAULT_CSS_FILE = "/at/fhv/itm3/s2/roundabout/ui/css/main.css";
-   // private static final String PATH_TO_MODEL_FILE = "/at/fhv/itm3/s2/roundabout/model/model_dornbirn_sued_with_intersection_and_pedestrian.xml"; // use for gui test
+    private static final String PATH_TO_MODEL_FILE = "/at/fhv/itm3/s2/roundabout/model/model_dornbirn_sued_with_intersection_and_pedestrian.xml"; // use for gui test
     //private static final String PATH_TO_MODEL_FILE = "/at/fhv/itm3/s2/roundabout/model/model_dornbirn_sued_with_intersection_and_pedestrian_NotConnected.xml";
-    private static final String PATH_TO_MODEL_FILE = "/at/fhv/itm3/s2/roundabout/model/model_dornbirn_sued_with_intersection_and_pedestrian_NoTrafficLight.xml";
+    //private static final String PATH_TO_MODEL_FILE = "/at/fhv/itm3/s2/roundabout/model/model_dornbirn_sued_with_intersection_and_pedestrian_NoTrafficLight.xml";
 
     private static final double EXPERIMENT_STOP_TIME = 60 * 60 * 24 * 1; // equates to number of days in seconds, minutes * seconds * hours * days
      //private static final double EXPERIMENT_STOP_TIME = 60 * 60 ; // equates to number of days in seconds, minutes * seconds * hours * days
@@ -179,7 +174,7 @@ public class MainApp extends Application {
 
             double meanAddWait = 0;
             double maxAddWait = 0;
-            double minAddWait = 0;
+            double minAddWait = Double.MAX_VALUE;
             int cntCarTmp = 0;
             int cntCar = 0;
             double timeBetweenEventCall = 0;
@@ -188,30 +183,32 @@ public class MainApp extends Application {
                 if(component.getType().equals(ComponentType.INTERSECTION) || component.getType().equals(ComponentType.ROUNDABOUT)) {
                     for ( Section sectionDTO : component.getSections().getSection()) {
                         StreetSection section = configParser.getSectionRegistry().get(component.getId()).get(sectionDTO.getId());
-                        for (ICar icar : section.getCarQueue()) {
-                            if ( icar instanceof RoundaboutCar) {
-                                if (section.doesHavePedestrianCrossingToEnter()) {
-                                    RoundaboutCar car = (RoundaboutCar) icar;
-                                    ++cntCarTmp;
-                                    double dPreviousRate = ((double) cntCarTmp - 1) / (double) cntCarTmp;
-                                    maxAddWait = Math.max(maxAddWait, car.getMinTimeWaitingDueToIllegalCrossingOfPedestrian());
-                                    minAddWait = Math.max(minAddWait, car.getMaxTimeWaitingDueToIllegalCrossingOfPedestrian());
-                                    meanAddWait = meanAddWait * dPreviousRate + car.getMeanTimeWaitingDueToIllegalCrossingOfPedestrian() / cntCarTmp;
-                                    cntCar += section.getNrOfEnteredCars();
+                        if (section.doesHavePedestrianCrossingToEnter()) {
+                            cntCarTmp = 0;
+                            for (ICar icar : section.getCarQueue()) {
+                                if ( icar instanceof RoundaboutCar) {
+                                        RoundaboutCar car = (RoundaboutCar) icar;
+                                        ++cntCarTmp;
+                                        double dPreviousRate = ((double) cntCarTmp - 1) / (double) cntCarTmp;
+                                        maxAddWait = Math.max(maxAddWait, car.getMinTimeWaitingDueToIllegalCrossingOfPedestrian());
+                                        minAddWait = Math.max(minAddWait, car.getMaxTimeWaitingDueToIllegalCrossingOfPedestrian());
+                                        meanAddWait = meanAddWait * dPreviousRate + car.getMeanTimeWaitingDueToIllegalCrossingOfPedestrian() / cntCarTmp;
+                                        cntCar += section.getNrOfEnteredCars();
+                                    }
                                 }
                             }
-                        }
                     }
                 }
             }
 
-            for ( Component component : modelConfig.getComponents().getComponent() ) {
+             for ( Component component : modelConfig.getComponents().getComponent() ) {
                 if(component.getType().equals(ComponentType.INTERSECTION) || component.getType().equals(ComponentType.ROUNDABOUT)) {
                     for ( Sink sectionDTO : component.getSinks().getSink()) {
                         RoundaboutSink section = configParser.getSinkRegistry().get(component.getId()).get(sectionDTO.getId());
+                        if (section.getNrOfEnteredCars() == 0) continue;
 
                         maxAddWait = Math.max(maxAddWait, section.getMinTimeWaitingDueToIllegalCrossingOfPedestrian());
-                        minAddWait = Math.max(minAddWait, section.getMaxTimeWaitingDueToIllegalCrossingOfPedestrian());
+                        minAddWait = Math.min(minAddWait, section.getMaxTimeWaitingDueToIllegalCrossingOfPedestrian());
 
                         double dPreviousRate = ((double)section.getNrOfEnteredCars()-1)/ (double) section.getNrOfEnteredCars();
                         meanAddWait = meanAddWait * dPreviousRate + section.getMeanTimeWaitingDueToIllegalCrossingOfPedestrian()/ section.getNrOfEnteredCars();
@@ -221,20 +218,22 @@ public class MainApp extends Application {
 
             System.out.println("------------------" );
             System.out.println("Additional waiting times for vehicle due to illegal crossing of pedestrians.: " + meanAddWait);
-            //System.out.println("Min additional waiting times for vehicle due to illegal crossing of pedestrians.: " + minAddWait);
-            //System.out.println("Max additional waiting times for vehicle due to illegal crossing of pedestrians.: " + maxAddWait);
-            System.out.println("Kraftfahrzeuganzahl: " + cntCar);
+            System.out.println("Min additional waiting times for vehicle due to illegal crossing of pedestrians.: " + minAddWait);
+            System.out.println("Max additional waiting times for vehicle due to illegal crossing of pedestrians.: " + maxAddWait);
+            System.out.println("Number of Vehicle that crossed pedestrianCrossings: " + cntCar);
             System.out.println("------------------" );
 
             double cntPedestrian = 0;
-            double meanTimeGapBetEvent = 0;
+            double meanTimeGapBetEvent_ReachedAim = 0;
+            double meanTimeGapBetEvent_Generation = 0;
             for ( Component component : modelConfig.getComponents().getComponent() ) {
                 if(component.getType().equals(ComponentType.PEDESTRIANWALKINGAREA) ) {
                     for ( Sink sectionDTO : component.getSinks().getSink()) {
                         PedestrianSink section = configParser.getPedestrianSinkRegistry().get(component.getId()).get(sectionDTO.getId());
 
                         double dPreviousRate = ((double)section.getNrOfEnteredPedestrians()-1)/ (double) section.getNrOfEnteredPedestrians();
-                        meanTimeGapBetEvent = meanTimeGapBetEvent * dPreviousRate + section.getMeanTimeBetweenEventCall()/ section.getNrOfEnteredPedestrians();
+                        meanTimeGapBetEvent_ReachedAim = meanTimeGapBetEvent_ReachedAim * dPreviousRate + section.getMeanTimeBetweenEventCall_ReachedAim()/ section.getNrOfEnteredPedestrians();
+                        meanTimeGapBetEvent_Generation = meanTimeGapBetEvent_Generation * dPreviousRate + section.getMeanTimeBetweenEventCall_Generation()/ section.getNrOfEnteredPedestrians();
                     }
                 }
             }
@@ -250,6 +249,7 @@ public class MainApp extends Application {
                 }
             }
             System.out.println("Number of Pedestrians that crosses illegal.: " + cntPedestrian);
+            System.out.println("Generation Rate of Pedestrian.: " + meanTimeGapBetEvent_Generation);
         };
     }
 

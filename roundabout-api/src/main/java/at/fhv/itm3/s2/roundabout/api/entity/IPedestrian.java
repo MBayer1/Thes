@@ -146,7 +146,13 @@ public interface IPedestrian {
     /**
      * Used for statistical values. Gap between Eventcalls.
      */
-    void addEventGap( double timeGap);
+    void addEventGap_ReachedAim(double timeGap);
+
+    /**
+     * Used for statistical values. Gap between Eventcalls.
+     */
+    void addEventGap_Generation( double timeGap);
+
 
     /**
      * Used for statistical values. Returns the mean time spend on the pedestrian area.
