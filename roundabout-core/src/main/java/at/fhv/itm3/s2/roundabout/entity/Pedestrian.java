@@ -814,7 +814,6 @@ public class Pedestrian extends Entity implements IPedestrian {
     }
 
     public void setNewGoal( Vector2d forces ){
-        this.setCurrentNextGlobalAim();// set as first aim the exit PedestrianPoint of the street section
         PedestrianStreet section = ((PedestrianStreet)this.getCurrentSection().getStreetSection());
         PedestrianPoint curGlobPos = this.getCurrentGlobalPosition();
         PedestrianPoint globalGoalTmp = checkAndGetAimWithinSection(forces, section);
@@ -883,7 +882,13 @@ public class Pedestrian extends Entity implements IPedestrian {
     PedestrianPoint checkAndGetAimWithinSection(Vector2d forces, PedestrianStreet section) {
         // this is needed to ensure every aim is within a street Section
         // move not further as the distance to direct aim
+
+        this.setCurrentNextGlobalAim();// set as first aim the exit PedestrianPoint of the street section
         double distance = calc.getDistanceByCoordinates(this.getCurrentGlobalPosition(), this.getCurrentNextGlobalAim());
+
+        // todo edit for comparision to continuously SFM
+        distance /= 4;
+
         Vector2d uniVecForces = calc.getUnitVector(forces);
         uniVecForces.scale(distance);
         PedestrianPoint globPedPos = this.getCurrentGlobalPosition();
