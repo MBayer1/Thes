@@ -134,8 +134,6 @@
             </sinks>
             <sections>
                 <section id="s1_t1" lengthX="110.45"
-                         isTrafficLightActive="true" greenPhaseDuration="18"
-                         redPhaseDuration="50"
                          pedestrianCrossingComponentIDRef="p1" pedestrianCrossingIDRef="psc1"
                          pedestrianCrossingIDRefEnterHigh="285"
                          pedestrianCrossingRefLinkedAtBegin="y" /> entry high in cm
@@ -166,10 +164,8 @@
                 <section id="s9_t1" lengthX="200"/>
                 <section id="s9_t2" lengthX="200"/>
 
-                <section id="s10_t1" lengthX="229" isTrafficLightActive="true" minGreenPhaseDuration="120"
-                         redPhaseDuration="40"/>
-                <section id="s10_t2" lengthX="229" isTrafficLightActive="true" minGreenPhaseDuration="120"
-                         redPhaseDuration="40"/>
+                <section id="s10_t1" lengthX="229" />
+                <section id="s10_t2" lengthX="229" />
 
                 <section id="s11_t1" lengthX="474.55"/>
 

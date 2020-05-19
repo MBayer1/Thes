@@ -52,8 +52,8 @@
     <components>
         <component id="p1" type="PEDESTRIANWALKINGAREA" name="Zebrastreifen">
             <sources>
-                <source id="pso1" sectionId="ps1" generatorExpectation="10.0"/>
-                <source id="pso2" sectionId="ps2" generatorExpectation="10.0"/>
+                <source id="pso1" sectionId="ps1" generatorExpectation="1000000.0"/>
+                <source id="pso2" sectionId="ps2" generatorExpectation="1000000.0"/>
             </sources>
 
             <sinks>
@@ -133,21 +133,13 @@
                 <sink id="sk_s17_t1"/>
             </sinks>
             <sections>
-                <section id="s1_t1" lengthX="110.45"
-                         isTrafficLightActive="true" greenPhaseDuration="18"
-                         redPhaseDuration="50"
-                         pedestrianCrossingComponentIDRef="p1" pedestrianCrossingIDRef="psc1"
-                         pedestrianCrossingIDRefEnterHigh="285"
-                         pedestrianCrossingRefLinkedAtBegin="y" /> entry high in cm
+                <section id="s1_t1" length="110.45" isTrafficLightActive="true" greenPhaseDuration="18"
+                         redPhaseDuration="50"/>
 
                 <section id="s2_t1" lengthX="110.45"
-                         pedestrianCrossingComponentIDRef="p1" pedestrianCrossingIDRef="psc1"
-                         pedestrianCrossingIDRefExitHigh="1425"
-                         pedestrianCrossingRefLinkedAtBegin="y" /> <!--entry high in cm-->
+                /> <!--entry high in cm-->
                 <section id="s2_t2" lengthX="110.45"
-                         pedestrianCrossingComponentIDRef="p1" pedestrianCrossingIDRef="psc1"
-                         pedestrianCrossingIDRefExitHigh="855"
-                         pedestrianCrossingRefLinkedAtBegin="y" /> <!--entry high in cm-->
+                /> <!--entry high in cm-->
 
                 <section id="s3_t1" lengthX="31.77"/>
                 <section id="s3_t2" lengthX="27.5"/>
@@ -295,14 +287,8 @@
                 <sink id="sk3_t1"/>
             </sinks>
             <sections>
-                <section id="s2_t1" lengthX="110.45"
-                         pedestrianCrossingComponentIDRef="p1" pedestrianCrossingIDRef="psc1"
-                         pedestrianCrossingIDRefExitHigh="215"
-                         pedestrianCrossingRefLinkedAtBegin="n" /> <!--entry high in cm-->
-                <section id="s2_t2" lengthX="110.45"
-                         pedestrianCrossingComponentIDRef="p1" pedestrianCrossingIDRef="psc1"
-                         pedestrianCrossingIDRefExitHigh="645"
-                         pedestrianCrossingRefLinkedAtBegin="n" /> <!--entry high in cm-->
+                <section id="s2_t1" lengthX="110.45" /> <!--entry high in cm-->
+                <section id="s2_t2" lengthX="110.45"/> <!--entry high in cm-->
 
                 <section id="s3_t1" lengthX="102.27"/><!--in meter-->
                 <section id="s3_t2" lengthX="102.27"/>
@@ -316,15 +302,8 @@
                 <section id="s5_t2" lengthX="106.36"/>
                 <section id="s5_t3" lengthX="106.36"/>
 
-                <section id="s6_t1" lengthX="110.45"
-                         pedestrianCrossingComponentIDRef="p1" pedestrianCrossingIDRef="psc1"
-                         pedestrianCrossingIDRefEnterHigh="1505"
-                         pedestrianCrossingRefLinkedAtBegin="n" /> <!--entry high in cm-->
-                <section id="s6_t2" lengthX="110.45"
-                         pedestrianCrossingComponentIDRef="p1"
-                         pedestrianCrossingIDRef="psc1"
-                         pedestrianCrossingIDRefEnterHigh="1075"
-                         pedestrianCrossingRefLinkedAtBegin="n" />
+                <section id="s6_t1" lengthX="110.45" /> <!--entry high in cm-->
+                <section id="s6_t2" lengthX="110.45"/>
             </sections>
             <connectors>
                 <connector id="main_horizontal">
