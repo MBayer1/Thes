@@ -20,8 +20,8 @@
         <parameter name="JAM_INDICATOR_IN_SECONDS" value="10"/>
 
         <!--Parameter for pedestrians-->
-        <parameter name="MIN_TIME_BETWEEN_PEDESTRIAN_ARRIVALS" value="5"/>     <!-- 1 min = 3600 | 5 min = 18.000‬-->
-        <parameter name="MAX_TIME_BETWEEN_PEDESTRIAN_ARRIVALS" value="18.000‬"/>
+        <parameter name="MIN_TIME_BETWEEN_PEDESTRIAN_ARRIVALS" value="5"/>     <!-- 1 min = 3600 | 5 min = 18000‬-->
+        <parameter name="MAX_TIME_BETWEEN_PEDESTRIAN_ARRIVALS" value="18000"/>
         <!--       30 min = 108000 | 216000 == 1 h-->
         <parameter name="MIN_DISTANCE_FACTOR_BETWEEN_PEDESTRIAN" value="2"/>
         <parameter name="MAX_DISTANCE_FACTOR_BETWEEN_PEDESTRIAN" value="2"/>
