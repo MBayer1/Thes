@@ -13,8 +13,8 @@ public class PedestrianUI extends Circle {
 
     private Label pedestrianNameLabel = null;
     private Pane canvas = null;
-    private double relativeLabelPositionX = 10;
-    private double relativeLabelPositionY = 10;
+    private double relativeLabelPositionX = 40;
+    private double relativeLabelPositionY = 40;
 
     public PedestrianUI(Pane canvas, double x, double y, String pedestrianName){
         super(x - (PedestrianUIUtils.PEDESTRIAN_WIDTH/2), x - (PedestrianUIUtils.PEDESTRIAN_WIDTH/2), PedestrianUIUtils.PEDESTRIAN_WIDTH);
@@ -23,8 +23,9 @@ public class PedestrianUI extends Circle {
         pedestrianNameLabel = new Label(pedestrianName);
         pedestrianNameLabel.setLayoutX(x + relativeLabelPositionX);
         pedestrianNameLabel.setLayoutX(y + relativeLabelPositionY);
-        pedestrianNameLabel.setFont(new Font("Arial", 30));
+        pedestrianNameLabel.setFont(new Font("Arial", 60));
         pedestrianNameLabel.setScaleY(-1);
+        this.setManaged(false);
     }
 
     public void addToContainer(){

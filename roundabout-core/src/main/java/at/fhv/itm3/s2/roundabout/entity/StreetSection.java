@@ -161,6 +161,18 @@ public class StreetSection extends Street {
         }
 
         carObserver.notifyObservers(iCar);
+
+        //Instance
+        if(this instanceof StreetSection) {
+            if(this.doesHavePedestrianCrossingToEnter() ||
+                    this.doesHavePedestrianCrossingThatHasBeenLeftBefore()){
+
+                if (this.doesHavePedestrianCrossingThatHasBeenLeftBefore() || this.doesHavePedestrianCrossingToEnter()){
+                    //getRoundaboutModel().getPedestrianUIMain().addCar(iCar, this);
+                }
+
+            }
+        }
     }
 
     /**
@@ -354,6 +366,12 @@ public class StreetSection extends Street {
                 carPositions.put(currentCar, newCarPosition);
             }
 
+            if (this instanceof StreetSection) {
+                StreetSection streetSection = this;
+                if (this.doesHavePedestrianCrossingThatHasBeenLeftBefore() || this.doesHavePedestrianCrossingToEnter()) {
+                    //getRoundaboutModel().getPedestrianUIMain().updateCar(currentCar, this);
+                }
+            }
             previousCar = currentCar;
         }
 
@@ -674,6 +692,20 @@ public class StreetSection extends Street {
                     firstCar.traverseToNextSection();
                     // Move physically first car to next section.
                     ((Street)nextSection).addCar(firstCar);
+
+                    //Instance
+                    if(this instanceof StreetSection) {
+                        if(this.doesHavePedestrianCrossingToEnter() ||
+                                this.doesHavePedestrianCrossingThatHasBeenLeftBefore()){
+
+                            if (this.doesHavePedestrianCrossingThatHasBeenLeftBefore() || this.doesHavePedestrianCrossingToEnter()){
+                                //getRoundaboutModel().getPedestrianUIMain().removeCar(firstCar, this);
+                            }
+
+                        }
+                    }
+
+
                 } else if (nextSection != null && nextSection instanceof RoundaboutIntersection) {
                     RoundaboutIntersection intersection = (RoundaboutIntersection) nextSection;
                     Car car = CarController.getCar(firstCar);
@@ -890,10 +922,12 @@ public class StreetSection extends Street {
      * @return weather car drives along x or y axis {@Link boolean}.
      */
     public boolean checkCarDrivesAlongYAxis(){
-        if(pedestrianCrossingEnter == null) {
-            return false;
+        if(pedestrianCrossingEnter != null) {
+            return pedestrianCrossingEnter.carDrivesAlongYAxis();
+        } else if (pedestrianCrossingExit != null) {
+            return pedestrianCrossingExit.carDrivesAlongYAxis();
         }
-        return pedestrianCrossingEnter.carDrivesAlongYAxis();
+        throw new IllegalArgumentException("Street not connected to crossing.");
     }
 
 

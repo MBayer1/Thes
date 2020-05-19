@@ -5,7 +5,7 @@ import javafx.scene.paint.Color;
 
 public class PedestrianStreetUI extends StreetSectionUI {
 
-    private final static Color pedestrianStreetColor =  Color.RED;
+    private final static Color pedestrianStreetColor =  Color.rgb(0xE2, 0xEF,0xD9);
 
     public PedestrianStreetUI(PedestrianStreetSection pedestrianStreetSection) {
         super(pedestrianStreetSection, pedestrianStreetColor);

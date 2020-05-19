@@ -103,12 +103,6 @@ public class RoundaboutCar implements ICar {
      */
     @Override
     public double getTimeToTraverseCurrentSection() {
-        if (currentSection instanceof StreetSection) {
-            StreetSection streetSection = (StreetSection) currentSection;
-            if (((StreetSection) currentSection).doesHavePedestrianCrossingThatHasBeenLeftBefore() || ((StreetSection) currentSection).doesHavePedestrianCrossingToEnter()) {
-                getRoundaboutModel().getPedestrianUIMain().updateCar(this, currentSection);
-            }
-        }
         return getTimeToTraverseSection(getCurrentSection());
     }
 
@@ -131,7 +125,7 @@ public class RoundaboutCar implements ICar {
         }
     }
 
-    public double getRemainingLengthOfCurrentSectionInCm ( ){
+    public Double getRemainingLengthOfCurrentSectionInCm ( ){
         return getRemainingLengthOfCurrentSection() * 100;
     }
 
@@ -238,29 +232,6 @@ public class RoundaboutCar implements ICar {
      */
     @Override
     public void traverseToNextSection() {
-
-        //Instance
-        if(currentSection instanceof StreetSection) {
-            if(((StreetSection)currentSection).doesHavePedestrianCrossingToEnter() ||
-                    ((StreetSection)currentSection).doesHavePedestrianCrossingThatHasBeenLeftBefore()){
-
-                if (((StreetSection) currentSection).doesHavePedestrianCrossingThatHasBeenLeftBefore() || ((StreetSection) currentSection).doesHavePedestrianCrossingToEnter()){
-                    getRoundaboutModel().getPedestrianUIMain().removeCar(this, currentSection);
-                }
-
-            }
-        }
-
-        if( nextSection instanceof StreetSection ) {
-            if (((StreetSection) nextSection).doesHavePedestrianCrossingToEnter() ||
-                    ((StreetSection) nextSection).doesHavePedestrianCrossingThatHasBeenLeftBefore()) {
-                if (((StreetSection) nextSection).doesHavePedestrianCrossingThatHasBeenLeftBefore() || ((StreetSection) nextSection).doesHavePedestrianCrossingToEnter()){
-                    getRoundaboutModel().getPedestrianUIMain().addCar(this, nextSection);
-                }
-
-            }
-        }
-
         this.lastSection = this.currentSection;
         this.currentSection = this.nextSection;
         this.nextSection = this.sectionAfterNextSection;
@@ -268,7 +239,6 @@ public class RoundaboutCar implements ICar {
         if (isWaiting()) {
             stopWaiting();
         }
-
     }
 
     /**

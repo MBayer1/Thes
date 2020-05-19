@@ -7,14 +7,11 @@ import javafx.scene.shape.Rectangle;
 
 public class PedestrianCrosswalkUI extends StreetSectionUI {
 
-    private final static Color pedestrianCrosswalkColor =  Color.GRAY;
+    private final static Color pedestrianCrosswalkColor =  Color.rgb(0xFB, 0xE4,0xD6);;
 
 
     public PedestrianCrosswalkUI(PedestrianStreetSection pedestrianStreetSection, Pane canvas) {
         super(pedestrianStreetSection, pedestrianCrosswalkColor);
-        Rectangle rectangle = new Rectangle(30, 30, 50, 50);
-        rectangle.setFill(Color.GREEN);
-        canvas.getChildren().add(rectangle);
     }
 //    public PedestrianCrosswalkUI(CarStreetUI carStreetUI, Pane canvas) {
 //        super(pedestrianStreetSection, pedestrianCrosswalkColor);

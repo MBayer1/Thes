@@ -21,6 +21,7 @@ import javafx.scene.transform.Scale;
 import javafx.util.Duration;
 
 import java.util.*;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 import static javafx.scene.paint.Color.BROWN;
@@ -43,7 +44,6 @@ public class PedestrianUIMain extends ScrollPane implements IPedestrianUIMain {
     private Map<StreetSection, CarStreetUI> carStreetUIMap = new HashMap<>();
     private Map<StreetSection, Map<String, CarUI>> localCarUIMap = new HashMap<>();
 
-
     Pane canvas = new Pane();
 
     public PedestrianUIMain(int posX, int posY, int width, int height, ConfigParser configParser){
@@ -64,7 +64,6 @@ public class PedestrianUIMain extends ScrollPane implements IPedestrianUIMain {
         scale.setX(PedestrianUIUtils.SCALE_FACTOR);
         scale.setY(-PedestrianUIUtils.SCALE_FACTOR);
 
-//        canvas.setStyle("-fx-background-color: black");
 
         scale.pivotYProperty().bind(Bindings.createDoubleBinding(() ->
                         canvas.getBoundsInLocal().getMinY() + canvas.getBoundsInLocal().getHeight()/2,
@@ -78,7 +77,6 @@ public class PedestrianUIMain extends ScrollPane implements IPedestrianUIMain {
         pannableProperty().set(true);
         setPannable(true);
         traverseComponents(configParser);
-        System.out.println(canvas.getBoundsInParent());
 
         centerCanvas(canvas);
         setContent(canvas);
@@ -113,7 +111,6 @@ public class PedestrianUIMain extends ScrollPane implements IPedestrianUIMain {
             }
             pedestrianMap.put(pedestrianStreetSection.getId(), new HashMap<String, PedestrianUI>());
 
-
             canvas.getChildren().add(streetSectionUI);
             streetSectionUI.toBack();
         }
@@ -143,82 +140,22 @@ public class PedestrianUIMain extends ScrollPane implements IPedestrianUIMain {
 
     @Override
     public void updatePedestrian(IPedestrian pedestrian) {
-        long startTime = System.nanoTime();
-        long estimatedTime = System.nanoTime() - startTime;
-
-        //Drawing a Circle
-        Circle circle = new Circle();
-
-        //Setting the position of the circle
-        circle.setCenterX(300.0f);
-        circle.setCenterY(135.0f);
-
-        //Setting the radius of the circle
-        circle.setRadius(25.0f);
-
-        //Setting the color of the circle
-        circle.setFill(BROWN);
-
-        //Setting the stroke width of the circle
-        circle.setStrokeWidth(20);
-
-        //Creating a Path
-        Path path = new Path();
-
-        //Moving to the starting point
-        MoveTo moveTo = new MoveTo(0, 0);
-
-        //Creating 1st line
-        LineTo line1 = new LineTo(321, 161);
-
-
-        //Adding all the elements to the path
-        path.getElements().add(moveTo);
-        path.getElements().add(line1);
-
-        //Creating the path transition
-        PathTransition pathTransition = new PathTransition();
-
-        //Setting the duration of the transition
-        pathTransition.setDuration(Duration.millis(1000));
-
-        //Setting the node for the transition
-        pathTransition.setNode(circle);
-
-        //Setting the path for the transition
-        pathTransition.setPath(path);
-
-        //Setting the orientation of the path
-        pathTransition.setOrientation(OrientationType.ORTHOGONAL_TO_TANGENT);
-
-        //Setting the cycle count for the transition
-        pathTransition.setCycleCount(1);
-
-        //Setting auto reverse value to true
-        pathTransition.setAutoReverse(false);
-
-        //Playing the animation
-
         if (pedestrian instanceof Pedestrian) {
             Pedestrian pedestrianInstance = ((Pedestrian)pedestrian);
-            SimClock simClock = pedestrianInstance.getRoundaboutModel().getExperiment().getSimClock();
-            TimeUnit test = pedestrianInstance.getRoundaboutModel().getModelTimeUnit();
-
-
-            PedestrianPoint pedestrianPoint = pedestrianInstance.getCurrentGlobalPosition();
-            PedestrianUI pedestrianUI = globalPedestrianMap.get(pedestrianInstance.getName());
-            if (pedestrianUI!=null){
-                Platform.setImplicitExit(false);
-                Platform.runLater(new Runnable(){
-                    @Override
-                    public void run() {
-                        pathTransition.play();
-                        pedestrianUI.updateInContainer(pedestrianPoint.getX(), pedestrianPoint.getY());
-                    }
-                });
+            boolean insection =  ((PedestrianStreetSection)(pedestrianInstance.getCurrentSection().getStreetSection())).checkPedestrianIsWithinSection(pedestrian);
+            if (insection){
+                PedestrianPoint pedestrianPoint = pedestrianInstance.getCurrentGlobalPosition();
+                PedestrianUI pedestrianUI = globalPedestrianMap.get(pedestrianInstance.getName());
+                if (pedestrianUI!=null){
+                    Platform.setImplicitExit(false);
+                    Platform.runLater(new Runnable(){
+                        @Override
+                        public void run() {
+                            pedestrianUI.updateInContainer(pedestrianPoint.getX(), pedestrianPoint.getY());
+                        }
+                    });
+                }
             }
-
-
 
         }else {
             throw new IllegalArgumentException("Not suitable Pedestrian.");
@@ -247,60 +184,110 @@ public class PedestrianUIMain extends ScrollPane implements IPedestrianUIMain {
 
     @Override
     public void addCar(ICar car, IConsumer consumerStreetSection) {
-        if (car instanceof RoundaboutCar){
-            RoundaboutCar roundaboutCar = (RoundaboutCar)car;
-            if (consumerStreetSection instanceof StreetSection){
+        if (car instanceof RoundaboutCar) {
+            RoundaboutCar roundaboutCar = (RoundaboutCar) car;
+            if (consumerStreetSection instanceof StreetSection) {
                 StreetSection streetSection = (StreetSection) consumerStreetSection;
 
-                CarStreetUI carStreetUI =  carStreetUIMap.get(streetSection);
-                Map<String, CarUI> streetCarMap =  localCarUIMap.get(streetSection);
+                CarStreetUI carStreetUI = carStreetUIMap.get(streetSection);
+                Map<String, CarUI> streetCarMap = localCarUIMap.get(streetSection);
 
-                String carId = roundaboutCar.getOldImplementationCar().getName();
+                if (streetCarMap.size() < PedestrianUIUtils.maximumNumberCarsPerStreet) {
+                    String carId = roundaboutCar.getOldImplementationCar().getName();
 
-                boolean carDrivesAlongYAxis = streetSection.checkCarDrivesAlongYAxis();
+                    boolean carDrivesAlongYAxis = streetSection.checkCarDrivesAlongYAxis();
 
-                CarUI carUI = null;
-                if (carDrivesAlongYAxis){
-                    //street leads from crossing away
-                    carUI = new CarUI(
-                            PedestrianUIUtils.GetCarPositionRelativeToWidth(carStreetUI, roundaboutCar, streetSection),
-                            carStreetUI.getY() + PedestrianUIUtils.GetMaxedUiCarPosition(roundaboutCar, streetSection),
-                            PedestrianUIUtils.VEHICLE_WIDTH,
-                            roundaboutCar.getLengthInCM(),
-                            roundaboutCar,
-                            canvas);
-                }else {
-                    carUI = new CarUI(
-                            carStreetUI.getX() + PedestrianUIUtils.GetMaxedUiCarPosition(roundaboutCar, streetSection),
-                            PedestrianUIUtils.GetCarPositionRelativeToWidth(carStreetUI, roundaboutCar, streetSection),
-                            roundaboutCar.getLengthInCM(),
-                            PedestrianUIUtils.VEHICLE_WIDTH,
-                            roundaboutCar,
-                            canvas);
-                }
-                Platform.setImplicitExit(false);
-                CarUI finalCarUI = carUI;
-                Platform.runLater(new Runnable(){
-                    @Override
-                    public void run()
-                    {
-                        finalCarUI.addToContainer();
+                    if (carDrivesAlongYAxis) {
+                        streetCarMap.put(carId, new CarUI(
+                                PedestrianUIUtils.GetCarPositionRelativeToWidth(carStreetUI, streetSection),
+                                PedestrianUIUtils.GetMaxedUiCarPosition(roundaboutCar, streetSection, carStreetUI),
+                                PedestrianUIUtils.VEHICLE_WIDTH,
+                                roundaboutCar.getLength(),
+                                roundaboutCar,
+                                canvas,
+                                carId));
+                    } else {
+                        streetCarMap.put(carId, new CarUI(
+                                carStreetUI.getX() + PedestrianUIUtils.GetMaxedUiCarPosition(roundaboutCar, streetSection, carStreetUI),
+                                PedestrianUIUtils.GetCarPositionRelativeToWidth(carStreetUI, streetSection),
+                                roundaboutCar.getLength(),
+                                PedestrianUIUtils.VEHICLE_WIDTH,
+                                roundaboutCar,
+                                canvas,
+                                carId));
                     }
-                });
 
-                streetCarMap.put(carId, carUI);
+                    CarUI ui = streetCarMap.get(carId);
+
+
+                    Platform.runLater(new Runnable(){
+                        @Override
+                        public void run()
+                        {
+                            ui.addToContainer();
+                        }
+                    });
+
+                }
             }
         }
     }
 
     @Override
     public void updateCar(ICar car, IConsumer consumerStreetSection) {
+        if (car instanceof RoundaboutCar){
 
+            RoundaboutCar roundaboutCar = (RoundaboutCar)car;
+            if (consumerStreetSection instanceof StreetSection ) {
+                StreetSection streetSection = (StreetSection) consumerStreetSection;
+
+                CarStreetUI carStreetUI = carStreetUIMap.get(streetSection);
+                Map<String, CarUI> streetCarMap = localCarUIMap.get(streetSection);
+
+                String carId = roundaboutCar.getOldImplementationCar().getName();
+                CarUI carUi = streetCarMap.get(carId);
+
+                if (carUi!=null){
+                    boolean carDrivesAlongYAxis = streetSection.checkCarDrivesAlongYAxis();
+
+                    double x;
+                    double y;
+
+                    if (carDrivesAlongYAxis) {
+                        x = PedestrianUIUtils.GetCarPositionRelativeToWidth(carStreetUI, streetSection);
+                        y = PedestrianUIUtils.GetMaxedUiCarPosition(roundaboutCar, streetSection, carStreetUI);
+
+                    } else {
+                        x = PedestrianUIUtils.GetMaxedUiCarPosition(roundaboutCar, streetSection, carStreetUI);
+                        y = PedestrianUIUtils.GetCarPositionRelativeToWidth(carStreetUI, streetSection);
+                    }
+
+                    Platform.setImplicitExit(false);
+                    Platform.runLater(() -> carUi.updateInContainer(x, y));
+                }
+            }
+        }
     }
 
     @Override
     public void removeCar(ICar car, IConsumer consumerStreetSection) {
+        if (car instanceof RoundaboutCar){
+            RoundaboutCar roundaboutCar = (RoundaboutCar)car;
+            if (consumerStreetSection instanceof StreetSection ) {
+                StreetSection streetSection = (StreetSection) consumerStreetSection;
 
+                Map<String, CarUI> streetCarMap = localCarUIMap.get(streetSection);
+                if (streetCarMap.size()>0){
+                    String carId = roundaboutCar.getOldImplementationCar().getName();
+                    CarUI carUi = streetCarMap.get(carId);
+
+                    if (carUi!=null){
+                        Platform.setImplicitExit(false);
+                        Platform.runLater(() -> carUi.removeFromContainer());
+                    }
+                }
+            }
+        }
     }
 
     private double GetStreetWidth(LinkedList<Street> entryVehicleStreetList, LinkedList<Street> exitVehicleStreetList, PedestrianStreetSection pedestrianStreetSection)
@@ -385,33 +372,13 @@ public class PedestrianUIMain extends ScrollPane implements IPedestrianUIMain {
         }
     }
 
-
     private void centerCanvas(Pane nonCenteredCanvas){
         double w2 = nonCenteredCanvas.getBoundsInParent().getMaxX();
         double h2 = nonCenteredCanvas.getBoundsInParent().getMaxY();
         double x2 = ((PedestrianUIUtils.MAIN_WINDOW_WIDTH - w2) / 2);
         double y2 = ((PedestrianUIUtils.MAIN_WINDOW_HEIGHT - h2) / 2);
         nonCenteredCanvas.setTranslateX(x2);
-        nonCenteredCanvas.setTranslateY(y2);
-    }
-
-    public void validate(){
-        centerX = canvas.getPrefWidth()/2;
-        centerY = canvas.getPrefHeight()/2;
-        centerNodeInScrollPane(this, canvas);
-    }
-
-    private void centerNodeInScrollPane(ScrollPane scrollPane, Node node) {
-        double h = scrollPane.getContent().getBoundsInLocal().getHeight();
-        double y = (node.getBoundsInParent().getMaxY() + node.getBoundsInParent().getMinY()) / 2.0;
-        double v = scrollPane.getViewportBounds().getHeight();
-        centerY = scrollPane.getVmax() * ((y - 0.5 * v) / (h - v));
-        scrollPane.setVvalue(centerY);
-
-        double w = scrollPane.getContent().getBoundsInLocal().getWidth();
-        double x =  (node.getBoundsInParent().getMaxX() + node.getBoundsInParent().getMinX()) / 2.0;
-        double r = scrollPane.getViewportBounds().getWidth();
-        centerX = scrollPane.getHmax() * ((y - 0.5 * v) / (h - v));
-        scrollPane.setHvalue(centerX);
+        nonCenteredCanvas.setTranslateY(-y2);
     }
 }
+

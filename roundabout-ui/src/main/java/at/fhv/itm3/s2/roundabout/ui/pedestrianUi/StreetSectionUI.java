@@ -13,7 +13,7 @@ public class StreetSectionUI extends Rectangle {
         setY(pedestrianStreetSection.getGlobalCoordinateOfSectionOrigin().getY());
         setFill(color);
         this.uuid = pedestrianStreetSection.getId();
-        //super.setStyle("-fx-fill: red; -fx-stroke: black; -fx-stroke-width: 5;");
+        this.setStyle("-fx-stroke: black; -fx-stroke-width: 5;");
     }
 
     public StreetSectionUI(double x, double y, double width, double height, Color color, String uuid){
@@ -22,7 +22,6 @@ public class StreetSectionUI extends Rectangle {
         setY(y);
         setFill(color);
         this.uuid = uuid;
-        //super.setStyle("-fx-fill: red; -fx-stroke: black; -fx-stroke-width: 5;");
     }
 
     public StreetSectionUI(double x, double y, double width, double height, Color color, String uuid, String style){
