@@ -172,7 +172,7 @@ public class PedestrianGenerateEvent extends Event<PedestrianAbstractSource> {
 
             final double shiftedTimeUntilPedestrianArrival = randomTimeUntilPedestrianArrival + generatorExpectationShift;
             final double actualTimeUntilPedestrianArrival = Math.max(shiftedTimeUntilPedestrianArrival, Math.max(minTimeBetweenPedestrianArrivals, minTimeBetweenEventCall));
-            pedestrian.addEventGap_ReachedAim(actualTimeUntilPedestrianArrival);
+            pedestrian.addEventGap_Generation(actualTimeUntilPedestrianArrival);
             pedestrianGenerateEvent.schedule(source, new TimeSpan(actualTimeUntilPedestrianArrival, roundaboutSimulationModel.getModelTimeUnit()));
 
         } else {

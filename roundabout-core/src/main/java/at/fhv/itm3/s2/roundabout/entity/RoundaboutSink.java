@@ -93,7 +93,9 @@ public class RoundaboutSink extends AbstractSink {
 
                     meanTimeWaitingDueToIllegalCrossingOfPedestrian = meanTimeWaitingDueToIllegalCrossingOfPedestrian * dPreviousRate2 + car.getMeanTimeWaitingDueToIllegalCrossingOfPedestrian()/ getNrOfEnteredCars();
 
-                    minTimeWaitingDueToIllegalCrossingOfPedestrian = Math.min(minTimeWaitingDueToIllegalCrossingOfPedestrian, car.getMinTimeWaitingDueToIllegalCrossingOfPedestrian());
+                    if(car.getMinTimeWaitingDueToIllegalCrossingOfPedestrian() != 0) {
+                        minTimeWaitingDueToIllegalCrossingOfPedestrian = Math.min(minTimeWaitingDueToIllegalCrossingOfPedestrian, car.getMinTimeWaitingDueToIllegalCrossingOfPedestrian());
+                    }
                     maxTimeWaitingDueToIllegalCrossingOfPedestrian = Math.max(maxTimeWaitingDueToIllegalCrossingOfPedestrian, car.getMaxTimeWaitingDueToIllegalCrossingOfPedestrian());
 
                 }
