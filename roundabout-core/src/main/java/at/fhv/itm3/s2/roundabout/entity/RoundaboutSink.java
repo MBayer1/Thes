@@ -22,6 +22,10 @@ public class RoundaboutSink extends AbstractSink {
     private double meanWaitingTimePerStop;
     private double meanStopCount;
     private double meanIntersectionPassTime;
+    private double minTimeWaitingDueToIllegalCrossingOfPedestrian;
+    private double maxTimeWaitingDueToIllegalCrossingOfPedestrian;
+    private double meanTimeWaitingDueToIllegalCrossingOfPedestrian;
+    private long cntCarCrossingPedestrianCrossing;
 
     public RoundaboutSink(Model owner, String name, boolean showInTrace) {
         this(UUID.randomUUID().toString(), owner, name, showInTrace);
@@ -35,6 +39,10 @@ public class RoundaboutSink extends AbstractSink {
         this.meanWaitingTimePerStop = 0;
         this.meanStopCount = 0;
         this.meanIntersectionPassTime = 0;
+        this.minTimeWaitingDueToIllegalCrossingOfPedestrian = 0;
+        this.maxTimeWaitingDueToIllegalCrossingOfPedestrian = 0;
+        this.meanTimeWaitingDueToIllegalCrossingOfPedestrian = 0;
+        this.cntCarCrossingPedestrianCrossing = 0;
     }
 
     /**
@@ -53,6 +61,9 @@ public class RoundaboutSink extends AbstractSink {
         iCar.leaveSystem();
         incrementEnteredCarCounter();
         updateStats(iCar);
+        if (iCar instanceof RoundaboutCar) {
+            ((RoundaboutCar) iCar).stopAdditionalWaiting();
+        }
 
         IConsumer consumer = iCar.getLastSection();
         if (consumer instanceof Street) {
@@ -72,6 +83,24 @@ public class RoundaboutSink extends AbstractSink {
         meanWaitingTimePerStop = meanWaitingTimePerStop * dPreviousRate + car.getMeanWaitingTime()/ getNrOfEnteredCars();
         meanStopCount = meanStopCount * dPreviousRate + car.getStopCount()/ getNrOfEnteredCars();
         meanIntersectionPassTime = meanIntersectionPassTime * dPreviousRate + car.getMeanIntersectionPassTime()/ getNrOfEnteredCars();
+
+
+        for ( IConsumer section : car.getRoute().getRoute() ) {
+            if (section instanceof StreetSection) {
+                if (((StreetSection) section).doesHavePedestrianCrossingToEnter()) {
+                    cntCarCrossingPedestrianCrossing ++;
+                    double dPreviousRate2 = ((double)cntCarCrossingPedestrianCrossing-1)/ (double) cntCarCrossingPedestrianCrossing;
+
+                    meanTimeWaitingDueToIllegalCrossingOfPedestrian = meanTimeWaitingDueToIllegalCrossingOfPedestrian * dPreviousRate2 + car.getMeanTimeWaitingDueToIllegalCrossingOfPedestrian()/ getNrOfEnteredCars();
+
+                    minTimeWaitingDueToIllegalCrossingOfPedestrian = Math.min(minTimeWaitingDueToIllegalCrossingOfPedestrian, car.getMinTimeWaitingDueToIllegalCrossingOfPedestrian());
+                    maxTimeWaitingDueToIllegalCrossingOfPedestrian = Math.max(maxTimeWaitingDueToIllegalCrossingOfPedestrian, car.getMaxTimeWaitingDueToIllegalCrossingOfPedestrian());
+
+                }
+            }
+        }
+
+
     }
 
     /**
@@ -272,5 +301,17 @@ public class RoundaboutSink extends AbstractSink {
      */
     @Override
     public double getMeanIntersectionPassTimeForEnteredCars() { return meanIntersectionPassTime;
+    }
+
+    public double getMinTimeWaitingDueToIllegalCrossingOfPedestrian() {
+        return minTimeWaitingDueToIllegalCrossingOfPedestrian;
+    }
+
+    public double getMaxTimeWaitingDueToIllegalCrossingOfPedestrian() {
+        return maxTimeWaitingDueToIllegalCrossingOfPedestrian;
+    }
+
+    public double getMeanTimeWaitingDueToIllegalCrossingOfPedestrian() {
+        return meanTimeWaitingDueToIllegalCrossingOfPedestrian;
     }
 }

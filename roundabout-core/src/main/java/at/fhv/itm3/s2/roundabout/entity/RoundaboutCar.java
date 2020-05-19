@@ -23,8 +23,10 @@ public class RoundaboutCar implements ICar {
     private final IDriverBehaviour driverBehaviour;
     private final Iterator<IConsumer> routeIterator;
     private final StopWatch roundaboutStopWatch;
+    private final StopWatch timeWaitingDueToIllegalCrossingOfPedestrianStopWatch;
     private final Count roundaboutCounter;
     private final Tally roundaboutTime;
+    public final Tally timeWaitingDueToIllegalCrossingOfPedestrian;
     private final StopWatch stopsStopWatch;
 
     private double lastUpdateTime;
@@ -66,11 +68,14 @@ public class RoundaboutCar implements ICar {
         this.setLastUpdateTime(getRoundaboutModel().getCurrentTime());
 
         this.roundaboutStopWatch = new StopWatch(model);
+        this.timeWaitingDueToIllegalCrossingOfPedestrianStopWatch = new StopWatch(model);
         this.stopsStopWatch = new StopWatch(model);
         this.roundaboutCounter = new Count(model,  "Roundabout counter", false, false);
         this.roundaboutCounter.reset();
         this.roundaboutTime = new Tally(model, "Roundabout time", false, false);
         this.roundaboutTime.reset();
+        this.timeWaitingDueToIllegalCrossingOfPedestrian = new Tally(model, "Roundabout time", false, false);
+        this.timeWaitingDueToIllegalCrossingOfPedestrian.reset();
     }
 
     public Car getOldImplementationCar() {
@@ -280,7 +285,29 @@ public class RoundaboutCar implements ICar {
             double res = this.roundaboutStopWatch.stop();
             this.roundaboutTime.update(new TimeSpan(res));
         }
+        if (this.timeWaitingDueToIllegalCrossingOfPedestrianStopWatch.isRunning()) {
+            double res = this.timeWaitingDueToIllegalCrossingOfPedestrianStopWatch.stop();
+            this.timeWaitingDueToIllegalCrossingOfPedestrian.update(new TimeSpan(res));
+        }
+
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public double getMinTimeWaitingDueToIllegalCrossingOfPedestrian () {
+        return timeWaitingDueToIllegalCrossingOfPedestrian.getMinimum();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public double getMaxTimeWaitingDueToIllegalCrossingOfPedestrian () {
+        return Math.max(timeWaitingDueToIllegalCrossingOfPedestrian.getMaximum(),0);
+    }
+
 
     /**
      * {@inheritDoc}
@@ -327,6 +354,24 @@ public class RoundaboutCar implements ICar {
         }
     }
 
+    public boolean additionalWaitingIsRunning(){
+        return this.timeWaitingDueToIllegalCrossingOfPedestrianStopWatch.isRunning();
+    }
+
+    public void startAdditionalWaiting() {
+        stopAdditionalWaiting(); // needed for update in critical cases
+        if (!this.timeWaitingDueToIllegalCrossingOfPedestrianStopWatch.isRunning()) {
+            this.timeWaitingDueToIllegalCrossingOfPedestrianStopWatch.start();
+        }
+    }
+
+    public void stopAdditionalWaiting() {
+        if (this.timeWaitingDueToIllegalCrossingOfPedestrianStopWatch.isRunning()) {
+            double res = this.timeWaitingDueToIllegalCrossingOfPedestrianStopWatch.stop();
+            this.timeWaitingDueToIllegalCrossingOfPedestrian.update(new TimeSpan(res));
+        }
+    }
+
     public boolean isWaiting() {
         return car.isWaiting();
     }
@@ -354,4 +399,10 @@ public class RoundaboutCar implements ICar {
     public double getCoveredDistanceInTime(double time) {
         return time * driverBehaviour.getSpeed();
     }
+
+    public double getMeanTimeWaitingDueToIllegalCrossingOfPedestrian() {
+        return this.timeWaitingDueToIllegalCrossingOfPedestrian.getObservations() <= 0L
+                ? 0.0D : this.timeWaitingDueToIllegalCrossingOfPedestrian.getMean();
+    }
+
 }

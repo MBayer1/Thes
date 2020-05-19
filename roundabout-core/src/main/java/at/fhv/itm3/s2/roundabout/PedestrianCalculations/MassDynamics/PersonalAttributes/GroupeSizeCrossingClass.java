@@ -7,8 +7,10 @@ import at.fhv.itm3.s2.roundabout.api.PedestrianPoint;
 import at.fhv.itm3.s2.roundabout.api.entity.*;
 import at.fhv.itm3.s2.roundabout.entity.Pedestrian;
 import at.fhv.itm3.s2.roundabout.entity.PedestrianBehaviour;
+import at.fhv.itm3.s2.roundabout.entity.PedestrianSink;
 import at.fhv.itm3.s2.roundabout.entity.PedestrianStreetSection;
 
+import javax.swing.*;
 import javax.vecmath.Vector2d;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -109,12 +111,12 @@ public class GroupeSizeCrossingClass {
         throw new IllegalStateException("Section not part of Route.");
     }
 
-    PedestrianStreetSection getNextSection(Pedestrian pedestrian, PedestrianStreetSection currentSection) {
-        PedestrianStreetSection section = null;
+    IConsumer getNextSection(Pedestrian pedestrian, PedestrianStreetSection currentSection) {
+        IConsumer section = null;
         boolean stopLooping = false;
 
         for(PedestrianStreetSectionAndPortPair sectionAndPortPair : pedestrian.getRoute().getRoute()){
-            section = (PedestrianStreetSection) sectionAndPortPair.getStreetSection();
+            section = sectionAndPortPair.getStreetSection();
 
             if (stopLooping) return section;
             if(section.equals(currentSection)){
@@ -127,22 +129,26 @@ public class GroupeSizeCrossingClass {
     boolean checkForCrossingInRemainingRouteAndShortestDistance(Pedestrian pedestrian, PedestrianStreetSection crossingRef) {
         double distance = pedestrian.getRemainingDistanceToCurrentNextSubsoil();
 
-        if( !(pedestrian.getNextSection().getStreetSection() instanceof PedestrianStreetSection) ||
-                !(pedestrian.getCurrentSection().getStreetSection()instanceof PedestrianStreetSection) ){
+        if (pedestrian.getNextSection() == null) return false;
+
+        if( !(( pedestrian.getNextSection().getStreetSection() instanceof PedestrianStreetSection ||
+                pedestrian.getNextSection().getStreetSection() instanceof PedestrianSink)) &&
+               (pedestrian.getCurrentSection().getStreetSection()instanceof PedestrianStreetSection ||
+                pedestrian.getCurrentSection().getStreetSection()instanceof PedestrianSink)) {
             throw new IllegalArgumentException("Section is not an instance of PedestrianStreetSection");
         }
-        PedestrianStreetSection currentSection = (PedestrianStreetSection) pedestrian.getCurrentSection().getStreetSection();
-        PedestrianStreetSection nextSection = getNextSection(pedestrian, currentSection);
-        PedestrianStreetSectionAndPortPair currentData = getCurrentSectionData(pedestrian, currentSection);
+        IConsumer currentSection = pedestrian.getCurrentSection().getStreetSection();
+        IConsumer nextSection = getNextSection(pedestrian, (PedestrianStreetSection) currentSection);
+        PedestrianStreetSectionAndPortPair currentData = getCurrentSectionData(pedestrian, (PedestrianStreetSection) currentSection);
 
-        while ( !nextSection.getPedestrianConsumerType().equals(PedestrianConsumerType.PEDESTRIAN_SINK)){
+        while ( nextSection instanceof PedestrianStreetSection){
             if(nextSection.equals(crossingRef)) {
                 return calculations.val1LowerOrAlmostEqual(distance, pedestrian.getMaxDistanceForWaitingArea());
             }
             distance += getWalkingLengthAcrossSection(currentData);
             currentSection = nextSection;
-            nextSection = getNextSection(pedestrian, currentSection);
-            currentData = getCurrentSectionData(pedestrian, currentSection);
+            nextSection = getNextSection(pedestrian, (PedestrianStreetSection) currentSection);
+            currentData = getCurrentSectionData(pedestrian, (PedestrianStreetSection) currentSection);
         }
         return  false;
     }

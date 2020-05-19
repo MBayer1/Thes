@@ -88,13 +88,13 @@ public class SupportiveCalculations {
 
     }
 
-    public boolean checkLinesIntersectionByCoordinates_WithinSegment(PedestrianPoint intersection,
+    public boolean checkLinesIntersectionByCoordinates_WithinSegment(PedestrianPoint intersectionParam,
                                                                      double lineStartX1, double lineStartY1,
                                                                      double lineEndX1, double lineEndY1,
                                                                      double lineStartX2, double lineStartY2, //global
                                                                      double lineEndX2, double lineEndY2
     ) {
-
+        PedestrianPoint intersection = new PedestrianPoint(intersectionParam);
         if ((lineStartX1 == lineStartX2) && (lineStartY1 == lineStartY2) &&
                 (lineEndX1 == lineEndX2) && (lineEndY1 == lineEndY2)) {
             throw new IllegalArgumentException("Lines are identical.");
@@ -133,6 +133,7 @@ public class SupportiveCalculations {
                 ((intersection.getX()<=lineStartX1) && (intersection.getX()>=lineEndX1))) &&
                 (((intersection.getX()>=lineStartX2) && (intersection.getX()<=lineEndX2)) ||
                         ((intersection.getX()<=lineStartX2) && (intersection.getX()>=lineEndX2)))){
+            intersectionParam.setLocation(intersection);
             return true;
         }
 

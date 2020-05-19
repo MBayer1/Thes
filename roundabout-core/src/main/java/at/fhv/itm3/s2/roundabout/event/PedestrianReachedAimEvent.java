@@ -74,32 +74,21 @@ public class PedestrianReachedAimEvent extends Event<Pedestrian> {
             throw new IllegalArgumentException("Pedestrian not instance of Pedestrian.");
         }
         // since all sup-aims are within one street section it is enough to check all other pedestrian on the same section
-        if (!(pedestrian.getCurrentSection().getStreetSection() instanceof PedestrianStreet)) {
-            throw new IllegalArgumentException("Street not instance of PedestrianStreet.");
-        }
-
-        IConsumer currentSectionTmp = pedestrian.getCurrentSection().getStreetSection();
-        if(currentSectionTmp instanceof PedestrianSink) {
-            return;
-        }
-
-        if (!(currentSectionTmp instanceof PedestrianStreetSection)) {
-            throw new IllegalArgumentException("Street not instance of PedestrianStreet.");
-        }
-
-        PedestrianStreetSection currentSection = (PedestrianStreetSection) currentSectionTmp;
+        PedestrianStreetSection currentSection = getCurrentSectionAndCheckForSink(pedestrian);
+        if (currentSection == null) return; // reached sink
 
         if(!currentSection.checkPedestrianIsWithinSection(pedestrian) &&
-                currentSection.getPedestrianConsumerType().equals(PedestrianConsumerType.PEDESTRIAN_CROSSING)) {
-            //throw new IllegalArgumentException("Pedestrian out of section. Not possible.");
+                !currentSection.getPedestrianConsumerType().equals(PedestrianConsumerType.PEDESTRIAN_CROSSING)) {
+            throw new IllegalArgumentException("Pedestrian out of section. Not possible.");
         }
-
 
         // check for waiting are before crossing
         if (pedestrian.checkForWaitingArea() ){
             pedestrian.setCurrentSpeed(0);
+            pedestrian.startWaiting();
         } else if (calc.almostEqual(pedestrian.getCurrentSpeed(), 0)) {
             pedestrian.setCurrentSpeed(pedestrian.getPreferredSpeed()); // reset
+            pedestrian.endPedestrianWaiting();
         }
 
         double timeToDestination = 0.0;
@@ -131,6 +120,7 @@ public class PedestrianReachedAimEvent extends Event<Pedestrian> {
                         keepWalking = true;
                     } else {
                         pedestrian.setCurrentSpeed(0); // not walking
+                        pedestrian.startWaiting();
                         // Event call delay must not be below minTimeBetweenEventCall
                         timeToDestination = minTimeBetweenEventCall;
                     }
@@ -172,6 +162,7 @@ public class PedestrianReachedAimEvent extends Event<Pedestrian> {
 
         // set planed time of movement
         pedestrian.setWalkingTimeStamps(timeToDestination);
+        pedestrian.addEventGap_ReachedAim(timeToDestination);
 
         // schedule next event
         try {
@@ -181,11 +172,29 @@ public class PedestrianReachedAimEvent extends Event<Pedestrian> {
             throw new IllegalArgumentException("Pedestrian Event went wrong.");
         }
 
-        Pedestrian pedestrianToEnter = null;
-        if (currentSection.reCheckPedestrianCanEnterSection(pedestrianToEnter)) { // after some movements recheck pedestrians in queue
+        Pedestrian pedestrianToEnter = currentSection.reCheckPedestrianCanEnterSection();
+
+        if ( pedestrianToEnter != null) { // after some movements recheck pedestrians in queue
             pedestrianEventFactory.createPedestrianReachedAimEvent(roundaboutSimulationModel).schedule(
                     pedestrianToEnter, new TimeSpan(0, roundaboutSimulationModel.getModelTimeUnit()));
         }
     }
 
+
+    PedestrianStreetSection getCurrentSectionAndCheckForSink( Pedestrian pedestrian) {
+        if (!(pedestrian.getCurrentSection().getStreetSection() instanceof PedestrianStreet)) {
+            throw new IllegalArgumentException("Street not instance of PedestrianStreet.");
+        }
+
+        IConsumer currentSectionTmp = pedestrian.getCurrentSection().getStreetSection();
+        if(currentSectionTmp instanceof PedestrianSink) {
+            return null;
+        }
+
+        if (!(currentSectionTmp instanceof PedestrianStreetSection)) {
+            throw new IllegalArgumentException("Street not instance of PedestrianStreet.");
+        }
+
+        return (PedestrianStreetSection) currentSectionTmp;
+    }
 }

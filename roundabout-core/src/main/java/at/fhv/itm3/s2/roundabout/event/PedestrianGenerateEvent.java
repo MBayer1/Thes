@@ -150,9 +150,9 @@ public class PedestrianGenerateEvent extends Event<PedestrianAbstractSource> {
             globalEntryPoint.setLocation(entryX + global.getX(), entryY + global.getY());
 
             final Pedestrian pedestrian = new Pedestrian(roundaboutSimulationModel, name, showInTrace, globalEntryPoint, behaviour, route);
+            pedestrian.enterSystem();
             PedestrianController.addCarMapping(pedestrian.getCarDummy(), pedestrian);
             if (checkPedestrianCanEnterSystem(pedestrian, globalEntryPoint, (PedestrianStreetSection)currentSection)) {
-                pedestrian.enterSystem();
                 ((PedestrianStreetSection) currentSection).addPedestrian(pedestrian, globalEntryPoint);
                 pedestrian.setCurrentLocalPosition(); // do this after adding to street section
 
@@ -172,6 +172,7 @@ public class PedestrianGenerateEvent extends Event<PedestrianAbstractSource> {
 
             final double shiftedTimeUntilPedestrianArrival = randomTimeUntilPedestrianArrival + generatorExpectationShift;
             final double actualTimeUntilPedestrianArrival = Math.max(shiftedTimeUntilPedestrianArrival, Math.max(minTimeBetweenPedestrianArrivals, minTimeBetweenEventCall));
+            pedestrian.addEventGap_ReachedAim(actualTimeUntilPedestrianArrival);
             pedestrianGenerateEvent.schedule(source, new TimeSpan(actualTimeUntilPedestrianArrival, roundaboutSimulationModel.getModelTimeUnit()));
 
         } else {
@@ -180,8 +181,8 @@ public class PedestrianGenerateEvent extends Event<PedestrianAbstractSource> {
     }
 
     private boolean checkPedestrianCanEnterSystem(Pedestrian pedestrian, PedestrianPoint globalEnterPoint, PedestrianStreetSection section) {
-        Pedestrian pedestrianToEnter = null;
-        if (section.reCheckPedestrianCanEnterSection(pedestrianToEnter)) { // after some movements recheck pedestrians in queue
+        Pedestrian pedestrianToEnter = section.reCheckPedestrianCanEnterSection();
+        if ( pedestrianToEnter != null) { // after some movements recheck pedestrians in queue
             pedestrianEventFactory.createPedestrianReachedAimEvent(roundaboutSimulationModel).schedule(
                     pedestrianToEnter, new TimeSpan(10, roundaboutSimulationModel.getModelTimeUnit()));
         }
@@ -189,6 +190,7 @@ public class PedestrianGenerateEvent extends Event<PedestrianAbstractSource> {
             section.addPedestriansQueueToEnter(pedestrian, globalEnterPoint, section);
             return false;
         }
+        pedestrian.enterPedestrianArea();
         return true;
     }
 }

@@ -433,7 +433,11 @@ public class ConfigParser {
                 Source::getId,
                 so -> {
                     final Street street = resolveSection(scopeComponentId, so.getSectionId());
-                    final RoundaboutSource source = new RoundaboutSource(so.getId(), so.getGeneratorExpectation(), model, so.getId(), false, street);
+
+                    double ratio = so.getGeneratorExpectation() == null ? 0 : so.getGeneratorExpectation()*1;// todo adapt generationExpectation for test
+                    final RoundaboutSource source = new RoundaboutSource(so.getId(),
+                            ratio,
+                            model, so.getId(), false, street);
                     if (!SOURCE_REGISTRY.containsKey(scopeComponentId)) {
                         SOURCE_REGISTRY.put(scopeComponentId, new HashMap<>());
                     }
@@ -1013,6 +1017,9 @@ public class ConfigParser {
         Component component,
         ModelConfig modelConfig
     ) {
+
+        if(component.getType() == ComponentType.PEDESTRIANWALKINGAREA) {return;}
+
         final IConsumer lastConsumer = routeSections.get(routeSections.size() - 1);
         if (!(lastConsumer instanceof Street)) {
             throw new IllegalArgumentException("Only instances of Street class may be included in root.");
@@ -1025,8 +1032,8 @@ public class ConfigParser {
                 if (track.getFromSectionId().equals(currentSectionId)) {
                     final String toComponentId = track.getToComponentId() != null ? track.getToComponentId() : component.getId();
                     final String toSectionId = track.getToSectionId();
-
                     final Street toSection = resolveStreet(toComponentId, toSectionId);
+
                     if (!routeSections.contains(toSection)) {
                         final List<IConsumer> newRouteSections = new LinkedList<>(routeSections);
                         if (component.getType() == ComponentType.INTERSECTION) {
@@ -1105,6 +1112,7 @@ public class ConfigParser {
             Component component,
             ModelConfig modelConfig
     ) {
+        if(component.getType() != ComponentType.PEDESTRIANWALKINGAREA) return;
         IConsumer lastConsumer = routeSections.get(routeSections.size() - 1).getStreetSection();
         if (!(lastConsumer instanceof PedestrianStreet)) {
             throw new IllegalArgumentException("Only instances of PedestrianStreet class may be included in root.");

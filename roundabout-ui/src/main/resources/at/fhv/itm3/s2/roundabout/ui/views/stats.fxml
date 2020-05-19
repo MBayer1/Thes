@@ -115,6 +115,13 @@
                                 </font>
                             </Label>
                         </VBox>
+                        <VBox fx:id="sinkAvgWaitDueToIllegalCrossing" alignment="CENTER" minWidth="40">
+                            <Label text="AddWait">
+                                <font>
+                                    <Font name="System Bold Italic" size="12.0"/>
+                                </font>
+                            </Label>
+                        </VBox>
                     </HBox>
                 </VBox>
             </HBox>

@@ -102,7 +102,6 @@ public class RouteController {
                 return route;
             }
         }
-
         throw new IllegalStateException("No route was chosen for source: " + source);
     }
 }

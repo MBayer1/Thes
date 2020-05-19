@@ -379,11 +379,12 @@ public abstract class PedestrianStreet extends AbstractProSumer implements IPede
      */
     public synchronized void addObserver(ObserverType observerType, Observer o) {
         switch (observerType) {
-            case CAR_ENTERED: enteredPedestrianObserver.addObserver(o); break;
-            case CAR_ENTITY: pedestrianObserver.addObserver(o); break;
-            case CAR_LEFT: leftPedestrianObserver.addObserver(o); break;
-            case CAR_POSITION: pedestrianPositionObserver.addObserver(o); break;
+            case PEDESTRIAN_ENTERED: enteredPedestrianObserver.addObserver(o); break;
+            case PEDESTRIAN_ENTITY: pedestrianObserver.addObserver(o); break;
+            case PEDESTRIAN_LEFT: leftPedestrianObserver.addObserver(o); break;
+            case PEDESTRIAN_POSITION: pedestrianPositionObserver.addObserver(o); break;
             case TRAFFIC_LIGHT: trafficLightObserver.addObserver(o); break;
+
         }
     }
 

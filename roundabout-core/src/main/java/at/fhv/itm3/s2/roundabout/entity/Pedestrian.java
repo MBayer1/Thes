@@ -9,7 +9,6 @@ import at.fhv.itm3.s2.roundabout.api.entity.*;
 import at.fhv.itm3.s2.roundabout.model.RoundaboutSimulationModel;
 import desmoj.core.simulator.Entity;
 import desmoj.core.simulator.Model;
-import desmoj.core.simulator.TimeInstant;
 import desmoj.core.simulator.TimeSpan;
 import desmoj.core.statistic.Count;
 import desmoj.core.statistic.Tally;
@@ -23,21 +22,30 @@ public class Pedestrian extends Entity implements IPedestrian {
     private final IPedestrianRoute route;
     private final IPedestrianBehaviour pedestrianBehaviour;
     private final Iterator<PedestrianStreetSectionAndPortPair> routeIterator;
-    private final StopWatch pedestrianStopWatch; // this was prepared for waiting areas
-    private final Count pedestrianCounter; // this was prepared for waiting areas
-    private final Tally pedestrianAreaTime; // this was prepared for waiting areas
+    private final StopWatch pedestrianAreaStopWatch;
+    private final Tally pedestrianAreaTime;
     private final StopWatch pedestrianCrossingStopWatch;
     private final Count pedestrianCrossingCounter;
     private final Tally pedestrianCrossingTime;
+    private final StopWatch pedestrianWaitingStopWatch;
+    private final Count pedestrianWaitingCounter;
+    private final Tally pedestrianWaitingTime;
     private double currentTimeSpendInSystem;
+    public final Tally pedestriansQueueToEnterTime;
+    public final StopWatch pedestriansQueueToEnterTimeStopWatch;
+
+    private final StopWatch pedestrianEventIntervallGapStopWatch;
+    private final Count pedestrianEventIntervalGapCounter;
+    private final Tally pedestrianEventIntervalGap;
+    private final StopWatch pedestrianEventIntervallGapStopWatch_Generation;
+    private final Count pedestrianEventIntervalGapCounter_Generation;
+    private final Tally pedestrianEventIntervalGap_Generation;
+
+
 
     private double lastUpdateTime;
     private PedestrianPoint currentGlobalPosition;
     private PedestrianPoint currentLocalPosition;
-
-    public final Count pedestriansQueueToEnterCounter;
-    public final Tally pedestriansQueueToEnterTime;
-    public final StopWatch pedestriansQueueToEnterTimeStopWatch;
 
     private PedestrianStreetSection lastSection;
     private PedestrianStreetSectionAndPortPair currentSection;
@@ -50,9 +58,6 @@ public class Pedestrian extends Entity implements IPedestrian {
     private Double startOfWalking;
     private Double futureEndOfWalking;
     private Double walkingSpeedByStartOfWalking;
-
-    private Double enterSystemTime;
-    private Double leaveSystemTime;
 
     SupportiveCalculations calc = new SupportiveCalculations();
 
@@ -95,9 +100,7 @@ public class Pedestrian extends Entity implements IPedestrian {
 
         this.setLastUpdateTime();
 
-        this.pedestrianStopWatch = new StopWatch(model);
-        this.pedestrianCounter = new Count(model, "Roundabout counter", false, false);
-        this.pedestrianCounter.reset();
+        this.pedestrianAreaStopWatch = new StopWatch(model);
         this.pedestrianAreaTime = new Tally(model, "Roundabout time", false, false);
         this.pedestrianAreaTime.reset();
 
@@ -107,10 +110,28 @@ public class Pedestrian extends Entity implements IPedestrian {
         this.pedestrianCrossingTime = new Tally(model, "Roundabout time", false, false);
         this.pedestrianCrossingTime.reset();
 
-        // coordinates are always at center of pedestrian, min gab simulates als the radius of pedestrian
 
-        this.pedestriansQueueToEnterCounter = new Count(model, "Roundabout counter", false, false);
-        this.pedestriansQueueToEnterCounter.reset();
+        this.pedestrianWaitingStopWatch = new StopWatch(model);
+        this.pedestrianWaitingCounter = new Count(model, "Roundabout counter", false, false);
+        this.pedestrianWaitingCounter.reset();
+        this.pedestrianWaitingTime = new Tally(model, "Roundabout time", false, false);
+        this.pedestrianWaitingTime.reset();
+
+
+        this.pedestrianEventIntervallGapStopWatch = new StopWatch(model);
+        this.pedestrianEventIntervalGapCounter = new Count(model, "EventIntervallGap", false, false);
+        this.pedestrianEventIntervalGapCounter.reset();
+        this.pedestrianEventIntervalGap = new Tally(model, "EventIntervallGap", false, false);
+        this.pedestrianEventIntervalGap.reset();
+
+
+        this.pedestrianEventIntervallGapStopWatch_Generation = new StopWatch(model);
+        this.pedestrianEventIntervalGapCounter_Generation = new Count(model, "EventIntervallGap", false, false);
+        this.pedestrianEventIntervalGapCounter_Generation.reset();
+        this.pedestrianEventIntervalGap_Generation = new Tally(model, "EventIntervallGap_Generation", false, false);
+        this.pedestrianEventIntervalGap_Generation.reset();
+
+        // coordinates are always at center of pedestrian, min gab simulates als the radius of pedestrian
         this.pedestriansQueueToEnterTime = new Tally(model, "Roundabout time", false, false);
         this.pedestriansQueueToEnterTimeStopWatch = new StopWatch(model);
     }
@@ -171,14 +192,27 @@ public class Pedestrian extends Entity implements IPedestrian {
                 currentGlobalPosition.getX(),
                 currentGlobalPosition.getY()) / pedestrianBehaviour.getCurrentSpeed();
 
-        if (Double.isInfinite(calcResult)) {
+        if (Double.isInfinite(calcResult) || Double.isNaN(calcResult)) {
             calcResult = 0; // no current speed = waiting
         } else
-        if(calcResult < 1 ) { // 1 time unit, in this case 1sec
-            //throw new  IllegalStateException("Something went wrong. Suspicious transfer time of Pedestrian.");
+        if(calcResult < 1 && getCurrentSpeed() > 0) { // 1 time unit, in this case 1sec
+            //throw new  IllegalStateException("Something went wrong. Suspicious transferee time of Pedestrian.");
         }
-
         return calcResult;
+    }
+
+    public PedestrianPoint getPositionByCurrTime(){
+        double timeDiff = futureEndOfWalking - getRoundaboutModel().getCurrentTime();
+        double traffeledPath = getCoveredDistanceInTime(timeDiff);
+
+        Vector2d curPos = new Vector2d(currentGlobalPosition.getX(), currentGlobalPosition.getY());
+        Vector2d dir = new Vector2d(new Vector2d(currentNextGlobalAim.getX(), currentNextGlobalAim.getY()));
+        dir.sub(curPos);
+
+        dir = calc.getUnitVector(dir);
+        dir.scale(traffeledPath);
+        curPos.add(dir);
+        return new PedestrianPoint(curPos);
     }
 
 
@@ -375,6 +409,52 @@ public class Pedestrian extends Entity implements IPedestrian {
      * {@inheritDoc}
      */
     @Override
+    public void startPedestrianWaiting() {
+        this.pedestrianWaitingCounter.update();
+        this.pedestrianWaitingStopWatch.start();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void endPedestrianWaiting() {
+        if (this.pedestrianWaitingStopWatch.isRunning()) {
+            double res = this.pedestrianWaitingStopWatch.stop();
+            this.pedestrianWaitingTime.update(new TimeSpan(res));
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void addEventGap_ReachedAim(double timeGap) {
+        this.pedestrianEventIntervalGapCounter.update();
+        this.pedestrianEventIntervalGap.update(timeGap);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void addEventGap_Generation( double timeGap) {
+        this.pedestrianEventIntervalGapCounter_Generation.update();
+        this.pedestrianEventIntervalGap_Generation.update(timeGap);
+    }
+
+    public double getMeanTimeEventGap() {
+        return this.pedestrianEventIntervalGap.getMean();
+    }
+
+    public double getMeanTimeEventGap_Generation() {
+        return this.pedestrianEventIntervalGap_Generation.getMean();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public double getMeanStreetCrossingPassTime() {
         return this.pedestrianCrossingTime.getObservations() <= 0L ? 0.0D : this.pedestrianCrossingTime.getMean();
     }
@@ -384,9 +464,8 @@ public class Pedestrian extends Entity implements IPedestrian {
      */
     @Override
     public void enterPedestrianArea() {
-        this.pedestrianCounter.update();
-        if(!this.pedestrianStopWatch.isRunning()) {
-            this.pedestrianStopWatch.start();
+        if(!this.pedestrianAreaStopWatch.isRunning()) {
+            this.pedestrianAreaStopWatch.start();
         }
     }
 
@@ -395,8 +474,8 @@ public class Pedestrian extends Entity implements IPedestrian {
      */
     @Override
     public void leavePedestrianArea() {
-        if(pedestrianStopWatch.isRunning()) {
-            double res = this.pedestrianStopWatch.stop();
+        if(pedestrianAreaStopWatch.isRunning()) {
+            double res = this.pedestrianAreaStopWatch.stop();
             this.pedestrianAreaTime.update(new TimeSpan(res));
         }
     }
@@ -413,14 +492,14 @@ public class Pedestrian extends Entity implements IPedestrian {
         if (!isWaiting()) {
             car.startWaiting();
         }
-        if (!this.pedestrianStopWatch.isRunning()) {
-            this.pedestrianStopWatch.start();
+        if (!this.pedestrianAreaStopWatch.isRunning()) {
+            this.pedestrianAreaStopWatch.start();
         }
     }
 
     public void stopWaiting() {
-        if (this.pedestrianStopWatch.isRunning()) {
-            this.pedestrianStopWatch.stop();
+        if (this.pedestrianAreaStopWatch.isRunning()) {
+            this.pedestrianAreaStopWatch.stop();
         } else {
             car.stopWaiting();
         }
@@ -438,11 +517,7 @@ public class Pedestrian extends Entity implements IPedestrian {
         return car.getMeanWaitingTime();
     }
 
-    public double getWaitingBeforeEnteringCount() {
-        return this.pedestriansQueueToEnterCounter.getValue();
-    }
-
-    public double getMeanWaitingBeforeEnteringsTime() {
+    public double getMeanWaitingBeforeEnteringTime() {
         return this.pedestriansQueueToEnterTime.getObservations() <= 0L ? 0.0D : this.pedestriansQueueToEnterTime.getMean();
     }
 
@@ -596,11 +671,11 @@ public class Pedestrian extends Entity implements IPedestrian {
             }
         } // Port is along x axis
         else {
-            if (((calc.val1LowerOrAlmostEqual((localBegin.getX()), localPedestrianPosition.getX(), 10e-1) &&
+            if (((  calc.val1LowerOrAlmostEqual((localBegin.getX()), localPedestrianPosition.getX(), 10e-1) &&
                     calc.val1BiggerOrAlmostEqual((localEnd.getX()), localPedestrianPosition.getX(), 10e-1))
                     ||
                     calc.val1LowerOrAlmostEqual((localEnd.getX()), localPedestrianPosition.getX(), 10e-1) &&
-                            calc.val1BiggerOrAlmostEqual((localBegin.getX()), localPedestrianPosition.getX(), 10e-1))
+                     calc.val1BiggerOrAlmostEqual((localBegin.getX()), localPedestrianPosition.getX(), 10e-1))
 
                     &&
                     calc.almostEqual(localBegin.getY(), localPedestrianPosition.getY(), 1.0)
@@ -790,10 +865,10 @@ public class Pedestrian extends Entity implements IPedestrian {
     }
 
     public void setNewGoal( Vector2d forces ){
-        this.setCurrentNextGlobalAim();// set as first aim the exit PedestrianPoint of the street section
         PedestrianStreet section = ((PedestrianStreet)this.getCurrentSection().getStreetSection());
         PedestrianPoint curGlobPos = this.getCurrentGlobalPosition();
-        PedestrianPoint globalGoal = checkAndSetAimWithinSection(forces, section);
+        PedestrianPoint globalGoalTmp = checkAndGetAimWithinSection(forces, section);
+        this.setCurrentNextGlobalAim(globalGoalTmp);
 
         for (IPedestrian otherPedestrian : section.getPedestrianQueue()){ // check for intersections with other pedestrians
             if(otherPedestrian.equals(this)) continue;
@@ -807,7 +882,9 @@ public class Pedestrian extends Entity implements IPedestrian {
             // the "current global aim" of the current pedestrian is cut down to it.
             // Otherwise the end of the section is the aim.
             // Afterwards the time until this destination is reached is calculated.
-            if( ((Pedestrian)otherPedestrian).getCurrentNextGlobalAim() != null) {
+            if( ((Pedestrian)otherPedestrian).getCurrentNextGlobalAim() != null &&
+                    getCurrentSpeed() != 0) {
+                PedestrianPoint globalGoal = new PedestrianPoint(globalGoalTmp);
                 if(calc.checkLinesIntersectionByCoordinates_WithinSegment(globalGoal,
                         this.getCurrentGlobalPosition(),
                         this.getCurrentGlobalPosition().getX() + forces.getX(), this.getCurrentGlobalPosition().getY() + forces.getY(),
@@ -822,6 +899,11 @@ public class Pedestrian extends Entity implements IPedestrian {
                         globalGoal.setLocation(globalGoal.getX() - minGab, globalGoal.getY() - minGab);
                     } else {
                         globalGoal.setLocation(globalGoal.getX() + minGab, globalGoal.getY() + minGab);
+                    }
+
+                    double checkGoalDist = calc.getDistanceByCoordinates(globalGoal, currentNextGlobalAim);
+                    if( checkGoalDist < getMinGapForPedestrian() && checkGoalDist > 0) {
+                        globalGoal = currentNextGlobalAim;
                     }
                     this.setCurrentNextGlobalAim(globalGoal);
                 }
@@ -848,10 +930,16 @@ public class Pedestrian extends Entity implements IPedestrian {
     }
 
 
-    PedestrianPoint checkAndSetAimWithinSection(Vector2d forces, PedestrianStreet section) {
+    PedestrianPoint checkAndGetAimWithinSection(Vector2d forces, PedestrianStreet section) {
         // this is needed to ensure every aim is within a street Section
         // move not further as the distance to direct aim
+
+        this.setCurrentNextGlobalAim();// set as first aim the exit PedestrianPoint of the street section
         double distance = calc.getDistanceByCoordinates(this.getCurrentGlobalPosition(), this.getCurrentNextGlobalAim());
+
+        // todo edit for comparision to continuously SFM
+        //distance /= 1;
+
         Vector2d uniVecForces = calc.getUnitVector(forces);
         uniVecForces.scale(distance);
         PedestrianPoint globPedPos = this.getCurrentGlobalPosition();
@@ -860,6 +948,20 @@ public class Pedestrian extends Entity implements IPedestrian {
         PedestrianPoint globalGoal = new PedestrianPoint(
                 globPedPos.getX() + uniVecForces.getX(),
                 globPedPos.getY() + uniVecForces.getY());
+
+
+        if ( calc.almostEqual(currentSection.getExitPort().getLocalBeginOfStreetPort().getX(),
+                currentSection.getExitPort().getLocalEndOfStreetPort().getX()) ) {
+            // port along y axis
+            double checkGoalDist = Math.abs(globalGoal.getX() - currentNextGlobalAim.getX());
+            if( checkGoalDist < getMinGapForPedestrian() && checkGoalDist > 0  )
+                globalGoal.setX(currentNextGlobalAim.getX());
+        } else {
+            // port along x axis
+            double checkGoalDist = Math.abs(globalGoal.getY() - currentNextGlobalAim.getY());
+            if( checkGoalDist < getMinGapForPedestrian() && checkGoalDist > 0  )
+                globalGoal.setY(currentNextGlobalAim.getY());
+        }
 
         if (! (section instanceof PedestrianStreetSection)) {
             throw new IllegalArgumentException ("Type mismatch.");
@@ -926,8 +1028,6 @@ public class Pedestrian extends Entity implements IPedestrian {
                     borderLineNr = 4;
                 }
             }
-
-            this.setCurrentNextGlobalAim(intersection);
             if ( withinSection ) return globalGoal;
         }
 
@@ -952,6 +1052,20 @@ public class Pedestrian extends Entity implements IPedestrian {
         } else {
             return new PedestrianPoint( intersection.getX() + minGab, intersection.getY() + minGab );
         }*/
+
+        if ( calc.almostEqual(currentSection.getExitPort().getLocalBeginOfStreetPort().getX(),
+                currentSection.getExitPort().getLocalEndOfStreetPort().getX()) ) {
+            // port along y axis
+            double checkGoalDist = Math.abs(intersection.getX() - currentNextGlobalAim.getX());
+            if( checkGoalDist < 1 && checkGoalDist > 0  )
+                intersection.setX(currentNextGlobalAim.getX());
+        } else {
+            // port along x axis
+            double checkGoalDist = Math.abs(intersection.getY() - currentNextGlobalAim.getY());
+            if( checkGoalDist < 1 && checkGoalDist > 0  )
+                intersection.setY(currentNextGlobalAim.getY());
+        }
+
         return intersection;
     }
 
@@ -979,6 +1093,19 @@ public class Pedestrian extends Entity implements IPedestrian {
 
     public double getWalkingSpeedByStartOfWalking () {
         return this.walkingSpeedByStartOfWalking;
+    }
+
+    public void enteringWaitingQue () {
+        if (!pedestriansQueueToEnterTimeStopWatch.isRunning()) {
+            pedestriansQueueToEnterTimeStopWatch.start();
+        }
+    }
+
+    public void leavingWaitingQue () {
+        if (pedestriansQueueToEnterTimeStopWatch.isRunning()) {
+            double tmp = pedestriansQueueToEnterTimeStopWatch.stop();
+            pedestriansQueueToEnterTime.update(new TimeSpan(tmp));
+        }
     }
 
 }

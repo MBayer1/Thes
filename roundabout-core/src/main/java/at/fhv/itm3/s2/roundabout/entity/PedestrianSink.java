@@ -1,17 +1,13 @@
 package at.fhv.itm3.s2.roundabout.entity;
 
 import at.fhv.itm14.trafsim.model.entities.Car;
-import at.fhv.itm14.trafsim.model.entities.IConsumer;
 import at.fhv.itm14.trafsim.model.events.CarDepartureEvent;
 import at.fhv.itm14.trafsim.persistence.model.DTO;
 import at.fhv.itm3.s2.roundabout.api.PedestrianPoint;
 import at.fhv.itm3.s2.roundabout.api.entity.*;
-import at.fhv.itm3.s2.roundabout.controller.CarController;
 import at.fhv.itm3.s2.roundabout.controller.PedestrianController;
-import at.fhv.itm3.s2.roundabout.util.dto.PedestrianConnector;
 import desmoj.core.simulator.Model;
 
-import java.awt.*;
 import java.util.*;
 import java.util.List;
 
@@ -19,13 +15,16 @@ public class PedestrianSink extends PedestrianAbstractSink {
 
     private List<PedestrianConnectedStreetSections> previousStreetConnector = new LinkedList<>();
 
-    private double meanPedestrianCrossingTime;
+    private double meanTimeSpentOnCrossing;
     private double meanTimeSpentInSystem;
     private double meanWaitingTimePerStop;
     private double meanStopCount;
-    private double meanPedestrianAreaTime;
-    private double meanPedestrianQueueWaitingToEnterSystem; //pedestriansQueueTo
+    private double meanTimeOnPedestrianArea;
+    private double meanTimeSpentInWaitingPuffer;
     private double meanWaitingTimeBeforeEnteringSystem; //pedestriansQueueTo
+    private double meanEventTimeGap_ReachedAim;
+    private double meanEventTimeGap_Generation;
+
 
     public PedestrianSink(Model owner, String name, boolean showInTrace) {
         this(UUID.randomUUID().toString(), owner, name, showInTrace);
@@ -34,13 +33,14 @@ public class PedestrianSink extends PedestrianAbstractSink {
     public PedestrianSink(String id, Model owner, String name, boolean showInTrace) {
         super(id, owner, name, showInTrace);
 
-        this.meanPedestrianCrossingTime = 0;
+        this.meanTimeSpentOnCrossing = 0;
         this.meanTimeSpentInSystem = 0;
         this.meanWaitingTimePerStop = 0;
         this.meanStopCount = 0;
-        this.meanPedestrianAreaTime = 0;
+        this.meanTimeOnPedestrianArea = 0;
         this.meanWaitingTimeBeforeEnteringSystem = 0;
-        this.meanPedestrianQueueWaitingToEnterSystem = 0;
+        this.meanEventTimeGap_ReachedAim = 0;
+        this.meanEventTimeGap_Generation = 0;
     }
 
 
@@ -76,7 +76,8 @@ public class PedestrianSink extends PedestrianAbstractSink {
 
 
     public void addPedestrian(IPedestrian iPedestrian){
-        addPedestrian(iPedestrian, new PedestrianPoint(0,0));
+        iPedestrian.leavePedestrianArea();
+        //addPedestrian(iPedestrian, new PedestrianPoint(0,0));
     }
 
     /**
@@ -87,6 +88,7 @@ public class PedestrianSink extends PedestrianAbstractSink {
         iPedestrian.leaveSystem();
         iPedestrian.leavePedestrianArea();
         iPedestrian.leavePedestrianCrossing();
+        iPedestrian.endPedestrianWaiting();
 
         incrementEnteredPedestrianCounter();
         updateStats(iPedestrian);
@@ -110,17 +112,19 @@ public class PedestrianSink extends PedestrianAbstractSink {
     public void updateStats(IPedestrian pedestrian) {
         // to avoid double overflow, as the sum of all the values over a long simulation time might cause this, the current average is stored directly
         double dPreviousRate = ((double)getNrOfEnteredPedestrians()-1)/ (double) getNrOfEnteredPedestrians();
-        meanPedestrianCrossingTime = meanPedestrianCrossingTime * dPreviousRate + pedestrian.getMeanStreetCrossingPassTime()/ getNrOfEnteredPedestrians();
+        meanTimeSpentOnCrossing = meanTimeSpentOnCrossing * dPreviousRate + pedestrian.getMeanStreetCrossingPassTime()/ getNrOfEnteredPedestrians();
         meanTimeSpentInSystem = meanTimeSpentInSystem * dPreviousRate + pedestrian.getTimeSpentInSystem()/ getNrOfEnteredPedestrians();
         meanWaitingTimePerStop = meanWaitingTimePerStop * dPreviousRate + pedestrian.getMeanWaitingTime()/ getNrOfEnteredPedestrians();
         meanStopCount = meanStopCount * dPreviousRate + pedestrian.getStopCount()/ getNrOfEnteredPedestrians();
-        meanPedestrianAreaTime = meanPedestrianAreaTime * dPreviousRate + pedestrian.getMeanStreetAreaPassTime()/ getNrOfEnteredPedestrians();
+        meanTimeOnPedestrianArea = meanTimeOnPedestrianArea * dPreviousRate + pedestrian.getMeanStreetAreaPassTime()/ getNrOfEnteredPedestrians();
+        meanTimeSpentInWaitingPuffer = meanTimeSpentInSystem - meanTimeOnPedestrianArea;
 
         if ( !(pedestrian instanceof Pedestrian)) {
             throw new IllegalStateException("type mismatch");
         }
-        meanWaitingTimeBeforeEnteringSystem = meanWaitingTimeBeforeEnteringSystem * dPreviousRate + ((Pedestrian) pedestrian).getMeanWaitingBeforeEnteringsTime() / getNrOfEnteredPedestrians();
-        meanPedestrianQueueWaitingToEnterSystem = meanPedestrianQueueWaitingToEnterSystem * dPreviousRate + ((Pedestrian) pedestrian).getWaitingBeforeEnteringCount() / getNrOfEnteredPedestrians();
+        meanWaitingTimeBeforeEnteringSystem = meanWaitingTimeBeforeEnteringSystem * dPreviousRate + ((Pedestrian) pedestrian).getMeanWaitingBeforeEnteringTime() / getNrOfEnteredPedestrians();
+        meanEventTimeGap_ReachedAim = meanEventTimeGap_ReachedAim * dPreviousRate + ((Pedestrian) pedestrian).getMeanTimeEventGap() / getNrOfEnteredPedestrians();
+        meanEventTimeGap_Generation = meanEventTimeGap_Generation * dPreviousRate + ((Pedestrian) pedestrian).getMeanTimeEventGap_Generation() / getNrOfEnteredPedestrians();
     }
 
     /**
@@ -264,7 +268,7 @@ public class PedestrianSink extends PedestrianAbstractSink {
      */
     @Override
     public double getMeanPassTimeForEnteredPedestrians() {
-        return meanPedestrianCrossingTime;
+        return meanTimeSpentOnCrossing;
     }
 
     /**
@@ -295,8 +299,15 @@ public class PedestrianSink extends PedestrianAbstractSink {
      * {@inheritDoc}
      */
     @Override
-    public double getMeanIntersectionPassTimeForEnteredPedestrians() { return meanPedestrianAreaTime;
+    public double getMeanIntersectionPassTimeForEnteredPedestrians() { return meanTimeOnPedestrianArea;
     }
 
+    public double getMeanTimeSpentInWaitingPuffer() {return meanTimeSpentInWaitingPuffer;}
+
+
+    public double getMeanTimeBetweenEventCall_ReachedAim() {return meanEventTimeGap_ReachedAim;}
+
+
+    public double getMeanTimeBetweenEventCall_Generation() {return meanEventTimeGap_Generation;}
 
 }

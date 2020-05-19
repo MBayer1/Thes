@@ -463,15 +463,33 @@ public class StreetSection extends Street {
      */
     @Override
     public boolean firstCarCouldEnterNextSection() {
-        updateAllCarsPositions();
+       boolean checkRegularCase = firstCarCouldEnterNextSection_CheckCar();
+       boolean illegalCrossing = firstCarCouldEnterNextSection_CheckIllegalCrossing();
+
+       if (!illegalCrossing && checkRegularCase) {
+           // blocking due to illegal crossing
+           for ( ICar icar : carQueue) {
+               if ( icar instanceof RoundaboutCar) {
+                   RoundaboutCar car = (RoundaboutCar) icar;
+                   car.startAdditionalWaiting();
+               }
+           }
+
+       } else {
+           for ( ICar icar : carQueue) {
+               if ( icar instanceof RoundaboutCar) {
+                   RoundaboutCar car = (RoundaboutCar) icar;
+                   car.stopAdditionalWaiting();
+               }
+           }
+       }
+
+       return checkRegularCase && illegalCrossing;
+    }
+
+    public boolean firstCarCouldEnterNextSection_CheckIllegalCrossing () {
         // when there is a pedestrian crossing at the end of the street and it does have a traffic light it has to be red to leave section
-        if( pedestrianCrossingEnter != null && pedestrianCrossingEnter.getPedestrianCrossing().getPedestrianConsumerType().equals(PedestrianConsumerType.PEDESTRIAN_CROSSING)){
-            // check weather the traffic pedestrian traffic light is free to go for  pedestrian = car can not cross pedestrian crossing
-            if(
-            pedestrianCrossingEnter.getPedestrianCrossing().isTrafficLightActive() &&
-            pedestrianCrossingEnter.getPedestrianCrossing().isTrafficLightFreeToGo() ) {
-                return false;
-            }
+        if( pedestrianCrossingEnter != null){
             // when is a non pedestrian traffic for controlling check pedestrian iin on pedestrian crossing.
             // check  for height of pedestrians
             for (IPedestrian pedestrian : pedestrianCrossingEnter.getPedestrianCrossing().getPedestrianQueue()) {
@@ -483,18 +501,39 @@ public class StreetSection extends Street {
                     throw new IllegalStateException("type miss match.");
                 }
                 PedestrianStreetSection  crossingSection = (PedestrianStreetSection) (pedestrianCrossingEnter.getPedestrianCrossing());
+                PedestrianPoint currPos = ((Pedestrian) pedestrian).getPositionByCurrTime();
                 if (crossingSection.isFlexiBorderAlongX()) {
                     // car drives along y axis
                     //  check high of pedestrian by illegal crossing
                     double carHigh = pedestrianCrossingEnter.getGlobalPositionOfStreetAndCrossingIntersectionInCM().getX();
-                    double pedestrianHigh = ((Pedestrian) pedestrian).getGlobalCoordinatesOfCurrentSection().getX();
-                    if(Math.abs(carHigh-pedestrianHigh) < (minDistanceToPedestiranToKeepDrivingInM * 100)) return false;
+                    double pedestrianHigh = currPos.getX();
+                    if(Math.abs(carHigh-pedestrianHigh) < (minDistanceToPedestiranToKeepDrivingInM * 100)) {
+                        return false;
+                    }
                 } else {
                     // car drives along x axis
                     double carHigh = pedestrianCrossingEnter.getGlobalPositionOfStreetAndCrossingIntersectionInCM().getY();
-                    double pedestrianHigh = ((Pedestrian) pedestrian).getGlobalCoordinatesOfCurrentSection().getY();
-                    if(Math.abs(carHigh-pedestrianHigh) < (minDistanceToPedestiranToKeepDrivingInM * 100)) return false;
+                    double pedestrianHigh = currPos.getY();
+                    if(Math.abs(carHigh-pedestrianHigh) < (minDistanceToPedestiranToKeepDrivingInM * 100)) {
+                        return false;
+                    }
                 }
+            }
+        }
+        return true;
+    }
+
+    public boolean firstCarCouldEnterNextSection_CheckCar() {
+        updateAllCarsPositions();
+
+        // when there is a pedestrian crossing at the end of the street and it does have a traffic light it has to be red to leave section
+        if( pedestrianCrossingEnter != null &&
+                pedestrianCrossingEnter.getPedestrianCrossing().getPedestrianConsumerType().equals(PedestrianConsumerType.PEDESTRIAN_CROSSING)){
+            // check weather the traffic pedestrian traffic light is free to go for  pedestrian = car can not cross pedestrian crossing
+            if(
+                    pedestrianCrossingEnter.getPedestrianCrossing().isTrafficLightActive() &&
+                            pedestrianCrossingEnter.getPedestrianCrossing().isTrafficLightFreeToGo() ) {
+                return false;
             }
         }
 

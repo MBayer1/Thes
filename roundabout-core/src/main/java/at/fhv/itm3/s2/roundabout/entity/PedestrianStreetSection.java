@@ -28,7 +28,6 @@ public class PedestrianStreetSection extends PedestrianStreet {
     private boolean flexiBorderAlongX = true; // needed for type PedestrianCrossing
     SupportiveCalculations calculations = new SupportiveCalculations();
 
-    //public List<PedestrianWaitingListElement> pedestriansQueueToEnter;
     public List<PedestrianWaitingListElement> pedestriansQueueToEnter;
 
 
@@ -434,6 +433,59 @@ public class PedestrianStreetSection extends PedestrianStreet {
         return false;
     }
 
+    public boolean checkPointIsWithinSectionAndNotWithinAPort(PedestrianPoint globalPosition) {
+        boolean outside = false;
+
+        if(     calculations.val1BiggerOrAlmostEqual( globalPosition.getX(), getGlobalCoordinateOfSectionOrigin().getX() ) &&
+                calculations.val1LowerOrAlmostEqual( globalPosition.getX(), getGlobalCoordinateOfSectionOrigin().getX() + getLengthX()) &&
+                calculations.val1BiggerOrAlmostEqual( globalPosition.getY(), getGlobalCoordinateOfSectionOrigin().getY() ) &&
+                calculations.val1LowerOrAlmostEqual( globalPosition.getY(), getGlobalCoordinateOfSectionOrigin().getY() + getLengthY())
+                ) outside = true;
+
+        if ( !outside ) outside = checkPointAlongPort(globalPosition);
+        return outside;
+    }
+
+    public boolean checkPointAlongPort(PedestrianPoint globalPosition) {
+        // except it is within an port gab, then it will take enter or exit port depending which is closer.
+        for ( PedestrianConnectedStreetSections connected : this.getNextStreetConnector()) {
+            if (connected.getFromStreetSection().equals(this)) {
+                double sectionOriginX = getGlobalCoordinateOfSectionOrigin().getX();
+                double sectionOriginY = getGlobalCoordinateOfSectionOrigin().getY();
+
+                PedestrianStreetSectionPort localPort = connected.getPortOfFromStreetSection();
+                PedestrianStreetSectionPort globalPort = new PedestrianStreetSectionPort(
+                        localPort.getLocalBeginOfStreetPort().getX() + sectionOriginX,
+                        localPort.getLocalBeginOfStreetPort().getY() + sectionOriginY,
+                        localPort.getLocalEndOfStreetPort().getX() + sectionOriginX,
+                        localPort.getLocalEndOfStreetPort().getY() + sectionOriginY);
+
+                if (calculations.checkWallIntersectionWithinPort(globalPort, globalPosition)){
+                    return true;
+                }
+            }
+        }
+
+        for ( PedestrianConnectedStreetSections connected : this.getPreviousStreetConnector()) {
+            if (connected.getFromStreetSection().equals(this)) {
+                double sectionOriginX = getGlobalCoordinateOfSectionOrigin().getX();
+                double sectionOriginY = getGlobalCoordinateOfSectionOrigin().getY();
+
+                PedestrianStreetSectionPort localPort = connected.getPortOfFromStreetSection();
+                PedestrianStreetSectionPort globalPort = new PedestrianStreetSectionPort(
+                        localPort.getLocalBeginOfStreetPort().getX() + sectionOriginX,
+                        localPort.getLocalBeginOfStreetPort().getY() + sectionOriginY,
+                        localPort.getLocalEndOfStreetPort().getX() + sectionOriginX,
+                        localPort.getLocalEndOfStreetPort().getY() + sectionOriginY);
+
+                if (calculations.checkWallIntersectionWithinPort(globalPort, globalPosition)){
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     public void setPedestrianPosition(Pedestrian pedestrian, PedestrianPoint globalPos) {
         if(pedestrianPositions.get(pedestrian) == null) {
             if(this.pedestriansQueueToEnter.contains(pedestrian)) {
@@ -497,20 +549,20 @@ public class PedestrianStreetSection extends PedestrianStreet {
 
     public void addPedestriansQueueToEnter(Pedestrian pedestrian, PedestrianPoint globalEnterPoint, PedestrianStreetSection section){
 
-        /*if(pedestriansQueueToEnter.size() >= 1000) { TODO
-            throw new IllegalStateException("lower generation  of pedestrians que is too long.");
-        }*/
-
-        if (!pedestrian.pedestriansQueueToEnterTimeStopWatch.isRunning()) {
-            pedestrian.pedestriansQueueToEnterCounter.update();
-            pedestrian.pedestriansQueueToEnterTimeStopWatch.start();
+        if(pedestriansQueueToEnter.size() >= 1000) { //TODO
+            //throw new IllegalStateException("lower generation  of pedestrians que is too long.");
+            double ad = 1;
         }
+
+        pedestrian.enteringWaitingQue();
         synchronized(pedestriansQueueToEnter) {
             section.pedestriansQueueToEnter.add(new PedestrianWaitingListElement(pedestrian, globalEnterPoint, section));
         }
     }
 
-    public boolean reCheckPedestrianCanEnterSection(Pedestrian pedestrian) {
+    public Pedestrian reCheckPedestrianCanEnterSection() {
+        /* TODo
+        Pedestrian pedestrian = null;
         synchronized(pedestriansQueueToEnter) {
             for (PedestrianWaitingListElement pedestrianToEnter : pedestriansQueueToEnter) {
                 // due to list fifo is considered
@@ -520,22 +572,23 @@ public class PedestrianStreetSection extends PedestrianStreet {
 
                 if (checkPedestrianCanEnterSection(pedestrianToEnter)) {
                     pedestrian = (Pedestrian) pedestrianToEnter.getPedestrian();
-                    pedestrianToEnter.getPedestrian().enterSystem();
                     this.addPedestrian(pedestrianToEnter.getPedestrian(), pedestrianToEnter.getGlobalEnterPoint());
                     ((Pedestrian) pedestrianToEnter.getPedestrian()).setCurrentLocalPosition(); // do this after adding to street section
 
                     pedestriansQueueToEnter.remove(pedestrianToEnter);
+                    pedestrian.leavingWaitingQue();
                     pedestriansQueueToEnter.notifyAll();
 
                     if (((Pedestrian) pedestrianToEnter.getPedestrian()).pedestriansQueueToEnterTimeStopWatch.isRunning()) {
                         double res = ((Pedestrian) pedestrianToEnter.getPedestrian()).pedestriansQueueToEnterTimeStopWatch.stop();
                         ((Pedestrian) pedestrianToEnter.getPedestrian()).pedestriansQueueToEnterTime.update(new TimeSpan(res));
                     }
-                    return true;
+                    return pedestrian;
                 }
             }
         }
-        return false;
+        return pedestrian;*/
+        return null;
     }
 
     public boolean checkPedestrianCanEnterSection (PedestrianWaitingListElement element) {
