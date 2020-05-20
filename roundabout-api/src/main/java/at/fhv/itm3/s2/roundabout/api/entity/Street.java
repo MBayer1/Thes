@@ -18,6 +18,7 @@ public abstract class Street extends AbstractProSumer implements ICarCountable {
     private long leftCarsCounter;
     private long lostCarsCounter;
     private TrafficLight trafficLight;
+    private double addWaitTime;
 
     private double greenPhaseStart;
 
@@ -27,7 +28,7 @@ public abstract class Street extends AbstractProSumer implements ICarCountable {
     protected Observable lostCarObserver;
     protected Observable carPositionObserver;
     protected Observable trafficLightObserver;
-    protected Observable addWaitTime;
+    protected Observable addWaitTimeObserver;
 
     public Street(Model owner, String name, boolean showInTrace) {
         this(UUID.randomUUID().toString(), owner, name, showInTrace);
@@ -102,7 +103,7 @@ public abstract class Street extends AbstractProSumer implements ICarCountable {
         this.lostCarObserver = new RoundaboutObservable();
         this.carPositionObserver = new RoundaboutObservable();
         this.trafficLightObserver = new RoundaboutObservable();
-        this.addWaitTime = new RoundaboutObservable();
+        this.addWaitTimeObserver = new RoundaboutObservable();
 
         addObserver(
             ObserverType.CAR_LOST,
@@ -128,6 +129,19 @@ public abstract class Street extends AbstractProSumer implements ICarCountable {
     @Override
     public long getNrOfEnteredCars() {
         return enteredCarsCounter;
+    }
+
+
+    /**
+     * Get mean add wait tiel due to pedestrian illeagal crossing {@code this} {@link Street}.
+     *
+     * @return total car counter.
+     */
+    public double getMeanAdditionalWaitTime() {
+        return addWaitTime;
+    }
+    public void setMeanAdditionalWaitTime(double time) {
+            addWaitTime = time;
     }
 
     /**
@@ -343,7 +357,7 @@ public abstract class Street extends AbstractProSumer implements ICarCountable {
     }
 
     public void updateAddionalWaitingTime(double value){
-        addWaitTime.notifyObservers(value);
+        addWaitTimeObserver.notifyObservers(value);
     }
 
     /**
@@ -402,7 +416,7 @@ public abstract class Street extends AbstractProSumer implements ICarCountable {
             case CAR_LEFT: leftCarObserver.addObserver(o); break;
             case CAR_POSITION: carPositionObserver.addObserver(o); break;
             case TRAFFIC_LIGHT: trafficLightObserver.addObserver(o); break;
-            case ADD_WAIT_TIME: addWaitTime.addObserver(o); break;
+            case ADD_WAIT_TIME: addWaitTimeObserver.addObserver(o); break;
         }
     }
 

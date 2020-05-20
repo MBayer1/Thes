@@ -195,25 +195,18 @@ public class MainViewController extends JfxController {
 
                 Platform.runLater(() -> vBoxContainer.getChildren().add(statNode));
             } else {
-                ViewLoader<StatsViewController> viewLoader = ViewLoader.loadView(StatsViewController.class);
+                /*ViewLoader<StatsViewController> viewLoader = ViewLoader.loadView(StatsViewController.class);
                 Node statNode = viewLoader.loadNode();
-
-                final Map<String, StreetSection> streetSectionMap = streetSections.get(component.getId());
-                final Map<String, RoundaboutSink> sinkMap = sinks.get(component.getId());
 
                 final Map<String, PedestrianStreetSection> streetSectionMapPed = pedestrianStreetSections.get(component.getId());
                 final Map<String, PedestrianSink> sinkMapPed = pedestrianSink.get(component.getId());
 
-                final Collection<StreetSection> componentStreetSections = streetSectionMap != null ? new ArrayList<>(streetSectionMap.values()) : new ArrayList<>();
-                final Collection<RoundaboutSink> componentSinks = sinkMap != null ? new ArrayList<>(sinkMap.values()) : new ArrayList<>();
-
                 final Collection<PedestrianStreetSection> componentStreetSectionsPed = streetSectionMapPed != null ? new ArrayList<>(streetSectionMapPed.values()) : new ArrayList<>();
                 final Collection<PedestrianSink> componentSinksPed = sinkMapPed != null ? new ArrayList<>(sinkMapPed.values()) : new ArrayList<>();
 
-                viewLoader.getController().generateStatLabelsPedestrian(component.getName(),
-                        componentStreetSections, componentSinks, componentStreetSectionsPed, componentSinksPed);
+                viewLoader.getController().generateStatLabelsPedestrian(component.getName(), componentStreetSectionsPed, componentSinksPed);
 
-                Platform.runLater(() -> vBoxContainer.getChildren().add(statNode));
+                Platform.runLater(() -> vBoxContainer.getChildren().add(statNode));*/
             }
         });
     }

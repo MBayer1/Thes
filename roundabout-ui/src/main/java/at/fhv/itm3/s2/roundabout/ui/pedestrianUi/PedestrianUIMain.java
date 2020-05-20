@@ -84,7 +84,9 @@ public class PedestrianUIMain extends ScrollPane implements IPedestrianUIMain {
         updateLabel.setFont(new Font("Arial", 80));
         updateLabel.relocate(0,1500);
         updateLabel.setScaleY(-1);
-        updateLabel.setText("Anzahl Personen: " + Double.toString(updateLabelDouble));
+
+        updateLabel.setText("Anzahl Personen: " + Double.toString(0) + "\n" +
+                "Dursch. zusätzliche Wartezeit: " + Double.toString(0));
 
         setLayoutX(posX);
         setLayoutY(posY);
@@ -159,17 +161,17 @@ public class PedestrianUIMain extends ScrollPane implements IPedestrianUIMain {
             PedestrianStreetSection section = (PedestrianStreetSection) sectionTmp;
             double anzPer = section.getNrOfEnteredPedestrians();
             double meanWaitTime = 0;
+
             for (IConsumer consumer : section.getEnteringVehicleStreetList()){
                 if (consumer instanceof StreetSection) {
-                    //((StreetSection) consumer).get
-
+                    meanWaitTime = ((StreetSection) consumer).getMeanAdditionalWaitTimeDuToIllegalCrossing();
 
                 }
             }
+            meanWaitTime /= section.getEnteringVehicleStreetList().size();
             updateLabel.setText("Anzahl Personen: " + Double.toString(anzPer) + "\n" +
                     "Dursch. zusätzliche Wartezeit: " + Double.toString(meanWaitTime));
         }
-        double meanWaitTime = 0;
     }
 
     @Override

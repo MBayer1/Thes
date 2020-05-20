@@ -296,7 +296,7 @@ public class RoundaboutCar implements ICar {
      */
     @Override
     public double getMinTimeWaitingDueToIllegalCrossingOfPedestrian () {
-        return timeWaitingDueToIllegalCrossingOfPedestrian.getMinimum();
+        return Math.max(timeWaitingDueToIllegalCrossingOfPedestrian.getMaximum(),0);
     }
 
     /**
@@ -367,7 +367,11 @@ public class RoundaboutCar implements ICar {
     public void stopAdditionalWaiting() {
         if (this.timeWaitingDueToIllegalCrossingOfPedestrianStopWatch.isRunning()) {
             double res = this.timeWaitingDueToIllegalCrossingOfPedestrianStopWatch.stop();
-            this.timeWaitingDueToIllegalCrossingOfPedestrian.update(new TimeSpan(res));
+            TimeSpan tmp = new TimeSpan(res);
+            if (tmp.getTimeAsDouble() < 0) return;
+            this.timeWaitingDueToIllegalCrossingOfPedestrian.update(tmp);
+
+            ((StreetSection)currentSection).setMeanAdditionalWaitTime(timeWaitingDueToIllegalCrossingOfPedestrian.getMean());
         }
     }
 

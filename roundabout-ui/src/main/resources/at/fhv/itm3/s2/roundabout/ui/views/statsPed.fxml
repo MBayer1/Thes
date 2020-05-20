@@ -63,55 +63,17 @@
                                 </font>
                             </Label>
                         </VBox>
-                    </HBox>
-                </VBox>
-                <VBox spacing="10.0" style="-fx-background-color: #DCDCDC;">
-                    <padding>
-                        <Insets top="15.0" left="15.0" right ="15.0" bottom="15.0"/>
-                    </padding>
-                    <Label text="SINKS">
-                        <font>
-                            <Font name="System Bold" size="12.0"/>
-                        </font>
-                        <graphic>
-                            <ImageView>
-                                <Image url="@../img/sink.png"/>
-                            </ImageView>
-                        </graphic>
-                    </Label>
-                    <HBox spacing="10.0">
-                        <VBox fx:id="sinkIdContainer">
-                            <Label text="ID">
+                        <VBox fx:id="addWaitTime" alignment="CENTER" minWidth="40">
+                            <Label text="AddTime">
                                 <font>
-                                    <Font name="System Bold Italic" size="12.0"/>
+                                    <Font name="System Bold Italic" size="12.0" />
                                 </font>
                             </Label>
                         </VBox>
-                        <VBox fx:id="sinkPSContainer" alignment="CENTER" minWidth="50">
-                            <Label text="PS">
+                        <VBox fx:id="PedCnt" alignment="CENTER" minWidth="40">
+                            <Label text="PedCnt">
                                 <font>
-                                    <Font name="System Bold Italic" size="12.0"/>
-                                </font>
-                            </Label>
-                        </VBox>
-                        <VBox fx:id="sinkMinContainer" alignment="CENTER" minWidth="40">
-                            <Label text="MIN">
-                                <font>
-                                    <Font name="System Bold Italic" size="12.0"/>
-                                </font>
-                            </Label>
-                        </VBox>
-                        <VBox fx:id="sinkAvgContainer" alignment="CENTER" minWidth="40">
-                            <Label text="AVG">
-                                <font>
-                                    <Font name="System Bold Italic" size="12.0"/>
-                                </font>
-                            </Label>
-                        </VBox>
-                        <VBox fx:id="sinkMaxContainer" alignment="CENTER" minWidth="40">
-                            <Label text="MAX">
-                                <font>
-                                    <Font name="System Bold Italic" size="12.0"/>
+                                    <Font name="System Bold Italic" size="12.0" />
                                 </font>
                             </Label>
                         </VBox>

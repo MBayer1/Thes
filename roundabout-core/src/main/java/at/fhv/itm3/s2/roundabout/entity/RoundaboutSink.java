@@ -39,7 +39,7 @@ public class RoundaboutSink extends AbstractSink {
         this.meanWaitingTimePerStop = 0;
         this.meanStopCount = 0;
         this.meanIntersectionPassTime = 0;
-        this.minTimeWaitingDueToIllegalCrossingOfPedestrian = 0;
+        this.minTimeWaitingDueToIllegalCrossingOfPedestrian = Double.MAX_VALUE;
         this.maxTimeWaitingDueToIllegalCrossingOfPedestrian = 0;
         this.meanTimeWaitingDueToIllegalCrossingOfPedestrian = 0;
         this.cntCarCrossingPedestrianCrossing = 0;

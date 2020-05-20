@@ -40,8 +40,9 @@ public class StatsViewController extends JfxController {
     private final Map<String, Double> sinkAvgStats = new HashMap<>();
     private final Map<String, Double> sinkMaxStats = new HashMap<>();
     private final Map<String, Double> sinkAvgAddWaitStats = new HashMap<>();
-
+    @FXML private TitledPane paneStatsTitlePed;
     @FXML private TitledPane paneStatsTitle;
+
 
     @FXML private VBox sectionIdContainer;
     @FXML private VBox sectionISContainer;
@@ -52,8 +53,6 @@ public class StatsViewController extends JfxController {
     @FXML private VBox sinkMinContainer;
     @FXML private VBox sinkAvgContainer;
     @FXML private VBox sinkMaxContainer;
-
-    @FXML private TitledPane paneStatsTitlePed;
 
 
     /**
@@ -71,11 +70,11 @@ public class StatsViewController extends JfxController {
         generateSinkLabels(sinks);
     }
 
-    public void generateStatLabelsPedestrian(String title, Collection<StreetSection> streetSections, Collection<RoundaboutSink> sinks,
+    public void generateStatLabelsPedestrian(String title,
                                              Collection<PedestrianStreetSection> streetSectionsPed, Collection<PedestrianSink> componentSinksPed) {
         Platform.runLater(() -> paneStatsTitlePed.setText(title));
 
-        generateStreetSectionLabelsPedestrian(streetSectionsPed, streetSections);
+        generateStreetSectionLabelsPedestrian(streetSectionsPed);
     }
 
     private void generateStreetSectionLabels(Collection<StreetSection> streetSections) {
@@ -128,8 +127,8 @@ public class StatsViewController extends JfxController {
     }
 
 
-    private void generateStreetSectionLabelsPedestrian(Collection<PedestrianStreetSection> streetSectionsPed,
-                                                       Collection<StreetSection> streetSections ) {
+    private void generateStreetSectionLabelsPedestrian(Collection<PedestrianStreetSection> streetSectionsPed
+                                                     ) {
         streetSectionsPed.stream().sorted(Comparator.comparing(PedestrianStreetSection::getId)).forEach(streetSectionPed -> {
 
             final Label lblSourceId = new Label(streetSectionPed.getId());

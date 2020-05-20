@@ -19,7 +19,8 @@ import java.util.*;
 public class StreetSection extends Street {
 
     private final double length;
-    private final double minDistanceToPedestiranToKeepDrivingInM = 10.;
+    private final double minDistanceToPedestrianToKeepDrivingInM = 10.;
+    private double meanAdditionalWaitTimeDuToIllegalCrossing;
 
     // next two values are for the controlling of a traffic light [checking for jam/ needed for optimization]
     private double currentWaitingTime;
@@ -112,6 +113,8 @@ public class StreetSection extends Street {
                     new TimeSpan(greenPhaseDuration)
             );
         }
+
+        this.meanAdditionalWaitTimeDuToIllegalCrossing = 0;
     }
 
     /**
@@ -174,6 +177,13 @@ public class StreetSection extends Street {
             }
         }
     }
+
+    public void addMeanAdditionalWaitTimeDuToIllegalCrossing( double time) {
+        double dPreviousRate = ((double)getNrOfLeftCars() -1)/ (double) getNrOfLeftCars();
+        meanAdditionalWaitTimeDuToIllegalCrossing = meanAdditionalWaitTimeDuToIllegalCrossing * dPreviousRate + time/ getNrOfLeftCars();
+    }
+
+    public double getMeanAdditionalWaitTimeDuToIllegalCrossing () {return meanAdditionalWaitTimeDuToIllegalCrossing;}
 
     /**
      * {@inheritDoc}
@@ -507,14 +517,14 @@ public class StreetSection extends Street {
                     //  check high of pedestrian by illegal crossing
                     double carHigh = pedestrianCrossingEnter.getGlobalPositionOfStreetAndCrossingIntersectionInCM().getX();
                     double pedestrianHigh = currPos.getX();
-                    if(Math.abs(carHigh-pedestrianHigh) < (minDistanceToPedestiranToKeepDrivingInM * 100)) {
+                    if(Math.abs(carHigh-pedestrianHigh) < (minDistanceToPedestrianToKeepDrivingInM * 100)) {
                         return false;
                     }
                 } else {
                     // car drives along x axis
                     double carHigh = pedestrianCrossingEnter.getGlobalPositionOfStreetAndCrossingIntersectionInCM().getY();
                     double pedestrianHigh = currPos.getY();
-                    if(Math.abs(carHigh-pedestrianHigh) < (minDistanceToPedestiranToKeepDrivingInM * 100)) {
+                    if(Math.abs(carHigh-pedestrianHigh) < (minDistanceToPedestrianToKeepDrivingInM * 100)) {
                         return false;
                     }
                 }
@@ -725,6 +735,8 @@ public class StreetSection extends Street {
         if (firstCar != null) {
             if (!Objects.equals(firstCar.getCurrentSection(), firstCar.getDestination())) {
                 IConsumer nextSection = firstCar.getNextSection();
+                double meanTimeWaiting = firstCar.getMeanTimeWaitingDueToIllegalCrossingOfPedestrian();
+
                 if (nextSection != null && nextSection instanceof Street) {
                     // this order of calls is important!
                     // Move logically first car to next section.
@@ -757,6 +769,8 @@ public class StreetSection extends Street {
                 } else {
                     throw new IllegalStateException("Car can not move further. Next section does not exist.");
                 }
+
+                addMeanAdditionalWaitTimeDuToIllegalCrossing(meanTimeWaiting);
             }
         }
     }
