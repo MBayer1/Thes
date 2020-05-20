@@ -14,12 +14,16 @@ import javafx.animation.PathTransition.OrientationType;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.scene.Node;
+import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.*;
 import javafx.scene.shape.*;
+import javafx.scene.text.Font;
 import javafx.scene.transform.Scale;
 import javafx.util.Duration;
+import org.apache.bcel.generic.ICONST;
 
+import javax.swing.*;
 import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -43,6 +47,10 @@ public class PedestrianUIMain extends ScrollPane implements IPedestrianUIMain {
     //car maps
     private Map<StreetSection, CarStreetUI> carStreetUIMap = new HashMap<>();
     private Map<StreetSection, Map<String, CarUI>> localCarUIMap = new HashMap<>();
+
+    private Label updateLabel = new Label();
+
+    private double updateLabelDouble = 0;
 
     Pane canvas = new Pane();
 
@@ -70,6 +78,13 @@ public class PedestrianUIMain extends ScrollPane implements IPedestrianUIMain {
                 canvas.boundsInLocalProperty()));
 
         canvas.getTransforms().add(scale);
+
+        canvas.getChildren().add(updateLabel);
+        updateLabel.toFront();
+        updateLabel.setFont(new Font("Arial", 80));
+        updateLabel.relocate(0,1500);
+        updateLabel.setScaleY(-1);
+        updateLabel.setText("Anzahl Personen: " + Double.toString(updateLabelDouble));
 
         setLayoutX(posX);
         setLayoutY(posY);
@@ -131,11 +146,30 @@ public class PedestrianUIMain extends ScrollPane implements IPedestrianUIMain {
                 public void run()
                 {
                     pedestrianUI.addToContainer();
+                    updateLable(pedestrian.getCurrentSection().getStreetSection());
                 }
             });
         }else {
             throw new IllegalArgumentException("Not suitable Pedestrian.");
         }
+    }
+
+    void updateLable (IConsumer sectionTmp) {
+        if (sectionTmp instanceof PedestrianStreetSection) {
+            PedestrianStreetSection section = (PedestrianStreetSection) sectionTmp;
+            double anzPer = section.getNrOfEnteredPedestrians();
+            double meanWaitTime = 0;
+            for (IConsumer consumer : section.getEnteringVehicleStreetList()){
+                if (consumer instanceof StreetSection) {
+                    //((StreetSection) consumer).get
+
+
+                }
+            }
+            updateLabel.setText("Anzahl Personen: " + Double.toString(anzPer) + "\n" +
+                    "Dursch. zusätzliche Wartezeit: " + Double.toString(meanWaitTime));
+        }
+        double meanWaitTime = 0;
     }
 
     @Override
@@ -152,6 +186,7 @@ public class PedestrianUIMain extends ScrollPane implements IPedestrianUIMain {
                         @Override
                         public void run() {
                             pedestrianUI.updateInContainer(pedestrianPoint.getX(), pedestrianPoint.getY());
+                            updateLable(pedestrian.getCurrentSection().getStreetSection());
                         }
                     });
                 }
@@ -167,6 +202,9 @@ public class PedestrianUIMain extends ScrollPane implements IPedestrianUIMain {
         if (pedestrian instanceof Pedestrian) {
             Pedestrian pedestrianInstance = ((Pedestrian)pedestrian);
             PedestrianUI pedestrianUI = globalPedestrianMap.get(pedestrianInstance.getName());
+
+
+
 
             Platform.setImplicitExit(false);
             Platform.runLater(new Runnable(){
