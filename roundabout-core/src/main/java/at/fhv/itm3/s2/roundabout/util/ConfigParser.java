@@ -434,7 +434,7 @@ public class ConfigParser {
                 so -> {
                     final Street street = resolveSection(scopeComponentId, so.getSectionId());
 
-                    double ratio = so.getGeneratorExpectation() == null ? 0 : so.getGeneratorExpectation()*1;// todo adapt generationExpectation for test
+                    double ratio = so.getGeneratorExpectation() == null ? 0 : so.getGeneratorExpectation();
                     final RoundaboutSource source = new RoundaboutSource(so.getId(),
                             ratio,
                             model, so.getId(), false, street);

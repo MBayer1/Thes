@@ -286,8 +286,7 @@ public class RoundaboutCar implements ICar {
             this.roundaboutTime.update(new TimeSpan(res));
         }
         if (this.timeWaitingDueToIllegalCrossingOfPedestrianStopWatch.isRunning()) {
-            double res = this.timeWaitingDueToIllegalCrossingOfPedestrianStopWatch.stop();
-            this.timeWaitingDueToIllegalCrossingOfPedestrian.update(new TimeSpan(res));
+            stopAdditionalWaiting();
         }
 
     }

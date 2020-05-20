@@ -938,7 +938,7 @@ public class Pedestrian extends Entity implements IPedestrian {
         double distance = calc.getDistanceByCoordinates(this.getCurrentGlobalPosition(), this.getCurrentNextGlobalAim());
 
         // todo edit for comparision to continuously SFM
-        //distance /= 1;
+        //distance /= 2;
 
         Vector2d uniVecForces = calc.getUnitVector(forces);
         uniVecForces.scale(distance);
