@@ -195,25 +195,25 @@ public class MainViewController extends JfxController {
 
                 Platform.runLater(() -> vBoxContainer.getChildren().add(statNode));
             } else {
-                /*ViewLoader<StatsViewController> viewLoader = ViewLoader.loadView(StatsViewController.class);
+                ViewLoader<StatsViewController> viewLoader = ViewLoader.loadView(StatsViewController.class);
                 Node statNode = viewLoader.loadNode();
 
-                //final Map<String, PedestrianStreetSection> streetSectionMap = pedestrianStreetSections.get(component.getId());
-                final Map<String, PedestrianSink> sinkMap = pedestrianSink.get(component.getId());
+                final Map<String, StreetSection> streetSectionMap = streetSections.get(component.getId());
+                final Map<String, RoundaboutSink> sinkMap = sinks.get(component.getId());
 
-                //final Collection<PedestrianStreetSection> componentStreetSections = streetSectionMap != null ? new ArrayList<>(streetSectionMap.values()) : new ArrayList<>();
-                final Collection<PedestrianSink> componentSinks = sinkMap != null ? new ArrayList<>(sinkMap.values()) : new ArrayList<>();
+                final Map<String, PedestrianStreetSection> streetSectionMapPed = pedestrianStreetSections.get(component.getId());
+                final Map<String, PedestrianSink> sinkMapPed = pedestrianSink.get(component.getId());
 
-                //            componentStreetSections.forEach(streetSection -> streetSection.addObserver(ObserverType.CAR_POSITION, (o, arg) -> {
-                //                Circle car = new Circle(Math.abs(new Random().nextDouble() * 400), Math.abs(new Random().nextDouble() * 400) , 2);
-                //                car.setFill(Color.GREEN);
-                //
-                //                Platform.runLater(() -> drawPane.getChildren().add(car));
-                //            }));
+                final Collection<StreetSection> componentStreetSections = streetSectionMap != null ? new ArrayList<>(streetSectionMap.values()) : new ArrayList<>();
+                final Collection<RoundaboutSink> componentSinks = sinkMap != null ? new ArrayList<>(sinkMap.values()) : new ArrayList<>();
 
-                //viewLoader.getController().generateStatLabelsPedestrian(component.getName(), componentStreetSections, componentSinks);
+                final Collection<PedestrianStreetSection> componentStreetSectionsPed = streetSectionMapPed != null ? new ArrayList<>(streetSectionMapPed.values()) : new ArrayList<>();
+                final Collection<PedestrianSink> componentSinksPed = sinkMapPed != null ? new ArrayList<>(sinkMapPed.values()) : new ArrayList<>();
 
-                Platform.runLater(() -> vBoxContainer.getChildren().add(statNode));*/
+                viewLoader.getController().generateStatLabelsPedestrian(component.getName(),
+                        componentStreetSections, componentSinks, componentStreetSectionsPed, componentSinksPed);
+
+                Platform.runLater(() -> vBoxContainer.getChildren().add(statNode));
             }
         });
     }

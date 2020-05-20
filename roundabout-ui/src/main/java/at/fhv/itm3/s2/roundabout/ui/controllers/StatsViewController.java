@@ -1,5 +1,6 @@
 package at.fhv.itm3.s2.roundabout.ui.controllers;
 
+import at.fhv.itm3.s2.roundabout.api.entity.PedestrianConsumerType;
 import at.fhv.itm3.s2.roundabout.api.util.observable.ObserverType;
 import at.fhv.itm3.s2.roundabout.entity.PedestrianSink;
 import at.fhv.itm3.s2.roundabout.entity.PedestrianStreetSection;
@@ -52,7 +53,8 @@ public class StatsViewController extends JfxController {
     @FXML private VBox sinkAvgContainer;
     @FXML private VBox sinkMaxContainer;
 
-    @FXML private VBox sinkAvgWaitDueToIllegalCrossing;
+    @FXML private TitledPane paneStatsTitlePed;
+
 
     /**
      * {@inheritDoc}
@@ -67,6 +69,13 @@ public class StatsViewController extends JfxController {
 
         generateStreetSectionLabels(streetSections);
         generateSinkLabels(sinks);
+    }
+
+    public void generateStatLabelsPedestrian(String title, Collection<StreetSection> streetSections, Collection<RoundaboutSink> sinks,
+                                             Collection<PedestrianStreetSection> streetSectionsPed, Collection<PedestrianSink> componentSinksPed) {
+        Platform.runLater(() -> paneStatsTitlePed.setText(title));
+
+        generateStreetSectionLabelsPedestrian(streetSectionsPed, streetSections);
     }
 
     private void generateStreetSectionLabels(Collection<StreetSection> streetSections) {
@@ -118,6 +127,35 @@ public class StatsViewController extends JfxController {
         });
     }
 
+
+    private void generateStreetSectionLabelsPedestrian(Collection<PedestrianStreetSection> streetSectionsPed,
+                                                       Collection<StreetSection> streetSections ) {
+        streetSectionsPed.stream().sorted(Comparator.comparing(PedestrianStreetSection::getId)).forEach(streetSectionPed -> {
+
+            final Label lblSourceId = new Label(streetSectionPed.getId());
+            final Rectangle trafficLight = new Rectangle(TRAFFIC_LIGHT_INDICATOR_SIZE, TRAFFIC_LIGHT_INDICATOR_SIZE, Color.GRAY);
+            trafficLight.setStroke(Color.BLACK);
+            lblSourceId.setGraphic(trafficLight);
+
+            final Label lblSourceIS = new Label(NOT_AVAILABLE);
+            sectionISContainer.getChildren().add(lblSourceIS);
+
+            final Label lblSourcePS = new Label(NOT_AVAILABLE);
+            sectionPSContainer.getChildren().add(lblSourcePS);
+
+            if (streetSectionPed.getPedestrianConsumerType().equals(PedestrianConsumerType.PEDESTRIAN_CROSSING)) {
+                streetSectionPed.addObserver(ObserverType.PEDESTRIAN_ENTERED, (o, arg) -> {
+                    final String rawValue = toStringOrEmpty(arg) ;
+                    final long longValue = rawValue != null ? Long.valueOf(rawValue) : 0;
+                    final long is_counter = Math.max(longValue - streetSectionPed.getNrOfLeftPedestrians(), 0);
+                    Platform.runLater(() ->
+                            lblSourceIS.setText(toStringOrEmpty(is_counter))
+                    );
+                });
+            }
+        });
+    }
+
     private void generateSinkLabels(Collection<RoundaboutSink> sinks) {
         final Label lblAverageSink = new Label(AVG);
         final Label lblPSAverageSink = new Label(NOT_AVAILABLE);
@@ -149,9 +187,6 @@ public class StatsViewController extends JfxController {
 
             final Label lblSinkMax = new Label(NOT_AVAILABLE);
             sinkMaxContainer.getChildren().add(lblSinkMax);
-
-            final Label lblSinkAdditionalWaiting = new Label(NOT_AVAILABLE);
-            sinkAvgWaitDueToIllegalCrossing.getChildren().add(lblSinkAdditionalWaiting);
 
 
             sink.addObserver(ObserverType.TRAFFIC_LIGHT, ((o, arg) -> {
@@ -256,7 +291,6 @@ public class StatsViewController extends JfxController {
 
                 sinkAvgAddWaitStats.put(sinkMvgAddWait, carAdditionalWaitTime);
                 Platform.runLater(() -> {
-                    lblSinkAdditionalWaiting.setText(sinkAvgWaitValue);
                     lblAvgAddWaiting.setText(avgSinkAvgWaitValue);
                 });
             });
@@ -277,9 +311,6 @@ public class StatsViewController extends JfxController {
 
         sinkMaxContainer.getChildren().add(new Separator());
         sinkMaxContainer.getChildren().add(lblMaxAverageSink);
-
-        sinkAvgWaitDueToIllegalCrossing.getChildren().add(new Separator());
-        sinkAvgWaitDueToIllegalCrossing.getChildren().add(lblAvgAddWaiting);
     }
 
     private <T> String toStringOrEmpty(T value) {

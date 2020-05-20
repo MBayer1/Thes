@@ -188,7 +188,6 @@ public class MainApp extends Application {
             double minAddWait = Double.MAX_VALUE;
             int cntCarTmp = 0;
             int cntCar = 0;
-            double timeBetweenEventCall = 0;
             // collect all additional waiting times for vehicle due to illegal crossing of pedestrians.
             for ( Component component : modelConfig.getComponents().getComponent() ) {
                 if(component.getType().equals(ComponentType.INTERSECTION) || component.getType().equals(ComponentType.ROUNDABOUT)) {
